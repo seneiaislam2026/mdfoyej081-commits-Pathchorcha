@@ -104,6 +104,34 @@ export default function Exam() {
 
   const [dbQuestions, setDbQuestions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const checkOffline = () => setIsOffline(!navigator.onLine);
+    window.addEventListener('online', checkOffline);
+    window.addEventListener('offline', checkOffline);
+    return () => {
+      window.removeEventListener('online', checkOffline);
+      window.removeEventListener('offline', checkOffline);
+    };
+  }, []);
+
+  const handleOfflineSync = async () => {
+    setIsSyncing(true);
+    try {
+      const { collection, getDocs } = await import("firebase/firestore");
+      const { db } = await import("../lib/firebase");
+      // Fetch all questions to cache them for offline use
+      await getDocs(collection(db, "questions"));
+      alert("অফলাইন ব্যবহারের জন্য সকল প্রশ্ন ডাউনলোড করা হয়েছে! এখন ইন্টারনেট ছাড়াও মডেল টেস্ট দিতে পারবেন।");
+    } catch(e) {
+      console.error("Offline sync failed", e);
+      alert("ডাউনলোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -255,6 +283,26 @@ export default function Exam() {
       <div className="max-w-4xl mx-auto py-12 px-4">
          <div className="text-center mb-10">
            <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">{pageTitle}</h2>
+           
+           <div className="flex items-center justify-center gap-3 mb-6">
+             {isOffline ? (
+               <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
+                 <AlertCircle className="w-4 h-4" /> অফলাইন মোড
+               </span>
+             ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleOfflineSync} 
+                  disabled={isSyncing}
+                  className="font-bengali text-slate-600 rounded-full shrink-0"
+                >
+                  <BookOpen className="w-4 h-4 mr-1.5" />
+                  {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
+                </Button>
+             )}
+           </div>
+
            <p className="text-slate-500 font-bengali text-lg max-w-xl mx-auto mb-8">
              {pageDesc}
            </p>
@@ -322,6 +370,26 @@ export default function Exam() {
              </div>
           )}
           <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">{pageTitle}</h2>
+
+          <div className="flex items-center justify-center gap-3 mb-6">
+             {isOffline ? (
+               <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
+                 <AlertCircle className="w-4 h-4" /> অফলাইন মোড
+               </span>
+             ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleOfflineSync} 
+                  disabled={isSyncing}
+                  className="font-bengali text-slate-600 rounded-full shrink-0"
+                >
+                  <BookOpen className="w-4 h-4 mr-1.5" />
+                  {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
+                </Button>
+             )}
+          </div>
+
           <p className="text-slate-500 font-bengali text-lg max-w-xl mx-auto">
             {type === 'mock' ? `নিচের সেটগুলো থেকে যে কোনো একটি বেছে নিয়ে প্রস্তুতি যাচাই করো।` : pageDesc}
           </p>

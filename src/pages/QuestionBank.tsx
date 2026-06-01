@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Search, Filter, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList } from "lucide-react";
+import { Search, Filter, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -76,6 +76,33 @@ export default function QuestionBank() {
   const [questionsList, setQuestionsList] = useState<any[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const checkOffline = () => setIsOffline(!navigator.onLine);
+    window.addEventListener('online', checkOffline);
+    window.addEventListener('offline', checkOffline);
+    return () => {
+      window.removeEventListener('online', checkOffline);
+      window.removeEventListener('offline', checkOffline);
+    };
+  }, []);
+
+  const handleOfflineSync = async () => {
+    setIsSyncing(true);
+    try {
+      const { collection, getDocs } = await import("firebase/firestore");
+      const { db } = await import("../lib/firebase");
+      await getDocs(collection(db, "questions"));
+      alert("অফলাইন ব্যবহারের জন্য সকল প্রশ্ন ডাউনলোড করা হয়েছে! এখন ইন্টারনেট ছাড়াই প্রশ্নব্যাংক দেখতে পারবেন।");
+    } catch(e) {
+      console.error("Offline sync failed", e);
+      alert("ডাউনলোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const dynamicSubjects = getSubjectsByGroup(userData?.group, activeClassGroup);
 
@@ -183,6 +210,26 @@ export default function QuestionBank() {
       <div className="max-w-4xl mx-auto py-12 px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">কী ধরনের প্রশ্ন অনুশীলন করতে চাও?</h2>
+          
+          <div className="flex items-center justify-center gap-3 mb-6">
+             {isOffline ? (
+               <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
+                 <AlertCircle className="w-4 h-4" /> অফলাইন মোড
+               </span>
+             ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleOfflineSync} 
+                  disabled={isSyncing}
+                  className="font-bengali text-slate-600 rounded-full shrink-0"
+                >
+                  <BookOpen className="w-4 h-4 mr-1.5" />
+                  {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
+                </Button>
+             )}
+          </div>
+
           <p className="text-slate-500 font-bengali text-lg max-w-xl mx-auto">
             {activeClassGroup === "Admission" 
               ? "তোমার প্রস্তুতির ধরনের উপর ভিত্তি করে ক্যাটাগরি নির্বাচন করো। এখানে তুমি বহুনির্বাচনি (MCQ) প্রশ্ন পাবে।"
