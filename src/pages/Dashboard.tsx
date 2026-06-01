@@ -179,6 +179,29 @@ export default function Dashboard() {
         </div>
       ),
     },
+    {
+      title: "ডাউট সলভিং",
+      description: "এআই টিউটর ব্যবহার করে\nযেকোনো প্রশ্ন সমাধান",
+      link: "/tutor",
+      bgContent: "bg-[#f0fdff]",
+      borderColor: "border-[#bbf7d0]",
+      textColor: "text-[#0ea5e9]",
+      icon: (
+        <div className="relative w-28 h-28 flex items-center justify-center">
+          <div className="absolute inset-0 bg-[#0ea5e9]/20 translate-y-3 rounded-[24px] blur-md"></div>
+          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#38bdf8] to-[#0284c7] rounded-[20px] shadow-lg border-b-[5px] border-[#0369a1] flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-300">
+             <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
+             <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex shrink-0 items-center justify-center overflow-hidden">
+                <BrainCircuit className="w-8 h-8 text-[#0284c7]" />
+             </div>
+             <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-[#7dd3fc] to-[#0284c7] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                <MessageCircleQuestion className="w-5 h-5 text-white" />
+             </div>
+          </div>
+        </div>
+      ),
+    },
   ];
 
   return (
@@ -216,7 +239,7 @@ export default function Dashboard() {
       )}
 
       {/* Main Feature Cards */}
-      <section className="flex overflow-x-auto lg:grid lg:grid-cols-4 md:grid-cols-2 gap-5 md:gap-8 snap-x pb-6 -mx-4 px-4 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <section className="flex overflow-x-auto lg:grid lg:grid-cols-3 xl:grid-cols-5 md:grid-cols-2 gap-5 md:gap-8 snap-x pb-6 -mx-4 px-4 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {cards.map((card, idx) => (
           <motion.div
             key={idx}

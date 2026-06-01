@@ -14,22 +14,32 @@ interface Message {
   image?: string;
 }
 
+interface Comment {
+  id: string;
+  userId: string;
+  userName: string;
+  text: string;
+  createdAt: number;
+}
+
 interface Doubt {
   id: string;
   userId: string;
   userName: string;
+  userClass?: string;
   question: string;
   image?: string;
   status: "pending" | "answered";
   answer?: string;
   answeredBy?: string;
+  comments?: Comment[];
   createdAt: any;
 }
 
 export default function AITutor() {
   const { userData } = useAuth();
   
-  const [activeTab, setActiveTab] = useState<"ai" | "my_doubts" | "solve_doubts">("ai");
+  const [activeTab, setActiveTab] = useState<"ai" | "community_doubts" | "solve_doubts">("ai");
   
   // AI Chat state
   const [messages, setMessages] = useState<Message[]>([
@@ -49,8 +59,7 @@ export default function AITutor() {
   const [myDoubts, setMyDoubts] = useState<Doubt[]>([]);
   const [allDoubts, setAllDoubts] = useState<Doubt[]>([]);
   const [doubtLoading, setDoubtLoading] = useState(false);
-  const [answeringDoubtId, setAnsweringDoubtId] = useState<string | null>(null);
-  const [answerText, setAnswerText] = useState("");
+  const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -61,21 +70,21 @@ export default function AITutor() {
   }, [messages, activeTab]);
 
   useEffect(() => {
-    if (activeTab === "my_doubts" && userData?.uid) {
-      fetchMyDoubts();
+    if (activeTab === "community_doubts" && userData?.uid) {
+      fetchCommunityDoubts();
     } else if (activeTab === "solve_doubts" && userData?.isTutor) {
       fetchAllDoubts();
     }
   }, [activeTab, userData]);
 
-  const fetchMyDoubts = async () => {
+  const fetchCommunityDoubts = async () => {
     if (!userData?.uid) return;
     setDoubtLoading(true);
     try {
+      const classQuery = userData.class ? where("userClass", "==", userData.class) : where("userId", "==", userData.uid);
       const q = query(
         collection(db, "doubts"),
-        where("userId", "==", userData.uid),
-        // Without index, orderBy might fail. we will sort locally.
+        classQuery
       );
       const snapshot = await getDocs(q);
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Doubt));
@@ -156,7 +165,7 @@ export default function AITutor() {
       
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: "VITE_GEMINI_API_KEY Missing! Netlify dashboard e environment variable add koro." }]);
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: "VITE_GEMINI_API_KEY বা GEMINI_API_KEY Environment Variable এ সেট করা নেই। দয়া করে ডেভেলপার বা হোস্ট এডমিনকে জানান।" }]);
         setLoading(false);
         return;
       }
@@ -219,43 +228,110 @@ export default function AITutor() {
       await addDoc(collection(db, "doubts"), {
         userId: userData.uid,
         userName: userData.fullName || "Student",
+        userClass: userData.class || "",
         question: input,
         image: selectedImage || null,
         status: "pending",
+        comments: [],
         createdAt: serverTimestamp()
       });
-      alert("তোমার প্রশ্নটি টিউটরের কাছে পাঠানো হয়েছে।");
+      alert("তোমার প্রশ্নটি পোস্ট করা হয়েছে।");
       setInput("");
       setSelectedImage(null);
-      fetchMyDoubts();
+      fetchCommunityDoubts();
     } catch (e) {
       console.error(e);
-      alert("প্রশ্ন পাঠাতে সমস্যা হয়েছে।");
+      alert("প্রশ্ন পোস্ট করতে সমস্যা হয়েছে।");
     } finally {
       setLoading(false);
     }
   };
 
-  const submitDoubtAnswer = async (doubtId: string) => {
-    if (!answerText.trim() || !userData?.uid) return;
+  const submitComment = async (doubt: Doubt) => {
+    const text = commentTexts[doubt.id];
+    if (!text?.trim() || !userData?.uid) return;
     
     setDoubtLoading(true);
+    const newComment = {
+      id: Date.now().toString(),
+      userId: userData.uid,
+      userName: userData.fullName || "Student",
+      text: text.trim(),
+      createdAt: Date.now()
+    };
+
     try {
-      await updateDoc(doc(db, "doubts", doubtId), {
-        status: "answered",
-        answer: answerText,
-        answeredBy: userData.fullName || "Tutor"
+      const updatedComments = [...(doubt.comments || []), newComment];
+      await updateDoc(doc(db, "doubts", doubt.id), {
+        comments: updatedComments
       });
-      setAnswerText("");
-      setAnsweringDoubtId(null);
-      fetchAllDoubts();
+      setCommentTexts(prev => ({...prev, [doubt.id]: ""}));
+      if (activeTab === "community_doubts") fetchCommunityDoubts();
+      if (activeTab === "solve_doubts") fetchAllDoubts();
     } catch(e) {
       console.error(e);
-      alert("Failed to submit answer.");
+      alert("Commente submit korte somossa hoyeche.");
     } finally {
       setDoubtLoading(false);
     }
   };
+
+  const renderDoubt = (doubt: Doubt) => (
+    <div key={doubt.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div className="flex justify-between items-start gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-bold text-sm text-slate-800">{doubt.userName}</span>
+            {doubt.userClass && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Class {doubt.userClass}</span>}
+            <span className="text-xs text-slate-400">asked a doubt</span>
+          </div>
+          <p className="font-bengali text-slate-900 text-[15px]">{doubt.question}</p>
+          {doubt.image && (
+            <img src={doubt.image} alt="Doubt" className="mt-3 max-h-60 rounded-lg border border-slate-200 object-contain bg-slate-50" />
+          )}
+        </div>
+      </div>
+      
+      {/* Legacy answers if any */}
+      {doubt.status === "answered" && doubt.answer && (
+        <div className="mt-2 bg-slate-50 p-3 rounded-xl border border-slate-100 relative">
+          <div className="flex items-center gap-2 mb-1">
+            <User className="w-3 h-3 text-primary" />
+            <span className="font-bold text-sm text-primary font-bengali">{doubt.answeredBy || "Tutor"}</span>
+            <span className="text-xs text-slate-400 font-bengali ml-auto">Old answer</span>
+          </div>
+          <p className="font-bengali text-slate-700 text-sm whitespace-pre-wrap">{doubt.answer}</p>
+        </div>
+      )}
+
+      {/* Comments */}
+      {doubt.comments && doubt.comments.length > 0 && (
+         <div className="space-y-3 mt-4 pt-4 border-t border-slate-100">
+           {doubt.comments.map(c => (
+              <div key={c.id} className="bg-slate-50 p-3 rounded-xl">
+                 <div className="flex justify-between items-center mb-1">
+                   <span className="font-bold text-sm text-slate-700">{c.userName} {c.userId === doubt.userId && <span className="text-[10px] bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded ml-1">Author</span>}</span>
+                 </div>
+                 <p className="text-slate-600 text-sm font-bengali whitespace-pre-wrap">{c.text}</p>
+              </div>
+           ))}
+         </div>
+      )}
+
+      {/* Add comment */}
+      <div className="flex gap-2 mt-4 pt-2">
+        <Input 
+           value={commentTexts[doubt.id] || ""}
+           onChange={(e) => setCommentTexts({...commentTexts, [doubt.id]: e.target.value})}
+           placeholder="কমেন্ট করুন (Comment like Facebook)..."
+           className="h-10 text-sm font-bengali bg-slate-50"
+        />
+        <Button size="sm" onClick={() => submitComment(doubt)} disabled={doubtLoading || !commentTexts[doubt.id]?.trim()} className="h-10 px-4">
+           Send
+        </Button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-140px)] bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative">
@@ -276,12 +352,12 @@ export default function AITutor() {
             এআই টিউটর
           </Button>
           <Button 
-            variant={activeTab === "my_doubts" ? "secondary" : "ghost"} 
-            className={`font-bengali ${activeTab !== "my_doubts" && "text-white hover:text-white/80 hover:bg-white/10"}`}
-            onClick={() => setActiveTab("my_doubts")}
+            variant={activeTab === "community_doubts" ? "secondary" : "ghost"} 
+            className={`font-bengali ${activeTab !== "community_doubts" && "text-white hover:text-white/80 hover:bg-white/10"}`}
+            onClick={() => setActiveTab("community_doubts")}
           >
-            <MessageCircleQuestion className="w-4 h-4 mr-2" />
-            শিক্ষককে জিজ্ঞাসা
+            <Users className="w-4 h-4 mr-2" />
+            কমিউনিটি ডাউটস
           </Button>
           {userData?.isTutor && (
             <Button 
@@ -290,7 +366,7 @@ export default function AITutor() {
               onClick={() => setActiveTab("solve_doubts")}
             >
               <Users className="w-4 h-4 mr-2" />
-              শিক্ষার্থীর প্রশ্ন সমাধান
+              সকল ডাউটস (Tutor)
             </Button>
           )}
         </div>
@@ -397,10 +473,10 @@ export default function AITutor() {
         </>
       )}
 
-      {activeTab === "my_doubts" && (
+      {activeTab === "community_doubts" && (
         <div className="flex-1 overflow-y-auto flex flex-col bg-slate-50">
           <div className="p-4 md:p-6 space-y-4 flex-1">
-            <h2 className="font-bengali font-bold text-lg text-slate-800">আমার প্রশ্নসমূহ</h2>
+            <h2 className="font-bengali font-bold text-lg text-slate-800">কমিউনিটি ডাউটস ({userData?.class ? `Class ${userData.class}` : "All"})</h2>
             
             {doubtLoading ? (
                <div className="flex items-center justify-center p-12">
@@ -408,44 +484,11 @@ export default function AITutor() {
                </div>
             ) : myDoubts.length === 0 ? (
                <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500 font-bengali shadow-sm">
-                 এখনও কোনো প্রশ্ন জিজ্ঞাসা করা হয়নি।
+                 আপনার ক্লাসে এখনও কোনো প্রশ্ন জিজ্ঞাসা করা হয়নি।
                </div>
             ) : (
-               <div className="space-y-4">
-                 {myDoubts.map(doubt => (
-                   <div key={doubt.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                     <div className="flex justify-between items-start gap-4">
-                       <div>
-                         <p className="font-bengali text-slate-900 break-words">{doubt.question}</p>
-                         {doubt.image && (
-                           <img src={doubt.image} alt="Doubt" className="mt-3 max-h-40 rounded-lg border border-slate-200 object-contain" />
-                         )}
-                       </div>
-                       <div className="shrink-0">
-                         {doubt.status === "answered" ? (
-                           <span className="flex items-center gap-1 text-xs font-semibold bg-[#f2fbf5] text-[#2c7a3f] px-2.5 py-1 rounded-full whitespace-nowrap">
-                             <CheckCircle2 className="w-3.5 h-3.5" /> উত্তর দেওয়া হয়েছে
-                           </span>
-                         ) : (
-                           <span className="flex items-center gap-1 text-xs font-semibold bg-orange-50 text-orange-600 px-2.5 py-1 rounded-full whitespace-nowrap">
-                             অপেক্ষমান
-                           </span>
-                         )}
-                       </div>
-                     </div>
-                     
-                     {doubt.status === "answered" && doubt.answer && (
-                       <div className="mt-4 bg-slate-50 p-4 rounded-xl border border-slate-100 relative">
-                         <div className="flex items-center gap-2 mb-2">
-                           <User className="w-4 h-4 text-primary" />
-                           <span className="font-bold text-sm text-primary font-bengali">{doubt.answeredBy || "Tutor"}</span>
-                           <span className="text-xs text-slate-400 font-bengali ml-auto">উত্তর</span>
-                         </div>
-                         <p className="font-bengali text-slate-700 whitespace-pre-wrap">{doubt.answer}</p>
-                       </div>
-                     )}
-                   </div>
-                 ))}
+               <div className="space-y-4 md:space-y-6">
+                 {myDoubts.map(renderDoubt)}
                </div>
             )}
             <div ref={messagesEndRef} />
@@ -517,46 +560,8 @@ export default function AITutor() {
                  দারুণ! সব প্রশ্নের উত্তর দেওয়া হয়ে গেছে।
                </div>
           ) : (
-            <div className="space-y-4">
-               {allDoubts.map(doubt => (
-                 <div key={doubt.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                   <div className="flex justify-between items-start gap-4">
-                     <div>
-                       <div className="flex items-center gap-2 mb-1">
-                         <span className="font-bold text-sm text-slate-800">{doubt.userName}</span>
-                         <span className="text-xs text-slate-400">ask a question</span>
-                       </div>
-                       <p className="font-bengali text-slate-900 text-lg mb-2">{doubt.question}</p>
-                       {doubt.image && (
-                         <img src={doubt.image} alt="Doubt" className="mt-3 max-h-60 rounded-lg border border-slate-200 object-contain bg-slate-50" />
-                       )}
-                     </div>
-                   </div>
-                   
-                   {answeringDoubtId === doubt.id ? (
-                     <div className="mt-4 space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <textarea 
-                          value={answerText}
-                          onChange={(e) => setAnswerText(e.target.value)}
-                          className="w-full min-h-[100px] p-3 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 font-bengali"
-                          placeholder="উত্তর লিখুন..."
-                        />
-                        <div className="flex gap-2 justify-end">
-                           <Button variant="ghost" onClick={() => setAnsweringDoubtId(null)}>Cancel</Button>
-                           <Button onClick={() => submitDoubtAnswer(doubt.id)}>উত্তর সাবমিট করুন</Button>
-                        </div>
-                     </div>
-                   ) : (
-                     <Button 
-                       variant="default" 
-                       className="w-full font-bengali bg-primary hover:bg-primary/90"
-                       onClick={() => { setAnsweringDoubtId(doubt.id); setAnswerText(""); }}
-                     >
-                       উত্তর দিন
-                     </Button>
-                   )}
-                 </div>
-               ))}
+            <div className="space-y-4 md:space-y-6">
+               {allDoubts.map(renderDoubt)}
             </div>
           )}
         </div>

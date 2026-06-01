@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User } from "lucide-react";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -41,6 +41,12 @@ export default function Admin() {
     maintenanceMode: false,
     alertBannerActive: false,
     alertBannerMessage: "",
+    subscriptionPlans: [
+      { id: "1-month", name: "১ মাস", price: 50, duration: "মাসিক", popular: false, color: "from-blue-200 to-blue-300" },
+      { id: "3-months", name: "৩ মাস", price: 120, duration: "ত্রৈমাসিক", popular: true, color: "from-[#ffa726] to-[#ffb74d]" },
+      { id: "6-months", name: "৬ মাস", price: 270, duration: "ষাণ্মাসিক", popular: false, color: "from-emerald-200 to-emerald-300" },
+      { id: "12-months", name: "১ বছর", price: 500, duration: "বার্ষিক", popular: false, color: "from-purple-200 to-purple-300" }
+    ]
   });
   const [pendingDoubts, setPendingDoubts] = useState<any[]>([]);
   const [reports, setReports] = useState<any[]>([]);
@@ -432,7 +438,12 @@ export default function Admin() {
       const { getDoc } = await import("firebase/firestore");
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setSettingsData(docSnap.data());
+        const data = docSnap.data();
+        setSettingsData((prev: any) => ({
+          ...prev,
+          ...data,
+          subscriptionPlans: data.subscriptionPlans || prev.subscriptionPlans
+        }));
       }
     } catch (error) {
       console.error("Error fetching settings:", error);
@@ -1116,6 +1127,99 @@ export default function Admin() {
                          />
                        </div>
                      )}
+                     
+                     <div className="border-t pt-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <p className="font-bold font-bengali">সাবস্ক্রিপশন ফি (Subscription Fees)</p>
+                          <Button 
+                             size="sm" 
+                             variant="outline"
+                             onClick={() => {
+                               const newPlans = [...(settingsData.subscriptionPlans || [])];
+                               newPlans.push({
+                                 id: Date.now().toString(),
+                                 name: "New Plan",
+                                 price: 0,
+                                 duration: "নতুন",
+                                 popular: false,
+                                 color: "from-gray-200 to-gray-300"
+                               });
+                               setSettingsData({...settingsData, subscriptionPlans: newPlans});
+                             }}
+                          >
+                             <Plus className="w-4 h-4 mr-2" />
+                             প্ল্যান যুক্ত করুন
+                          </Button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {settingsData.subscriptionPlans?.map((plan: any, index: number) => (
+                            <div key={plan.id} className="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50 relative">
+                               <Button 
+                                 variant="destructive" 
+                                 size="icon" 
+                                 className="absolute top-2 right-2 h-7 w-7"
+                                 onClick={() => {
+                                    const newPlans = [...(settingsData.subscriptionPlans || [])];
+                                    newPlans.splice(index, 1);
+                                    setSettingsData({...settingsData, subscriptionPlans: newPlans});
+                                 }}
+                               >
+                                 <Trash2 className="w-4 h-4" />
+                               </Button>
+                               <div className="pr-10">
+                                 <label className="text-xs font-bold text-slate-700 font-bengali">নাম (Name)</label>
+                                 <Input 
+                                    value={plan.name}
+                                    onChange={(e) => {
+                                       const newPlans = [...(settingsData.subscriptionPlans || [])];
+                                       newPlans[index].name = e.target.value;
+                                       setSettingsData({...settingsData, subscriptionPlans: newPlans});
+                                    }}
+                                    className="bg-white h-8 text-sm"
+                                 />
+                               </div>
+                               <div>
+                                 <label className="text-xs font-bold text-slate-700 font-bengali">মেয়াদ (Duration text)</label>
+                                 <Input 
+                                    value={plan.duration}
+                                    onChange={(e) => {
+                                       const newPlans = [...(settingsData.subscriptionPlans || [])];
+                                       newPlans[index].duration = e.target.value;
+                                       setSettingsData({...settingsData, subscriptionPlans: newPlans});
+                                    }}
+                                    className="bg-white h-8 text-sm"
+                                 />
+                               </div>
+                               <div>
+                                 <label className="text-xs font-bold text-slate-700 font-bengali">মূল্য (Price ৳)</label>
+                                 <Input 
+                                    type="number"
+                                    value={plan.price}
+                                    onChange={(e) => {
+                                       const newPlans = [...(settingsData.subscriptionPlans || [])];
+                                       newPlans[index].price = parseInt(e.target.value) || 0;
+                                       setSettingsData({...settingsData, subscriptionPlans: newPlans});
+                                    }}
+                                    className="font-mono bg-white h-8 text-sm"
+                                 />
+                               </div>
+                               <label className="flex items-center gap-2 text-sm mt-2 font-medium cursor-pointer">
+                                  <input 
+                                    type="checkbox"
+                                    checked={plan.popular}
+                                    onChange={(e) => {
+                                       const newPlans = [...(settingsData.subscriptionPlans || [])];
+                                       newPlans[index].popular = e.target.checked;
+                                       setSettingsData({...settingsData, subscriptionPlans: newPlans});
+                                    }}
+                                    className="rounded border-gray-300"
+                                  />
+                                  <span>Popular Tag?</span>
+                               </label>
+                            </div>
+                        ))}
+                        </div>
+                     </div>
                    </div>
                  )}
                </CardContent>

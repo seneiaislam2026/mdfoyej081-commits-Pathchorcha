@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, Star, Zap, Crown, Lock, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
-const plans = [
+const defaultPlans = [
   {
     id: "1-month",
     name: "১ মাস",
@@ -32,6 +32,14 @@ const plans = [
     duration: "ষাণ্মাসিক",
     popular: false,
     color: "from-emerald-200 to-emerald-300"
+  },
+  {
+    id: "12-months",
+    name: "১ বছর",
+    price: 500,
+    duration: "বার্ষিক",
+    popular: false,
+    color: "from-purple-200 to-purple-300"
   }
 ];
 
@@ -44,11 +52,27 @@ const features = [
 ];
 
 export default function Subscription() {
-  const [selectedPlan, setSelectedPlan] = useState(plans[1].id);
+  const [plans, setPlans] = useState(defaultPlans);
+  const [selectedPlan, setSelectedPlan] = useState(defaultPlans[1].id);
   const [couponCode, setCouponCode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
   const { user, userData } = useAuth();
+  
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const docRef = doc(db, "settings", "general");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().subscriptionPlans) {
+          setPlans(docSnap.data().subscriptionPlans);
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    };
+    fetchPlans();
+  }, []);
   
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
