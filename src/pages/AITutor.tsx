@@ -153,20 +153,57 @@ export default function AITutor() {
 
     try {
       const historyToSend = messages.filter(msg => msg.id !== "1");
-      const response = await fetch("/api/tutor", {
+      
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: "VITE_GEMINI_API_KEY Missing! Netlify dashboard e environment variable add koro." }]);
+        setLoading(false);
+        return;
+      }
+
+      const systemInstruction = `You are a helpful and polite AI Tutor. You must only answer questions related to education, studying, and academics. If the user asks something outside of these domains, politely decline and remind them that you are an educational tutor. Respond in Bengali, neatly formatted, and easy for students to understand. Be encouraging and provide clear, step-by-step explanations when needed. Do not use 'নমস্কার' (namaskar) as a greeting. You can use 'হ্যালো' (Hello) or 'আসসালামু আলাইকুম' (Assalamu Alaikum), or just directly answer the question without a greeting.`;
+
+      const contents = historyToSend.map((msg: any) => {
+        return {
+           role: msg.sender === "user" ? "user" : "model",
+           parts: [{ text: msg.text }]
+        };
+      });
+
+      const lastParts: any[] = [];
+      if (userMessage.image) {
+        try {
+          const splitData = userMessage.image.split(',');
+          const mimeType = splitData[0].match(/:(.*?);/)[1];
+          const base64Data = splitData[1];
+          lastParts.push({ inlineData: { data: base64Data, mimeType: mimeType } });
+        } catch (e) {
+          console.error("Image processing error:", e);
+        }
+      }
+      lastParts.push({ text: userMessage.text || "Explain this image related to my studies." });
+      
+      contents.push({ role: "user", parts: lastParts });
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...historyToSend, userMessage] })
+        body: JSON.stringify({ 
+           systemInstruction: { parts: [{text: systemInstruction}] },
+           contents: contents
+        })
       });
       
       const data = await response.json();
       
       if (response.ok) {
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: data.text }]);
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "কোনো উত্তর পাওয়া যায়নি।";
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: reply }]);
       } else {
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: "দুঃখিত, কোনো একটি সমস্যা হয়েছে। আবার চেষ্টা করো।" }]);
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: `দুঃখিত, কোনো একটি সমস্যা হয়েছে। (${data.error?.message || "Unknown error"}). আবার চেষ্টা করো।` }]);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error(error);
       setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: "নেটওয়ার্ক সমস্যা। আবার চেষ্টা করো।" }]);
     } finally {
       setLoading(false);
