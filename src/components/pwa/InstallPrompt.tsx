@@ -102,6 +102,14 @@ export const InstallPrompt = () => {
                     এটি একটি প্রোগ্রেসিভ ওয়েব অ্যাপ (PWA)। ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই আইকন এবং সুবিধা পাবেন।
                   </p>
                   
+                  {window.self !== window.top ? (
+                    <div className="bg-orange-50 border border-orange-200 p-3 rounded-xl mb-4">
+                      <p className="text-orange-800 text-xs font-bengali">
+                        ⚠️ আপনি এখন প্রিভিউ মোডে আছেন। সরাসরি ইনস্টল করতে, উপরের শেয়ার বাটন থেকে অথবা লিংক কপি করে নতুন ট্যাবে/ব্রাউজারে ওপেন করুন।
+                      </p>
+                    </div>
+                  ) : null}
+
                   <div className="flex gap-3">
                     <Button 
                       onClick={handleInstallClick}

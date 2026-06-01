@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 1280" width="720" height="1280">
+  <rect width="720" height="1280" fill="#f0f9ff"/>
+  
+  <!-- Header -->
+  <rect x="0" y="0" width="720" height="140" fill="#ffffff"/>
+  <circle cx="80" cy="70" r="30" fill="#0ea5e9"/>
+  <text x="140" y="85" font-family="sans-serif" font-size="44" font-weight="bold" fill="#0f172a">পাঠচর্চা</text>
+  
+  <!-- Content Cards -->
+  <rect x="40" y="200" width="640" height="260" rx="30" fill="#ffffff"/>
+  <circle cx="100" cy="270" r="40" fill="#3b82f6" fill-opacity="0.1"/>
+  <text x="170" y="280" font-family="sans-serif" font-size="36" font-weight="bold" fill="#334155">মডেল টেস্ট অনুশীলন</text>
+  <rect x="60" y="350" width="200" height="60" rx="15" fill="#3b82f6"/>
+  <text x="160" y="390" font-family="sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">শুরু করুন</text>
+  
+  <rect x="40" y="500" width="640" height="260" rx="30" fill="#ffffff"/>
+  <circle cx="100" cy="570" r="40" fill="#10b981" fill-opacity="0.1"/>
+  <text x="170" y="580" font-family="sans-serif" font-size="36" font-weight="bold" fill="#334155">লার্নিং মেটেরিয়াল</text>
+  <rect x="60" y="650" width="200" height="60" rx="15" fill="#10b981"/>
+  <text x="160" y="690" font-family="sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">পড়ুন</text>
+  
+  <rect x="40" y="800" width="640" height="260" rx="30" fill="#ffffff"/>
+  <circle cx="100" cy="870" r="40" fill="#8b5cf6" fill-opacity="0.1"/>
+  <text x="170" y="880" font-family="sans-serif" font-size="36" font-weight="bold" fill="#334155">স্মার্ট AI টিউটর</text>
+  <rect x="60" y="950" width="200" height="60" rx="15" fill="#8b5cf6"/>
+  <text x="160" y="990" font-family="sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">প্রশ্ন করুন</text>
+  
+</svg>
