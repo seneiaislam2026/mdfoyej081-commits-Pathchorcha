@@ -743,7 +743,7 @@ export default function Admin() {
                         <BookOpen className="w-6 h-6 text-primary" />
                       </div>
                       <h4 className="font-bold text-lg font-bengali text-slate-800 line-clamp-2 mb-2 leading-tight">{title}</h4>
-                      <p className="text-sm font-bengali text-slate-500 font-medium">{qs.length} টি প্রশ্ন যুক্ত আছে</p>
+                      <p className="text-sm font-bengali text-slate-500 font-medium">{(qs as any[]).length} টি প্রশ্ন যুক্ত আছে</p>
                     </CardContent>
                   </Card>
                 ))}

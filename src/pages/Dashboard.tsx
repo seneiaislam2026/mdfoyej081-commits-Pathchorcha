@@ -301,6 +301,49 @@ export default function Dashboard() {
         ))}
       </section>
 
+      {/* Offline Sync Banner */}
+      <section>
+        <motion.div
+           initial={{ opacity: 0, y: 15 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.4, delay: 0.3 }}
+           className="bg-[#f0f9ff] border border-[rgba(14,165,233,0.3)] p-5 sm:p-6 rounded-[24px] shadow-sm flex flex-col sm:flex-row items-center gap-4 justify-between"
+        >
+          <div className="flex items-center gap-4">
+             <div className="w-12 h-12 bg-white flex items-center justify-center rounded-full text-blue-500 shadow-sm shrink-0">
+                <BookOpen className="w-6 h-6" />
+             </div>
+             <div>
+                <h3 className="font-bengali font-bold text-slate-800 text-lg">
+                   অফলাইন মোড
+                </h3>
+                <p className="font-bengali text-slate-600 text-sm mt-1">
+                   ইন্টারনেট সংযোগ ছাড়াই প্রশ্ন ব্যাংক, মক টেস্ট এবং নোটস অ্যাক্সেস করতে ডেটা সেভ করে রাখুন।
+                </p>
+             </div>
+          </div>
+          <Button 
+            onClick={async () => {
+              try {
+                const { collection, getDocs } = await import("firebase/firestore");
+                const { db } = await import("../lib/firebase");
+                // Fetch all questions and notes to cache them for offline use
+                await getDocs(collection(db, "questions"));
+                await getDocs(collection(db, "notes"));
+                alert("অফলাইন ব্যবহারের জন্য সব ডেটা সেভ করা হয়েছে!");
+              } catch(e) {
+                console.error("Offline sync failed", e);
+                alert("ডাউনলোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।");
+              }
+            }}
+            variant="outline"
+            className="w-full sm:w-auto shrink-0 mt-2 sm:mt-0 font-bengali border-blue-500 text-blue-600 hover:bg-blue-50 bg-white"
+          >
+             ডেটা সেভ করুন
+          </Button>
+        </motion.div>
+      </section>
+
       {/* AI Assistant Banner */}
       <section>
         <motion.div

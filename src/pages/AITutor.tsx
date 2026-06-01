@@ -163,7 +163,7 @@ export default function AITutor() {
     try {
       const historyToSend = messages.filter(msg => msg.id !== "1").slice(-4);
       
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
         setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: "VITE_GEMINI_API_KEY বা GEMINI_API_KEY Environment Variable এ সেট করা নেই। দয়া করে ডেভেলপার বা হোস্ট এডমিনকে জানান।" }]);
         setLoading(false);

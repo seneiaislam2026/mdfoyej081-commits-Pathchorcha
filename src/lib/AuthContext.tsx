@@ -60,37 +60,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
         setUser(currentUser);
         if (currentUser) {
-          // Fetch or create user document
-          const userRef = doc(db, 'users', currentUser.uid);
-          const docSnap = await getDoc(userRef);
-          
-          if (docSnap.exists()) {
-            const data = docSnap.data() as UserData;
-            const userEmail = currentUser.email?.toLowerCase() || '';
-            const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
+          // Optimistically set basic data that does not require network
+          setUserData({
+             uid: currentUser.uid,
+             email: currentUser.email || '',
+             fullName: currentUser.displayName || 'Student',
+             isPro: false,
+          } as UserData);
+
+          try {
+            // Fetch or create user document
+            const userRef = doc(db, 'users', currentUser.uid);
+            const docSnap = await getDoc(userRef);
             
-            if (isAdmin || data.isTutor) {
-              data.isPro = true;
-            }
-
-            // Check if custom subscription hasn't expired
-            if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
-              // Only expire if not an admin/tutor
-              if (!isAdmin && !data.isTutor) {
-                data.isPro = false;
+            if (docSnap.exists()) {
+              const data = docSnap.data() as UserData;
+              const userEmail = currentUser.email?.toLowerCase() || '';
+              const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
+              
+              if (isAdmin || data.isTutor) {
+                data.isPro = true;
               }
-            }
 
-            setUserData(data);
-          } else {
-            // It might be created during sign in, but just in case
+              // Check if custom subscription hasn't expired
+              if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
+                // Only expire if not an admin/tutor
+                if (!isAdmin && !data.isTutor) {
+                  data.isPro = false;
+                }
+              }
+
+              setUserData(data);
+            }
+          } catch (e) {
+             console.warn("Could not fetch user document (offline), using cached basic data", e);
           }
         } else {
           setUserData(null);
         }
         setLoading(false);
       });
-    }).catch(console.error);
+    }).catch((e) => {
+      console.error(e);
+      setLoading(false);
+    });
 
     return () => {
       if (unsubscribe) unsubscribe();

@@ -22,6 +22,7 @@ import PublicExam from "./pages/PublicExam";
 import { ArrowLeft } from "lucide-react";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
+import ReloadPrompt from "./components/ReloadPrompt";
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -109,6 +110,7 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <InstallPrompt />
+        <ReloadPrompt />
         <Router>
           <Routes>
           {/* Public Routes without Navbar */}
