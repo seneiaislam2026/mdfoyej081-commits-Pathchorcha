@@ -53,44 +53,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    
     // Ensure persistence is set to LOCAL to prevent frequent logouts in PWA
-    setPersistence(auth, browserLocalPersistence).catch(console.error);
-
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        // Fetch or create user document
-        const userRef = doc(db, 'users', currentUser.uid);
-        const docSnap = await getDoc(userRef);
-        
-        if (docSnap.exists()) {
-          const data = docSnap.data() as UserData;
-          const userEmail = currentUser.email?.toLowerCase() || '';
-          const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
+    setPersistence(auth, browserLocalPersistence).then(() => {
+      unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+        setUser(currentUser);
+        if (currentUser) {
+          // Fetch or create user document
+          const userRef = doc(db, 'users', currentUser.uid);
+          const docSnap = await getDoc(userRef);
           
-          if (isAdmin || data.isTutor) {
-            data.isPro = true;
-          }
-
-          // Check if custom subscription hasn't expired
-          if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
-            // Only expire if not an admin/tutor
-            if (!isAdmin && !data.isTutor) {
-              data.isPro = false;
+          if (docSnap.exists()) {
+            const data = docSnap.data() as UserData;
+            const userEmail = currentUser.email?.toLowerCase() || '';
+            const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
+            
+            if (isAdmin || data.isTutor) {
+              data.isPro = true;
             }
+
+            // Check if custom subscription hasn't expired
+            if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
+              // Only expire if not an admin/tutor
+              if (!isAdmin && !data.isTutor) {
+                data.isPro = false;
+              }
+            }
+
+            setUserData(data);
+          } else {
+            // It might be created during sign in, but just in case
           }
-
-          setUserData(data);
         } else {
-          // It might be created during sign in, but just in case
+          setUserData(null);
         }
-      } else {
-        setUserData(null);
-      }
-      setLoading(false);
-    });
+        setLoading(false);
+      });
+    }).catch(console.error);
 
-    return unsubscribe;
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
   }, []);
 
   const signInWithGoogle = async (): Promise<UserData | null> => {

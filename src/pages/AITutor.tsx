@@ -161,7 +161,7 @@ export default function AITutor() {
     setLoading(true);
 
     try {
-      const historyToSend = messages.filter(msg => msg.id !== "1");
+      const historyToSend = messages.filter(msg => msg.id !== "1").slice(-4);
       
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
       if (!apiKey) {
