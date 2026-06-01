@@ -6,9 +6,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
 
 const mockSets = [
-  { id: "mock-1", title: "মক টেস্ট - ১ (অধ্যায় ১-৩)", totalQuestions: 20, timeMinutes: 15 },
-  { id: "mock-2", title: "মক টেস্ট - ২ (অধ্যায় ৪-৬)", totalQuestions: 20, timeMinutes: 15 },
-  { id: "mock-3", title: "মক টেস্ট - ৩ (সম্পূর্ণ বই)", totalQuestions: 30, timeMinutes: 20 },
+  { id: "mock-10", title: "ছোট মক টেস্ট", totalQuestions: 10, timeMinutes: 10 },
+  { id: "mock-20", title: "মাঝারি মক টেস্ট", totalQuestions: 20, timeMinutes: 20 },
+  { id: "mock-30", title: "বড় মক টেস্ট", totalQuestions: 30, timeMinutes: 30 },
 ];
 
 const modelSets = [
@@ -100,6 +100,65 @@ export default function Exam() {
   
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
+
+  const [dbQuestions, setDbQuestions] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const loadQuestions = async () => {
+      if ((type === 'mock' && activeSet && selectedSubject) || (type === 'model' && activeSet)) {
+        setIsLoading(true);
+        try {
+          const { collection, getDocs, query, where } = await import("firebase/firestore");
+          const { db } = await import("../lib/firebase");
+          let qBase = collection(db, "questions");
+          let qQuery: any = qBase;
+          if (type === 'mock' && selectedSubject !== "সকল বিষয়") {
+            qQuery = query(qBase, where("subject", "==", selectedSubject));
+          }
+          // Note: for model tests or "সকল বিষয়" it fetches all. Warning: could be large.
+          // Firebase limit typically easily handles a few thousands in one query.
+          const snap = await getDocs(qQuery);
+          const allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+          
+          // Shuffle
+          const shuffled = allQs.sort(() => Math.random() - 0.5);
+          
+          let numQuestions = 10;
+          if (type === 'mock') {
+             const counts = activeSet.split('-');
+             if (counts.length === 2 && !isNaN(parseInt(counts[1]))) {
+                numQuestions = parseInt(counts[1]);
+             }
+          } else {
+             const setList = modelSets;
+             const setInfo = setList.find(s => s.id === activeSet);
+             numQuestions = setInfo ? setInfo.totalQuestions : 50;
+          }
+          
+          const selectedQs = shuffled.slice(0, numQuestions);
+          
+          setDbQuestions(selectedQs.map((q: any, idx) => ({
+             id: q.id,
+             questionNumber: (idx + 1).toString(),
+             text: q.text,
+             options: q.options || [],
+             correctOption: q.correctOption,
+             explanation: q.explanation || ""
+          })));
+
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+    if (activeSet) {
+       loadQuestions();
+    }
+  }, [type, activeSet, selectedSubject]);
 
   const userGroup = userData?.group || "বিজ্ঞান";
   const displaySubjects = [
@@ -112,17 +171,38 @@ export default function Exam() {
     setSelectedOptions(prev => ({ ...prev, [questionId]: optionId }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    let currentScore = 0;
+    dbQuestions.forEach(q => {
+      if (selectedOptions[q.id] === q.correctOption) {
+        currentScore += 10; // 10 points per correct answer
+      }
+    });
+    setScore(currentScore);
     setIsSubmitted(true);
+
+    if (userData?.uid) {
+      try {
+        const { doc, updateDoc, increment } = await import("firebase/firestore");
+        const { db } = await import("../lib/firebase");
+        const userRef = doc(db, "users", userData.uid);
+        await updateDoc(userRef, {
+          points: increment(currentScore),
+          totalExams: increment(1)
+        });
+      } catch (err) {
+        console.error("Error updating score:", err);
+      }
+    }
   };
 
   const isCorrect = (questionId: string, optionId: string) => {
-    const q = mockQuestions.find(mq => mq.id === questionId);
+    const q = dbQuestions.find((mq: any) => mq.id === questionId);
     return isSubmitted && optionId === q?.correctOption;
   };
   
   const isIncorrect = (questionId: string, optionId: string) => {
-    const q = mockQuestions.find(mq => mq.id === questionId);
+    const q = dbQuestions.find((mq: any) => mq.id === questionId);
     return isSubmitted && selectedOptions[questionId] === optionId && optionId !== q?.correctOption;
   };
   
@@ -143,14 +223,22 @@ export default function Exam() {
   // Handle active set timer
   useEffect(() => {
       if(activeSet) {
-          const setInfo = sets.find(s => s.id === activeSet);
-          if(setInfo) {
-              setRemainingTime(setInfo.timeMinutes * 60);
+          if (type === 'mock') {
+              const counts = activeSet.split('-');
+              if (counts.length === 2 && !isNaN(parseInt(counts[1]))) {
+                  const numQ = parseInt(counts[1]);
+                  setRemainingTime(numQ * 60); // 1 minute per question
+              }
+          } else {
+              const setInfo = sets.find(s => s.id === activeSet);
+              if(setInfo) {
+                  setRemainingTime(setInfo.timeMinutes * 60);
+              }
           }
       } else {
           setRemainingTime(null);
       }
-  }, [activeSet, sets]);
+  }, [activeSet, sets, type]);
 
   const formatTime = (timeInSeconds: number | null) => {
       if(timeInSeconds === null) return "00:00";
@@ -181,27 +269,32 @@ export default function Exam() {
            </Button>
          </div>
 
-         <div className="mb-6">
-            <h3 className="text-xl font-bengali font-bold text-slate-700 text-center relative after:content-[''] after:block after:w-16 after:h-1 after:bg-secondary after:mx-auto after:mt-2 after:rounded-full">
+         <div className="mb-10 text-center">
+            <h3 className="text-2xl font-bengali font-bold text-slate-800 inline-block relative after:content-[''] after:absolute after:-bottom-3 after:left-1/2 after:-translate-x-1/2 after:w-16 after:h-1.5 after:bg-secondary after:rounded-full">
                বিষয় ভিত্তিক
             </h3>
          </div>
 
-         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-           {displaySubjects.map((subject, idx) => (
-             <motion.div
-               key={idx}
-               whileHover={{ scale: 1.02, translateY: -2 }}
-               whileTap={{ scale: 0.98 }}
-               onClick={() => setSelectedSubject(subject.name)}
-               className={`cursor-pointer bg-white border border-slate-100 ${subject.color} shadow-sm hover:shadow-md p-4 rounded-2xl transition-all flex items-center justify-center gap-4 group`}
-             >
-               <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center shrink-0">
-                 {subject.icon}
-               </div>
-               <h4 className="font-bengali font-bold text-slate-800 flex-1">{subject.name}</h4>
-             </motion.div>
-           ))}
+         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+           {displaySubjects.map((subject, idx) => {
+             // Extract just the bg color, e.g. "bg-red-50"
+             const baseColor = subject.color.split(' ')[0];
+             return (
+               <motion.div
+                 key={idx}
+                 whileHover={{ scale: 1.05, translateY: -5 }}
+                 whileTap={{ scale: 0.95 }}
+                 onClick={() => setSelectedSubject(subject.name)}
+                 className="cursor-pointer bg-white border border-slate-100 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] p-5 sm:p-6 rounded-3xl transition-all duration-300 flex flex-col items-center text-center gap-4 group relative overflow-hidden"
+               >
+                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 ease-out ${baseColor.replace('50', '500')}`}></div>
+                 <div className={`w-16 h-16 sm:w-20 sm:h-20 ${baseColor} border border-white ring-4 ring-slate-50/50 rounded-2xl shadow-sm flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500 ease-out relative z-10`}>
+                   {subject.icon}
+                 </div>
+                 <h4 className="font-bengali font-bold text-slate-800 text-sm sm:text-base relative z-10 leading-snug group-hover:text-primary transition-colors">{subject.name}</h4>
+               </motion.div>
+             );
+           })}
          </div>
       </div>
     );
@@ -234,77 +327,163 @@ export default function Exam() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sets.map((set) => (
-            <motion.div
-              key={set.id}
-              whileHover={{ scale: 1.02, translateY: -4 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setActiveSet(set.id)}
-              className="cursor-pointer bg-white border border-slate-100 hover:border-primary/50 shadow-sm hover:shadow-md p-6 rounded-[24px] transition-all flex flex-col items-center text-center group relative overflow-hidden"
-            >
-              <div className="bg-primary/5 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
-                <PlayCircle className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-bengali font-bold text-slate-800 mb-2">{set.title}</h3>
-              <div className="flex gap-4 text-slate-500 font-bengali text-sm mt-auto">
-                 <span>⏱️ {set.timeMinutes} মিনিট</span>
-                 <span>📝 {set.totalQuestions} প্রশ্ন</span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        {type === 'mock' ? (
+          <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-secondary"></div>
+             <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6 text-center">কয়টি প্রশ্নের পরীক্ষা দিতে চাও?</h3>
+             
+             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                {[10, 20, 25, 30, 40, 50].map(num => (
+                   <button
+                      key={num}
+                      onClick={() => setActiveSet(`mock-${num}`)}
+                      className="py-4 px-4 rounded-2xl font-bengali font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-primary/5 hover:border-primary/50 transition-all flex flex-col items-center justify-center gap-1 group"
+                   >
+                      <span className="text-2xl text-slate-800 group-hover:text-primary transition-colors">{num}</span>
+                      <span className="text-sm text-slate-500 font-medium tracking-wide">টি প্রশ্ন</span>
+                   </button>
+                ))}
+             </div>
+
+             <div className="flex items-center gap-3">
+                 <input 
+                   type="number" 
+                   min="5" 
+                   max="200" 
+                   placeholder="অন্যান্য (যেমন: ১৫)" 
+                   className="flex-1 border border-slate-300 rounded-xl px-4 py-3 font-bengali outline-none focus:border-primary/50"
+                   id="custom-q-count"
+                   onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                         const val = (e.target as HTMLInputElement).value;
+                         if(val && parseInt(val) > 0) setActiveSet(`mock-${val}`);
+                      }
+                   }}
+                 />
+                 <button 
+                   onClick={() => {
+                      const val = (document.getElementById('custom-q-count') as HTMLInputElement)?.value;
+                      if(val && parseInt(val) > 0) setActiveSet(`mock-${val}`);
+                   }}
+                   className="bg-primary text-white font-bengali font-bold px-6 py-3 rounded-xl hover:bg-primary/90 flex-shrink-0 whitespace-nowrap"
+                 >
+                   শুরু করুন
+                 </button>
+             </div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sets.map((set) => (
+              <motion.div
+                key={set.id}
+                whileHover={{ scale: 1.02, translateY: -4 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setActiveSet(set.id)}
+                className="cursor-pointer bg-white border border-slate-100 hover:border-primary/50 shadow-sm hover:shadow-md p-6 rounded-[24px] transition-all flex flex-col items-center text-center group relative overflow-hidden"
+              >
+                <div className="bg-primary/5 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
+                  <PlayCircle className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-bengali font-bold text-slate-800 mb-2">{set.title}</h3>
+                <div className="flex gap-4 text-slate-500 font-bengali text-sm mt-auto">
+                   <span>⏱️ {set.timeMinutes} মিনিট</span>
+                   <span>📝 {set.totalQuestions} প্রশ্ন</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
 
   // Screen 3: Exam Player
   return (
-    <div className="max-w-4xl mx-auto pb-16 px-4">
+    <div className="w-full max-w-4xl mx-auto pb-20 px-0 sm:px-4 pt-0 sm:pt-4">
       {/* Top Section */}
-      <div className="sticky top-[86px] sm:top-[88px] z-40 bg-[#F8FAFC] py-4 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 mb-4">
-        <div className="flex items-center justify-between bg-white shadow-sm p-2.5 sm:p-4 rounded-[24px] sm:rounded-xl border border-slate-200 max-w-4xl mx-auto w-full">
-          <div className="flex items-center space-x-2 sm:space-x-3 overflow-hidden">
+      <div className="sticky top-[88px] z-40 bg-white sm:bg-transparent py-2 sm:py-4 px-2 sm:px-0 mb-0 sm:mb-4 sm:border-0 shadow-sm sm:shadow-none">
+        <div className="flex items-center justify-between gap-x-2 bg-white sm:shadow-sm p-2 sm:p-4 rounded-xl sm:border sm:border-slate-200 w-full overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          <div className="flex items-center space-x-2 overflow-hidden shrink-0">
             <button 
              onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
              className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors shrink-0"
             >
              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
             </button>
-            <div className="flex items-center bg-slate-100 px-3 py-1.5 rounded-full shrink-0">
-              <span className="text-slate-700 text-[11px] sm:text-sm font-bengali font-bold whitespace-nowrap">
-                {type === 'mock' && selectedSubject ? 'মক টেস্ট' : 'মডেল টেস্ট'}
-              </span>
-            </div>
           </div>
           
-          <div className="flex items-center space-x-1.5 sm:space-x-4 shrink-0">
-            <div className="flex items-center bg-blue-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border border-blue-100">
-               <span className="text-[10px] sm:text-xs text-blue-700 font-bold font-bengali whitespace-nowrap">
-                  বাকি: {mockQuestions.length - Object.keys(selectedOptions).length}
+          <div className="flex items-center space-x-2 sm:space-x-4 shrink-0 overflow-x-auto pl-2" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex items-center bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 shrink-0">
+               <span className="text-xs sm:text-sm text-blue-700 font-bold font-bengali whitespace-nowrap">
+                  বাকি: {dbQuestions.length - Object.keys(selectedOptions).length}
                </span>
             </div>
-            <div className="flex items-center text-orange-600 bg-orange-50 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-mono text-[11px] sm:text-sm font-bold shrink-0 border border-orange-100">
+            <div className="flex items-center text-orange-600 bg-orange-50 px-3 py-1.5 rounded-full font-mono text-xs sm:text-sm font-bold shrink-0 border border-orange-100">
               <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 shrink-0" />
               {timeLeft}
             </div>
             <Button 
               variant="outline" 
               size="sm" 
-              className="font-bengali text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 font-bold px-2.5 sm:px-4 shrink-0 text-[11px] sm:text-sm h-7 sm:h-9 rounded-full whitespace-nowrap"
-              onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
+              className={`font-bengali font-bold px-3 sm:px-4 shrink-0 text-xs sm:text-sm h-8 sm:h-9 rounded-full whitespace-nowrap ${isSubmitted ? 'text-green-600 border-green-200 hover:bg-green-50' : 'text-red-600 border-red-200 hover:bg-red-50'}`}
+              onClick={() => {
+                if (isSubmitted) {
+                   setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null);
+                } else {
+                   setIsSubmitted(true);
+                   window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
             >
-              শেষ করুন
+              {isSubmitted ? 'ফিরে যান' : 'শেষ করুন'}
             </Button>
           </div>
         </div>
       </div>
 
       {/* Main Question Area */}
-      <main className="bg-white rounded-[32px] shadow-sm border border-slate-100 overflow-hidden mb-8 flex-1 flex flex-col p-6 md:p-8">
+      <main className="bg-white sm:rounded-[32px] sm:shadow-sm sm:border sm:border-slate-100 overflow-hidden mb-8 flex-1 flex flex-col p-4 pt-6 sm:p-6 md:p-8">
         
+        {isSubmitted && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-10 bg-gradient-to-br from-[#ebfcf0] to-[#f4fdf6] border border-[#aae1c2] rounded-[32px] p-8 text-center shadow-sm"
+          >
+            <h3 className="text-2xl font-bold font-bengali text-[#0e5c2f] mb-3">পরীক্ষা সম্পন্ন হয়েছে!</h3>
+            <div className="flex justify-center flex-wrap gap-4 mt-6">
+              <div className="bg-white rounded-2xl p-5 shadow-sm min-w-[140px] border border-[#d1f0df]">
+                <p className="text-sm font-bengali text-slate-500 mb-1">মোট প্রশ্ন</p>
+                <p className="text-4xl font-mono font-bold text-slate-800">{dbQuestions.length}</p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 shadow-sm min-w-[140px] border border-[#d1f0df]">
+                <p className="text-sm font-bengali text-slate-500 mb-1">সঠিক উত্তর</p>
+                <p className="text-4xl font-mono font-bold text-[#147e42]">{score / 10}</p>
+              </div>
+              <div className="bg-white rounded-2xl p-5 shadow-[0_4px_20px_-4px_rgba(249,115,22,0.3)] min-w-[140px] border border-orange-100 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-orange-500"></div>
+                <p className="text-sm font-bengali text-slate-500 mb-1">প্রাপ্ত পয়েন্ট</p>
+                <p className="text-4xl font-mono font-bold text-orange-500">+{score}</p>
+              </div>
+            </div>
+            <p className="font-bengali text-sm text-[#147e42] mt-6 bg-[#d1f0df]/50 inline-block px-4 py-2 rounded-full border border-[#b2e7ca]/50">
+              আপনার পয়েন্টগুলো লিডারবোর্ডে যুক্ত করা হয়েছে। লিডারবোর্ডে আপনার অবস্থান দেখুন!
+            </p>
+          </motion.div>
+        )}
+
         <div className="space-y-12">
-          {mockQuestions.map((q) => (
+          {isLoading ? (
+             <div className="text-center py-20">
+               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+               <p className="text-slate-500 font-bengali">প্রশ্ন লোড হচ্ছে...</p>
+             </div>
+          ) : dbQuestions.length === 0 ? (
+             <div className="text-center py-20">
+               <p className="text-slate-500 font-bengali">কোনো প্রশ্ন পাওয়া যায়নি।</p>
+             </div>
+          ) : (
+          dbQuestions.map((q) => (
             <div key={q.id} className="question-block border-b border-slate-100 pb-10 last:border-0 last:pb-0">
                {/* Question Header */}
                <div className="mb-4">
@@ -320,7 +499,7 @@ export default function Exam() {
 
                {/* Options */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                 {q.options.map((option) => {
+                 {q.options.map((option: any) => {
                    const selected = selectedOptions[q.id] === option.id;
                    const correct = isCorrect(q.id, option.id);
                    const wrong = isIncorrect(q.id, option.id);
@@ -420,7 +599,8 @@ export default function Exam() {
                </AnimatePresence>
 
             </div>
-          ))}
+          ))
+          )}
         </div>
 
         {!isSubmitted && (

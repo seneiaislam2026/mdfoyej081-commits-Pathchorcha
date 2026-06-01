@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "../lib/AuthContext";
+import { auth } from "../lib/firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -75,6 +77,24 @@ export default function Login() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="font-bengali">পাসওয়ার্ড</Label>
+                <button type="button" onClick={async () => {
+                  if (!username.trim()) {
+                    setError("পাসওয়ার্ড রিসেট করতে আগে ইমেইল দিন।");
+                    return;
+                  }
+                  try {
+                    await sendPasswordResetEmail(auth, username.trim());
+                    setError("আপনার ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠানো হয়েছে। দয়া করে ইনবক্স চেক করুন।");
+                  } catch (e: any) {
+                    if (e.code === 'auth/user-not-found') {
+                      setError("এই ইমেইলের কোনো একাউন্ট পাওয়া যায়নি।");
+                    } else if (e.code === 'auth/invalid-email') {
+                      setError("সঠিক ইমেইল অ্যাড্রেস দিন।");
+                    } else {
+                      setError("পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে।");
+                    }
+                  }
+                }} className="text-sm font-bengali text-primary hover:underline font-medium">পাসওয়ার্ড ভুলে গেছেন?</button>
               </div>
               <Input 
                 id="password" 

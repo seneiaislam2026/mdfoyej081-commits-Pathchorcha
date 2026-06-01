@@ -13,9 +13,25 @@ const filters = {
   subjects: ["বাংলা", "English", "Math", "Physics", "Chemistry", "Biology"],
 };
 
+const getSubjectsByGroup = (group?: string, classGroup?: string) => {
+  const common = ["বাংলা", "English", "ICT"];
+  if (classGroup === "Class 6-8" || classGroup === "Class 9") {
+     return ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম"];
+  }
+  
+  if (group === "মানবিক") {
+    return [...common, "ইতিহাস", "পৌরনীতি", "ভূগোল", "অর্থনীতি", "যুক্তিবিদ্যা", "সমাজবিজ্ঞান"];
+  } else if (group === "বাণিজ্য") {
+    return [...common, "হিসাববিজ্ঞান", "ব্যবসায় সংগঠন", "ফিন্যান্স", "উদ্ভাবন"];
+  }
+  // Default to science
+  return [...common, "উচ্চতর গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান"];
+};
+
 export default function Notes() {
   const { userData } = useAuth();
   const userClass = userData?.class || "দ্বাদশ শ্রেণী";
+  const dynamicSubjects = getSubjectsByGroup(userData?.group, userClass);
 
   return (
     <div className="flex flex-col md:flex-row gap-8">
@@ -34,7 +50,7 @@ export default function Notes() {
         <div>
           <h3 className="font-bengali font-bold mb-3 text-lg">বিষয় (Subject)</h3>
           <ul className="space-y-2">
-            {filters.subjects.map((s) => (
+            {dynamicSubjects.map((s) => (
               <li key={s}>
                 <label className="flex items-center space-x-2 cursor-pointer group">
                   <input type="checkbox" className="rounded border-gray-300 text-primary focus:ring-primary" />

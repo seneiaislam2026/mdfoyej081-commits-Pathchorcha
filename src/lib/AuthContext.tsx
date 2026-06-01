@@ -17,6 +17,7 @@ interface UserData {
     streak: number;
   };
   isPro?: boolean;
+  proUntil?: any;
   isTutor?: boolean;
 }
 
@@ -63,7 +64,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const docSnap = await getDoc(userRef);
         
         if (docSnap.exists()) {
-          setUserData(docSnap.data() as UserData);
+          const data = docSnap.data() as UserData;
+          const userEmail = currentUser.email?.toLowerCase() || '';
+          const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
+          
+          if (isAdmin || data.isTutor) {
+            data.isPro = true;
+          }
+
+          // Check if custom subscription hasn't expired
+          if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
+            // Only expire if not an admin/tutor
+            if (!isAdmin && !data.isTutor) {
+              data.isPro = false;
+            }
+          }
+
+          setUserData(data);
         } else {
           // It might be created during sign in, but just in case
         }

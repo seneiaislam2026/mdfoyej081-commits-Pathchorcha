@@ -1,0 +1,473 @@
+{
+  "title": "ঢাবি সি ২০২৫-২০২৬ (MCQ)",
+  "questions": [
+    {
+      "question_no": 1,
+      "section": "Bangla",
+      "question": "কোনটি রবীন্দ্রনাথ ঠাকুর রচিত উপন্যাস?",
+      "options": {
+        "A": "চোরাবালি",
+        "B": "ডাকঘর",
+        "C": "অচলায়তন",
+        "D": "চোখের বালি"
+      },
+      "correct_answer": "D",
+      "explanation": "'চোখের বালি' রবীন্দ্রনাথ ঠাকুর রচিত একটি বিখ্যাত সামাজিক উপন্যাস (১৯০৩)। অন্যদিকে 'ডাকঘর' ও 'অচলায়তন' তাঁর নাটক।"
+    },
+    {
+      "question_no": 2,
+      "section": "Bangla",
+      "question": "কোনটি মৌলিক বিশেষণ?",
+      "options": {
+        "A": "গুণী",
+        "B": "কালো",
+        "C": "সুপ্ত",
+        "D": "ফুটন্ত"
+      },
+      "correct_answer": "B",
+      "explanation": "যেসব বিশেষণ শব্দকে ভেঙে বিশ্লেষণ করা যায় না বা যা কোনো সাধিত শব্দ নয়, তাকে মৌলিক বিশেষণ বলে। এখানে 'কালো' একটি মৌলিক বিশেষণ।"
+    },
+    {
+      "question_no": 3,
+      "section": "Bangla",
+      "question": "কাজী নজরুল ইসলামের 'বিদ্রোহী' কবিতাটি কোন ছন্দে রচিত?",
+      "options": {
+        "A": "স্বরবৃত্ত",
+        "B": "অক্ষরবৃত্ত",
+        "C": "মাত্রাবৃত্ত",
+        "D": "গদ্যাক্ষর"
+      },
+      "correct_answer": "C",
+      "explanation": "কাজী নজরুল ইসলামের বিখ্যাত 'বিদ্রোহী' কবিতাটি মুক্তক মাত্রাবৃত্ত ছন্দে রচিত।"
+    },
+    {
+      "question_no": 4,
+      "section": "Bangla",
+      "question": "'অম্বু' শব্দের অর্থ-",
+      "options": {
+        "A": "নদী",
+        "B": "আগুন",
+        "C": "চাঁদ",
+        "D": "পানি"
+      },
+      "correct_answer": "D",
+      "explanation": "'অম্বু' শব্দের অর্থ পানি বা জল।"
+    },
+    {
+      "question_no": 5,
+      "section": "Bangla",
+      "question": "'জ্ঞ' যুক্ত বর্ণটি কোন বর্ণের মিলনে গঠিত হয়েছে?",
+      "options": {
+        "A": "ঞ+জ",
+        "B": "ঞ+গ",
+        "C": "জ+ঞ",
+        "D": "গ+ঞ"
+      },
+      "correct_answer": "C",
+      "explanation": "যুক্তবর্ণ 'জ্ঞ' গঠিত হয়েছে জ্ + ঞ (জ এবং ঞ) এর সংযোগে।"
+    },
+    {
+      "question_no": 6,
+      "section": "Bangla",
+      "question": "'মনোযোগ' এর শুদ্ধ সন্ধি বিচ্ছেদ কোনটি?",
+      "options": {
+        "A": "মনঃ+যোগ",
+        "B": "মনো+যোগ",
+        "C": "মন+যোগ",
+        "D": "মনো+যোগঃ"
+      },
+      "correct_answer": "A",
+      "explanation": "বিসর্গ সন্ধির নিয়মানুযায়ী, মনঃ + যোগ = মনোযোগ।"
+    },
+    {
+      "question_no": 7,
+      "section": "Bangla",
+      "question": "'উপশহর' শব্দটি কোন সমাস?",
+      "options": {
+        "A": "দ্বন্দ",
+        "B": "দ্বিগু",
+        "C": "অব্যয়ীভাব",
+        "D": "कर्मধाরয়"
+      },
+      "correct_answer": "C",
+      "explanation": "শহরের সদৃশ = উপশহর। এখানে 'উপ' অব্যয়টি সাদৃশ্য অর্থে ব্যবহৃত হয়েছে এবং পূর্বপদের প্রাধান্য থাকায় এটি অব্যয়ীভাব সমাস।"
+    },
+    {
+      "question_no": 8,
+      "section": "Bangla",
+      "question": "'তাহার হাসিতে গান, তাহার কান্নায় গান।'- কোন ধরনের বাক্য?",
+      "options": {
+        "A": "সরল",
+        "B": "জটিল",
+        "C": "যৌগিক",
+        "D": "খণ্ডবাক্য"
+      },
+      "correct_answer": "C",
+      "explanation": "এখানে দুটি স্বাধীন বাক্য কমা (,) দ্বারা যুক্ত হয়েছে এবং পরস্পর নির্ভরশীল নয়, তাই এটি যৌগিক বাক্য।"
+    },
+    {
+      "question_no": 9,
+      "section": "Bangla",
+      "question": "'খিড়কি' শব্দের বিপরীতার্থক শব্দ কোনটি?",
+      "options": {
+        "A": "সিংহদ্বার",
+        "B": "বাতায়ন",
+        "C": "গুপ্তপথ",
+        "D": "চিলেকোঠা"
+      },
+      "correct_answer": "A",
+      "explanation": "'খিড়কি' মানে বাড়ির পিছনের ছোট দরজা। এর বিপরীত শব্দ 'সিংহদ্বার' (প্রধান প্রবেশদ্বার)।"
+    },
+    {
+      "question_no": 10,
+      "section": "Bangla",
+      "question": "'অনুষ্ঠান' শব্দটি কোন উপায়ে গঠিত?",
+      "options": {
+        "A": "সন্ধি",
+        "B": "সমাস",
+        "C": "প্রত্যয়",
+        "D": "উপসর্গ"
+      },
+      "correct_answer": "A",
+      "explanation": "অনু + স্থান = অনুষ্ঠান (সন্ধির নিয়মে 'স্' পরিবর্তিত হয়ে 'ষ্' হয়েছে)। সুতরাং এটি সন্ধি সাধিত শব্দ।"
+    },
+    {
+      "question_no": 11,
+      "section": "Bangla",
+      "question": "সৈয়দ ওয়ালীউল্লাহ রচিত 'লালসালু' উপন্যাসের প্রধান চরিত্র কোনটি?",
+      "options": {
+        "A": "খালেক",
+        "B": "আক্কাস",
+        "C": "মজিদ",
+        "D": "আমেনা"
+      },
+      "correct_answer": "C",
+      "explanation": "'লালসালু' উপন্যাসের কেন্দ্রীয় ও প্রধান চরিত্র হলো ভণ্ড ধর্ম ব্যবসায়ী 'মজিদ'।"
+    },
+    {
+      "question_no": 12,
+      "section": "Bangla",
+      "question": "'পুষ্প' শব্দের সমার্থক শব্দ নয় কোনটি?",
+      "options": {
+        "A": "ফুল্লব",
+        "B": "সুমন",
+        "C": "কুসুম",
+        "D": "পাদপ"
+      },
+      "correct_answer": "D",
+      "explanation": "'পাদপ' শব্দের অর্থ গাছ বা বৃক্ষ। বাকি তিনটি (ফুল্লব, সুমন, কুসুম) পুষ্প বা ফুল শব্দের সমার্থক।"
+    },
+    {
+      "question_no": 13,
+      "section": "General English",
+      "question": "Choose the correct word: What _______ if you had not gone to school?",
+      "options": {
+        "A": "will you do",
+        "B": "you would have done",
+        "C": "would you have done",
+        "D": "would you do"
+      },
+      "correct_answer": "C",
+      "explanation": "This is a 3rd Conditional sentence. Structure: If + Past Perfect, Subject + would have + V3. As it is an interrogative sentence, the structure is 'would you have done'."
+    },
+    {
+      "question_no": 14,
+      "section": "General English",
+      "question": "Choose the correct word: The fox, even though it _______, jumped over the dog.",
+      "options": {
+        "A": "injured",
+        "B": "is injured",
+        "C": "was injured",
+        "D": "injuring"
+      },
+      "correct_answer": "C",
+      "explanation": "The main verb 'jumped' is in the past tense, so the subordinate clause must follow past tense harmony. Since the fox received the injury (passive meaning), 'was injured' is correct."
+    },
+    {
+      "question_no": 15,
+      "section": "General English",
+      "question": "Choose the correct word: Our countryside is disappearing at an _______ rate.",
+      "options": {
+        "A": "alluring",
+        "B": "amazing",
+        "C": "alarming",
+        "D": "alerting"
+      },
+      "correct_answer": "C",
+      "explanation": "The disappearance of the countryside is a negative and concerning matter, making 'alarming' (উদ্বেগজনক) the correct contextual choice."
+    },
+    {
+      "question_no": 16,
+      "section": "General English",
+      "question": "Choose the appropriate preposition: I bumped _______ one of my old friends at the New Market yesterday.",
+      "options": {
+        "A": "to",
+        "B": "with",
+        "C": "into",
+        "D": "at"
+      },
+      "correct_answer": "C",
+      "explanation": "'Bump into' is a phrasal verb which means to meet someone unexpectedly."
+    },
+    {
+      "question_no": 17,
+      "section": "General English",
+      "question": "Choose the appropriate preposition: He was looking for a job. _______ the end, he got one.",
+      "options": {
+        "A": "At",
+        "B": "By",
+        "C": "For",
+        "D": "In"
+      },
+      "correct_answer": "D",
+      "explanation": "'In the end' means finally or eventually, which fits the context perfectly."
+    },
+    {
+      "question_no": 18,
+      "section": "General English",
+      "question": "Choose the most appropriate sentence:",
+      "options": {
+        "A": "How do you?",
+        "B": "How you do?",
+        "C": "How do you do?",
+        "D": "How does he?"
+      },
+      "correct_answer": "C",
+      "explanation": "'How do you do?' is a standard formal greeting used when meeting someone for the first time."
+    },
+    {
+      "question_no": 19,
+      "section": "General English",
+      "question": "Choose the most appropriate sentence:",
+      "options": {
+        "A": "She awakened to the sound of birds singing.",
+        "B": "She awake to the sound of bird singing.",
+        "C": "She was awaked to the sound of bird singing.",
+        "D": "She awaken up to the sound of birds singing."
+      },
+      "correct_answer": "A",
+      "explanation": "'Awakened' is the correct past tense form of awaken, and 'birds singing' is grammatically accurate here."
+    },
+    {
+      "question_no": 20,
+      "section": "General English",
+      "question": "Choose the correct spelling:",
+      "options": {
+        "A": "Entreprenership",
+        "B": "Entrepreneurship",
+        "C": "Enterprenereship",
+        "D": "Entrepreneurship"
+      },
+      "correct_answer": "B",
+      "explanation": "The correct spelling is 'Entrepreneurship' (উদ্যোক্তা)."
+    },
+    {
+      "question_no": 21,
+      "section": "General English",
+      "question": "Choose the correct spelling:",
+      "options": {
+        "A": "Exhilarating",
+        "B": "Exhilaraiting",
+        "C": "Exhailarating",
+        "D": "Exahilaraiting"
+      },
+      "correct_answer": "A",
+      "explanation": "The correct spelling is 'Exhilarating' (চিত্তাকর্ষক/উত্তেজনাপূর্ণ)."
+    },
+    {
+      "question_no": 22,
+      "section": "General English",
+      "question": "Choose the correct meaning of the idiom 'To spill the beans'.",
+      "options": {
+        "A": "to ruin a plan",
+        "B": "to reveal a secret",
+        "C": "to exaggerate a story",
+        "D": "to tell a lie"
+      },
+      "correct_answer": "B",
+      "explanation": "The idiom 'spill the beans' means to reveal secret information unintentionally or prematurely."
+    },
+    {
+      "question_no": 23,
+      "section": "General English",
+      "question": "What is the meaning of the word 'suffrage'?",
+      "options": {
+        "A": "Fundamental rights",
+        "B": "Right to vote",
+        "C": "Freedom of the press",
+        "D": "Right to move freely"
+      },
+      "correct_answer": "B",
+      "explanation": "'Suffrage' means the right to vote in political elections."
+    },
+    {
+      "question_no": 24,
+      "section": "General English",
+      "question": "What is the antonym of 'bellicose'?",
+      "options": {
+        "A": "Martial",
+        "B": "Belligerent",
+        "C": "Peaceful",
+        "D": "Happy"
+      },
+      "correct_answer": "C",
+      "explanation": "'Bellicose' means demonstrating aggression and willingness to fight (যুদ্ধংদেহী). Its antonym is 'Peaceful' (শান্তিপূর্ণ)."
+    },
+    {
+      "question_no": 25,
+      "section": "Accounting",
+      "question": "কোন নীতির অধীনে মালিকের ব্যক্তিগত লেনদেন এবং ব্যবসায়িক লেনদেনের মধ্যে পৃথকীকরণ করা হয়?",
+      "options": {
+        "A": "ব্যবসায়ের স্বত্বা নীতি",
+        "B": "রক্ষণশীলতার নীতি",
+        "C": "মূল্যভিত্তিক অনুমান",
+        "D": "ধারাবাহিকতা নীতি"
+      },
+      "correct_answer": "A",
+      "explanation": "ব্যবসায় স্বত্বা নীতি (Business Entity Concept) অনুযায়ী মালিক ও ব্যবসা প্রতিষ্ঠানকে আলাদা বিবেচনা করা হয়।"
+    },
+    {
+      "question_no": 26,
+      "section": "Accounting",
+      "question": "নিচের কোনটি প্রতি হিসাবের উদাহরণ নয়?",
+      "options": {
+        "A": "পুঞ্জীভূত অবচয়",
+        "B": "উত্তোলন",
+        "C": "অনুপার্জিত আয়",
+        "D": "বিক্রয় ফেরত"
+      },
+      "correct_answer": "C",
+      "explanation": "অনুপার্জিত আয় (Unearned Revenue) হলো একটি দায় হিসাব। বাকিগুলো কোনো না কোনো মূল হিসাবের বিপরীত বা প্রতি (Contra) হিসাব।"
+    },
+    {
+      "question_no": 27,
+      "section": "Accounting",
+      "question": "যদি প্রারম্ভিক মূলধন ৫০,০০০ টাকা, উত্তোলন ১০,০০০ টাকা, অতিরিক্ত মূলধন ৫,০০০ টাকা এবং সমাপনী মূলধন ৭০,০০০ টাকা হয়, তবে সারা বছরের লাভ কত টাকা?",
+      "options": {
+        "A": "২৫,০০০",
+        "B": "২০,০০০",
+        "C": "১৫,০০০",
+        "D": "৩০,০০০"
+      },
+      "correct_answer": "A",
+      "explanation": "লাভ = সমাপনী মূলধন + উত্তোলন - প্রারম্ভিক মূলধন - অতিরিক্ত মূলধন = ৭০,০০০ + ১০,০০০ - ৫০,০০০ - ৫,০০০ = ২৫,০০০ টাকা।"
+    },
+    {
+      "question_no": 28,
+      "section": "Accounting",
+      "question": "যদি ১০,০০০ টাকায় যন্ত্রপাতি ক্রয়কে মেরামত খরচ হিসেবে হিসাবভুক্ত করা হয়, তাহলে এর তাৎক্ষণিক প্রভাব কী হবে?",
+      "options": {
+        "A": "সম্পদ অতিমূল্যায়িত হবে",
+        "B": "ব্যয় অবমূল্যায়িত হবে",
+        "C": "মুনাফা অবমূল্যায়িত হবে",
+        "D": "দায় অবমূল্যায়িত হবে"
+      },
+      "correct_answer": "C",
+      "explanation": "মূলধন জাতীয় ব্যয়কে মুনাফা জাতীয় ব্যয় দেখালে খরচ বৃদ্ধি পায়, ফলে তাৎক্ষণিকভাবে নিট মুনাফা কম বা অবমূল্যায়িত হয়।"
+    },
+    {
+      "question_no": 29,
+      "section": "Accounting",
+      "question": "বিক্রিত পণ্যের ব্যয় ৭৫,০০০ টাকা, উৎপাদিত পণ্যের ব্যয় ৪৫,০০০ টাকা এবং সমাপনী মজুদপণ্য ১২,০০০ টাকা হলে প্রারম্ভিক মজুদপণ্য কত?",
+      "options": {
+        "A": "৪২,০০০",
+        "B": "১০৮,০০০",
+        "C": "১৮,০০০",
+        "D": "৩০,০০০"
+      },
+      "correct_answer": "A",
+      "explanation": "বিক্রিত পণ্যের ব্যয় = প্রারম্ভিক মজুদ + উৎপাদিত পণ্যের ব্যয় - সমাপনী মজুদ। অতএব, প্রারম্ভিক মজুদ = ৭৫,০০০ - ৪৫,০০০ + ১২,০০০ = ৪২,০০০ টাকা।"
+    },
+    {
+      "question_no": 30,
+      "section": "Accounting",
+      "question": "AB কোম্পানি ৩,০০০ টাকা মূল্যের পণ্য ক্রয় করেছে, যার ক্রেডিট শর্ত হলো ২/১০, n/৩০। যদি বছরে ৩৬০ দিন হয়, তাহলে ক্রেডিট শর্তে প্রযোজ্য বার্ষিক সুদের হার কত?",
+      "options": {
+        "A": "২০.১৮%",
+        "B": "২৪.১৮%",
+        "C": "১৮.১৮%",
+        "D": "৩৬.১৮%"
+      },
+      "correct_answer": "D",
+      "explanation": "বার্ষিক সুদের হার (Approximate Annual Interest Rate) = [ছাড়ের হার / (১০০ - ছাড়ের হার)] * [৩৬০ / (পূর্ণ মেয়াদ - ছাড়ের মেয়াদ)] = [২ / ৯৮] * [৩৬০ / ২০] = ০.০২০৪০৮ * ১৮ = ৩৬.৭৩% (বিকল্পগুলোর মধ্যে ৩৬.১৮% নিকটতম)।"
+    },
+    {
+      "question_no": 31,
+      "section": "Accounting",
+      "question": "মূল্য বৃদ্ধির সময়কালে কোন মজুদপণ্যের মূল্যায়ন পদ্ধতি সর্বনিম্ন আয়কর ব্যয় সৃষ্টি করবে?",
+      "options": {
+        "A": "ফিফো (FIFO)",
+        "B": "লিফো (LIFO)",
+        "C": "ভারযুক্ত গড় পদ্ধতি",
+        "D": "সব পদ্ধতির জন্য একই"
+      },
+      "correct_answer": "B",
+      "explanation": "মূল্যবৃদ্ধির সময়ে LIFO পদ্ধতিতে বিক্রিত পণ্যের ব্যয় বেশি আসে, ফলে করযোগ্য মুনাফা ও আয়কর কম হয়।"
+    },
+    {
+      "question_no": 32,
+      "section": "Accounting",
+      "question": "নিচের কোন হিসাবটি কখনও সমাপনী পরবর্তী রেওয়ামিলে প্রদর্শিত হবে পরিচয়?",
+      "options": {
+        "A": "প্রদেয় লভ্যাংশ",
+        "B": "পুঞ্জীভূত অবচয়",
+        "C": "আয়কর খরচ",
+        "D": "অনুপার্জিত আয়"
+      },
+      "correct_answer": "C",
+      "explanation": "সমাপনী দাখিলার মাধ্যমে সকল নামিক হিসাব (আয় ও ব্যয়) বন্ধ হয়ে যায়। আয়কর খরচ একটি ব্যয় হিসাব হওয়ায় এটি সমাপনী পরবর্তী রেওয়ামিলে থাকবে না।"
+    },
+    {
+      "question_no": 33,
+      "section": "Accounting",
+      "question": "বিক্রয় ৫০০,০০০ টাকা, প্রত্যক্ষ কাঁচামাল ১৫০,০০০ টাকা, প্রত্যক্ষ মজুরি ৫০,০০০ টাকা, কারখানার উপরিব্যয় প্রত্যক্ষ মজুরির ১০%, প্রশাসনিক খরচ বিক্রয়ের ৫% এবং বিক্রয় খরচ বিক্রয়ের ১০% হলে মোট ব্যয় কত?",
+      "options": {
+        "A": "ইউটিলিটি",
+        "B": "২৩০,০০০",
+        "C": "২৮০,০০০",
+        "D": "২৭৫,০০০"
+      },
+      "correct_answer": "C",
+      "explanation": "কারখানা উপরিব্যয় = ৫০,০০০ এর ১০% = ৫,০০০। প্রশাসনিক খরচ = ৫০০,০০০ এর ৫% = ২৫,০০০। বিক্রয় খরচ = ৫০০,০০০ এর ১০% = ৫০,০০০। মোট ব্যয় = ১৫০,০০০ + ৫০,০০০ + ৫,০০০ + ২৫,০০০ + ৫০,০০০ = ২৮০,০০০ টাকা।"
+    },
+    {
+      "question_no": 34,
+      "section": "Accounting",
+      "question": "যদি অনুপার্জিত আয় বাবদ নগদ প্রাপ্তি ভুলবশত আয় হিসাবে লিপিবদ্ধ হয়, তাহলে কোন সমন্বয় জাবেদার প্রয়োজন?",
+      "options": {
+        "A": "অনুপার্জিত আয় (ডেবিট), আয় (ক্রেডিট)",
+        "B": "আয় (ডেবিট), নগদ (ক্রেডিট)",
+        "C": "আয় (ডেবিট), অনুপার্জিত আয় (ক্রেডিট)",
+        "D": "কোন সমন্বয় প্রয়োজন নেই"
+      },
+      "correct_answer": "C",
+      "explanation": "যেহেতু ভুলবশত আয় ক্রেডিট করা হয়েছে, তাই আয় ঘুচাতে আয় ডেবিট করতে হবে এবং সঠিক দায়টি (অনুপার্জিত আয়) ক্রেডিট করতে হবে।"
+    },
+    {
+      "question_no": 35,
+      "section": "Accounting",
+      "question": "মজুদ ঘূর্ণন অনুপাত ৬ গুণ ও গড় মজুদ ২০,০০০ টাকা হলে বিক্রিত পণ্যের ব্যয় কত টাকা?",
+      "options": {
+        "A": "১০০,০০০",
+        "B": "৬০,০০০",
+        "C": "৩০,০০০",
+        "D": "১২ে০,০০০"
+      },
+      "correct_answer": "D",
+      "explanation": "মজুদ ঘূর্ণন অনুপাত = বিক্রিত পণ্যের ব্যয় / গড় মজুদ। অতএব, বিক্রিত পণ্যের ব্যয় = ৬ * ২০,০০০ = ১২ে০,০০০ টাকা।"
+    },
+    {
+      "question_no": 36,
+      "section": "Accounting",
+      "question": "A এবং B অংশীদারি কারবারের মুনাফা ৩:২ ভাগে ভাগ করে। মোট মুনাফা ১০০,০০০ টাকা। A-এর বেতন বাবদ আয় ১০,০০০ টাকা। A-এর বেতন পরবর্তী মুনাফার উপর B-এর বোনাস লাভের ১০%। A-এর মোট আয় কত হবে?",
+      "options": {
+        "A": "৬০,০০০",
+        "B": "৫৫,০০০",
+        "C": "৫৮,৬০০",
+        "D": "সোজা"
+      },
+      "correct_answer": "C",
+      "explanation": "বেতন পরবর্তী মুনাফা = ১০০,০০০ - ১০,০০০ = ৯০,০০০। B এর বোনাস = ৯০,০০০ এর ১০% = ৯,০০০। বণ্টনযোগ্য অবশিষ্ট মুনাফা = ৯০,০০০ - ৯,০০০ = ۸১,০০০। A এর অংশ = ৮১,০০০ * (৩/৫) = ৪৮,৬০০। A এর মোট আয় = ৪৮,৬০০ + ১০,০০০ = ৫৮,৬০০ টাকা।"
+    }
+  ]
+}

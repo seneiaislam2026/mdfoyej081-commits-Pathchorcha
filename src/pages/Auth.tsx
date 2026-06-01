@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, Phone, Mail } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
-import { ConfirmationResult } from 'firebase/auth';
+import { ConfirmationResult, sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from "../lib/firebase";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -152,7 +153,27 @@ export default function Auth() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="font-bengali font-medium text-slate-700">পাসওয়ার্ড</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password" className="font-bengali font-medium text-slate-700">পাসওয়ার্ড</Label>
+                    <button type="button" onClick={async () => {
+                      if (!identifier.trim()) {
+                        alert("পাসওয়ার্ড রিসেট করতে আগে ইমেইল দিন।");
+                        return;
+                      }
+                      try {
+                        await sendPasswordResetEmail(auth, identifier.trim());
+                        alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠানো হয়েছে। দয়া করে ইনবক্স চেক করুন।");
+                      } catch (e: any) {
+                        if (e.code === 'auth/user-not-found') {
+                          alert("এই ইমেইলের কোনো একাউন্ট পাওয়া যায়নি।");
+                        } else if (e.code === 'auth/invalid-email') {
+                          alert("সঠিক ইমেইল অ্যাড্রেস দিন।");
+                        } else {
+                          alert("পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে।");
+                        }
+                      }
+                    }} className="text-sm font-bengali text-primary hover:underline font-medium">পাসওয়ার্ড ভুলে গেছেন?</button>
+                  </div>
                   <Input 
                     id="password" 
                     type="password" 

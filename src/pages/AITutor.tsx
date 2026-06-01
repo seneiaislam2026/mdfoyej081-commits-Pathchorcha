@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Sparkles, Loader2, ImagePlus, X, MessageCircleQuestion, Users, CheckCircle2 } from "lucide-react";
+import { Send, Brain, User, Sparkles, Loader2, ImagePlus, X, MessageCircleQuestion, Users, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ReactMarkdown from 'react-markdown';
@@ -36,7 +36,7 @@ export default function AITutor() {
     {
       id: "1",
       sender: "bot",
-      text: "হ্যালো! আমি তোমার এআই টিউটর। पढ़ाई, সাবজেক্ট বা কোনো টপিক নিয়ে কোনো প্রশ্ন থাকলে আমাকে করতে পারো।"
+      text: "হ্যালো! আমি তোমার এআই টিউটর। পড়াশোনা, সাবজেক্ট বা কোনো টপিক নিয়ে কোনো প্রশ্ন থাকলে আমাকে করতে পারো।"
     }
   ]);
   const [input, setInput] = useState("");
@@ -235,7 +235,7 @@ export default function AITutor() {
             className={`font-bengali ${activeTab !== "ai" && "text-white hover:text-white/80 hover:bg-white/10"}`}
             onClick={() => setActiveTab("ai")}
           >
-            <Bot className="w-4 h-4 mr-2" />
+            <Brain className="w-4 h-4 mr-2" />
             এআই টিউটর
           </Button>
           <Button 
@@ -267,7 +267,7 @@ export default function AITutor() {
               <div key={msg.id} className={`flex gap-4 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                 {msg.sender === "bot" && (
                   <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0">
-                    <Bot className="w-5 h-5 text-white" />
+                    <Brain className="w-5 h-5 text-white" />
                   </div>
                 )}
                 
@@ -301,7 +301,7 @@ export default function AITutor() {
             {loading && (
               <div className="flex gap-4 justify-start">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
+                  <Brain className="w-5 h-5 text-white" />
                 </div>
                 <div className="bg-white border border-slate-200 shadow-sm rounded-2xl rounded-tl-sm p-4 flex items-center gap-2">
                   <Loader2 className="w-5 h-5 text-primary animate-spin" />
@@ -344,7 +344,7 @@ export default function AITutor() {
               <Input 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="এআই টিউটরকে জিজ্ঞাসা করো..."
+                placeholder={"এআই টিউটরকে জিজ্ঞাসা করো..."}
                 className="flex-1 h-12 rounded-xl border-slate-200 focus:bg-slate-50 font-bengali"
                 disabled={loading}
               />
@@ -446,7 +446,7 @@ export default function AITutor() {
               <Input 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="শিক্ষককে প্রশ্ন পাঠাও..."
+                placeholder={"শিক্ষককে প্রশ্ন পাঠাও..."}
                 className="flex-1 h-12 rounded-xl border-slate-200 focus:bg-orange-50 focus:border-orange-200 border-2 font-bengali"
                 disabled={loading}
               />

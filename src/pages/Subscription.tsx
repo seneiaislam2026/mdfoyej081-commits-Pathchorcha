@@ -50,6 +50,54 @@ export default function Subscription() {
   const navigate = useNavigate();
   const { user, userData } = useAuth();
   
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      alert("দয়াকরে কুপন কোড লিখুন");
+      return;
+    }
+    if (!user || !userData?.uid) {
+      navigate("/auth");
+      return;
+    }
+    setIsProcessing(true);
+    try {
+      const { doc, getDoc, updateDoc, Timestamp, deleteDoc } = await import("firebase/firestore");
+      const { db } = await import("../lib/firebase");
+      
+      const compCode = couponCode.trim().toUpperCase();
+      const couponRef = doc(db, "coupons", compCode);
+      const couponSnap = await getDoc(couponRef);
+      
+      if (!couponSnap.exists() || !couponSnap.data().active) {
+        alert("কুপন কোডটি সঠিক নয় অথবা এর মেয়াদ শেষ হয়ে গেছে।");
+        setIsProcessing(false);
+        return;
+      }
+
+      const couponData = couponSnap.data();
+      const months = couponData.months || 1;
+      const proUntilMillis = Date.now() + months * 30 * 24 * 60 * 60 * 1000;
+      
+      await updateDoc(doc(db, "users", userData.uid), {
+        isPro: true,
+        proUntil: Timestamp.fromMillis(proUntilMillis)
+      });
+      
+      // Delete coupon if it's one-time use (optional), here we assume it's one-time use for safety if they try to reuse,
+      // but if the admin wants it multi-use, we shouldn't delete it.
+      // We will keep it multi-use for this implementation unless explicitly stated.
+      
+      alert(`অভিনন্দন! আপনার ${months} মাসের প্রো সাবস্ক্রিপশন সফলভাবে এক্টিভেট হয়েছে।`);
+      window.location.reload();
+
+    } catch (e) {
+      console.error("Coupon error:", e);
+      alert("কুপন প্রয়োগ করতে সমস্যা হয়েছে।");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleSubscribe = async () => {
     if (!user) {
       navigate("/login");
@@ -225,7 +273,11 @@ export default function Subscription() {
                  onChange={(e) => setCouponCode(e.target.value)}
                  className="flex-1 rounded-2xl bg-slate-50 border-slate-200 font-mono h-14 px-5 text-lg"
                />
-               <Button variant="secondary" className="rounded-2xl font-bengali h-14 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base">
+               <Button 
+                variant="secondary" 
+                onClick={handleApplyCoupon}
+                disabled={isProcessing}
+                className="rounded-2xl font-bengali h-14 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base">
                  প্রয়োগ করুন
                </Button>
              </div>

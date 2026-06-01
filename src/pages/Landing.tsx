@@ -47,54 +47,6 @@ export default function Landing() {
       </nav>
 
       <main className="pt-32 pb-20 px-4 md:px-8 max-w-[1200px] mx-auto overflow-hidden">
-        {/* Hero Section */}
-        <section className="text-center max-w-4xl mx-auto space-y-6 relative z-10">
-          <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.6 }}
-             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/10 text-primary font-bengali text-sm font-medium mb-4"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            নতুন AI ফিচার যুক্ত হয়েছে
-          </motion.div>
-          <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bengali font-extrabold text-slate-900 tracking-tight leading-[1.15]"
-          >
-            বাংলার সবচেয়ে স্মার্ট <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">
-              AI শিক্ষা প্ল্যাটফর্ম
-            </span>
-          </motion.h1>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl font-bengali text-slate-600 max-w-2xl mx-auto leading-relaxed"
-          >
-            মক টেস্ট, AI সহকারী, ১০ লক্ষ+ প্রশ্ন, লিডারবোর্ড ও ব্যক্তিগত অ্যানালিটিক্স
-          </motion.p>
-          
-          <motion.div
-             initial={{ opacity: 0, y: 20 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.6, delay: 0.3 }}
-             className="pt-6 pb-10"
-          >
-            <Link to="/auth">
-              <Button className="bg-primary hover:bg-primary/95 text-white font-bengali font-bold text-lg md:text-xl px-8 py-7 h-auto rounded-full shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:-translate-y-1">
-                লগইন / রেজিস্ট্রেশন <ArrowRight className="ml-2 w-6 h-6" />
-              </Button>
-            </Link>
-          </motion.div>
-        </section>
-
         {/* Dashboard Preview Section (Bento Grid) */}
         <section className="relative mt-4">
            {/* Background Glow */}
@@ -124,15 +76,15 @@ export default function Landing() {
                    <h4 className="text-lg font-bengali font-semibold text-slate-900 pb-2">
                      'সোনার তরী' কবিতাটি কোন কাব্যগ্রন্থে সংকলিত?
                    </h4>
-                   <div className="grid grid-cols-2 gap-3">
-                     <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-3">
-                       <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center font-bold text-slate-500">A</div>
-                       <span className="font-bengali">বলাকা</span>
+                   <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                     <div className="p-3 sm:p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center gap-2 sm:gap-3">
+                       <div className="shrink-0 w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center font-bold text-slate-500">A</div>
+                       <span className="font-bengali truncate">বলাকা</span>
                      </div>
-                     <div className="p-4 rounded-xl border-2 border-secondary bg-[#FFFDF5] flex items-center gap-3 shadow-sm shadow-secondary/10 relative overflow-hidden">
-                       <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center font-bold text-primary">C</div>
-                       <span className="font-bengali font-bold text-primary">সোনার তরী</span>
-                       <CheckCircle2 className="w-5 h-5 text-secondary absolute right-4" />
+                     <div className="p-3 sm:p-4 pr-2 sm:pr-4 rounded-xl border-2 border-secondary bg-[#FFFDF5] flex items-center gap-2 sm:gap-3 shadow-sm shadow-secondary/10 overflow-hidden">
+                       <div className="shrink-0 w-8 h-8 rounded-lg bg-secondary flex items-center justify-center font-bold text-primary">C</div>
+                       <span className="font-bengali font-bold text-primary truncate">সোনার তরী</span>
+                       <CheckCircle2 className="w-5 h-5 text-secondary shrink-0 ml-auto" />
                      </div>
                    </div>
                 </div>
@@ -225,16 +177,24 @@ export default function Landing() {
              </div>
            </motion.div>
         </section>
+
+        <section className="mt-16 text-center">
+          <motion.div
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             whileInView={{ opacity: 1, y: 0 }}
+             viewport={{ once: true }}
+             className="pt-6 pb-10"
+          >
+            <Link to="/auth">
+              <Button className="bg-primary hover:bg-primary/95 text-white font-bengali font-bold text-lg md:text-xl px-8 py-7 h-auto rounded-full shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:-translate-y-1">
+                লগইন / রেজিস্ট্রেশন <ArrowRight className="ml-2 w-6 h-6" />
+              </Button>
+            </Link>
+          </motion.div>
+        </section>
       </main>
 
-      {/* Floating Sticky Mobile CTA */}
-      <div className="md:hidden fixed bottom-6 left-0 right-0 px-4 z-50">
-        <Link to="/auth">
-          <Button className="w-full bg-primary hover:bg-primary/90 text-white font-bengali font-bold text-lg py-6 h-14 rounded-full shadow-[0_8px_30px_rgba(15,39,68,0.4)]">
-            লগইন / রেজিস্ট্রেশন <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
-        </Link>
-      </div>
     </div>
   );
 }

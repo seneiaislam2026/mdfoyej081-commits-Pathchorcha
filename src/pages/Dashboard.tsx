@@ -337,8 +337,17 @@ export default function Dashboard() {
                 Daily Challenge
               </div>
               <h3 className="text-2xl font-bengali font-bold text-slate-900 mb-2 leading-tight">
-                এইচএসসি পদার্থবিজ্ঞান <br />
-                অধ্যায় ৩: গতিবিদ্যা মডেল টেস্ট
+                {userData?.group === "মানবিক"
+                  ? "এইচএসসি ইতিহাস"
+                  : userData?.group === "বাণিজ্য"
+                  ? "এইচএসসি হিসাববিজ্ঞান"
+                  : "এইচএসসি পদার্থবিজ্ঞান"}{" "}
+                <br />
+                {userData?.group === "মানবিক"
+                  ? "অধ্যায় ২: ফরাসি বিপ্লব মডেল টেস্ট"
+                  : userData?.group === "বাণিজ্য"
+                  ? "অধ্যায় ২: লেনদেন মডেল টেস্ট"
+                  : "অধ্যায় ৩: গতিবিদ্যা মডেল টেস্ট"}
               </h3>
               <p className="font-bengali text-slate-500 text-sm mb-6 max-w-sm">
                 ২৫টি গুরুত্বপূর্ণ বহুনির্বাচনি প্রশ্ন। সময়: ২০ মিনিট। নিজেকে

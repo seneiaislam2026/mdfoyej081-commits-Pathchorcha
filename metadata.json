@@ -1,6 +1,6 @@
 {
   "name": "PathCharcha",
   "description": "Bengali Educational Exam Preparation Platform",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

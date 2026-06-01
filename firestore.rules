@@ -23,8 +23,7 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if (isSignedIn() && request.auth.uid == userId) || isAdmin();
-      
+      allow read: if isSignedIn();
       allow create: if isSignedIn()
         && isValidId(userId)
         && request.auth.uid == userId
@@ -42,10 +41,46 @@ service cloud.firestore {
         && incoming().updatedAt == request.time) || isAdmin();
     }
 
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /subjects/{subjectId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /coupons/{couponId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
     match /doubts/{doubtId} {
       allow read: if isSignedIn() && (request.auth.uid == resource.data.userId || isAdmin() || isTutor());
       allow create: if isSignedIn() && incoming().userId == request.auth.uid;
       allow update: if isSignedIn() && (isAdmin() || isTutor());
+    }
+
+    match /public_exams/{examId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /public_exam_results/{resultId} {
+      allow create: if true;
+      allow read: if isAdmin();
+    }
+
+    match /reports/{reportId} {
+      allow create: if isSignedIn();
+      allow read: if (isAdmin() || isTutor());
+      allow update: if (isAdmin() || isTutor());
+    }
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }
