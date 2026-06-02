@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   BrainCircuit,
@@ -17,8 +18,67 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../lib/AuthContext";
+import { useIsPWA } from "../lib/useIsPWA";
+
+function getDailyChallenge(group: string | undefined, isAdmission: boolean) {
+  const epoch = new Date('2024-01-01').getTime();
+  const now = new Date().getTime();
+  let dayIndex = Math.floor((now - epoch) / (1000 * 60 * 60 * 24));
+  
+  // For admission, speed up syllabus progression by 3x (6 months vs 2 months)
+  if (isAdmission) {
+     dayIndex = dayIndex * 3;
+  }
+  
+  // Group subjects by group
+  const syllabus: Record<string, { subject: string, chapters: number }[]> = {
+     "বিজ্ঞান": [
+        { subject: "এইচএসসি পদার্থবিজ্ঞান", chapters: 10 },
+        { subject: "এইচএসসি রসায়ন", chapters: 10 },
+        { subject: "এইচএসসি উচ্চতর গণিত", chapters: 10 },
+        { subject: "এইচএসসি জীববিজ্ঞান", chapters: 10 },
+     ],
+     "মানবিক": [
+        { subject: "এইচএসসি ইতিহাস", chapters: 10 },
+        { subject: "এইচএসসি পৌরনীতি", chapters: 10 },
+        { subject: "এইচএসসি যুক্তিবিদ্যা", chapters: 10 },
+        { subject: "এইচএসসি ভূগোল", chapters: 10 },
+     ],
+     "বাণিজ্য": [
+        { subject: "এইচএসসি হিসাববিজ্ঞান", chapters: 10 },
+        { subject: "এইচএসসি ব্যবসায় সংগঠন", chapters: 10 },
+        { subject: "এইচএসসি ফিন্যান্স", chapters: 10 },
+        { subject: "এইচএসসি উৎপাদন ব্যবস্থাপনা", chapters: 10 },
+     ]
+  };
+  
+  const userGroup = (group && syllabus[group]) ? group : "বিজ্ঞান";
+  const groupSyllabus = syllabus[userGroup];
+  
+  let totalChapters = 0;
+  groupSyllabus.forEach((s: any) => totalChapters += s.chapters);
+  
+  // Assume to cover in 180 days for regular, 60 days for admission
+  const daysPerChapter = isAdmission ? (60 / totalChapters) : (180 / totalChapters);
+  
+  let currentChapterIndex = Math.floor(dayIndex / daysPerChapter) % totalChapters;
+  
+  let runningSum = 0;
+  for (let s of groupSyllabus) {
+     if (currentChapterIndex < runningSum + s.chapters) {
+        const chapNum = currentChapterIndex - runningSum + 1;
+        return { subject: s.subject, chapterTitle: `অধ্যায় ${chapNum}: মডেল টেস্ট` };
+     }
+     runningSum += s.chapters;
+  }
+  
+  return { subject: "সাধারণ জ্ঞান", chapterTitle: "অধ্যায় ১: মডেল টেস্ট" };
+}
 
 export default function Dashboard() {
+  const isPWA = useIsPWA();
+  const [syncingOffline, setSyncingOffline] = useState(false);
+
   const quickStats = [
     {
       title: "মোট প্রশ্ন সমাধান",
@@ -181,8 +241,8 @@ export default function Dashboard() {
     },
     {
       title: "ডাউট সলভিং",
-      description: "এআই টিউটর ব্যবহার করে\nযেকোনো প্রশ্ন সমাধান",
-      link: "/tutor",
+      description: "যেকোনো প্রশ্নের উত্তর জানুন\nএবং আলোচনা করুন",
+      link: "/doubts",
       bgContent: "bg-[#f0fdff]",
       borderColor: "border-[#bbf7d0]",
       textColor: "text-[#0ea5e9]",
@@ -301,48 +361,55 @@ export default function Dashboard() {
         ))}
       </section>
 
-      {/* Offline Sync Banner */}
-      <section>
-        <motion.div
-           initial={{ opacity: 0, y: 15 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.4, delay: 0.3 }}
-           className="bg-[#f0f9ff] border border-[rgba(14,165,233,0.3)] p-5 sm:p-6 rounded-[24px] shadow-sm flex flex-col sm:flex-row items-center gap-4 justify-between"
-        >
-          <div className="flex items-center gap-4">
-             <div className="w-12 h-12 bg-white flex items-center justify-center rounded-full text-blue-500 shadow-sm shrink-0">
-                <BookOpen className="w-6 h-6" />
-             </div>
-             <div>
-                <h3 className="font-bengali font-bold text-slate-800 text-lg">
-                   অফলাইন মোড
-                </h3>
-                <p className="font-bengali text-slate-600 text-sm mt-1">
-                   ইন্টারনেট সংযোগ ছাড়াই প্রশ্ন ব্যাংক, মক টেস্ট এবং নোটস অ্যাক্সেস করতে ডেটা সেভ করে রাখুন।
-                </p>
-             </div>
-          </div>
-          <Button 
-            onClick={async () => {
-              try {
-                const { collection, getDocs } = await import("firebase/firestore");
-                const { db } = await import("../lib/firebase");
-                // Fetch all questions and notes to cache them for offline use
-                await getDocs(collection(db, "questions"));
-                await getDocs(collection(db, "notes"));
-                alert("অফলাইন ব্যবহারের জন্য সব ডেটা সেভ করা হয়েছে!");
-              } catch(e) {
-                console.error("Offline sync failed", e);
-                alert("ডাউনলোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।");
-              }
-            }}
-            variant="outline"
-            className="w-full sm:w-auto shrink-0 mt-2 sm:mt-0 font-bengali border-blue-500 text-blue-600 hover:bg-blue-50 bg-white"
+      {/* Offline Sync Banner - Only show in PWA */}
+      {isPWA && (
+        <section>
+          <motion.div
+             initial={{ opacity: 0, y: 15 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ duration: 0.4, delay: 0.3 }}
+             className="bg-[#f0f9ff] border border-[rgba(14,165,233,0.3)] p-5 sm:p-6 rounded-[24px] shadow-sm flex flex-col sm:flex-row items-center gap-4 justify-between"
           >
-             ডেটা সেভ করুন
-          </Button>
-        </motion.div>
-      </section>
+            <div className="flex items-center gap-4">
+               <div className="w-12 h-12 bg-white flex items-center justify-center rounded-full text-blue-500 shadow-sm shrink-0">
+                  <BookOpen className="w-6 h-6" />
+               </div>
+               <div>
+                  <h3 className="font-bengali font-bold text-slate-800 text-lg">
+                     অফলাইন মোড
+                  </h3>
+                  <p className="font-bengali text-slate-600 text-sm mt-1">
+                     ইন্টারনেট সংযোগ ছাড়াই প্রশ্ন ব্যাংক, মক টেস্ট এবং নোটস অ্যাক্সেস করতে ডেটা সেভ করে রাখুন।
+                  </p>
+               </div>
+            </div>
+            <Button 
+              onClick={async () => {
+                if (syncingOffline) return;
+                setSyncingOffline(true);
+                try {
+                  const { collection, getDocs, limit, query } = await import("firebase/firestore");
+                  const { db } = await import("../lib/firebase");
+                  // Fetch basic data to cache for offline use (server-first to guarantee latest)
+                  await getDocs(query(collection(db, "questions"), limit(200)));
+                  await getDocs(query(collection(db, "public_exams"), limit(20)));
+                  alert("অফলাইন ব্যবহারের জন্য সব ডেটা সেভ করা হয়েছে!");
+                } catch(e: any) {
+                  console.error("Offline sync failed", e);
+                  alert("ডাউনলোড করতে সমস্যা হয়েছে: " + (e.message || "Unknown error"));
+                } finally {
+                  setSyncingOffline(false);
+                }
+              }}
+              variant="outline"
+              disabled={syncingOffline}
+              className="w-full sm:w-auto shrink-0 mt-2 sm:mt-0 font-bengali border-blue-500 text-blue-600 hover:bg-blue-50 bg-white"
+            >
+               {syncingOffline ? "সেভ হচ্ছে..." : "ডেটা সেভ করুন"}
+            </Button>
+          </motion.div>
+        </section>
+      )}
 
       {/* AI Assistant Banner */}
       <section>
@@ -378,12 +445,12 @@ export default function Dashboard() {
                 <HelpCircle className="w-4 h-4 mr-2" /> AI টিউটর
               </Button>
             </Link>
-            <Link to="/tutor" className="flex-1 md:flex-none">
+            <Link to="/doubts" className="flex-1 md:flex-none">
               <Button
                 size="lg"
                 className="w-full md:w-auto font-bengali bg-secondary hover:bg-secondary/90 text-primary rounded-xl shadow-sm font-bold px-6"
               >
-                <MessageCircleQuestion className="w-4 h-4 mr-2" /> প্রশ্ন করো
+                <MessageCircleQuestion className="w-4 h-4 mr-2" /> ডাউট সলভিং
               </Button>
             </Link>
           </div>
@@ -403,17 +470,15 @@ export default function Dashboard() {
                 Daily Challenge
               </div>
               <h3 className="text-2xl font-bengali font-bold text-slate-900 mb-2 leading-tight">
-                {userData?.group === "মানবিক"
-                  ? "এইচএসসি ইতিহাস"
-                  : userData?.group === "বাণিজ্য"
-                  ? "এইচএসসি হিসাববিজ্ঞান"
-                  : "এইচএসসি পদার্থবিজ্ঞান"}{" "}
-                <br />
-                {userData?.group === "মানবিক"
-                  ? "অধ্যায় ২: ফরাসি বিপ্লব মডেল টেস্ট"
-                  : userData?.group === "বাণিজ্য"
-                  ? "অধ্যায় ২: লেনদেন মডেল টেস্ট"
-                  : "অধ্যায় ৩: গতিবিদ্যা মডেল টেস্ট"}
+                {(() => {
+                  const challenge = getDailyChallenge(userData?.group, userData?.class === "এডমিশন");
+                  return (
+                     <>
+                        {challenge.subject} <br />
+                        {challenge.chapterTitle}
+                     </>
+                  );
+                })()}
               </h3>
               <p className="font-bengali text-slate-500 text-sm mb-6 max-w-sm">
                 ২৫টি গুরুত্বপূর্ণ বহুনির্বাচনি প্রশ্ন। সময়: ২০ মিনিট। নিজেকে

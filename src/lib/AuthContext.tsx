@@ -60,14 +60,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
         setUser(currentUser);
         if (currentUser) {
-          // Optimistically set basic data that does not require network
-          setUserData({
-             uid: currentUser.uid,
-             email: currentUser.email || '',
-             fullName: currentUser.displayName || 'Student',
-             isPro: false,
-          } as UserData);
-
           try {
             // Fetch or create user document
             const userRef = doc(db, 'users', currentUser.uid);
@@ -91,9 +83,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }
 
               setUserData(data);
+            } else {
+               // Fallback if exists() is false but also not an error
+               setUserData({
+                 uid: currentUser.uid,
+                 email: currentUser.email || '',
+                 fullName: currentUser.displayName || '',
+                 isPro: false,
+               } as UserData);
             }
           } catch (e) {
              console.warn("Could not fetch user document (offline), using cached basic data", e);
+             setUserData({
+               uid: currentUser.uid,
+               email: currentUser.email || '',
+               fullName: currentUser.displayName || '',
+               isPro: false,
+             } as UserData);
           }
         } else {
           setUserData(null);

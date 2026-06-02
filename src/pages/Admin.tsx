@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2 } from "lucide-react";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -26,6 +26,7 @@ const menuItems = [
   { id: "leaderboard", label: "লিডারবোর্ড (Leaderboard)", icon: <Trophy className="w-5 h-5 mr-3" /> },
   { id: "doubts", label: "শিক্ষার্থীর প্রশ্ন (Doubts)", icon: <MessageCircleQuestion className="w-5 h-5 mr-3" /> },
   { id: "reports", label: "রিপোর্টকৃত প্রশ্ন (Reports)", icon: <AlertCircle className="w-5 h-5 mr-3" /> },
+  { id: "sms", label: "এসএমএস (SMS)", icon: <MessageCircleQuestion className="w-5 h-5 mr-3" /> },
   { id: "analytics", label: "অ্যানালিটিক্স (Analytics)", icon: <BarChart className="w-5 h-5 mr-3" /> },
   { id: "settings", label: "সেটিংস (Settings)", icon: <Settings className="w-5 h-5 mr-3" /> },
 ];
@@ -1267,6 +1268,72 @@ export default function Admin() {
                     </Table>
                   )}
                 </CardContent>
+            </Card>
+          </div>
+        ) : activeTab === "sms" ? (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl font-bold font-bengali">কাস্টম এসএমএস (Custom SMS)</h3>
+                <p className="text-muted-foreground font-bengali text-sm mt-1">যেকোনো নম্বরে সরাসরি এসএমএস পাঠান</p>
+              </div>
+            </div>
+            
+            <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden max-w-xl">
+               <CardHeader className="bg-slate-50 border-b border-slate-100">
+                 <CardTitle className="font-bengali text-lg text-slate-800">এসএমএস পাঠান</CardTitle>
+               </CardHeader>
+               <CardContent className="p-6 space-y-4">
+                 <form onSubmit={async (e) => {
+                   e.preventDefault();
+                   const form = e.target as HTMLFormElement;
+                   const phoneInput = form.elements.namedItem("phone") as HTMLInputElement;
+                   const msgInput = form.elements.namedItem("message") as HTMLTextAreaElement;
+                   const phone = phoneInput.value;
+                   const message = msgInput.value;
+                   
+                   setLoading(true);
+                   try {
+                     const res = await fetch("/api/send-sms", {
+                       method: "POST",
+                       headers: { "Content-Type": "application/json" },
+                       body: JSON.stringify({ phone, message })
+                     });
+                     if (res.ok) {
+                       alert("এসএমএস সফলভাবে পাঠানো হয়েছে।");
+                       msgInput.value = "";
+                     } else {
+                       const data = await res.json();
+                       alert(data.error || "এসএমএস পাঠাতে সমস্যা হয়েছে।");
+                     }
+                   } catch(err) {
+                     console.error(err);
+                     alert("এসএমএস পাঠাতে সমস্যা হয়েছে।");
+                   } finally {
+                     setLoading(false);
+                   }
+                 }}>
+                   <div className="space-y-2">
+                     <label className="font-bengali text-sm font-medium">ফোন নম্বর</label>
+                     <Input required name="phone" placeholder="01XXXXXXXXX" className="h-12" />
+                   </div>
+                   <div className="space-y-2 mt-4">
+                     <label className="font-bengali text-sm font-medium">মেসেজ (SMS Text)</label>
+                     <textarea required name="message" rows={4} placeholder="এসএমএস টেক্সট লিখুন..." className="w-full p-3 border rounded-xl bg-slate-50 focus:outline-primary placeholder:text-slate-400 font-bengali" />
+                     <p className="text-xs text-slate-500 font-bengali">প্রতি এসএমএস এ রেগুলার চার্জ প্রযোজ্য (Greenweb SMS)। Sender ID: +8809617634384</p>
+                   </div>
+                   <div className="mt-6 flex justify-end">
+                     <Button disabled={loading} type="submit" className="bg-primary text-white font-bengali flex items-center h-12 px-6">
+                        {loading ? "পাঠানো হচ্ছে..." : (
+                          <>
+                             <Send className="w-4 h-4 mr-2" />
+                             মেসেজ সেন্ড করুন
+                          </>
+                        )}
+                     </Button>
+                   </div>
+                 </form>
+               </CardContent>
             </Card>
           </div>
         ) : activeTab === "analytics" ? (

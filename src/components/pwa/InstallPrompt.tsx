@@ -7,6 +7,7 @@ export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
+  const [isInAppBrowser, setIsInAppBrowser] = useState(false);
 
   useEffect(() => {
     // Check if the app is already installed or if it's running standalone
@@ -15,6 +16,11 @@ export const InstallPrompt = () => {
       console.log('App is running in standalone mode, skipping install prompt');
       return;
     }
+
+    // Detect Facebook / Messenger / Instagram in-app browsers
+    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isFb = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Instagram") > -1);
+    setIsInAppBrowser(isFb);
 
     // Always show the prompt after a delay for non-standalone users
     const timer = setTimeout(() => {
@@ -106,6 +112,17 @@ export const InstallPrompt = () => {
                     <div className="bg-orange-50 border border-orange-200 p-3 rounded-xl mb-4">
                       <p className="text-orange-800 text-xs font-bengali">
                         ⚠️ আপনি এখন প্রিভিউ মোডে আছেন। সরাসরি ইনস্টল করতে, উপরের শেয়ার বাটন থেকে অথবা লিংক কপি করে নতুন ট্যাবে/ব্রাউজারে ওপেন করুন।
+                      </p>
+                    </div>
+                  ) : null}
+
+                  {isInAppBrowser ? (
+                    <div className="bg-red-50 border border-red-200 p-3 rounded-xl mb-4">
+                      <p className="text-red-800 text-[13px] font-bengali font-medium mb-1">
+                        ⚠️ মেসেঞ্জার থেকে সরাসরি অ্যাপ ইনস্টল করা যাবে না!
+                      </p>
+                      <p className="text-red-700 text-xs font-bengali">
+                        উপরে ডানদিকের মেনু <span className="font-bold whitespace-nowrap">( ⋮ )</span> থেকে <span className="font-bold">"Open in Chrome"</span> বা <span className="font-bold">"Open in system browser"</span> এ ক্লিক করুন। তারপর খুব সহজেই ইনস্টল করতে পারবেন।
                       </p>
                     </div>
                   ) : null}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,18 @@ export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState<OnboardingStep>("name");
   const { user, userData } = useAuth();
-  const [name, setName] = useState(userData?.fullName || "");
+  
+  useEffect(() => {
+    // If user already has a class, they shouldn't be here.
+    if (userData?.class) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [userData, navigate]);
+
+  const [name, setName] = useState(() => {
+    const val = userData?.fullName || "";
+    return val === "Student" ? "" : val;
+  });
   const [institution, setInstitution] = useState(userData?.institution || "");
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);

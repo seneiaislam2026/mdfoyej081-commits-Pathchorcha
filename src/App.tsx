@@ -17,6 +17,7 @@ import Admin from "./pages/Admin";
 import AITutor from "./pages/AITutor";
 import NoteDetails from "./pages/NoteDetails";
 import NoteHonesty from "./pages/NoteHonesty";
+import Doubts from "./pages/Doubts";
 import Subscription from "./pages/Subscription";
 import PublicExam from "./pages/PublicExam";
 import { ArrowLeft } from "lucide-react";
@@ -134,6 +135,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/tutor" element={<AITutor />} />
+          <Route path="/doubts" element={<Doubts />} />
           <Route path="/subscription" element={<Subscription />} />
         </Route>
         

@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "../lib/AuthContext";
+import { useIsPWA } from "../lib/useIsPWA";
 import { getDocs, collection, query, where, orderBy, limit } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
@@ -67,6 +68,7 @@ const getUniversitiesByGroup = (group?: string) => {
 
 export default function QuestionBank() {
   const { userData } = useAuth();
+  const isPWA = useIsPWA();
   const navigate = useNavigate();
   const initialClassGroup = mapUserClassToGroup(userData?.class);
   const [activeClassGroup, setActiveClassGroup] = useState(initialClassGroup);
@@ -217,6 +219,7 @@ export default function QuestionBank() {
                  <AlertCircle className="w-4 h-4" /> অফলাইন মোড
                </span>
              ) : (
+               isPWA && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -227,6 +230,7 @@ export default function QuestionBank() {
                   <BookOpen className="w-4 h-4 mr-1.5" />
                   {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
                 </Button>
+               )
              )}
           </div>
 

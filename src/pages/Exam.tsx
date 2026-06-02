@@ -4,6 +4,7 @@ import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowL
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
+import { useIsPWA } from "../lib/useIsPWA";
 
 const mockSets = [
   { id: "mock-10", title: "ছোট মক টেস্ট", totalQuestions: 10, timeMinutes: 10 },
@@ -87,6 +88,7 @@ const mockQuestions = [
 
 export default function Exam() {
   const { userData } = useAuth();
+  const isPWA = useIsPWA();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type') || 'model';
   const sets = type === 'mock' ? mockSets : modelSets;
@@ -290,6 +292,7 @@ export default function Exam() {
                  <AlertCircle className="w-4 h-4" /> অফলাইন মোড
                </span>
              ) : (
+               isPWA && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -300,6 +303,7 @@ export default function Exam() {
                   <BookOpen className="w-4 h-4 mr-1.5" />
                   {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
                 </Button>
+               )
              )}
            </div>
 
@@ -377,6 +381,7 @@ export default function Exam() {
                  <AlertCircle className="w-4 h-4" /> অফলাইন মোড
                </span>
              ) : (
+               isPWA && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -387,6 +392,7 @@ export default function Exam() {
                   <BookOpen className="w-4 h-4 mr-1.5" />
                   {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
                 </Button>
+               )
              )}
           </div>
 

@@ -3,21 +3,30 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, Phone, Mail } from "lucide-react";
+import { ArrowRight, Phone, Mail, X } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
 import { ConfirmationResult, sendPasswordResetEmail } from 'firebase/auth';
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Auth() {
   const navigate = useNavigate();
   const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('email');
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
-  const [phoneCode, setPhoneCode] = useState("");
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   
-  const { signInWithGoogle, signInOrSignUpWithEmail, setupRecaptcha, signInWithPhone, verifyPhoneCode, user, userData, loading: authLoading } = useAuth();
+  // Forgot Password States
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotIdentifier, setForgotIdentifier] = useState("");
+  const [forgotStep, setForgotStep] = useState<'input' | 'otp' | 'new_password'>('input');
+  const [forgotOtp, setForgotOtp] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState("");
+  
+  const { signInWithGoogle, signInOrSignUpWithEmail, user, userData, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -39,12 +48,20 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (identifier && password) {
       try {
+        setErrorMsg("");
         setLoading(true);
         let loginEmail = identifier.trim();
-        const data = await signInOrSignUpWithEmail(loginEmail, password);
+        if (!loginEmail.includes('@')) {
+           // Normalize phone to english digits just in case and remove spaces
+           loginEmail = loginEmail.replace(/\s+/g, "");
+           loginEmail = `${loginEmail}@pathchorcha.app`;
+        }
+        const data = await Promise.race([
+          signInOrSignUpWithEmail(loginEmail, password),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("ইন্টারনেট সংযোগ দুর্বল। দয়া করে আবার চেষ্টা করুন।")), 10000))
+        ]);
         if (data && data.class) {
           navigate("/dashboard");
         } else {
@@ -53,9 +70,9 @@ export default function Auth() {
       } catch (e: any) {
         console.error(e);
         if (e.code === 'auth/operation-not-allowed') {
-          alert("ইমেইল ও পাসওয়ার্ড লগইন চালু নেই। দয়া করে আপনার Firebase প্রজেক্টের (pathchorcha-279e7) Authentication সেটিংসে গিয়ে 'Email/Password' Provider চালু করুন।");
+          setErrorMsg("ইমেইল ও পাসওয়ার্ড লগইন চালু নেই। দয়া করে আপনার Firebase প্রজেক্টের Authentication সেটিংসে গিয়ে 'Email/Password' Provider চালু করুন।");
         } else {
-          alert(e.message || "লগিন বা রেজিস্ট্রেশন ব্যর্থ হয়েছে।");
+          setErrorMsg(e.message || "লগিন বা রেজিস্ট্রেশন ব্যর্থ হয়েছে।");
         }
       } finally {
         setLoading(false);
@@ -66,7 +83,10 @@ export default function Auth() {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      const data = await signInWithGoogle();
+      const data = await Promise.race([
+        signInWithGoogle(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("ইন্টারনেট সংযোগ দুর্বল। দয়া করে আবার চেষ্টা করুন।")), 15000))
+      ]);
       if (data && data.class) {
         navigate("/dashboard");
       } else {
@@ -77,6 +97,78 @@ export default function Auth() {
       alert("Failed to connect to Google.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError("");
+    setForgotLoading(true);
+
+    try {
+      const isEmail = forgotIdentifier.includes('@');
+      
+      if (forgotStep === 'input') {
+        if (isEmail) {
+          await sendPasswordResetEmail(auth, forgotIdentifier.trim());
+          alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠানো হয়েছে। দয়া করে ইনবক্স চেক করুন।");
+          setShowForgotModal(false);
+        } else {
+          // Sending SMS OTP
+          const res = await fetch("/api/send-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: forgotIdentifier.trim() })
+          });
+          const data = await res.json();
+          if (data.error) throw new Error(data.error);
+          
+          if (data.mockOtp) {
+             alert(`(Test Mode) Your OTP is: ${data.mockOtp}`);
+          }
+          
+          setForgotStep('otp');
+        }
+      } else if (forgotStep === 'otp') {
+        const res = await fetch("/api/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: forgotIdentifier.trim(), otp: forgotOtp.trim() })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        
+        setForgotStep('new_password');
+      } else if (forgotStep === 'new_password') {
+        // Here we hit the server to reset password.
+        // It requires Admin SDK to actually change firebase auth.
+        const res = await fetch("/api/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: forgotIdentifier.trim(), newPassword: newPassword })
+        });
+        const data = await res.json();
+        
+        if (res.ok) {
+           alert("পাসওয়ার্ড সফলভাবে পরিবর্তনের রিকুয়েস্ট করা হয়েছে (এটি কাজ করতে Admin SDK প্রয়োজন)। দয়া করে পুরানো পাসওয়ার্ড দিয়েই লগইন করুন আপাতত।");
+           setShowForgotModal(false);
+           setForgotStep('input');
+           setForgotOtp("");
+           setNewPassword("");
+        } else {
+           throw new Error(data.error || "পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে");
+        }
+      }
+    } catch (err: any) {
+      if (err.code === 'auth/user-not-found') {
+        setForgotError("এই ইমেইলের কোনো একাউন্ট পাওয়া যায়নি।");
+      } else if (err.code === 'auth/invalid-email') {
+        setForgotError("সঠিক ইমেইল অ্যাড্রেস দিন।");
+      } else {
+        setForgotError(err.message || "কোনো একটি সমস্যা হয়েছে।");
+      }
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -137,14 +229,19 @@ export default function Auth() {
                 <div className="bg-blue-50 text-blue-800 p-3 rounded-xl text-sm font-bengali mb-4 border border-blue-100">
                   ঈমেইল ও পাসওয়ার্ড দিন। একাউন্ট না থাকলে স্বয়ংক্রিয়ভাবে নতুন একাউন্ট তৈরি হয়ে যাবে।
                 </div>
+                {errorMsg && (
+                  <div className="bg-red-50 text-red-800 p-3 rounded-xl text-sm font-bengali mb-4 border border-red-100 text-center">
+                    {errorMsg}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <Label htmlFor="identifier" className="font-bengali font-medium text-slate-700">
-                    ইমেইল অ্যাড্রেস
+                    ইমেইল / ফোন নম্বর
                   </Label>
                   <Input 
                     id="identifier" 
-                    type="email"
-                    placeholder="seneiaislam@gmail.com" 
+                    type="text"
+                    placeholder="example@gmail.com অথবা 01XXXXXXXXX" 
                     className="h-12 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white focus:border-primary px-4 font-sans shadow-sm"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
@@ -155,24 +252,11 @@ export default function Auth() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="font-bengali font-medium text-slate-700">পাসওয়ার্ড</Label>
-                    <button type="button" onClick={async () => {
-                      if (!identifier.trim()) {
-                        alert("পাসওয়ার্ড রিসেট করতে আগে ইমেইল দিন।");
-                        return;
-                      }
-                      try {
-                        await sendPasswordResetEmail(auth, identifier.trim());
-                        alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট লিংক পাঠানো হয়েছে। দয়া করে ইনবক্স চেক করুন।");
-                      } catch (e: any) {
-                        if (e.code === 'auth/user-not-found') {
-                          alert("এই ইমেইলের কোনো একাউন্ট পাওয়া যায়নি।");
-                        } else if (e.code === 'auth/invalid-email') {
-                          alert("সঠিক ইমেইল অ্যাড্রেস দিন।");
-                        } else {
-                          alert("পাসওয়ার্ড রিসেট করতে সমস্যা হয়েছে।");
-                        }
-                      }
-                    }} className="text-sm font-bengali text-primary hover:underline font-medium">পাসওয়ার্ড ভুলে গেছেন?</button>
+                    <button type="button" onClick={() => {
+                        setForgotError("");
+                        setForgotStep('input');
+                        setShowForgotModal(true);
+                      }} className="text-sm font-bengali text-primary hover:underline font-medium">পাসওয়ার্ড ভুলে গেছেন?</button>
                   </div>
                   <Input 
                     id="password" 
@@ -216,6 +300,82 @@ export default function Auth() {
           </div>
         </div>
       </div>
+      
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-[32px] w-full max-w-md p-8 relative shadow-xl">
+            <button 
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full p-2"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <h3 className="text-2xl font-bengali font-bold text-slate-900 mb-2">পাসওয়ার্ড পুনরুদ্ধার</h3>
+            <p className="text-slate-500 font-bengali mb-6">
+              {forgotStep === 'input' && "ইমেইল অথবা ফোন নম্বর দিন"}
+              {forgotStep === 'otp' && "আপনার নম্বরে পাঠানো OTP দিন"}
+              {forgotStep === 'new_password' && "নতুন পাসওয়ার্ড সেট করুন"}
+            </p>
+            
+            <form onSubmit={handleForgotSubmit} className="space-y-4">
+              {forgotStep === 'input' && (
+                <div className="space-y-2">
+                  <Label className="font-bengali">ইমেইল / ফোন নম্বর</Label>
+                  <Input 
+                    type="text" 
+                    placeholder="example@gmail.com অথবা 01XXXXXXXXX" 
+                    value={forgotIdentifier}
+                    onChange={(e) => setForgotIdentifier(e.target.value)}
+                    required
+                    className="h-12 rounded-2xl bg-slate-50"
+                  />
+                </div>
+              )}
+              
+              {forgotStep === 'otp' && (
+                <div className="space-y-2">
+                  <Label className="font-bengali">OTP</Label>
+                  <Input 
+                    type="text" 
+                    placeholder="4 ডিজিটের কোড" 
+                    value={forgotOtp}
+                    onChange={(e) => setForgotOtp(e.target.value)}
+                    required
+                    className="h-12 rounded-2xl bg-slate-50 tracking-widest text-center text-xl"
+                  />
+                </div>
+              )}
+              
+              {forgotStep === 'new_password' && (
+                <div className="space-y-2">
+                  <Label className="font-bengali">নতুন পাসওয়ার্ড</Label>
+                  <Input 
+                    type="password" 
+                    placeholder="••••••••" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    className="h-12 rounded-2xl bg-slate-50"
+                  />
+                </div>
+              )}
+              
+              {forgotError && (
+                <div className="bg-red-50 text-red-700 p-3 rounded-xl text-sm font-bengali border border-red-100">
+                  {forgotError}
+                </div>
+              )}
+              
+              <Button disabled={forgotLoading} type="submit" className="w-full h-14 bg-primary text-white font-bengali font-bold rounded-xl">
+                {forgotLoading ? "অপেক্ষা করুন..." : 
+                  forgotStep === 'input' ? "OTP পাঠান" : 
+                  forgotStep === 'otp' ? "যাচাই করুন" : "পাসওয়ার্ড আপডেট করুন"}
+              </Button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

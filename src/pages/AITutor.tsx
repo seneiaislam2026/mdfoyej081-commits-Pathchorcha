@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { useAuth } from "../lib/AuthContext";
 import { collection, addDoc, getDocs, query, where, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import { useSearchParams } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -38,8 +39,10 @@ interface Doubt {
 
 export default function AITutor() {
   const { userData } = useAuth();
+  const [searchParams] = useSearchParams();
+  const defaultTab = (searchParams.get("tab") as "ai" | "community_doubts" | "solve_doubts") || "ai";
   
-  const [activeTab, setActiveTab] = useState<"ai" | "community_doubts" | "solve_doubts">("ai");
+  const [activeTab, setActiveTab] = useState<"ai" | "community_doubts" | "solve_doubts">(defaultTab);
   
   // AI Chat state
   const [messages, setMessages] = useState<Message[]>([
@@ -350,14 +353,6 @@ export default function AITutor() {
           >
             <Brain className="w-4 h-4 mr-2" />
             এআই টিউটর
-          </Button>
-          <Button 
-            variant={activeTab === "community_doubts" ? "secondary" : "ghost"} 
-            className={`font-bengali ${activeTab !== "community_doubts" && "text-white hover:text-white/80 hover:bg-white/10"}`}
-            onClick={() => setActiveTab("community_doubts")}
-          >
-            <Users className="w-4 h-4 mr-2" />
-            কমিউনিটি ডাউটস
           </Button>
           {userData?.isTutor && (
             <Button 
