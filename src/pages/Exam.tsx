@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock } from "lucide-react";
+import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
@@ -92,10 +92,10 @@ export default function Exam() {
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type') || 'model';
   const sets = type === 'mock' ? mockSets : modelSets;
-  const pageTitle = type === 'mock' ? 'মক টেস্ট অনুশীলন' : 'মডেল টেস্ট অনুশীলন';
+  const pageTitle = type === 'mock' ? 'মক টেস্ট অনুশীলন' : type === 'mistakes' ? 'ভুলগুলোর প্র্যাকটিস' : 'মডেল টেস্ট অনুশীলন';
   const pageDesc = type === 'mock' 
     ? 'অধ্যায়ভিত্তিক মক টেস্ট দিয়ে তোমার প্রস্তুতি যাচাই করো।' 
-    : 'নিচের মডেল টেস্টগুলো থেকে যে কোনো একটি বেছে নিয়ে পূর্ণাঙ্গ প্রস্তুতি যাচাই করো।';
+    : type === 'mistakes' ? 'আগের ভুল হওয়া প্রশ্নগুলো পুনরায় অনুশীলন করে নিজের দুর্বলতাগুলো কাটিয়ে ওঠো।' : 'নিচের মডেল টেস্টগুলো থেকে যে কোনো একটি বেছে নিয়ে পূর্ণাঙ্গ প্রস্তুতি যাচাই করো।';
 
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [activeSet, setActiveSet] = useState<string | null>(null);
@@ -137,26 +137,32 @@ export default function Exam() {
 
   useEffect(() => {
     const loadQuestions = async () => {
-      if ((type === 'mock' && activeSet && selectedSubject) || (type === 'model' && activeSet)) {
+      if ((type === 'mock' && activeSet && selectedSubject) || (type === 'model' && activeSet) || (type === 'mistakes' && activeSet)) {
         setIsLoading(true);
         try {
           const { collection, getDocs, query, where } = await import("firebase/firestore");
           const { db } = await import("../lib/firebase");
-          let qBase = collection(db, "questions");
-          let qQuery: any = qBase;
-          if (type === 'mock' && selectedSubject !== "সকল বিষয়") {
-            qQuery = query(qBase, where("subject", "==", selectedSubject));
+          
+          let allQs: any[] = [];
+          
+          if (type === 'mistakes' && userData?.uid) {
+             const mistakeSnap = await getDocs(collection(db, "users", userData.uid, "mistakes"));
+             allQs = mistakeSnap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+          } else {
+             let qBase = collection(db, "questions");
+             let qQuery: any = qBase;
+             if (type === 'mock' && selectedSubject !== "সকল বিষয়") {
+               qQuery = query(qBase, where("subject", "==", selectedSubject));
+             }
+             const snap = await getDocs(qQuery);
+             allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
           }
-          // Note: for model tests or "সকল বিষয়" it fetches all. Warning: could be large.
-          // Firebase limit typically easily handles a few thousands in one query.
-          const snap = await getDocs(qQuery);
-          const allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
           
           // Shuffle
           const shuffled = allQs.sort(() => Math.random() - 0.5);
           
           let numQuestions = 10;
-          if (type === 'mock') {
+          if (type === 'mock' || type === 'mistakes') {
              const counts = activeSet.split('-');
              if (counts.length === 2 && !isNaN(parseInt(counts[1]))) {
                 numQuestions = parseInt(counts[1]);
@@ -213,15 +219,55 @@ export default function Exam() {
 
     if (userData?.uid) {
       try {
-        const { doc, updateDoc, increment } = await import("firebase/firestore");
+        const { doc, updateDoc, increment, writeBatch } = await import("firebase/firestore");
         const { db } = await import("../lib/firebase");
+        
+        // Update user stats
         const userRef = doc(db, "users", userData.uid);
         await updateDoc(userRef, {
           points: increment(currentScore),
           totalExams: increment(1)
         });
+        
+        // Manage mistakes subcollection
+        const batch = writeBatch(db);
+        let batchCount = 0;
+        
+        dbQuestions.forEach(q => {
+          if (batchCount > 450) return; // firebase limit is 500
+          const mistakeRef = doc(db, "users", userData.uid, "mistakes", q.id);
+          
+          // if option was selected and it's wrong -> add to mistakes
+          if (selectedOptions[q.id] && selectedOptions[q.id] !== q.correctOption) {
+             batch.set(mistakeRef, {
+                ...q,
+                failedAt: Date.now()
+             });
+             batchCount++;
+          } 
+          // if they answered correctly now, let's remove it from mistakes!
+          else if (selectedOptions[q.id] === q.correctOption) {
+             batch.delete(mistakeRef);
+             batchCount++;
+          }
+        });
+        
+        if (batchCount > 0) {
+           await batch.commit();
+        }
+        
+        // Save test score history for trends
+        const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
+        await addDoc(collection(db, "users", userData.uid, "exam_results"), {
+          type: type || "unknown",
+          subject: selectedSubject || "Mixed",
+          score: currentScore,
+          total: dbQuestions.length * 10,
+          timestamp: serverTimestamp()
+        });
+
       } catch (err) {
-        console.error("Error updating score:", err);
+        console.error("Error saving exam results:", err);
       }
     }
   };
@@ -401,7 +447,19 @@ export default function Exam() {
           </p>
         </div>
 
-        {type === 'mock' ? (
+        {type === 'mistakes' ? (
+          <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden text-center">
+             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 to-rose-400"></div>
+             <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6">ভুলগুলোর প্র্যাকটিস</h3>
+             <p className="font-bengali text-slate-500 mb-8">যে প্রশ্নগুলো আগে পরীক্ষা দিতে গিয়ে ভুল হয়েছে, সেগুলো পুনরায় অনুশীলন করো। সর্বোচ্চ ২০টি প্রশ্ন দেয়া হবে।</p>
+             <button 
+                onClick={() => setActiveSet(`mistakes-20`)}
+                className="bg-red-500 text-white font-bengali font-bold px-8 py-4 rounded-2xl hover:bg-red-600 transition-colors shadow-md"
+             >
+                শুরু করুন
+             </button>
+          </div>
+        ) : type === 'mock' ? (
           <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden">
              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-secondary"></div>
              <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6 text-center">কয়টি প্রশ্নের পরীক্ষা দিতে চাও?</h3>
@@ -476,30 +534,31 @@ export default function Exam() {
     <div className="w-full max-w-4xl mx-auto pb-20 px-0 sm:px-4 pt-0 sm:pt-4">
       {/* Top Section */}
       <div className="sticky top-[88px] z-40 bg-white sm:bg-transparent py-2 sm:py-4 px-2 sm:px-0 mb-0 sm:mb-4 sm:border-0 shadow-sm sm:shadow-none">
-        <div className="flex items-center justify-between gap-x-2 bg-white sm:shadow-sm p-2 sm:p-4 rounded-xl sm:border sm:border-slate-200 w-full overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-          <div className="flex items-center space-x-2 overflow-hidden shrink-0">
+        <div className="max-w-[800px] mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-4 flex-1">
             <button 
              onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
-             className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 transition-colors shrink-0"
+             className="w-10 h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
             >
-             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600" />
+             <ArrowLeft className="w-5 h-5 text-slate-700" />
             </button>
+            <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-semibold rounded-full text-sm border border-blue-100/50 shadow-sm shrink-0">
+               <FileText className="w-4 h-4 opacity-70" />
+               <span className="font-bengali font-bold">বাকি:</span>
+               <span className="font-mono text-[15px] font-bold">{Math.max(0, dbQuestions.length - Object.keys(selectedOptions).length)}</span>
+            </div>
           </div>
           
-          <div className="flex items-center space-x-2 sm:space-x-4 shrink-0 overflow-x-auto pl-2" style={{ scrollbarWidth: 'none' }}>
-            <div className="flex items-center bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 shrink-0">
-               <span className="text-xs sm:text-sm text-blue-700 font-bold font-bengali whitespace-nowrap">
-                  বাকি: {dbQuestions.length - Object.keys(selectedOptions).length}
-               </span>
-            </div>
-            <div className="flex items-center text-orange-600 bg-orange-50 px-3 py-1.5 rounded-full font-mono text-xs sm:text-sm font-bold shrink-0 border border-orange-100">
-              <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-1.5 shrink-0" />
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 font-bold rounded-full text-sm border border-orange-100/50 shadow-sm font-mono shrink-0">
+               <Timer className="w-[18px] h-[18px] text-orange-500 animate-pulse" />
               {timeLeft}
             </div>
+            
             <Button 
-              variant="outline" 
+              variant="default" 
               size="sm" 
-              className={`font-bengali font-bold px-3 sm:px-4 shrink-0 text-xs sm:text-sm h-8 sm:h-9 rounded-full whitespace-nowrap ${isSubmitted ? 'text-green-600 border-green-200 hover:bg-green-50' : 'text-red-600 border-red-200 hover:bg-red-50'}`}
+              className={`font-bengali font-bold px-6 h-[38px] shrink-0 text-sm rounded-full whitespace-nowrap shadow-md ${isSubmitted ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20' : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20'}`}
               onClick={() => {
                 if (isSubmitted) {
                    setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null);
@@ -509,7 +568,7 @@ export default function Exam() {
                 }
               }}
             >
-              {isSubmitted ? 'ফিরে যান' : 'শেষ করুন'}
+              {isSubmitted ? 'ফিরে যান' : 'পরীক্ষা শেষ করুন'}
             </Button>
           </div>
         </div>
@@ -557,8 +616,9 @@ export default function Exam() {
                <p className="text-slate-500 font-bengali">কোনো প্রশ্ন পাওয়া যায়নি।</p>
              </div>
           ) : (
-          dbQuestions.map((q) => (
-            <div key={q.id} className="question-block border-b border-slate-100 pb-10 last:border-0 last:pb-0">
+        <div className="bg-white sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
+          {dbQuestions.map((q) => (
+            <div key={q.id} className="question-block p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
                {/* Question Header */}
                <div className="mb-4">
                  <div className="flex items-center gap-2 mb-2">
@@ -636,12 +696,12 @@ export default function Exam() {
                    <motion.div
                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
                      animate={{ opacity: 1, height: "auto", marginTop: 24 }}
-                     className="bg-[#fff9e6] border-2 border-[#fcd34d] rounded-[24px] p-5 shadow-sm overflow-hidden"
+                     className="bg-indigo-50/70 border border-indigo-100 rounded-[24px] p-5 shadow-sm overflow-hidden"
                    >
                      {userData?.isPro ? (
                        <div className="flex gap-4">
-                         <div className="w-10 h-10 bg-[#fbbf24] rounded-2xl flex items-center justify-center text-white shrink-0 shadow-inner">
-                           <Lightbulb className="w-6 h-6" />
+                         <div className="w-10 h-10 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-500 shrink-0 shadow-inner">
+                           <Brain className="w-5 h-5" />
                          </div>
                          <div className="flex-1 text-slate-800">
                            <h4 className="font-bold text-lg mb-1.5 font-bengali flex items-center">
@@ -673,8 +733,9 @@ export default function Exam() {
                </AnimatePresence>
 
             </div>
-          ))
-          )}
+          ))}
+        </div>
+        )}
         </div>
 
         {!isSubmitted && (

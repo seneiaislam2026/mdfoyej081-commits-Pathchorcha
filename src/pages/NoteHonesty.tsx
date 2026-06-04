@@ -1,17 +1,77 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bookmark, BookmarkCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "../lib/AuthContext";
+import { db } from "../lib/firebase";
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 export default function NoteHonesty() {
-  return (
-    <div className="max-w-4xl mx-auto pb-10 px-4">
-      <div className="mb-6">
-        <Link to="/notes" className="inline-flex items-center text-primary font-medium hover:underline text-sm bg-primary/10 px-4 py-2 rounded-full font-bengali">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          নোটস-এ ফিরে যান
-        </Link>
-      </div>
+  const { userData } = useAuth();
+  const [isSaved, setIsSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const noteId = "sototar-puroshkar";
+  const noteTitle = "সততার পুরস্কার";
 
-      <div className="bg-white rounded-[32px] p-8 md:p-10 shadow-sm border border-slate-100 font-bengali">
+  useEffect(() => {
+    if (userData?.uid) {
+      checkIfSaved();
+    }
+  }, [userData]);
+
+  const checkIfSaved = async () => {
+    if (!userData?.uid) return;
+    try {
+      const docRef = doc(db, "users", userData.uid, "saved_notes", noteId);
+      const docSnap = await getDoc(docRef);
+      setIsSaved(docSnap.exists());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleSave = async () => {
+    if (!userData?.uid) return;
+    setLoading(true);
+    try {
+      const docRef = doc(db, "users", userData.uid, "saved_notes", noteId);
+      if (isSaved) {
+        await deleteDoc(docRef);
+        setIsSaved(false);
+      } else {
+        await setDoc(docRef, {
+          noteId,
+          title: noteTitle,
+          link: `/notes/${noteId}`,
+          savedAt: serverTimestamp()
+        });
+        setIsSaved(true);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save note.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="w-full flex justify-center pb-10 px-0 sm:px-4">
+      
+
+      <div className="bg-white w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
+        <div className="flex justify-end mb-2">
+            <Button 
+                variant="outline"
+                size="icon"
+                onClick={toggleSave}
+                disabled={loading}
+                className={'shrink-0 rounded-full transition-colors ' + (isSaved ? 'bg-primary/10 text-primary border-primary/20' : 'text-slate-500')}
+            >
+                {isSaved ? <BookmarkCheck className="w-5 h-5 fill-primary" /> : <Bookmark className="w-5 h-5" />}
+            </Button>
+        </div>
         <style>{`
           /* Custom CSS based on user's HTML */
           .honesty-note {

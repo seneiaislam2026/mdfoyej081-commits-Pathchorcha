@@ -164,55 +164,18 @@ export default function AITutor() {
     setLoading(true);
 
     try {
-      const historyToSend = messages.filter(msg => msg.id !== "1").slice(-4);
-      
-      const apiKey = (import.meta as any).env.VITE_GEMINI_API_KEY;
-      if (!apiKey) {
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: "VITE_GEMINI_API_KEY বা GEMINI_API_KEY Environment Variable এ সেট করা নেই। দয়া করে ডেভেলপার বা হোস্ট এডমিনকে জানান।" }]);
-        setLoading(false);
-        return;
-      }
-
-      const systemInstruction = `You are a helpful and polite AI Tutor. You must only answer questions related to education, studying, and academics. If the user asks something outside of these domains, politely decline and remind them that you are an educational tutor. Respond in Bengali, neatly formatted, and easy for students to understand. Be encouraging and provide clear, step-by-step explanations when needed. Do not use 'নমস্কার' (namaskar) as a greeting. You can use 'হ্যালো' (Hello) or 'আসসালামু আলাইকুম' (Assalamu Alaikum), or just directly answer the question without a greeting.`;
-
-      const contents = historyToSend.map((msg: any) => {
-        return {
-           role: msg.sender === "user" ? "user" : "model",
-           parts: [{ text: msg.text }]
-        };
-      });
-
-      const lastParts: any[] = [];
-      if (userMessage.image) {
-        try {
-          const splitData = userMessage.image.split(',');
-          const mimeType = splitData[0].match(/:(.*?);/)[1];
-          const base64Data = splitData[1];
-          lastParts.push({ inlineData: { data: base64Data, mimeType: mimeType } });
-        } catch (e) {
-          console.error("Image processing error:", e);
-        }
-      }
-      lastParts.push({ text: userMessage.text || "Explain this image related to my studies." });
-      
-      contents.push({ role: "user", parts: lastParts });
-
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-           systemInstruction: { parts: [{text: systemInstruction}] },
-           contents: contents
-        })
+      const response = await fetch('/api/tutor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...messages, userMessage] })
       });
       
       const data = await response.json();
       
       if (response.ok) {
-        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "কোনো উত্তর পাওয়া যায়নি।";
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: reply }]);
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: data.text }]);
       } else {
-        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: `দুঃখিত, কোনো একটি সমস্যা হয়েছে। (${data.error?.message || "Unknown error"}). আবার চেষ্টা করো।` }]);
+        setMessages(prev => [...prev, { id: (Date.now() + 1).toString(), sender: "bot", text: `দুঃখিত, কোনো একটি সমস্যা হয়েছে। (${data.error || "Unknown error"}). আবার চেষ্টা করো।` }]);
       }
     } catch (error: any) {
       console.error(error);
@@ -279,6 +242,28 @@ export default function AITutor() {
     }
   };
 
+  const submitAnswer = async (doubtId: string) => {
+    const text = commentTexts[doubtId];
+    if (!text?.trim() || !userData?.uid) return;
+
+    setDoubtLoading(true);
+    try {
+      await updateDoc(doc(db, "doubts", doubtId), {
+        status: "answered",
+        answer: text.trim(),
+        answeredBy: userData.fullName || "Tutor"
+      });
+      setCommentTexts(prev => ({...prev, [doubtId]: ""}));
+      if (activeTab === "community_doubts") fetchCommunityDoubts();
+      if (activeTab === "solve_doubts") fetchAllDoubts();
+    } catch(e) {
+      console.error(e);
+      alert("Failed to submit answer.");
+    } finally {
+      setDoubtLoading(false);
+    }
+  };
+
   const renderDoubt = (doubt: Doubt) => (
     <div key={doubt.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
       <div className="flex justify-between items-start gap-4">
@@ -321,18 +306,35 @@ export default function AITutor() {
          </div>
       )}
 
-      {/* Add comment */}
-      <div className="flex gap-2 mt-4 pt-2">
-        <Input 
-           value={commentTexts[doubt.id] || ""}
-           onChange={(e) => setCommentTexts({...commentTexts, [doubt.id]: e.target.value})}
-           placeholder="কমেন্ট করুন (Comment like Facebook)..."
-           className="h-10 text-sm font-bengali bg-slate-50"
-        />
-        <Button size="sm" onClick={() => submitComment(doubt)} disabled={doubtLoading || !commentTexts[doubt.id]?.trim()} className="h-10 px-4">
-           Send
-        </Button>
-      </div>
+      {/* Answer Input */}
+      {doubt.status === "pending" && userData?.isTutor && (
+        <div className="flex gap-2 mt-4 pt-2 border-t border-slate-100">
+          <Input 
+             value={commentTexts[doubt.id] || ""}
+             onChange={(e) => setCommentTexts({...commentTexts, [doubt.id]: e.target.value})}
+             placeholder="শিক্ষার্থীর প্রশ্নের উত্তর দিন (Reply)..."
+             className="h-10 text-sm font-bengali bg-slate-50 border-blue-200 focus-visible:ring-blue-500"
+          />
+          <Button size="sm" onClick={() => submitAnswer(doubt.id)} disabled={doubtLoading || !commentTexts[doubt.id]?.trim()} className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white">
+             Answer
+          </Button>
+        </div>
+      )}
+      
+      {/* Fallback comment for others */}
+      {(!userData?.isTutor || doubt.status !== "pending") && (
+        <div className="flex gap-2 mt-4 pt-2">
+          <Input 
+             value={commentTexts[doubt.id] || ""}
+             onChange={(e) => setCommentTexts({...commentTexts, [doubt.id]: e.target.value})}
+             placeholder="Discuss or comment..."
+             className="h-10 text-sm font-bengali bg-slate-50"
+          />
+          <Button variant="ghost" size="sm" onClick={() => submitComment(doubt)} disabled={doubtLoading || !commentTexts[doubt.id]?.trim()} className="h-10 px-4 text-slate-500">
+             Send
+          </Button>
+        </div>
+      )}
     </div>
   );
 
@@ -353,6 +355,14 @@ export default function AITutor() {
           >
             <Brain className="w-4 h-4 mr-2" />
             এআই টিউটর
+          </Button>
+          <Button 
+            variant={activeTab === "community_doubts" ? "secondary" : "ghost"} 
+            className={`font-bengali ${activeTab !== "community_doubts" && "text-white hover:text-white/80 hover:bg-white/10"}`}
+            onClick={() => setActiveTab("community_doubts")}
+          >
+            <MessageCircleQuestion className="w-4 h-4 mr-2" />
+            শিক্ষককে প্রশ্ন করো
           </Button>
           {userData?.isTutor && (
             <Button 
@@ -471,7 +481,7 @@ export default function AITutor() {
       {activeTab === "community_doubts" && (
         <div className="flex-1 overflow-y-auto flex flex-col bg-slate-50">
           <div className="p-4 md:p-6 space-y-4 flex-1">
-            <h2 className="font-bengali font-bold text-lg text-slate-800">কমিউনিটি ডাউটস ({userData?.class ? `Class ${userData.class}` : "All"})</h2>
+            <h2 className="font-bengali font-bold text-lg text-slate-800">শিক্ষককে প্রশ্ন করো ({userData?.class ? `Class ${userData.class}` : "All"})</h2>
             
             {doubtLoading ? (
                <div className="flex items-center justify-center p-12">

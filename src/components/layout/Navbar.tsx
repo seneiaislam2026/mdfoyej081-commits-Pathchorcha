@@ -42,9 +42,9 @@ export default function Navbar() {
       <div className="container mx-auto max-w-[1200px] px-4 flex h-[88px] items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/dashboard" className="flex items-center space-x-2">
-            <span className="font-bengali font-bold text-[32px] tracking-tight">
-              <span className="text-primary">পাঠ</span>
-              <span className="text-secondary">চর্চা</span>
+            <span className="font-bengali font-bold text-[32px] leading-normal pb-1 tracking-tight">
+              <span className="text-primary">শিক্ষা</span>
+              <span className="text-secondary">ঙ্গন</span>
             </span>
           </Link>
         </div>
@@ -95,7 +95,7 @@ export default function Navbar() {
             </div>
             
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-[320px] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden font-bengali">
+              <div className="absolute right-[-10px] sm:right-0 origin-top-right mt-2 w-[300px] sm:w-[320px] max-w-[calc(100vw-32px)] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden font-bengali">
                 <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                   <h3 className="font-bold text-slate-800 text-sm">নোটিফিকেশন</h3>
                   <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium">২টি নতুন</span>

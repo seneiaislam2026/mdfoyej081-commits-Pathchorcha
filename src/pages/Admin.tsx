@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send } from "lucide-react";
+import { useAuth } from "../lib/AuthContext";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
 const menuItems = [
@@ -28,10 +29,12 @@ const menuItems = [
   { id: "reports", label: "রিপোর্টকৃত প্রশ্ন (Reports)", icon: <AlertCircle className="w-5 h-5 mr-3" /> },
   { id: "sms", label: "এসএমএস (SMS)", icon: <MessageCircleQuestion className="w-5 h-5 mr-3" /> },
   { id: "analytics", label: "অ্যানালিটিক্স (Analytics)", icon: <BarChart className="w-5 h-5 mr-3" /> },
+  { id: "premium_marketing", label: "প্রিমিয়াম ও মার্কেটিং", icon: <TrendingUp className="w-5 h-5 mr-3" /> },
   { id: "settings", label: "সেটিংস (Settings)", icon: <Settings className="w-5 h-5 mr-3" /> },
 ];
 
 export default function Admin() {
+  const { user, userData } = useAuth();
   const [activeTab, setActiveTab] = useState("students");
   const [users, setUsers] = useState<any[]>([]);
   const [publicExams, setPublicExams] = useState<any[]>([]);
@@ -62,20 +65,25 @@ export default function Admin() {
   const [newCouponMonths, setNewCouponMonths] = useState("1");
   const [bulkUploadText, setBulkUploadText] = useState("");
   const [showCreateExamModal, setShowCreateExamModal] = useState(false);
+  const [editingExamId, setEditingExamId] = useState<string | null>(null);
   const [newExamTitle, setNewExamTitle] = useState("Weekly Public Exam");
   const [newExamDuration, setNewExamDuration] = useState("25");
   const [newExamQuestionsJSON, setNewExamQuestionsJSON] = useState("");
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [questionSearch, setQuestionSearch] = useState("");
   const [questionSubjectFilter, setQuestionSubjectFilter] = useState("All Subjects");
+  const [studentSearch, setStudentSearch] = useState("");
+  const [studentClassFilter, setStudentClassFilter] = useState("All Classes");
   const [selectedBankTitle, setSelectedBankTitle] = useState<string | null>(null);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
+  const [premiumData, setPremiumData] = useState<any>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (activeTab === "students") {
+    if (activeTab === "students" || activeTab === "dashboard") {
       fetchUsers();
-    } else if (activeTab === "settings") {
+    }
+    if (activeTab === "settings") {
       fetchSettings();
       fetchCoupons();
     } else if (activeTab === "exams") {
@@ -90,6 +98,8 @@ export default function Admin() {
       fetchQuestions();
     } else if (activeTab === "analytics") {
       fetchAnalytics();
+    } else if (activeTab === "premium_marketing") {
+      fetchPremiumData();
     }
   }, [activeTab]);
 
@@ -130,6 +140,75 @@ export default function Admin() {
       });
     } catch(e) {
       console.error(e);
+    }
+  };
+
+  const fetchPremiumData = async () => {
+    try {
+      setLoading(true);
+      const snapshot = await getDocs(collection(db, "users"));
+      const allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      
+      const now = Date.now();
+      const sevenDaysFromNow = now + 7 * 24 * 60 * 60 * 1000;
+      const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+      let premiumUsers = 0;
+      let expiringSoonList: any[] = [];
+      let expiredRecentlyList: any[] = [];
+      let newUsersLast7Days = 0;
+      let newUsersLast30Days = 0;
+
+      allUsers.forEach(user => {
+        // Track Premium Expiries
+        if (user.isPro) {
+          premiumUsers++;
+          let until = user.proUntil;
+          if (until) {
+            let untilTime = typeof until === 'number' ? until : (until?.toMillis ? until.toMillis() : new Date(until).getTime());
+             if (untilTime <= sevenDaysFromNow && untilTime > now) {
+               expiringSoonList.push({ ...user, expiry: untilTime });
+             } else if (untilTime < now) {
+               expiredRecentlyList.push({ ...user, expiry: untilTime });
+             }
+          }
+        } else {
+          let until = user.proUntil;
+          if (until) {
+             let untilTime = typeof until === 'number' ? until : (until?.toMillis ? until.toMillis() : new Date(until).getTime());
+             if (untilTime > thirtyDaysAgo && untilTime <= now) {
+               expiredRecentlyList.push({ ...user, expiry: untilTime });
+             }
+          }
+        }
+
+        // Track New Users Growth
+        let createdAt = user.createdAt;
+        if (createdAt) {
+          let createdTime = typeof createdAt === 'number' ? createdAt : (createdAt?.toMillis ? createdAt.toMillis() : new Date(createdAt).getTime());
+          if (createdTime >= sevenDaysAgo) {
+            newUsersLast7Days++;
+          }
+          if (createdTime >= thirtyDaysAgo) {
+            newUsersLast30Days++;
+          }
+        }
+      });
+      
+      setPremiumData({
+        totalUsers: allUsers.length,
+        premiumCount: premiumUsers,
+        premiumPercent: allUsers.length > 0 ? (premiumUsers / allUsers.length * 100).toFixed(1) : "0",
+        expiringSoon: expiringSoonList,
+        expiredRecently: expiredRecentlyList,
+        newUsersLast7Days,
+        newUsersLast30Days
+      });
+    } catch(e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -196,7 +275,6 @@ export default function Admin() {
   };
 
   const handleDeleteQuestion = async (id: string) => {
-    if (!window.confirm("আপনি কি নিশ্চিত যে প্রশ্নটি ডিলিট করতে চান?")) return;
     try {
       const { deleteDoc } = await import("firebase/firestore");
       await deleteDoc(doc(db, "questions", id));
@@ -239,7 +317,6 @@ export default function Admin() {
   };
 
   const deleteSubject = async (id: string) => {
-    if (!window.confirm("আপনি কি নিশ্চিত?")) return;
     try {
       const { deleteDoc } = await import("firebase/firestore");
       await deleteDoc(doc(db, "subjects", id));
@@ -291,7 +368,6 @@ export default function Admin() {
   };
 
   const deleteCoupon = async (id: string) => {
-    if (!window.confirm("আপনি কি নিশ্চিত?")) return;
     try {
       const { deleteDoc } = await import("firebase/firestore");
       await deleteDoc(doc(db, "coupons", id));
@@ -334,7 +410,7 @@ export default function Admin() {
       await updateDoc(doc(db, "doubts", doubtId), {
         status: "answered",
         answer: answer,
-        answeredBy: "Admin"
+        answeredBy: "শিক্ষাঙ্গন"
       });
       fetchPendingDoubts();
     } catch (e) {
@@ -361,7 +437,6 @@ export default function Admin() {
   };
 
   const resetLeaderboard = async () => {
-    if (!window.confirm("আপনি কি নিশ্চিত যে আপনি লিডারবোর্ড রিসেট করতে চান? সব শিক্ষার্থীর পয়েন্ট ০ হয়ে যাবে।")) return;
     
     try {
       const usersSnapshot = await getDocs(collection(db, "users"));
@@ -404,25 +479,65 @@ export default function Admin() {
 
     setExamsLoading(true);
     try {
-      await addDoc(collection(db, "public_exams"), {
-        title: newExamTitle,
-        duration,
-        active: true,
-        questions: parsedQuestions,
-        createdAt: serverTimestamp()
-      });
+      if (editingExamId) {
+        await updateDoc(doc(db, "public_exams", editingExamId), {
+          title: newExamTitle,
+          duration,
+          questions: parsedQuestions.length > 0 ? parsedQuestions : undefined,
+        });
+        alert("Public exam updated successfully.");
+      } else {
+        await addDoc(collection(db, "public_exams"), {
+          title: newExamTitle,
+          duration,
+          active: true,
+          questions: parsedQuestions,
+          createdAt: serverTimestamp()
+        });
+        alert("Public exam created successfully.");
+      }
       fetchPublicExams();
       setShowCreateExamModal(false);
+      setEditingExamId(null);
       setNewExamQuestionsJSON("");
       setNewExamTitle("Weekly Public Exam");
       setNewExamDuration("25");
-      alert("Public exam created successfully.");
     } catch (error) {
-      console.error("Error creating exam:", error);
-      alert("Failed to create public exam.");
+      console.error("Error saving exam:", error);
+      alert("Failed to save public exam.");
     } finally {
       setExamsLoading(false);
     }
+  };
+
+  const deletePublicExam = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this exam?")) return;
+    try {
+      await deleteDoc(doc(db, "public_exams", id));
+      alert("Exam deleted.");
+      fetchPublicExams();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to delete exam.");
+    }
+  };
+
+  const togglePublicExamActive = async (id: string, currentStatus: boolean) => {
+    try {
+      await updateDoc(doc(db, "public_exams", id), { active: !currentStatus });
+      fetchPublicExams();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to toggle status.");
+    }
+  };
+
+  const openEditPublicExam = (exam: any) => {
+    setEditingExamId(exam.id);
+    setNewExamTitle(exam.title);
+    setNewExamDuration(exam.duration?.toString() || "25");
+    setNewExamQuestionsJSON(exam.questions ? JSON.stringify(exam.questions, null, 2) : "");
+    setShowCreateExamModal(true);
   };
 
   const copyExamLink = (id: string) => {
@@ -516,6 +631,18 @@ export default function Admin() {
     }
   };
 
+  const deleteUser = async (userId: string) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      await deleteDoc(doc(db, "users", userId));
+      alert("User deleted successfully.");
+      fetchUsers();
+    } catch (e) {
+      console.error(e);
+      alert("Failed to delete user.");
+    }
+  };
+
   const groupedBanks = questions.reduce((acc, q) => {
     const title = q.title || "Uncategorized";
     if (!acc[title]) acc[title] = [];
@@ -529,6 +656,21 @@ export default function Admin() {
     const matchesSearch = questionSearch ? (q.text?.toLowerCase().includes(questionSearch.toLowerCase()) || q.title?.toLowerCase().includes(questionSearch.toLowerCase())) : true;
     const matchesSubject = questionSubjectFilter !== "All Subjects" ? q.subject === questionSubjectFilter : true;
     return matchesSearch && matchesSubject;
+  });
+
+  
+  const classCounts = users.reduce((acc: Record<string, number>, user: any) => {
+    const c = user.class || "Unknown";
+    acc[c] = (acc[c] || 0) + 1;
+    return acc;
+  }, {});
+  const sortedClasses = Object.entries(classCounts).sort((a, b) => b[1] - a[1]);
+
+  const uniqueClasses = Array.from(new Set(users.map(u => u.class).filter(Boolean))).sort();
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = studentSearch ? (u.fullName?.toLowerCase().includes(studentSearch.toLowerCase()) || u.phoneNumber?.includes(studentSearch) || u.email?.toLowerCase().includes(studentSearch.toLowerCase())) : true;
+    const matchesClass = studentClassFilter !== "All Classes" ? u.class === studentClassFilter : true;
+    return matchesSearch && matchesClass;
   });
 
   return (
@@ -598,14 +740,69 @@ export default function Admin() {
                 </Card>
               ))}
             </div>
-            <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-               <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
-                 <CardTitle className="text-lg">Recent Activity</CardTitle>
-               </CardHeader>
-               <CardContent className="p-6 text-center text-muted-foreground">
-                 Activity log will be displayed here.
-               </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
+                 <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
+                   <CardTitle className="text-lg">ক্লাস ভিত্তিক শিক্ষার্থী (Class-wise Students)</CardTitle>
+                 </CardHeader>
+                 <CardContent className="p-6">
+                   {sortedClasses.length > 0 ? (
+                     <div className="space-y-4">
+                       {sortedClasses.map(([cls, count]) => (
+                         <div key={cls} className="flex items-center justify-between">
+                           <span className="text-sm font-medium text-slate-700 font-bengali">{cls === "Unknown" ? "ক্লাস উল্লেখ নেই" : cls}</span>
+                           <span className="text-sm font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{count as number}</span>
+                         </div>
+                       ))}
+                     </div>
+                   ) : (
+                     <div className="text-center text-muted-foreground py-4">কোনো ডেটা নেই</div>
+                   )}
+                 </CardContent>
+              </Card>
+              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
+                 <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
+                   <CardTitle className="text-lg font-bengali">ড্যাশবোর্ড প্রিভিউ (Class-wise Preview)</CardTitle>
+                 </CardHeader>
+                 <CardContent className="p-6">
+                   <p className="text-sm text-slate-500 mb-4 font-bengali">আপনি কোন ক্লাসের ড্যাশবোর্ড দেখতে চান তা নির্বাচন করুন। এটি সাময়িক ভাবে আপনার নিজের প্রোফাইলের ক্লাস পরিবর্তন করবে, যার ফলে আপনি একজন সাধারণ শিক্ষার্থীর মতো সাইটটি দেখতে পাবেন।</p>
+                   <div className="flex flex-wrap gap-2 mb-6">
+                     {uniqueClasses.map((cls) => (
+                       <Button 
+                         key={cls as string} 
+                         variant={userData?.class === cls ? "default" : "outline"} 
+                         size="sm"
+                         className={userData?.class === cls ? "bg-primary font-bengali" : "font-bengali"}
+                         onClick={async () => {
+                           if (!user) return;
+                           try {
+                             let group = "৯ম-১০ম";
+                             if (["৬ষ্ঠ শ্রেণী", "৭ম শ্রেণী", "৮ম শ্রেণী", "৬ষ্ঠ-৮ম"].includes(cls as string)) group = "৬ষ্ঠ-৮ম";
+                             else if (["নবম শ্রেণী", "দশম শ্রেণী", "৯ম-১০ম"].includes(cls as string)) group = "৯ম-১০ম";
+                             else if (["বিজ্ঞান", "মানবিক", "ব্যবসায় শিক্ষা", "একাদশ শ্রেণী", "দ্বাদশ শ্রেণী", "একাদশ-দ্বাদশ"].includes(cls as string)) group = "একাদশ-দ্বাদশ";
+                             else if (["এডমিশন"].includes(cls as string)) group = "এডমিশন";
+                             
+                             await updateDoc(doc(db, "users", user.uid), { class: cls, group });
+                             alert("ক্লাস পরিবর্তন করা হয়েছে: " + cls);
+window.location.reload();
+                           } catch (e) {
+                             console.error(e);
+                             alert("Failed to update class.");
+                           }
+                         }}
+                       >
+                         {cls as string}
+                       </Button>
+                     ))}
+                   </div>
+                   <div className="flex flex-col sm:flex-row gap-3">
+                     <Button onClick={() => navigate('/dashboard')} className="flex-1 font-bengali">ড্যাশবোর্ডে যান</Button>
+                     <Button variant="outline" onClick={() => navigate('/question-bank')} className="flex-1 font-bengali">প্রশ্ন ব্যাংক দেখুন</Button>
+                     <Button variant="outline" onClick={() => navigate('/notes')} className="flex-1 font-bengali">নোটস দেখুন</Button>
+                   </div>
+                 </CardContent>
+              </Card>
+            </div>
           </div>
         ) : activeTab === "questions" ? (
           <div className="space-y-6 overflow-hidden">
@@ -761,17 +958,33 @@ export default function Admin() {
             </div>
 
             <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-              <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-row justify-between items-center whitespace-nowrap">
-                <CardTitle className="text-lg">সব ইউজার</CardTitle>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loading}>
+              <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <CardTitle className="text-lg whitespace-nowrap">সব ইউজার ({filteredUsers.length})</CardTitle>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <Input 
+                    placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..." 
+                    className="w-full sm:max-w-xs bg-white" 
+                    value={studentSearch}
+                    onChange={(e) => setStudentSearch(e.target.value)}
+                  />
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background sm:max-w-[150px]"
+                    value={studentClassFilter}
+                    onChange={(e) => setStudentClassFilter(e.target.value)}
+                  >
+                    <option value="All Classes">সব ক্লাস</option>
+                    {uniqueClasses.map((cls: any) => (
+                      <option key={cls} value={cls}>{cls}</option>
+                    ))}
+                  </select>
+                  <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loading} className="h-10">
                     {loading ? "Loading..." : "Refresh"}
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="p-4 sm:p-6 bg-slate-50/50">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {users.map((u) => (
+                  {filteredUsers.map((u) => (
                     <div key={u.id} className="group bg-white border border-slate-200/80 rounded-[24px] p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative overflow-hidden flex flex-col gap-4">
                       <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-blue-400 via-indigo-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       
@@ -824,6 +1037,12 @@ export default function Admin() {
                           {u.isTutor ? "Revoke Tutor" : <><BookOpen className="w-4 h-4 mr-1.5" /> Make Tutor</>}
                         </Button>
                       </div>
+                      <div className="mt-2">
+                        <Button variant="outline" className="w-full text-red-500 border-red-200 hover:bg-red-50" onClick={() => deleteUser(u.id)}>
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete User
+                        </Button>
+                      </div>
                     </div>
                   ))}
                   {users.length === 0 && !loading && (
@@ -842,7 +1061,13 @@ export default function Admin() {
                 <h3 className="text-2xl font-bold font-bengali">Public Exams Management</h3>
                 <p className="text-muted-foreground">পাবলিক পরীক্ষার লিংক তৈরি এবং শেয়ার করুন</p>
               </div>
-              <Button onClick={() => setShowCreateExamModal(true)} disabled={examsLoading} className="font-bengali">
+              <Button onClick={() => {
+                setEditingExamId(null);
+                setNewExamTitle("Weekly Public Exam");
+                setNewExamDuration("25");
+                setNewExamQuestionsJSON("");
+                setShowCreateExamModal(true);
+              }} disabled={examsLoading} className="font-bengali">
                 <Plus className="w-4 h-4 mr-2" /> 
                 নতুন লিংক তৈরি করুন
               </Button>
@@ -867,9 +1092,18 @@ export default function Admin() {
                       
                       <p className="text-sm text-slate-500 font-medium">সময়: {exam.duration} Minutes</p>
                       
-                      <div className="mt-1 pt-3 border-t">
+                      <div className="mt-1 pt-3 border-t grid grid-cols-2 gap-2">
                         <Button variant="outline" size="sm" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => copyExamLink(exam.id)}>
-                          <LinkIcon className="w-4 h-4 mr-2" /> লিংক কপি করুন
+                          <LinkIcon className="w-3.5 h-3.5 mr-1.5" /> লিংক
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full text-slate-600" onClick={() => togglePublicExamActive(exam.id, exam.active)}>
+                          {exam.active ? "বন্ধ করুন" : "চালু করুন"}
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50" onClick={() => openEditPublicExam(exam)}>
+                          <Edit className="w-3.5 h-3.5 mr-1.5" /> ইডিট
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full text-red-600 border-red-200 hover:bg-red-50" onClick={() => deletePublicExam(exam.id)}>
+                          <Trash2 className="w-3.5 h-3.5 mr-1.5" /> ডিলিট
                         </Button>
                       </div>
                     </div>
@@ -1375,72 +1609,169 @@ export default function Admin() {
                      </div>
                    </CardContent>
                  </Card>
-
-                 <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden">
-                   <CardContent className="p-6 flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
-                       <Target className="w-6 h-6 text-purple-600" />
-                     </div>
-                     <div>
-                       <p className="text-sm text-slate-500 font-medium">Public Exams</p>
-                       <p className="text-3xl font-bold text-slate-800">{analyticsData.examsCount}</p>
-                     </div>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden">
-                   <CardContent className="p-6 flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                       <BookOpen className="w-6 h-6 text-orange-600" />
-                     </div>
-                     <div>
-                       <p className="text-sm text-slate-500 font-medium">Total Subjects</p>
-                       <p className="text-3xl font-bold text-slate-800">{analyticsData.subjectsCount}</p>
-                     </div>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden">
-                   <CardContent className="p-6 flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                       <MessageCircleQuestion className="w-6 h-6 text-red-600" />
-                     </div>
-                     <div>
-                       <p className="text-sm text-slate-500 font-medium">Pending Doubts</p>
-                       <p className="text-3xl font-bold text-slate-800">{analyticsData.doubtsCount}</p>
-                     </div>
-                   </CardContent>
-                 </Card>
-
-                 <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden">
-                   <CardContent className="p-6 flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                       <AlertCircle className="w-6 h-6 text-yellow-600" />
-                     </div>
-                     <div>
-                       <p className="text-sm text-slate-500 font-medium">Reports</p>
-                       <p className="text-3xl font-bold text-slate-800">{analyticsData.reportsCount}</p>
-                     </div>
-                   </CardContent>
-                 </Card>
                </div>
-            )}
+             )}
+          </div>
+        ) : activeTab === "premium_marketing" ? (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl font-bold font-bengali">প্রিমিয়াম ও মার্কেটিং অ্যানালিটিক্স</h3>
+                <p className="text-muted-foreground">Track Premium subsciptions, user growth, and marketing insights</p>
+              </div>
+              <Button variant="outline" onClick={fetchPremiumData}>
+                 Refresh Data
+              </Button>
+            </div>
             
-            {analyticsData && (
-               <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden mt-6">
-                 <CardHeader className="bg-slate-50 border-b">
-                    <CardTitle className="text-lg">System Insights</CardTitle>
-                 </CardHeader>
-                 <CardContent className="p-6">
-                    <div className="text-sm text-slate-600 space-y-2">
-                       <p>• Question ratio per exam is approximately {((analyticsData.questionsCount || 1) / (analyticsData.examsCount || 1)).toFixed(1)}.</p>
-                       <p>• {analyticsData.doubtsCount} student doubts remain unresolved.</p>
-                       <p>• Total {analyticsData.usersCount} students are currently active on PathCharcha.</p>
-                    </div>
-                 </CardContent>
-               </Card>
+            {!premiumData ? (
+               <div className="text-center py-10 text-muted-foreground">Loading Premium Data...</div>
+            ) : (
+               <>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                   <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden">
+                     <CardContent className="p-6 flex items-center gap-4">
+                       <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                         <Users className="w-6 h-6 text-blue-600" />
+                       </div>
+                       <div>
+                         <p className="text-sm text-slate-500 font-medium font-bengali">সর্বমোট ইউজার</p>
+                         <p className="text-2xl font-bold text-slate-800">{premiumData.totalUsers}</p>
+                       </div>
+                     </CardContent>
+                   </Card>
+                   
+                   <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden bg-gradient-to-br from-yellow-50 to-orange-50">
+                     <CardContent className="p-6 flex items-center gap-4">
+                       <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center shrink-0 border border-yellow-200">
+                         <Crown className="w-6 h-6 text-yellow-600" />
+                       </div>
+                       <div>
+                         <p className="text-sm text-slate-600 font-bengali font-semibold">প্রিমিয়াম ইউজার</p>
+                         <div className="flex items-end gap-1.5">
+                            <p className="text-2xl font-bold text-yellow-700">{premiumData.premiumCount}</p>
+                            <p className="text-xs font-bold text-yellow-600 mb-1 leading-tight">({premiumData.premiumPercent}%)</p>
+                         </div>
+                       </div>
+                     </CardContent>
+                   </Card>
+
+                   <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden">
+                     <CardContent className="p-6 flex items-center gap-4">
+                       <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                         <TrendingUp className="w-6 h-6 text-green-600" />
+                       </div>
+                       <div>
+                         <p className="text-sm text-slate-500 font-medium font-bengali">নতুন ইউজার (৭ দিন)</p>
+                         <p className="text-2xl font-bold text-slate-800">+{premiumData.newUsersLast7Days}</p>
+                         <p className="text-[10px] text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded w-fit mt-1">Growth: {premiumData.newUsersLast30Days} in 30 days</p>
+                       </div>
+                     </CardContent>
+                   </Card>
+
+                   <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden">
+                     <CardContent className="p-6 flex items-center gap-4">
+                       <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                         <Clock className="w-6 h-6 text-orange-600" />
+                       </div>
+                       <div>
+                         <p className="text-sm text-slate-500 font-medium font-bengali">মেয়াদ শেষ হবে (৭ দিন)</p>
+                         <p className="text-2xl font-bold text-slate-800">{premiumData.expiringSoon.length}</p>
+                       </div>
+                     </CardContent>
+                   </Card>
+                 </div>
+
+                 <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden mt-6">
+                    <CardHeader className="bg-slate-50 border-b flex flex-row items-center gap-2">
+                       <LineChart className="w-5 h-5 text-slate-500" />
+                       <CardTitle className="text-lg font-bengali">মার্কেটিং সাজেশন ও ট্র্যাকিং</CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-6 space-y-8">
+                       {/* New User Growth Section */}
+                       <div className="space-y-4">
+                           <h4 className="font-bengali font-bold text-lg text-slate-800 border-b pb-2 flex items-center gap-2">
+                              <TrendingUp className="w-5 h-5 text-primary" /> নতুন ইউজার কনভার্শন স্ট্র্যাটেজি
+                           </h4>
+                           <div className="grid md:grid-cols-2 gap-4">
+                               <div className="bg-blue-50/50 border border-blue-100 p-4 rounded-xl">
+                                   <p className="font-bold text-blue-900 mb-1 font-bengali">সর্বশেষ ৭ দিনে {premiumData.newUsersLast7Days} জন নতুন ইউজার যুক্ত হয়েছে</p>
+                                   <p className="text-sm text-blue-800/80 font-bengali">যেকোনো এডুকেশনাল প্ল্যাটফর্মে প্রথম ৭ দিন ইউজারের ইন্টার‍্যাকশন সবচেয়ে বেশি থাকে। এদেরকে প্রিমিয়াম করার জন্য একটি 'Welcome Offer' দেওয়া অত্যন্ত কার্যকর।</p>
+                               </div>
+                               <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-xl shadow-sm">
+                                  <p className="text-sm font-bengali text-green-900 flex items-start gap-2">
+                                    <Check className="w-5 h-5 shrink-0 mt-0.5 text-green-600" />
+                                    <span><strong>অ্যাকশন:</strong> এই নতুন ইউজারদের টার্গেট করে "Welcome20" প্রোমোকোড দিয়ে একটি ইমেইল ও এসএমএস ক্যাম্পেইন রান করুন। সাথে AI টিউটর-এর ফ্রি ডেমো ভিডিও যুক্ত করে দিন।</span>
+                                  </p>
+                               </div>
+                           </div>
+                       </div>
+
+                       {/* Expiring Soon Section */}
+                       <div className="space-y-4">
+                           <h4 className="font-bengali font-bold text-lg text-slate-800 border-b pb-2 flex justify-between items-end">
+                              <span className="flex items-center gap-2"><Clock className="w-5 h-5 text-orange-500" /> সামনে যাদের মেয়াদ শেষ হবে (আগামী ৭ দিন)</span>
+                              <span className="text-sm text-muted-foreground">{premiumData.expiringSoon.length} জন</span>
+                           </h4>
+                           {premiumData.expiringSoon.length === 0 ? (
+                               <p className="text-sm text-slate-500 font-bengali italic">আগামী ৭ দিনে কোনো ইউজারের মেয়াদ শেষ হবে না।</p>
+                           ) : (
+                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {premiumData.expiringSoon.map((u: any, idx: number) => (
+                                     <div key={idx} className="bg-orange-50/50 border border-orange-100 p-4 rounded-xl flex flex-col justify-between">
+                                        <div>
+                                          <p className="font-bold text-slate-800">{u.fullName || u.name || "No Name"}</p>
+                                          <p className="text-sm text-slate-600 break-all">{u.email}</p>
+                                          <p className="text-sm text-slate-600">{u.phoneNumber || u.phone || "No Phone Number"}</p>
+                                        </div>
+                                        <p className="text-xs text-orange-600 mt-3 font-bold bg-orange-100 inline-block px-2 py-1 rounded w-fit">Exp: {new Date(u.expiry).toLocaleDateString()}</p>
+                                     </div>
+                                  ))}
+                               </div>
+                           )}
+                           <div className="bg-orange-50 border-l-4 border-orange-500 p-4 rounded-xl shadow-sm mt-4">
+                              <p className="text-sm font-bengali text-orange-900 flex items-start gap-2">
+                                <Bell className="w-5 h-5 mt-0.5 shrink-0" />
+                                <span><strong>রিনিউ সাজেশন:</strong> কাস্টমার প্রো-অ্যাক্টিভ না হলে রিনিউ রেট কমে যায়। যাদের মেয়াদ আগামী ৩ দিনের মধ্যে শেষ হবে, তাদের "আপনার সাবস্ক্রিপশন শেষ হচ্ছে, আজই রিনিউ করুন ২০% ছাড়ে" এই মেসেজটি ম্যানুয়ালি বা হোয়াটসঅ্যাপ এ পাঠান।</span>
+                              </p>
+                           </div>
+                       </div>
+
+                       {/* Expired Recently Section */}
+                       <div className="space-y-4">
+                           <h4 className="font-bengali font-bold text-lg text-slate-800 border-b pb-2 flex justify-between items-end">
+                              <span className="flex items-center gap-2"><Clock className="w-5 h-5 text-red-500" /> সম্প্রতি যাদের মেয়াদ শেষ হয়েছে (গত ৩০ দিন)</span>
+                              <span className="text-sm text-muted-foreground">{premiumData.expiredRecently.length} জন</span>
+                           </h4>
+                           {premiumData.expiredRecently.length === 0 ? (
+                               <p className="text-sm text-slate-500 font-bengali italic">গত ৩০ দিনে কোনো ইউজারের মেয়াদ শেষ হয়নি।</p>
+                           ) : (
+                               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                  {premiumData.expiredRecently.map((u: any, idx: number) => (
+                                     <div key={idx} className="bg-red-50/50 border border-red-100 p-4 rounded-xl opacity-80 flex flex-col justify-between">
+                                        <div>
+                                          <p className="font-bold text-slate-800">{u.fullName || u.name || "No Name"}</p>
+                                          <p className="text-sm text-slate-600 break-all">{u.email}</p>
+                                          <p className="text-sm text-slate-600">{u.phoneNumber || u.phone || "No Phone Number"}</p>
+                                        </div>
+                                        <p className="text-xs text-red-600 mt-3 font-bold bg-red-100 inline-block px-2 py-1 rounded w-fit">Expired: {new Date(u.expiry).toLocaleDateString()}</p>
+                                     </div>
+                                  ))}
+                               </div>
+                           )}
+                           <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-xl shadow-sm mt-4">
+                              <p className="text-sm font-bengali text-green-900 flex items-start gap-2">
+                                <Check className="w-5 h-5 mt-0.5 shrink-0 text-green-600" />
+                                <span><strong>উইন-ব্যাক স্ট্র্যাটেজি:</strong> এই ইউজারদের জন্য স্পেশাল উইন-ব্যাক অফার (যেমন, ২৫% ক্যাশব্যাক) দেওয়া যেতে পারে। এরা যেহেতু আগে সার্ভিস ব্যবহার করেছে, তাই নতুন ইউজার কনভার্ট করার চেয়ে এদের ফিরিয়ে আনা ৫ গুণ বেশি লাভজনক।</span>
+                              </p>
+                           </div>
+                       </div>
+                    </CardContent>
+                 </Card>
+               </>
             )}
           </div>
+
         ) : (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1586,7 +1917,7 @@ export default function Admin() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
           <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-xl flex flex-col">
             <div className="p-6 border-b flex justify-between items-center bg-slate-50">
-              <h3 className="text-xl font-bold font-bengali">পাবলিক পরীক্ষা তৈরি করুন</h3>
+              <h3 className="text-xl font-bold font-bengali">{editingExamId ? "পাবলিক পরীক্ষা ইডিট করুন" : "পাবলিক পরীক্ষা তৈরি করুন"}</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowCreateExamModal(false)} className="h-8 w-8 p-0 rounded-full">✕</Button>
             </div>
             <div className="p-6 flex-1 overflow-y-auto space-y-4">
@@ -1621,7 +1952,7 @@ export default function Admin() {
             </div>
             <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowCreateExamModal(false)} className="font-bengali">Cancel</Button>
-              <Button onClick={createPublicExam} disabled={examsLoading} className="font-bengali">Create Exam</Button>
+              <Button onClick={createPublicExam} disabled={examsLoading} className="font-bengali">{editingExamId ? "Save Changes" : "Create Exam"}</Button>
             </div>
           </div>
         </div>

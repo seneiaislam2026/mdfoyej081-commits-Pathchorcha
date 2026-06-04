@@ -96,11 +96,11 @@ export const InstallPrompt = () => {
           
           <div className="flex gap-4 items-start pt-1">
             <div className="w-16 h-16 shrink-0 relative bg-white flex items-center justify-center rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-1">
-               <img src="/icon.svg" alt="পাঠচর্চা Icon" className="w-[85%] h-[85%] object-contain" />
+               <img src="/icon.svg" alt="শিক্ষাঙ্গন Icon" className="w-[85%] h-[85%] object-contain" />
             </div>
             
             <div className="flex-1">
-              <h3 className="font-bengali font-bold text-lg text-slate-800 leading-tight">পাঠচর্চা অ্যাপ ইনস্টল করুন</h3>
+              <h3 className="font-bengali font-bold text-lg text-slate-800 leading-tight">শিক্ষাঙ্গন অ্যাপ ইনস্টল করুন</h3>
               
               {!showInstructions ? (
                 <>

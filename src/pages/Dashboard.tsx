@@ -15,6 +15,7 @@ import {
   HelpCircle,
   Code2,
   Crown,
+  Clock, LayoutList,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../lib/AuthContext";
@@ -78,6 +79,20 @@ function getDailyChallenge(group: string | undefined, isAdmission: boolean) {
 export default function Dashboard() {
   const isPWA = useIsPWA();
   const [syncingOffline, setSyncingOffline] = useState(false);
+  const [publicExams, setPublicExams] = useState<any[]>([]);
+  useEffect(() => {
+    async function fetchPublicExams() {
+      try {
+        const { collection, getDocs, limit, query, orderBy, where } = await import("firebase/firestore");
+        const { db } = await import("../lib/firebase");
+        const q = query(collection(db, "public_exams"), where("active", "==", true), orderBy("createdAt", "desc"), limit(3));
+        const snap = await getDocs(q);
+        setPublicExams(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+      } catch (error) { console.error("ERR", error); }
+    }
+    fetchPublicExams();
+  }, []);
+
 
   const quickStats = [
     {
@@ -240,6 +255,49 @@ export default function Dashboard() {
       ),
     },
     {
+      title: "ভুলের প্র্যাকটিস",
+      description: "পুর্বে ভুল হওয়া\nপ্রশ্নগুলোর পুনরাবৃত্তি",
+      link: "/exam?type=mistakes",
+      bgContent: "bg-[#fff1f2]",
+      borderColor: "border-[#fecdd3]",
+      textColor: "text-[#e11d48]",
+      icon: (
+        <div className="relative w-28 h-28 flex items-center justify-center">
+          <div className="absolute inset-0 bg-[#e11d48]/20 translate-y-3 rounded-[24px] blur-md"></div>
+          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#fb7185] to-[#e11d48] rounded-[20px] shadow-lg border-b-[5px] border-[#9f1239] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+            <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
+            <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex items-center justify-center">
+              <span className="text-3xl">🔄</span>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "শিক্ষককে প্রশ্ন",
+      description: "এআই টিউটর ব্যবহার করে\nযেকোনো প্রশ্ন সমাধান",
+      link: "/tutor?tab=ai",
+      bgContent: "bg-[#f5f3ff]",
+      borderColor: "border-[#ddd6fe]",
+      textColor: "text-[#8b5cf6]",
+      icon: (
+        <div className="relative w-28 h-28 flex items-center justify-center">
+          <div className="absolute inset-0 bg-[#8b5cf6]/20 translate-y-3 rounded-[24px] blur-md"></div>
+          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#a78bfa] to-[#7c3aed] rounded-[20px] shadow-lg border-b-[5px] border-[#5b21b6] flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-300">
+             <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
+             <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex shrink-0 items-center justify-center overflow-hidden">
+                <BrainCircuit className="w-8 h-8 text-[#7c3aed]" />
+             </div>
+             <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-[#c4b5fd] to-[#8b5cf6] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                <HelpCircle className="w-5 h-5 text-white" />
+             </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "ডাউট সলভিং",
       description: "যেকোনো প্রশ্নের উত্তর জানুন\nএবং আলোচনা করুন",
       link: "/doubts",
@@ -334,6 +392,44 @@ export default function Dashboard() {
         ))}
       </section>
 
+      {/* Live Public Exams Banner */}
+      {publicExams && publicExams.length > 0 && (
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+             <h3 className="text-2xl font-bengali font-bold text-slate-900 flex items-center gap-2">
+               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+               চলমান লাইভ এক্সাম
+             </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {publicExams.map((exam) => (
+              <Link to={`/public-exam/${exam.id}`} key={exam.id}>
+                <motion.div
+                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
+                  className="bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-3xl border border-indigo-100/50 shadow-sm relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/40 rounded-full -translate-y-8 translate-x-8 blur-xl"></div>
+                  <div className="flex justify-between items-start mb-3 relative z-10">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider">
+                      <span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span> লাইভ
+                    </div>
+                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-indigo-500">
+                      <Trophy className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <h4 className="font-bengali font-bold text-lg text-slate-800 mb-1 relative z-10 leading-snug">{exam.title}</h4>
+                  <div className="flex items-center gap-3 text-slate-500 text-sm font-medium mt-3 relative z-10">
+                     <span className="flex items-center gap-1 opacity-80"><Clock className="w-4 h-4"/> {exam.duration} মিনিট</span>
+                     <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                     <span className="flex items-center gap-1 opacity-80"><LayoutList className="w-4 h-4"/> {exam.questions ? exam.questions.length : 0} প্রশ্ন</span>
+                  </div>
+                </motion.div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Quick Stats Grid */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {quickStats.map((stat, idx) => (
@@ -411,6 +507,44 @@ export default function Dashboard() {
         </section>
       )}
 
+      {/* Live Public Exams (লাইভ মডেল টেস্ট) */}
+      {publicExams.length > 0 && (
+        <section className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-5 sm:p-6 my-2">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold font-bengali text-slate-800 flex items-center gap-2">
+              <span className="w-1.5 h-6 bg-[#f59e0b] rounded-full"></span>
+              লাইভ মডেল টেস্ট
+            </h2>
+            <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold animate-pulse">LIVE NOW</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {publicExams.map((exam, idx) => (
+               <motion.div 
+                 key={exam.id}
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 transition={{ duration: 0.3, delay: idx * 0.1 }}
+               >
+                 <Link to={`/public-exam/${exam.id}`}>
+                   <div className="bg-slate-50 hover:bg-slate-100 hover:shadow-md transition-all rounded-[20px] p-4 sm:p-5 border border-slate-100 flex justify-between items-center group h-full">
+                      <div className="flex-1 pr-4">
+                        <h3 className="font-bold text-slate-800 text-[15px] sm:text-[16px] leading-snug group-hover:text-primary transition-colors font-bengali">{exam.title}</h3>
+                        <div className="flex flex-wrap items-center gap-3 text-[12px] sm:text-xs text-slate-500 mt-2.5 font-medium font-bengali">
+                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-200"><Clock className="w-3.5 h-3.5 text-orange-500" /> {exam.duration} মি.</span>
+                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-200"><HelpCircle className="w-3.5 h-3.5 text-blue-500" /> {exam.questions?.length || 0} টি প্রশ্ন</span>
+                        </div>
+                      </div>
+                      <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-primary group-hover:border-primary transition-all">
+                        <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-white group-hover:-rotate-45 transition-all" />
+                      </div>
+                   </div>
+                 </Link>
+               </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* AI Assistant Banner */}
       <section>
         <motion.div
@@ -435,22 +569,22 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="flex justify-start w-full md:w-auto gap-3 relative z-10 shrink-0">
-            <Link to="/tutor" className="flex-1 md:flex-none">
+          <div className="flex flex-wrap justify-start w-full md:w-auto gap-3 relative z-10 shrink-0">
+            <Link to="/tutor" className="flex-auto md:flex-none max-w-full">
               <Button
                 size="lg"
                 variant="secondary"
-                className="w-full md:w-auto font-bengali bg-white text-primary hover:bg-slate-50 rounded-xl shadow-sm border-0 font-bold px-6"
+                className="w-full font-bengali bg-white text-primary hover:bg-slate-50 rounded-xl shadow-sm border-0 font-bold px-4 sm:px-6 whitespace-nowrap"
               >
-                <HelpCircle className="w-4 h-4 mr-2" /> AI টিউটর
+                <HelpCircle className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">AI টিউটর</span>
               </Button>
             </Link>
-            <Link to="/doubts" className="flex-1 md:flex-none">
+            <Link to="/doubts" className="flex-auto md:flex-none max-w-full">
               <Button
                 size="lg"
-                className="w-full md:w-auto font-bengali bg-secondary hover:bg-secondary/90 text-primary rounded-xl shadow-sm font-bold px-6"
+                className="w-full font-bengali bg-secondary hover:bg-secondary/90 text-primary rounded-xl shadow-sm font-bold px-4 sm:px-6 whitespace-nowrap"
               >
-                <MessageCircleQuestion className="w-4 h-4 mr-2" /> ডাউট সলভিং
+                <MessageCircleQuestion className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">শিক্ষককে প্রশ্ন করো</span>
               </Button>
             </Link>
           </div>

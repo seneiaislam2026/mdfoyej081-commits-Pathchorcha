@@ -23,7 +23,7 @@ async function startServer() {
       
       otpStore.set(phone, { otp, expires: expirationTime });
       
-      const message = `পাঠচর্চা (Pathchorcha) অ্যাপে আপনার পাসওয়ার্ড রিসেট ওটিপি: ${otp}`;
+      const message = `শিক্ষাঙ্গন (Shikshangon) অ্যাপে আপনার পাসওয়ার্ড রিসেট ওটিপি: ${otp}`;
       
       // Greenweb SMS API pattern
       const smsApiUrl = `http://api.greenweb.com.bd/api.php?token=T445ZnbHEELavHNv3Tdw&to=${phone}&message=${encodeURIComponent(message)}`;
@@ -166,6 +166,65 @@ async function startServer() {
     } catch (error: any) {
       console.error(error);
       res.status(500).json({ error: error.message || "Something went wrong." });
+    }
+  });
+
+  // --- EPS PAYMENT GATEWAY ROUTES ---
+  app.post('/.netlify/functions/getToken', async (req, res) => {
+    try {
+      const { getEpsToken } = await import('./src/lib/eps/epsApi.ts');
+      const data = await getEpsToken();
+      res.json({ success: true, ...data });
+    } catch (error: any) {
+      console.error('Token Error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.post('/.netlify/functions/createPayment', async (req, res) => {
+    try {
+      const { initializePayment } = await import('./src/lib/eps/epsApi.ts');
+      const paymentData = await initializePayment(req.body);
+      res.json({ success: true, data: paymentData });
+    } catch (error: any) {
+      if (error.message === 'EPS credentials are not fully configured.') {
+        console.warn('EPS credentials missing. Using Sandbox Mock.');
+        return res.json({
+          success: true,
+          data: {
+            TransactionId: 'MOCK_' + Date.now(),
+            RedirectURL: '/mock-payment?amount=' + req.body.totalAmount + '&successUrl=' + encodeURIComponent(req.body.successUrl || 'http://localhost:3000/payment-success?txnId=MOCK') + '&cancelUrl=' + encodeURIComponent(req.body.cancelUrl || 'http://localhost:3000/payment-cancel') + '&txnId=MOCK_' + Date.now(),
+            ErrorMessage: ''
+          }
+        });
+      }
+      console.error('Initialize Error:', error);
+      res.status(500).json({ success: false, error: error.response?.data || error.message });
+    }
+  });
+
+  app.post('/.netlify/functions/verifyPayment', async (req, res) => {
+    try {
+      const { verifyPayment } = await import('./src/lib/eps/epsApi.ts');
+      const status = await verifyPayment(req.body.merchantTransactionId);
+      res.json({ success: true, data: status });
+    } catch (error: any) {
+      if (error.message === 'EPS credentials are not fully configured.') {
+        return res.json({
+          success: true,
+          data: {
+            MerchantTransactionId: req.body.merchantTransactionId,
+            Status: 'Success',
+            TotalAmount: '1.00',
+            TransactionDate: new Date().toISOString(),
+            TransactionType: 'Purchase',
+            CustomerName: 'Sandbox User',
+            CustomerEmail: 'sandbox@eps.com'
+          }
+        });
+      }
+      console.error('Verify Error:', error);
+      res.status(500).json({ success: false, error: error.message });
     }
   });
 

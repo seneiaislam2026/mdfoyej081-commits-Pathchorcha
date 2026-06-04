@@ -1,12 +1,78 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, FileText } from "lucide-react";
+import { BookOpen, FileText, Bookmark, BookmarkCheck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "../lib/AuthContext";
+import { db } from "../lib/firebase";
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "firebase/firestore";
 
 export default function NoteDetails() {
+  const { userData } = useAuth();
+  const [isSaved, setIsSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const noteId = "sonar-tori";
+  const noteTitle = "সোনার তরী — সম্পূর্ণ মাস্টার নোট ও গাইড";
+
+  useEffect(() => {
+    if (userData?.uid) {
+      checkIfSaved();
+    }
+  }, [userData]);
+
+  const checkIfSaved = async () => {
+    if (!userData?.uid) return;
+    try {
+      const docRef = doc(db, "users", userData.uid, "saved_notes", noteId);
+      const docSnap = await getDoc(docRef);
+      setIsSaved(docSnap.exists());
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const toggleSave = async () => {
+    if (!userData?.uid) return;
+    setLoading(true);
+    try {
+      const docRef = doc(db, "users", userData.uid, "saved_notes", noteId);
+      if (isSaved) {
+        await deleteDoc(docRef);
+        setIsSaved(false);
+      } else {
+        await setDoc(docRef, {
+          noteId,
+          title: noteTitle,
+          link: `/notes/${noteId}`,
+          savedAt: serverTimestamp()
+        });
+        setIsSaved(true);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save note.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="max-w-4xl mx-auto pb-10">
-      <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100">
-        <h1 className="text-3xl font-bengali font-bold text-slate-900 mb-2">সোনার তরী — সম্পূর্ণ মাস্টার নোট ও গাইড</h1>
+    <div className="w-full flex justify-center pb-10 px-0 sm:px-4">
+      <div className="bg-white w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
+        <div className="flex justify-between items-start gap-4 mb-2">
+          <h1 className="text-3xl font-bengali font-bold text-slate-900 leading-tight">
+            {noteTitle}
+          </h1>
+          <Button 
+            variant="outline"
+            size="icon"
+            onClick={toggleSave}
+            disabled={loading}
+            className={`shrink-0 rounded-full transition-colors ${isSaved ? 'bg-primary/10 text-primary border-primary/20' : 'text-slate-500'}`}
+          >
+            {isSaved ? <BookmarkCheck className="w-5 h-5 fill-primary" /> : <Bookmark className="w-5 h-5" />}
+          </Button>
+        </div>
         <p className="text-primary font-bengali font-semibold mb-8">এইচএসসি পরীক্ষা ২০২৬-এর জন্য ১০০% পরীক্ষামুখী স্পেশাল এডিশন</p>
         
         <div className="prose prose-slate max-w-none font-bengali">

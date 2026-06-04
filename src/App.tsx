@@ -19,6 +19,10 @@ import NoteDetails from "./pages/NoteDetails";
 import NoteHonesty from "./pages/NoteHonesty";
 import Doubts from "./pages/Doubts";
 import Subscription from "./pages/Subscription";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFail from "./pages/PaymentFail";
+import PaymentCancel from './pages/PaymentCancel';
+import MockPaymentPortal from './pages/MockPaymentPortal';
 import PublicExam from "./pages/PublicExam";
 import { ArrowLeft } from "lucide-react";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
@@ -50,6 +54,59 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 }
 
 // Layout for user pages inside the app (post-authentication)
+
+// Layout for full screen notes
+function NoteLayout() {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const handleGoBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/notes");
+    }
+  };
+
+  return (
+    <div 
+      className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans" 
+      style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      <main className="flex-1 w-full mx-auto p-4 sm:p-6 lg:p-8 relative">
+        <button 
+          onClick={handleGoBack}
+          className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors mb-4 md:mb-6 font-bengali font-medium px-4 py-2 rounded-2xl hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm w-fit"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          ফিরে যান
+        </button>
+        
+      <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center opacity-[0.03] overflow-hidden">
+        <div className="transform -rotate-45 text-4xl sm:text-6xl font-black text-slate-900 whitespace-nowrap">
+          {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'} • {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'} • {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'}
+        </div>
+      </div>
+
+        <Outlet />
+      </main>
+    </div>
+  );
+}
+
 function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -128,8 +185,8 @@ export default function App() {
           <Route path="/notes" element={<Notes />} />
           <Route path="/bank" element={<QuestionBank />} />
           <Route path="/paper" element={<PaperView />} />
-          <Route path="/notes/sonar-tori" element={<NoteDetails />} />
-          <Route path="/notes/sototar-puroshkar" element={<NoteHonesty />} />
+          
+          
           <Route path="/exam" element={<Exam />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/profile" element={<Profile />} />
@@ -137,12 +194,22 @@ export default function App() {
           <Route path="/tutor" element={<AITutor />} />
           <Route path="/doubts" element={<Doubts />} />
           <Route path="/subscription" element={<Subscription />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-fail" element={<PaymentFail />} />
+          <Route path='/payment-cancel' element={<PaymentCancel />} />
+          <Route path='/mock-payment' element={<MockPaymentPortal />} />
         </Route>
         
+        {/* Full screen authenticated notes routes */}
+        <Route element={<NoteLayout />}>
+          <Route path="/notes/sonar-tori" element={<NoteDetails />} />
+          <Route path="/notes/sototar-puroshkar" element={<NoteHonesty />} />
+        </Route>
         {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-      </Router>
+      
+        </Router>
     </AuthProvider>
     </ErrorBoundary>
   );

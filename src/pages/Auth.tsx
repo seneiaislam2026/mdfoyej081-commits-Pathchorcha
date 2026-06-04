@@ -183,7 +183,7 @@ export default function Auth() {
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2">
             <span className="font-bengali font-bold text-[36px] tracking-tight text-white">
-              পাঠ<span className="text-secondary">চর্চা</span>
+              শিক্ষা<span className="text-secondary">ঙ্গন</span>
             </span>
           </Link>
         </div>
@@ -193,7 +193,7 @@ export default function Auth() {
             লক্ষ্য স্থির করো,<br/>নিয়মিত চর্চা করো,<br/>সাফল্য আসবেই!
           </h1>
           <p className="text-primary-foreground/70 font-bengali text-lg leading-relaxed">
-            ১০ লক্ষের বেশি ছাত্রছাত্রী ইতিমধ্যে পাথচর্চায় যুক্ত হয়েছে। আজই শুরু করো তোমার প্রস্তুতি।
+            ১০ লক্ষের বেশি ছাত্রছাত্রী ইতিমধ্যে শিক্ষাঙ্গন-এ যুক্ত হয়েছে। আজই শুরু করো তোমার প্রস্তুতি।
           </p>
         </div>
       </div>
@@ -206,8 +206,8 @@ export default function Auth() {
             <div className="lg:hidden mb-6 flex justify-center">
               <Link to="/" className="inline-flex items-center gap-2">
                 <span className="font-bengali font-bold text-[32px] tracking-tight">
-                  <span className="text-primary">পাঠ</span>
-                  <span className="text-secondary">চর্চা</span>
+                  <span className="text-primary">শিক্ষা</span>
+              <span className="text-secondary">ঙ্গন</span>
                 </span>
               </Link>
             </div>

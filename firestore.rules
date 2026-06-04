@@ -41,6 +41,18 @@ service cloud.firestore {
         && incoming().updatedAt == request.time) || isAdmin();
     }
 
+    match /users/{userId}/saved_notes/{noteId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/mistakes/{questionId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/exam_results/{resultId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
     match /questions/{questionId} {
       allow read: if true;
       allow write: if isAdmin();

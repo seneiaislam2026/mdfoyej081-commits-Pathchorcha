@@ -16,6 +16,7 @@ export default defineConfig(() => {
           enabled: true
         },
         workbox: {
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
           runtimeCaching: [
             {
@@ -50,8 +51,8 @@ export default defineConfig(() => {
         },
         includeAssets: ['favicon.ico', 'icon.svg'],
         manifest: {
-          name: 'পাঠচর্চা',
-          short_name: 'Pathchorcha',
+          name: 'শিক্ষাঙ্গন',
+          short_name: 'শিক্ষাঙ্গন',
           description: 'A premium, modern EdTech platform',
           theme_color: '#ffffff',
           background_color: '#ffffff',

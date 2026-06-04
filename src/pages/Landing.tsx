@@ -34,8 +34,8 @@ export default function Landing() {
         <div className="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <span className="font-bengali font-bold text-[32px] tracking-tight">
-              <span className="text-primary">পাঠ</span>
-              <span className="text-secondary">চর্চা</span>
+              <span className="text-primary">শিক্ষা</span>
+              <span className="text-secondary">ঙ্গন</span>
             </span>
           </Link>
           <Link to="/auth">

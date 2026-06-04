@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Check, Star, Zap, Crown, Lock, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import PaymentButton from "../components/payment/PaymentButton";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
@@ -12,7 +13,7 @@ const defaultPlans = [
   {
     id: "1-month",
     name: "১ মাস",
-    price: 50,
+    price: 80,
     duration: "মাসিক",
     popular: false,
     color: "from-blue-200 to-blue-300"
@@ -20,7 +21,7 @@ const defaultPlans = [
   {
     id: "3-months",
     name: "৩ মাস",
-    price: 120,
+    price: 220,
     duration: "ত্রৈমাসিক",
     popular: true,
     color: "from-[#ffa726] to-[#ffb74d]"
@@ -28,16 +29,16 @@ const defaultPlans = [
   {
     id: "6-months",
     name: "৬ মাস",
-    price: 270,
+    price: 430,
     duration: "ষাণ্মাসিক",
     popular: false,
     color: "from-emerald-200 to-emerald-300"
   },
   {
-    id: "12-months",
-    name: "১ বছর",
-    price: 500,
-    duration: "বার্ষিক",
+    id: "custom",
+    name: "কাস্টম",
+    price: 0,
+    duration: "দিন হিসেবে",
     popular: false,
     color: "from-purple-200 to-purple-300"
   }
@@ -53,7 +54,8 @@ const features = [
 
 export default function Subscription() {
   const [plans, setPlans] = useState(defaultPlans);
-  const [selectedPlan, setSelectedPlan] = useState(defaultPlans[1].id);
+  const [selectedPlan, setSelectedPlan] = useState(defaultPlans[0].id);
+  const [customDays, setCustomDays] = useState(7);
   const [couponCode, setCouponCode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const navigate = useNavigate();
@@ -134,9 +136,18 @@ export default function Subscription() {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      const { Timestamp } = await import("firebase/firestore");
+      let durationDays = 30;
+      if (selectedPlan === "3-months") durationDays = 90;
+      else if (selectedPlan === "6-months") durationDays = 180;
+      else if (selectedPlan === "custom") durationDays = customDays;
+      
+      const proUntilMillis = Date.now() + durationDays * 24 * 60 * 60 * 1000;
+      
       const userRef = doc(db, 'users', user.uid);
       await updateDoc(userRef, {
-        isPro: true
+        isPro: true,
+        proUntil: Timestamp.fromMillis(proUntilMillis)
       });
       
       // Usually need to update context too, assuming reload or it triggers onSnapshot, else we navigate home
@@ -244,78 +255,103 @@ export default function Subscription() {
           </ul>
         </div>
 
-        {/* Pricing Column */}
         <div className="lg:col-span-7 flex flex-col gap-6 w-full lg:max-w-none">
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="flex flex-col gap-3">
             {plans.map((plan) => (
               <motion.div
                 key={plan.id}
-                whileHover={{ translateY: -4 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedPlan(plan.id)}
-                className={`cursor-pointer border-2 rounded-[32px] p-5 pt-8 text-center relative transition-all flex flex-col justify-between ${
+                className={`cursor-pointer rounded-2xl border-2 p-4 flex items-center justify-between transition-all ${
                   selectedPlan === plan.id 
-                    ? "border-[#ffa726] bg-[#fffaf0] shadow-md shadow-orange-500/10" 
-                    : "border-slate-100 bg-white hover:border-orange-100"
+                    ? "border-orange-500 bg-orange-50/40 shadow-[0_8px_20px_-8px_rgba(249,115,22,0.2)]" 
+                    : "border-slate-100 bg-white hover:border-orange-200 shadow-sm"
                 }`}
               >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#ffa726] to-[#e65100] text-white font-bengali text-xs font-bold px-4 py-1 rounded-full shadow-md flex items-center gap-1 w-max">
-                    <Star className="w-3 h-3 fill-white" /> সর্বাধিক প্রিয়
+                <div className="flex items-center gap-4">
+                  <div className={`w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${selectedPlan === plan.id ? 'border-orange-500 bg-orange-500 scale-110' : 'border-slate-300'}`}>
+                     {selectedPlan === plan.id && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
                   </div>
-                )}
-                
-                <div className="mb-6 flex-1">
-                   <h4 className="text-xl font-bengali font-bold text-slate-700 mb-4">{plan.name}</h4>
-                   <div className="flex items-center justify-center gap-1">
-                      <span className="text-4xl font-bold font-mono text-slate-900">৳{plan.price}</span>
-                   </div>
-                   <div className="text-slate-500 font-bengali text-sm mt-1">/{plan.duration}</div>
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                       <h4 className={`text-base sm:text-lg font-bengali font-bold leading-tight ${selectedPlan === plan.id ? 'text-orange-800' : 'text-slate-800'}`}>{plan.name}</h4>
+                       {plan.popular && (
+                         <span className="bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full font-bengali shadow-sm">জনপ্রিয়</span>
+                       )}
+                    </div>
+                    <span className={`text-xs sm:text-sm font-bengali mt-0.5 ${selectedPlan === plan.id ? 'text-orange-600/80' : 'text-slate-500'}`}>{plan.duration}</span>
+                  </div>
                 </div>
 
-                <div>
-                   <div className={`w-16 mx-auto h-1.5 rounded-full bg-gradient-to-r ${plan.color} opacity-80 mb-5`} />
-
-                   <div className="flex items-center justify-center">
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${selectedPlan === plan.id ? 'border-[#ffa726] bg-[#ffa726]' : 'border-slate-300'}`}>
-                         {selectedPlan === plan.id && <Check className="w-4 h-4 text-white" />}
-                      </div>
-                   </div>
+                <div className="text-right shrink-0">
+                   {plan.id === 'custom' ? (
+                     <div className="flex flex-col items-end gap-2">
+                        <div className={`flex items-center gap-1 rounded-xl p-1 pl-2 pr-3 border transition-colors ${selectedPlan === plan.id ? 'bg-white border-orange-300 shadow-inner' : 'bg-slate-50 border-slate-200'}`}>
+                          <Input 
+                            type="number"
+                            min="1"
+                            max="365"
+                            value={customDays}
+                            onChange={(e) => {
+                               let val = parseInt(e.target.value);
+                               if (isNaN(val) || val < 1) val = 1;
+                               if (val > 365) val = 365;
+                               setCustomDays(val);
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-12 h-8 text-center border-none p-0 focus-visible:ring-0 text-base font-sans font-bold shadow-none bg-transparent text-slate-800"
+                          />
+                          <span className="text-sm font-bengali font-medium text-slate-500">দিন</span>
+                        </div>
+                        <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-slate-800'}`}>
+                           <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
+                           <span className="text-3xl sm:text-4xl font-black">{Math.ceil((80/30) * customDays)}</span>
+                        </div>
+                     </div>
+                   ) : (
+                     <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-slate-800'}`}>
+                        <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
+                        <span className="text-3xl sm:text-4xl font-black">{plan.price}</span>
+                     </div>
+                   )}
                 </div>
               </motion.div>
             ))}
           </div>
 
-          <div className="bg-white border border-slate-200 rounded-[28px] p-5 sm:p-6 flex flex-col gap-4">
+          <div className="bg-white border border-slate-100 rounded-3xl p-5 flex flex-col gap-4 shadow-sm mt-2">
              <div className="flex items-center gap-2 text-slate-700">
-               <Tag className="w-5 h-5 text-[#ffa726]" />
-               <span className="font-bengali font-bold text-base">কুপন কোড (যদি থাকে)</span>
+               <Tag className="w-5 h-5 text-slate-400" />
+               <span className="font-bengali font-bold text-sm sm:text-base">কুপন কোড (যদি থাকে)</span>
              </div>
              <div className="flex flex-col sm:flex-row gap-3">
                <Input 
                  placeholder="কুপন কোড লিখুন" 
                  value={couponCode}
                  onChange={(e) => setCouponCode(e.target.value)}
-                 className="flex-1 rounded-2xl bg-slate-50 border-slate-200 font-mono h-14 px-5 text-lg"
+                 className="flex-1 rounded-2xl bg-slate-50/50 border-slate-200 hover:border-slate-300 font-mono h-14 px-5 text-lg shadow-inner"
                />
                <Button 
                 variant="secondary" 
                 onClick={handleApplyCoupon}
                 disabled={isProcessing}
-                className="rounded-2xl font-bengali h-14 px-8 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-base">
+                className="rounded-2xl font-bengali h-14 px-8 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base shadow-md">
                  প্রয়োগ করুন
                </Button>
              </div>
           </div>
 
           <div className="mt-2">
-            <Button 
-               size="lg"
-               onClick={handleSubscribe}
-               disabled={isProcessing || userData?.isPro}
-               className="w-full h-16 rounded-[24px] font-bengali font-bold text-xl bg-gradient-to-r from-[#ffa726] to-[#e65100] hover:from-[#f57c00] hover:to-[#d84315] text-white shadow-xl shadow-orange-500/20"
-            >
-               {isProcessing ? "প্রসেসিং হচ্ছে..." : userData?.isPro ? "আপনি ইতিমধ্যে প্রো মেম্বার" : "সাবস্ক্রাইব করুন"}
-            </Button>
+            {userData?.isPro ? (
+               <Button size="lg" disabled className="w-full h-16 rounded-[24px] font-bengali font-bold text-xl bg-slate-200 text-slate-500">আপনি ইতিমধ্যে প্রো মেম্বার</Button>
+            ) : (
+               <PaymentButton 
+                 plan={selectedPlan} 
+                 amount={selectedPlan === 'custom' ? Math.ceil((80/30) * customDays) : (plans.find(p => p.id === selectedPlan)?.price || 0)} 
+                 days={selectedPlan === 'custom' ? customDays : undefined} 
+               />
+            )}
             <p className="text-center font-bengali text-sm text-slate-500 mt-5">
               বিকাশ, নগদ, রকেট সহ যে কোনো কার্ডে পেমেন্ট করতে পারবেন।
             </p>
