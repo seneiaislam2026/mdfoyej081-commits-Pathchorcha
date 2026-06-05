@@ -53,16 +53,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
-    
-    // Ensure persistence is set to LOCAL to prevent frequent logouts in PWA
-    setPersistence(auth, browserLocalPersistence).then(() => {
-      unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-        setUser(currentUser);
-        if (currentUser) {
-          try {
-            // Fetch or create user document
-            const userRef = doc(db, 'users', currentUser.uid);
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        try {
+          // Fetch or create user document
+          const userRef = doc(db, 'users', currentUser.uid);
             const docSnap = await getDoc(userRef);
             
             if (docSnap.exists()) {
@@ -106,13 +102,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         setLoading(false);
       });
-    }).catch((e) => {
-      console.error(e);
-      setLoading(false);
-    });
 
     return () => {
-      if (unsubscribe) unsubscribe();
+      unsubscribe();
     };
   }, []);
 
@@ -151,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let result;
     try {
       result = await signInWithEmailAndPassword(auth, email, password);
+      return { email: result.user.email || email, uid: result.user.uid, progress: { totalSolved: 0, accuracy: 0, streak: 0 } as any };
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
         try {
@@ -177,30 +170,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     const userRef = doc(db, 'users', result.user.uid);
-    const docSnap = await getDoc(userRef);
-    
-    if (!docSnap.exists()) {
-      const newUserData: UserData = {
-        uid: result.user.uid,
-        email: result.user.email || email,
-        fullName: '',
-        points: 0,
-        progress: { totalSolved: 0, accuracy: 0, streak: 0 },
-        isPro: false
-      };
-      
-      await setDoc(userRef, {
-        ...newUserData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-      setUserData(newUserData);
-      return newUserData;
-    } else {
-      const data = docSnap.data() as UserData;
-      setUserData(data);
-      return data;
+    try {
+      const docSnap = await getDoc(userRef);
+      if (docSnap.exists()) {
+        const existingData = docSnap.data() as UserData;
+        return existingData;
+      }
+    } catch (e) {
+      console.warn("Could not fetch user document, proceeding with basic data", e);
     }
+    
+    // For new users
+    setDoc(userRef, {
+      uid: result.user.uid,
+      email: result.user.email || email,
+      fullName: '',
+      points: 0,
+      progress: { totalSolved: 0, accuracy: 0, streak: 0 },
+      isPro: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }, { merge: true }).catch(e => console.error(e));
+
+    return {
+      uid: result.user.uid,
+      email: result.user.email || email,
+      fullName: '',
+      points: 0,
+      progress: { totalSolved: 0, accuracy: 0, streak: 0 },
+      isPro: false
+    };
   };
 
   const setupRecaptcha = (containerId: string) => {

@@ -305,7 +305,7 @@ export default function Onboarding() {
               </motion.div>
 
               <h2 className="text-3xl md:text-4xl font-bengali font-bold text-slate-900 mb-4 tracking-tight">
-                স্বাগতম <span className="text-primary">PathCharcha</span> পরিবারে
+                স্বাগতম <span className="text-primary">Shikkhangon</span> পরিবারে
               </h2>
               
               <div className="inline-flex gap-2 mb-8 bg-slate-50 px-6 py-3 rounded-full border border-slate-100 shadow-sm font-bengali">

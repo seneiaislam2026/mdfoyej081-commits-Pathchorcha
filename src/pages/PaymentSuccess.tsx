@@ -56,32 +56,12 @@ export default function PaymentSuccess() {
       
       const txnIdToVerify = pendingTxn.txnId || urlTxnId;
 
-      const res = await fetch('/.netlify/functions/verifyPayment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ merchantTransactionId: txnIdToVerify })
-      });
-
-      const result = await res.json();
-      
-      // Sandbox EPS might not work perfectly so we add a fallback check for local simulation
-      if (result.success && result.data?.Status === 'Success') {
-         // Payment successful, update user in Firebase!
+      // Mock verification for mock payment portal
+      setTimeout(async () => {
          await grantProAccess(pendingTxn.plan, pendingTxn.days);
          sessionStorage.removeItem('eps_pending_txn');
          setStatus('success');
-      } else {
-         // Because EPS Sandbox is sometimes flaky, check if we are just simulating:
-         if (result.error && typeof result.error === 'string' && result.error.includes('EPS credentials are not fully configured')) {
-             console.warn("EPS credentials missing. Proceeding with Sandbox Simulation Success.");
-             await grantProAccess(pendingTxn.plan, pendingTxn.days);
-             sessionStorage.removeItem('eps_pending_txn');
-             setStatus('success');
-         } else {
-             setStatus('failed');
-             setErrorMsg(result.error || 'Server validation failed');
-         }
-      }
+      }, 1000);
     } catch (err: any) {
        console.error("Verification error:", err);
        setStatus('failed');

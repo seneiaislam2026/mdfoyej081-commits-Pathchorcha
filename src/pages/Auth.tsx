@@ -58,10 +58,7 @@ export default function Auth() {
            loginEmail = loginEmail.replace(/\s+/g, "");
            loginEmail = `${loginEmail}@pathchorcha.app`;
         }
-        const data = await Promise.race([
-          signInOrSignUpWithEmail(loginEmail, password),
-          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("ইন্টারনেট সংযোগ দুর্বল। দয়া করে আবার চেষ্টা করুন।")), 10000))
-        ]);
+        const data = await signInOrSignUpWithEmail(loginEmail, password);
         if (data && data.class) {
           navigate("/dashboard");
         } else {
@@ -83,10 +80,7 @@ export default function Auth() {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
-      const data = await Promise.race([
-        signInWithGoogle(),
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("ইন্টারনেট সংযোগ দুর্বল। দয়া করে আবার চেষ্টা করুন।")), 15000))
-      ]);
+      const data = await signInWithGoogle();
       if (data && data.class) {
         navigate("/dashboard");
       } else {

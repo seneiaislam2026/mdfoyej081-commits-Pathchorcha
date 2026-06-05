@@ -39,6 +39,8 @@ service cloud.firestore {
         && incoming().uid == existing().uid
         && incoming().createdAt == existing().createdAt
         && incoming().updatedAt == request.time) || isAdmin();
+        
+      allow delete: if isAdmin();
     }
 
     match /users/{userId}/saved_notes/{noteId} {
@@ -81,7 +83,8 @@ service cloud.firestore {
 
     match /public_exam_results/{resultId} {
       allow create: if true;
-      allow read: if isAdmin();
+      allow read, write: if isAdmin();
+      allow delete: if isAdmin();
     }
 
     match /reports/{reportId} {

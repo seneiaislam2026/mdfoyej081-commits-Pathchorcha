@@ -1,5 +1,5 @@
 {
-  "name": "PathCharcha",
+  "name": "Shikkhangon - শিক্ষাঙ্গন",
   "description": "Bengali Educational Exam Preparation Platform",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit } from "lucide-react";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -33,6 +33,14 @@ const menuItems = [
   { id: "settings", label: "সেটিংস (Settings)", icon: <Settings className="w-5 h-5 mr-3" /> },
 ];
 
+export const formatEmail = (email: string) => {
+  if (!email) return "";
+  if (email.includes("@pathchola.com") || email.includes("@shikkhangon.com")) {
+     return email.split("@")[0];
+  }
+  return email;
+};
+
 export default function Admin() {
   const { user, userData } = useAuth();
   const [activeTab, setActiveTab] = useState("students");
@@ -58,6 +66,7 @@ export default function Admin() {
   const [subjects, setSubjects] = useState<any[]>([]);
   const [questions, setQuestions] = useState<any[]>([]);
   const [questionsLoading, setQuestionsLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, message: string, onConfirm: () => void} | null>(null);
   const [editQuestion, setEditQuestion] = useState<any | null>(null);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [showCreateCouponModal, setShowCreateCouponModal] = useState(false);
@@ -436,20 +445,25 @@ export default function Admin() {
     }
   };
 
-  const resetLeaderboard = async () => {
-    
-    try {
-      const usersSnapshot = await getDocs(collection(db, "users"));
-      const updatePromises: any[] = [];
-      usersSnapshot.forEach((userDoc) => {
-        updatePromises.push(updateDoc(doc(db, "users", userDoc.id), { points: 0, totalExams: 0 }));
-      });
-      await Promise.all(updatePromises);
-      alert("লিডারবোর্ড সফলভাবে রিসেট করা হয়েছে।");
-    } catch (error) {
-      console.error("Error resetting leaderboard:", error);
-      alert("লিডারবোর্ড রিসেট করতে সমস্যা হয়েছে।");
-    }
+  const resetLeaderboard = () => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "আপনি কি নিশ্চিত যে আপনি লিডারবোর্ড রিসেট করতে চান?",
+      onConfirm: async () => {
+        try {
+          const usersSnapshot = await getDocs(collection(db, "users"));
+          const updatePromises: any[] = [];
+          usersSnapshot.forEach((userDoc) => {
+            updatePromises.push(updateDoc(doc(db, "users", userDoc.id), { points: 0, totalExams: 0 }));
+          });
+          await Promise.all(updatePromises);
+          alert("লিডারবোর্ড সফলভাবে রিসেট করা হয়েছে।");
+        } catch (error) {
+          console.error("Error resetting leaderboard:", error);
+          alert("লিডারবোর্ড রিসেট করতে সমস্যা হয়েছে।");
+        }
+      }
+    });
   };
 
   const createPublicExam = async () => {
@@ -510,16 +524,44 @@ export default function Admin() {
     }
   };
 
-  const deletePublicExam = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this exam?")) return;
-    try {
-      await deleteDoc(doc(db, "public_exams", id));
-      alert("Exam deleted.");
-      fetchPublicExams();
-    } catch (e) {
-      console.error(e);
-      alert("Failed to delete exam.");
-    }
+  const deletePublicExam = (id: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "Are you sure you want to delete this exam?",
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "public_exams", id));
+          alert("Exam deleted.");
+          fetchPublicExams();
+        } catch (e) {
+          console.error(e);
+          alert("Failed to delete exam.");
+        }
+      }
+    });
+  };
+
+  const resetPublicExamLeaderboard = (id: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "আপনি কি নিশ্চিত যে আপনি এই পরীক্ষার লিডারবোর্ড রিসেট করতে চান?",
+      onConfirm: async () => {
+        try {
+          const { query, where, getDocs, deleteDoc, doc, collection } = await import("firebase/firestore");
+          const q = query(collection(db, "public_exam_results"), where("examId", "==", id));
+          const snapshot = await getDocs(q);
+          let count = 0;
+          for (const resultDoc of snapshot.docs) {
+            await deleteDoc(doc(db, "public_exam_results", resultDoc.id));
+            count++;
+          }
+          alert(`লিডারবোর্ড সফলভাবে রিসেট করা হয়েছে। (${count} টি ডাটা মুছে ফেলা হয়েছে)`);
+        } catch (e) {
+          console.error(e);
+          alert("লিডারবোর্ড রিসেট করতে সমস্যা হয়েছে।");
+        }
+      }
+    });
   };
 
   const togglePublicExamActive = async (id: string, currentStatus: boolean) => {
@@ -631,16 +673,21 @@ export default function Admin() {
     }
   };
 
-  const deleteUser = async (userId: string) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-    try {
-      await deleteDoc(doc(db, "users", userId));
-      alert("User deleted successfully.");
-      fetchUsers();
-    } catch (e) {
-      console.error(e);
-      alert("Failed to delete user.");
-    }
+  const deleteUser = (userId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "Are you sure you want to delete this user?",
+      onConfirm: async () => {
+        try {
+          await deleteDoc(doc(db, "users", userId));
+          alert("User deleted successfully.");
+          fetchUsers();
+        } catch (e) {
+          console.error(e);
+          alert("Failed to delete user.");
+        }
+      }
+    });
   };
 
   const groupedBanks = questions.reduce((acc, q) => {
@@ -664,7 +711,7 @@ export default function Admin() {
     acc[c] = (acc[c] || 0) + 1;
     return acc;
   }, {});
-  const sortedClasses = Object.entries(classCounts).sort((a, b) => b[1] - a[1]);
+  const sortedClasses = Object.entries(classCounts).sort((a, b) => Number(b[1]) - Number(a[1]));
 
   const uniqueClasses = Array.from(new Set(users.map(u => u.class).filter(Boolean))).sort();
   const filteredUsers = users.filter(u => {
@@ -679,7 +726,7 @@ export default function Admin() {
       <aside className="w-full md:w-64 bg-white border border-muted rounded-[32px] p-6 shrink-0 flex flex-col shadow-sm">
         <div className="mb-8 p-2">
           <h2 className="text-xl font-bold text-primary font-bengali">এডমিন প্যানেল</h2>
-          <p className="text-xs text-muted-foreground mt-1">PathCharcha Admin v1.0</p>
+          <p className="text-xs text-muted-foreground mt-1">Shikkhangon Admin v1.0</p>
         </div>
         
         <nav className="flex-1 space-y-1">
@@ -718,7 +765,7 @@ export default function Admin() {
           <div className="space-y-6">
             <div>
               <h3 className="text-2xl font-bold font-bengali">Dashboard Overview</h3>
-              <p className="text-muted-foreground">Welcome to the PathCharcha Admin Dashboard.</p>
+              <p className="text-muted-foreground">Welcome to the Shikkhangon Admin Dashboard.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
@@ -995,7 +1042,7 @@ window.location.reload();
                            </div>
                            <div>
                              <h4 className="font-bengali font-bold text-slate-800 text-lg leading-tight group-hover:text-primary transition-colors">{u.fullName || 'No Name'}</h4>
-                             <p className="text-xs text-slate-500 truncate max-w-[150px] sm:max-w-xs">{u.email || u.phoneNumber}</p>
+                             <p className="text-xs text-slate-500 truncate max-w-[150px] sm:max-w-xs ">{formatEmail(u.email) || u.phoneNumber}</p>
                            </div>
                         </div>
                       </div>
@@ -1104,6 +1151,9 @@ window.location.reload();
                         </Button>
                         <Button variant="outline" size="sm" className="w-full text-red-600 border-red-200 hover:bg-red-50" onClick={() => deletePublicExam(exam.id)}>
                           <Trash2 className="w-3.5 h-3.5 mr-1.5" /> ডিলিট
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full text-orange-600 border-orange-200 hover:bg-orange-50 col-span-2" onClick={() => resetPublicExamLeaderboard(exam.id)}>
+                          <RotateCcw className="w-3.5 h-3.5 mr-1.5" /> লিডারবোর্ড রিসেট করুন
                         </Button>
                       </div>
                     </div>
@@ -1721,7 +1771,7 @@ window.location.reload();
                                      <div key={idx} className="bg-orange-50/50 border border-orange-100 p-4 rounded-xl flex flex-col justify-between">
                                         <div>
                                           <p className="font-bold text-slate-800">{u.fullName || u.name || "No Name"}</p>
-                                          <p className="text-sm text-slate-600 break-all">{u.email}</p>
+                                          <p className="text-sm text-slate-600 break-all">{formatEmail(u.email)}</p>
                                           <p className="text-sm text-slate-600">{u.phoneNumber || u.phone || "No Phone Number"}</p>
                                         </div>
                                         <p className="text-xs text-orange-600 mt-3 font-bold bg-orange-100 inline-block px-2 py-1 rounded w-fit">Exp: {new Date(u.expiry).toLocaleDateString()}</p>
@@ -1751,7 +1801,7 @@ window.location.reload();
                                      <div key={idx} className="bg-red-50/50 border border-red-100 p-4 rounded-xl opacity-80 flex flex-col justify-between">
                                         <div>
                                           <p className="font-bold text-slate-800">{u.fullName || u.name || "No Name"}</p>
-                                          <p className="text-sm text-slate-600 break-all">{u.email}</p>
+                                          <p className="text-sm text-slate-600 break-all">{formatEmail(u.email)}</p>
                                           <p className="text-sm text-slate-600">{u.phoneNumber || u.phone || "No Phone Number"}</p>
                                         </div>
                                         <p className="text-xs text-red-600 mt-3 font-bold bg-red-100 inline-block px-2 py-1 rounded w-fit">Expired: {new Date(u.expiry).toLocaleDateString()}</p>
@@ -1988,6 +2038,18 @@ window.location.reload();
             <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowCreateCouponModal(false)} className="font-bengali">Cancel</Button>
               <Button onClick={createCoupon} className="font-bengali">Save Coupon</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmDialog?.isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full border animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold font-bengali mb-3 text-slate-800">নিশ্চিত করুন (Confirm)</h3>
+            <p className="text-slate-600 mb-6 font-bengali leading-relaxed">{confirmDialog.message}</p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setConfirmDialog(null)} className="font-bengali">বাতিল (Cancel)</Button>
+              <Button variant="destructive" onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }} className="font-bengali">নিশ্চিত (Confirm)</Button>
             </div>
           </div>
         </div>

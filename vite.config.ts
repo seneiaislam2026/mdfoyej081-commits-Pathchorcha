@@ -94,6 +94,9 @@ export default defineConfig(() => {
         }
       })
     ],
+    build: {
+      outDir: 'dist',
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

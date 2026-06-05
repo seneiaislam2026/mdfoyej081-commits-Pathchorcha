@@ -251,9 +251,14 @@ export default function PublicExam() {
     return (
       <div className="min-h-screen bg-[#f8fafc] font-bengali pb-24">
         {/* Top Brand Header */}
-        <div className="bg-white px-4 sm:px-6 py-4 flex items-center shadow-sm">
-           <div className="font-bold text-[28px] tracking-tight flex items-center pt-2">
-              <span className="text-[#1e293b]">শিক্ষা</span><span className="text-[#f59e0b]">ঙ্গন</span>
+        <div className="bg-white px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm">
+           <div className="flex items-center">
+             <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-50 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
+               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+             </button>
+             <div className="font-bold text-2xl sm:text-[28px] tracking-tight flex items-center !leading-relaxed">
+                <span className="text-[#1e293b]">শিক্ষা</span><span className="text-[#f59e0b]">ঙ্গন</span>
+             </div>
            </div>
         </div>
         
