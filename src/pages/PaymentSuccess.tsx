@@ -56,12 +56,11 @@ export default function PaymentSuccess() {
       
       const txnIdToVerify = pendingTxn.txnId || urlTxnId;
 
-      // Mock verification for mock payment portal
+      // Set to success but no longer call grantProAccess immediately since admin needs to approve!
       setTimeout(async () => {
-         await grantProAccess(pendingTxn.plan, pendingTxn.days);
          sessionStorage.removeItem('eps_pending_txn');
          setStatus('success');
-      }, 1000);
+      }, 300);
     } catch (err: any) {
        console.error("Verification error:", err);
        setStatus('failed');
@@ -70,6 +69,7 @@ export default function PaymentSuccess() {
   };
 
   const grantProAccess = async (plan: string, customDays?: number) => {
+      // Manual backup just in case
       if (!userData?.uid) return;
       
       let durationDays = 30;
@@ -98,15 +98,15 @@ export default function PaymentSuccess() {
 
        {status === 'success' && (
          <div className="flex flex-col items-center max-w-md w-full bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-               <CheckCircle2 className="w-10 h-10 text-green-600" />
+            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6 border border-emerald-100">
+               <CheckCircle2 className="w-10 h-10 text-emerald-600 animate-ping-once" />
             </div>
-            <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">পেমেন্ট সফল!</h2>
-            <p className="text-slate-600 font-bengali mb-8">
-               আপনার প্রো সাবস্ক্রিপশন সফলভাবে এক্টিভ হয়েছে। অভিনন্দন!
+            <h2 className="text-2xl font-bengali font-bold text-slate-800 mb-4">পেমেন্ট রিকোয়েস্ট সাবমিট হয়েছে!</h2>
+            <p className="text-slate-600 font-bengali text-sm leading-relaxed mb-8">
+               আপনার পেমেন্ট রিকোয়েস্টটি সফলভাবে সিস্টেমে যুক্ত হয়েছে। আগামী <strong className="text-emerald-600 font-extrabold">২০ মিনিটের মধ্যেই</strong> আপনার পেমেন্টটি যাচাই করে এসএমএস (SMS) মেসেজের মাধ্যমে জানিয়ে দেওয়া হবে। অনুগ্রহ করে একটু অপেক্ষা করুন।
             </p>
-            <Button onClick={() => window.location.href = "/dashboard"} className="w-full h-14 rounded-2xl text-lg font-bengali bg-slate-900 hover:bg-slate-800">
-               ড্যাশবোর্ডে যান
+            <Button onClick={() => navigate("/dashboard")} className="w-full h-14 rounded-2xl text-lg font-bengali bg-slate-900 hover:bg-slate-800">
+               ড্যাশবোর্ডে ফিরে যান
             </Button>
          </div>
        )}

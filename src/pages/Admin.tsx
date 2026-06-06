@@ -20,6 +20,7 @@ import { db } from "../lib/firebase";
 const menuItems = [
   { id: "dashboard", label: "ড্যাশবোর্ড (Dashboard)", icon: <LayoutDashboard className="w-5 h-5 mr-3" /> },
   { id: "students", label: "শিক্ষার্থী (Students)", icon: <Users className="w-5 h-5 mr-3" /> },
+  { id: "payments", label: "পেমেন্ট ভেরিফাই (Payments)", icon: <Crown className="w-5 h-5 mr-3 text-amber-500" /> },
   { id: "questions", label: "প্রশ্ন ব্যাংক (Questions)", icon: <FileQuestion className="w-5 h-5 mr-3" /> },
   { id: "subjects", label: "বিষয় (Subjects)", icon: <BookOpen className="w-5 h-5 mr-3" /> },
   { id: "chapters", label: "অধ্যায় (Chapters)", icon: <Layers className="w-5 h-5 mr-3" /> },
@@ -53,6 +54,7 @@ export default function Admin() {
     maintenanceMode: false,
     alertBannerActive: false,
     alertBannerMessage: "",
+    discountPercentage: 0,
     subscriptionPlans: [
       { id: "1-month", name: "১ মাস", price: 50, duration: "মাসিক", popular: false, color: "from-blue-200 to-blue-300" },
       { id: "3-months", name: "৩ মাস", price: 120, duration: "ত্রৈমাসিক", popular: true, color: "from-[#ffa726] to-[#ffb74d]" },
@@ -78,6 +80,8 @@ export default function Admin() {
   const [newExamTitle, setNewExamTitle] = useState("Weekly Public Exam");
   const [newExamDuration, setNewExamDuration] = useState("25");
   const [newExamQuestionsJSON, setNewExamQuestionsJSON] = useState("");
+  const [newExamClass, setNewExamClass] = useState("সকল ক্লাস");
+  const [newExamType, setNewExamType] = useState("public"); // "public" or "live_model_test"
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [questionSearch, setQuestionSearch] = useState("");
   const [questionSubjectFilter, setQuestionSubjectFilter] = useState("All Subjects");
@@ -86,6 +90,9 @@ export default function Admin() {
   const [selectedBankTitle, setSelectedBankTitle] = useState<string | null>(null);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [premiumData, setPremiumData] = useState<any>(null);
+  const [paymentRequests, setPaymentRequests] = useState<any[]>([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(false);
+  const [customMonths, setCustomMonths] = useState<Record<string, number>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -105,6 +112,8 @@ export default function Admin() {
       fetchSubjects();
     } else if (activeTab === "questions") {
       fetchQuestions();
+    } else if (activeTab === "payments") {
+      fetchPaymentRequests();
     } else if (activeTab === "analytics") {
       fetchAnalytics();
     } else if (activeTab === "premium_marketing") {
@@ -219,6 +228,116 @@ export default function Admin() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchPaymentRequests = async () => {
+    setPaymentsLoading(true);
+    try {
+      const { orderBy, query } = await import("firebase/firestore");
+      const querySnapshot = await getDocs(query(collection(db, "payment_requests"), orderBy("createdAt", "desc")));
+      const reqs: any[] = [];
+      querySnapshot.forEach((doc) => {
+        reqs.push({ id: doc.id, ...doc.data() });
+      });
+      setPaymentRequests(reqs);
+    } catch (error) {
+      console.error("Error fetching payment requests:", error);
+    } finally {
+      setPaymentsLoading(false);
+    }
+  };
+
+  const approvePaymentRequest = async (request: any, approvedMonths: number) => {
+    try {
+      setLoading(true);
+      const { Timestamp, addDoc } = await import("firebase/firestore");
+      
+      const durationDays = approvedMonths * 30;
+      const proUntilMillis = Date.now() + durationDays * 24 * 60 * 60 * 1000;
+      
+      await updateDoc(doc(db, "users", request.uid), {
+        isPro: true,
+        proUntil: Timestamp.fromMillis(proUntilMillis)
+      });
+      
+      await updateDoc(doc(db, "payment_requests", request.id), {
+        status: "approved",
+        approvedAt: serverTimestamp(),
+        approvedDays: durationDays,
+        approvedMonths: approvedMonths
+      });
+
+      // Send automated real-time notification
+      await addDoc(collection(db, "notifications"), {
+        userId: request.uid,
+        title: "প্রো সাবস্ক্রিপশন সফল! 🎉",
+        message: `আপনার ৳${request.amount} মূল্যের পেমেন্টটি অনুমোদিত হয়েছে এবং ${approvedMonths} মাসের জন্য প্রো মেম্বারশিপ অ্যাক্টিভেট হয়েছে। ধন্যবাদ!`,
+        type: "pro_approval",
+        read: false,
+        createdAt: serverTimestamp()
+      });
+      
+      alert(`রিকোয়েস্টটি সফলভাবে এপ্রুভ হয়েছে এবং ইউজারকে ${approvedMonths} মাসের প্রো মেম্বারশিপ ও অটো কনগ্রাচুলেশন মেসেজ দেওয়া হয়েছে।`);
+      fetchPaymentRequests();
+    } catch (e: any) {
+      console.error(e);
+      alert("এপ্রুভ করতে সমস্যা হয়েছে: " + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const rejectPaymentRequest = async (requestId: string) => {
+    try {
+      setLoading(true);
+      await updateDoc(doc(db, "payment_requests", requestId), {
+        status: "rejected",
+        rejectedAt: serverTimestamp()
+      });
+      alert("রিকোয়েস্টটি রিজেক্ট করা হয়েছে।");
+      fetchPaymentRequests();
+    } catch (e: any) {
+      console.error(e);
+      alert("রিজেক্ট করতে সমস্যা হয়েছে: " + e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deletePaymentRequest = async (requestId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: "আপনি কি নিশ্চিত যে এই পেমেন্ট রিকোয়েস্টটি চিরতরে মুছে ফেলতে চান? এটি আর ফিরিয়ে আনা যাবে না।",
+      onConfirm: async () => {
+        try {
+          setLoading(true);
+          await deleteDoc(doc(db, "payment_requests", requestId));
+          alert("পেমেন্ট রিকোয়েস্টটি সফলভাবে মুছে ফেলা হয়েছে।");
+          fetchPaymentRequests();
+        } catch (e: any) {
+          console.error(e);
+          alert("মুছে ফেলতে সমস্যা হয়েছে: " + e.message);
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
+  };
+
+  const getProposedMonths = (request: any) => {
+    if (customMonths[request.id] !== undefined) {
+      return customMonths[request.id];
+    }
+    let m = 1;
+    if (request.plan === "1-month" || Number(request.amount) === 80) m = 1;
+    else if (request.plan === "3-months" || Number(request.amount) === 220) m = 3;
+    else if (request.plan === "6-months" || Number(request.amount) === 430) m = 6;
+    else if (request.plan === "12-months") m = 12;
+    else if (request.plan === "custom" && request.days) m = Math.ceil(Number(request.days) / 30);
+    else if (request.amount) {
+      m = Math.max(1, Math.floor(Number(request.amount) / 70));
+    }
+    return m;
   };
 
   const handleUpdateQuestion = async () => {
@@ -498,6 +617,8 @@ export default function Admin() {
           title: newExamTitle,
           duration,
           questions: parsedQuestions.length > 0 ? parsedQuestions : undefined,
+          targetClass: newExamClass,
+          type: newExamType,
         });
         alert("Public exam updated successfully.");
       } else {
@@ -506,6 +627,8 @@ export default function Admin() {
           duration,
           active: true,
           questions: parsedQuestions,
+          targetClass: newExamClass,
+          type: newExamType,
           createdAt: serverTimestamp()
         });
         alert("Public exam created successfully.");
@@ -516,6 +639,8 @@ export default function Admin() {
       setNewExamQuestionsJSON("");
       setNewExamTitle("Weekly Public Exam");
       setNewExamDuration("25");
+      setNewExamClass("সকল ক্লাস");
+      setNewExamType("public");
     } catch (error) {
       console.error("Error saving exam:", error);
       alert("Failed to save public exam.");
@@ -579,6 +704,8 @@ export default function Admin() {
     setNewExamTitle(exam.title);
     setNewExamDuration(exam.duration?.toString() || "25");
     setNewExamQuestionsJSON(exam.questions ? JSON.stringify(exam.questions, null, 2) : "");
+    setNewExamClass(exam.targetClass || "সকল ক্লাস");
+    setNewExamType(exam.type || "public");
     setShowCreateExamModal(true);
   };
 
@@ -1137,7 +1264,19 @@ window.location.reload();
                         )}
                       </div>
                       
-                      <p className="text-sm text-slate-500 font-medium">সময়: {exam.duration} Minutes</p>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm text-slate-500 font-medium">সময়: {exam.duration} Minutes</p>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          <Badge variant="outline" className="bg-indigo-50 border-indigo-100/60 text-indigo-700 text-[10px] font-bengali font-semibold">
+                            {exam.targetClass || "সকল ক্লাস"}
+                          </Badge>
+                          <Badge variant="outline" className={`text-[10px] font-bengali font-semibold ${
+                            exam.type === "live_model_test" ? "bg-amber-50 border-amber-100/60 text-amber-700" : "bg-teal-50 border-teal-100/60 text-teal-700"
+                          }`}>
+                            {exam.type === "live_model_test" ? "লাইভ মডেল টেস্ট" : "পাবলিক এক্সাম"}
+                          </Badge>
+                        </div>
+                      </div>
                       
                       <div className="mt-1 pt-3 border-t grid grid-cols-2 gap-2">
                         <Button variant="outline" size="sm" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => copyExamLink(exam.id)}>
@@ -1415,6 +1554,37 @@ window.location.reload();
                      
                      <div className="border-t pt-6">
                         <div className="flex justify-between items-center mb-4">
+                          <div className="mb-6 bg-amber-50/40 p-5 rounded-2xl border border-amber-100/70 space-y-3">
+                            <p className="font-bold font-bengali text-amber-800 flex items-center gap-2 text-sm sm:text-base">
+                              <Gift className="w-5 h-5 text-amber-600 shrink-0" />
+                              ক্যাম্পেইন ডিসকাউন্ট পার্সেন্টেজ (Campaign Discount %)
+                            </p>
+                            <p className="text-xs text-slate-500 font-bengali leading-relaxed">
+                              এখানে একটি পার্সেন্টেজ (% যেমন: ১০, ২০, বা ৩০) দিলে তা স্বয়ংক্রিয়ভাবে সরাসরি সাবস্ক্রিপশন স্ক্রিনে প্রতিটি রেগুলার প্ল্যানের মূল্যের উপর ক্যাশে ডিসকাউন্ট হিসাব করে দেখাবে এবং ক্রশড-আউট বা কাটা-চিহ্ন দাগ দিয়ে প্রাইসিং উইজেটগুলো কাস্টমাইজ করবে।
+                            </p>
+                            <div className="flex items-center gap-3">
+                              <div className="relative max-w-[150px]">
+                                <Input 
+                                  type="number"
+                                  min="0"
+                                  max="99"
+                                  placeholder="যেমন: ২০"
+                                  value={settingsData.discountPercentage || 0}
+                                  onChange={(e) => {
+                                    const val = Math.max(0, Math.min(99, parseInt(e.target.value) || 0));
+                                    setSettingsData({...settingsData, discountPercentage: val});
+                                  }}
+                                  className="bg-white font-sans font-bold h-10 pr-8"
+                                />
+                                <span className="absolute right-3 top-2.5 text-slate-400 font-bold font-sans text-sm">%</span>
+                              </div>
+                              {settingsData.discountPercentage > 0 && (
+                                <span className="text-xs font-bold font-bengali text-amber-700 bg-amber-100 px-2.5 py-1 rounded-full animate-pulse">
+                                  {settingsData.discountPercentage}% ছাড় সক্রিয় করা হয়েছে 🏷️
+                                </span>
+                              )}
+                            </div>
+                          </div>
                           <p className="font-bold font-bengali">সাবস্ক্রিপশন ফি (Subscription Fees)</p>
                           <Button 
                              size="sm" 
@@ -1822,6 +1992,277 @@ window.location.reload();
             )}
           </div>
 
+        ) : activeTab === "payments" ? (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl font-bold font-bengali">পেমেন্ট ভেরিফিকেশন প্যানেল</h3>
+                <p className="text-muted-foreground font-bengali text-sm mt-0.5">ম্যানুয়াল সাবস্ক্রিপশন ও ইউজার পেমেন্ট রিকোয়েস্ট যাচাই করুন।</p>
+              </div>
+              <Button variant="outline" className="font-bengali bg-white border-slate-200" onClick={fetchPaymentRequests} disabled={paymentsLoading}>
+                Refresh Requests
+              </Button>
+            </div>
+
+            <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
+              <CardHeader className="bg-slate-50 border-b p-6 pb-4 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-bengali">পেমেন্ট রিকোয়েস্টের তালিকা</CardTitle>
+                <div className="flex items-center gap-3">
+                  <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0 font-bengali font-bold">
+                    {paymentRequests.filter(r => r.status === 'pending').length} অপেক্ষমান
+                  </Badge>
+                  <Badge variant="outline" className="font-mono text-xs text-slate-500 border-slate-200">
+                    Total: {paymentRequests.length}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0 sm:p-6 bg-slate-50/50">
+                {paymentsLoading ? (
+                  <div className="p-12 text-center text-muted-foreground font-bengali font-bold">লোড হচ্ছে...</div>
+                ) : paymentRequests.length === 0 ? (
+                  <div className="p-16 text-center text-muted-foreground font-bengali font-bold">কোনো পেমেন্ট রিকোয়েস্ট পাওয়া যায়নি।</div>
+                ) : (
+                  <div>
+                    {/* Mobile Card List: visible only on mobile screens */}
+                    <div className="block md:hidden space-y-4 p-4">
+                      {paymentRequests.map((req) => (
+                        <div key={req.id} className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm relative space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div className="flex flex-col">
+                              <span className="font-bold text-slate-800 font-bengali text-sm">{req.fullName || 'No Name'}</span>
+                              <span className="text-xs text-slate-500 font-mono mt-0.5 max-w-[170px] truncate">{req.email}</span>
+                              {req.className && (
+                                <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full w-fit mt-1 font-bengali font-semibold">
+                                  {req.className}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex flex-col items-end gap-1.5 shrink-0">
+                              <span className={`px-2 py-0.5 rounded font-bold font-bengali text-[9px] text-white uppercase tracking-wider text-center ${
+                                req.method === 'bkash' ? 'bg-[#e2136e]' :
+                                req.method === 'nagad' ? 'bg-[#f74622]' :
+                                req.method === 'rocket' ? 'bg-[#8c2e8c]' :
+                                'bg-[#00529b]'
+                              }`}>
+                                {req.method}
+                              </span>
+                              {req.status === 'pending' ? (
+                                <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0 font-bengali font-bold text-[9px] px-1.5 py-0">অপেক্ষমান</Badge>
+                              ) : req.status === 'approved' ? (
+                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-0 font-bengali font-bold text-[9px] px-1.5 py-0">অনুমোদিত</Badge>
+                              ) : (
+                                <Badge variant="secondary" className="font-bengali font-bold text-[9px] px-1.5 py-0 text-red-700 bg-red-50 hover:bg-red-50 border-0">বাতিল</Badge>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="border-t border-slate-100 my-2 pt-2 grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-slate-400 block font-bengali text-[10px]">মোবাইল নম্বর / TrxID</span>
+                              <span className="font-mono font-bold text-slate-800 break-all select-all">{req.walletNumber}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block font-bengali text-[10px]">টাকার পরিমাণ & প্ল্যান</span>
+                              <span className="font-extrabold text-[#2e7d32]">৳{req.amount}</span>
+                              <span className="text-[9px] text-slate-400 font-bengali block font-normal">প্ল্যান: {req.plan === 'custom' ? `${req.days || ''} দিন` : req.plan}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center text-[10px] text-slate-400 pt-1 border-t border-slate-50">
+                            <span>সাবমিট করা হয়েছে:</span>
+                            <span className="font-mono">
+                              {req.createdAt ? new Date(req.createdAt.seconds * 1000).toLocaleString('bn-BD') : 'Loading...'}
+                            </span>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
+                            {req.status === 'pending' ? (
+                              <div className="flex items-center gap-2 w-full justify-between">
+                                <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1 shrink-0">
+                                  <input 
+                                    type="number" 
+                                    min={1} 
+                                    max={60}
+                                    value={getProposedMonths(req)}
+                                    onChange={(e) => {
+                                      const val = Math.max(1, Number(e.target.value));
+                                      setCustomMonths(prev => ({ ...prev, [req.id]: val }));
+                                    }}
+                                    className="w-10 h-7 bg-white text-center rounded-md border border-slate-200 font-sans font-bold text-xs outline-none"
+                                  />
+                                  <span className="text-[10px] font-bengali font-bold text-slate-500">মাস</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button 
+                                    size="sm" 
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bengali h-8 text-xs font-bold"
+                                    onClick={() => approvePaymentRequest(req, getProposedMonths(req))}
+                                  >
+                                    Approve
+                                  </Button>
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline" 
+                                    className="text-red-500 hover:bg-red-50 border-red-200 h-8 text-xs font-bold font-bengali"
+                                    onClick={() => rejectPaymentRequest(req.id)}
+                                  >
+                                    Reject
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <span className="text-xs text-slate-550 italic font-bengali">
+                                {req.status === 'approved' ? 'অনুমোদিত হয়েছে ✅ ' : 'বাতিল হয়েছে ❌ '}
+                                {req.status === 'approved' && req.approvedMonths && `(${req.approvedMonths} মাস)`}
+                              </span>
+                            )}
+                            
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              className="text-red-550 hover:bg-red-50 hover:text-red-700 h-8 p-1.5 shrink-0 ml-auto border border-red-100"
+                              onClick={() => deletePaymentRequest(req.id)}
+                              title="মুছে ফেলুন"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Desktop Table View: hidden on mobile */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <Table>
+                        <TableHeader className="bg-white">
+                          <TableRow>
+                            <TableHead className="font-bengali font-bold text-slate-800">শিক্ষার্থী (Student Info)</TableHead>
+                            <TableHead className="font-bengali font-bold text-slate-800">পেমেন্ট মাধ্যম</TableHead>
+                            <TableHead className="font-bengali font-bold text-slate-800 text-center">মোবাইল নম্বর / TrxID</TableHead>
+                            <TableHead className="font-bengali font-bold text-slate-800">টাকার পরিমাণ & প্ল্যান</TableHead>
+                            <TableHead className="font-bengali font-bold text-slate-800">সময় (Submitted)</TableHead>
+                            <TableHead className="font-bengali font-bold text-slate-800">স্ট্যাটাস</TableHead>
+                            <TableHead className="text-right font-bengali font-bold text-slate-800">অ্যাকশন</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {paymentRequests.map((req) => (
+                            <TableRow key={req.id} className="bg-white border-b hover:bg-slate-50/50 transition-colors">
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-slate-800 font-bengali text-sm">{req.fullName || 'No Name'}</span>
+                                  <span className="text-xs text-slate-500 font-mono mt-0.5">{req.email}</span>
+                                  {req.className && (
+                                    <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full w-fit mt-1 font-bengali font-semibold">
+                                      {req.className}
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className={`px-2.5 py-1 rounded-lg font-bold font-bengali text-[10px] inline-block text-white uppercase text-center tracking-wider shadow-xs ${
+                                  req.method === 'bkash' ? 'bg-[#e2136e]' :
+                                  req.method === 'nagad' ? 'bg-[#f74622]' :
+                                  req.method === 'rocket' ? 'bg-[#8c2e8c]' :
+                                  'bg-[#00529b]'
+                                }`}>
+                                  {req.method}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                <div className="font-mono font-bold text-slate-900 tracking-wider bg-slate-50 p-2 text-center rounded-xl border border-slate-100 select-all font-sans text-xs max-w-[150px] mx-auto">
+                                  {req.walletNumber}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex flex-col">
+                                  <span className="font-extrabold text-[#2e7d32] text-sm">৳{req.amount}</span>
+                                  <span className="text-[10px] text-slate-400 font-bengali mt-0.5 font-bold">প্ল্যান: {req.plan === 'custom' ? `${req.days || ''} দিন` : req.plan}</span>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <span className="text-xs font-mono text-slate-500">
+                                  {req.createdAt ? new Date(req.createdAt.seconds * 1000).toLocaleString('bn-BD') : 'Loading...'}
+                                </span>
+                              </TableCell>
+                              <TableCell>
+                                {req.status === 'pending' ? (
+                                  <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0 font-bengali font-bold text-[10px]">অপেক্ষমান</Badge>
+                                ) : req.status === 'approved' ? (
+                                  <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-0 font-bengali font-bold text-[10px]">অনুমোদিত</Badge>
+                                ) : (
+                                  <Badge variant="secondary" className="font-bengali font-bold text-[10px] text-red-700 bg-red-50 hover:bg-red-50 border-0">বাতিল</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex items-center justify-end gap-2.5">
+                                  {req.status === 'pending' ? (
+                                    <>
+                                      <div className="flex items-center gap-1 shrink-0 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                                        <input 
+                                          type="number" 
+                                          min={1} 
+                                          max={60}
+                                          value={getProposedMonths(req)}
+                                          onChange={(e) => {
+                                            const val = Math.max(1, Number(e.target.value));
+                                            setCustomMonths(prev => ({ ...prev, [req.id]: val }));
+                                          }}
+                                          className="w-10 h-7 bg-white text-center rounded-md border border-slate-200 font-sans font-bold text-xs outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                                        />
+                                        <span className="text-[10px] font-bengali font-bold text-slate-500 px-1">মাস</span>
+                                      </div>
+                                      <Button 
+                                        size="sm" 
+                                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-bengali h-8 text-xs font-bold shrink-0"
+                                        onClick={() => approvePaymentRequest(req, getProposedMonths(req))}
+                                      >
+                                        Approve
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline" 
+                                        className="text-red-500 hover:bg-red-50 border-red-200 h-8 text-xs font-bold font-bengali shrink-0"
+                                        onClick={() => rejectPaymentRequest(req.id)}
+                                      >
+                                        Reject
+                                      </Button>
+                                    </>
+                                  ) : (
+                                    <div className="flex flex-col items-end gap-1">
+                                      <span className="text-xs text-slate-550 italic font-bengali">
+                                        {req.status === 'approved' ? 'অনুমোদিত হয়েছে ✅' : 'বাতিল হয়েছে ❌'}
+                                      </span>
+                                      {req.status === 'approved' && req.approvedMonths && (
+                                        <span className="text-[10px] font-bengali font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full px-2 py-0.5">
+                                          {req.approvedMonths} মাসের মেয়াদ
+                                        </span>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  <Button 
+                                    size="sm" 
+                                    variant="ghost" 
+                                    className="text-red-550 hover:bg-red-50 border border-transparent hover:border-red-100 h-8 w-8 p-0 rounded-lg shrink-0"
+                                    onClick={() => deletePaymentRequest(req.id)}
+                                    title="মুছে ফেলুন"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
         ) : (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -1987,6 +2428,37 @@ window.location.reload();
                   onChange={(e) => setNewExamDuration(e.target.value)}
                   className="font-bengali bg-white"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-bold mb-1 block font-bengali font-bengali">শ্রেণি (Target Class)</label>
+                  <select
+                    value={newExamClass}
+                    onChange={(e) => setNewExamClass(e.target.value)}
+                    className="w-full h-10 border rounded-xl px-3 bg-white font-bengali select-none outline-none focus:ring-1 focus:ring-primary text-sm focus:border-primary"
+                  >
+                    <option value="সকল ক্লাস">সকল ক্লাস</option>
+                    <option value="৬ষ্ঠ শ্রেণী">৬ষ্ঠ শ্রেণী</option>
+                    <option value="৭ম শ্রেণী">৭ম শ্রেণী</option>
+                    <option value="৮ম শ্রেণী">৮ম শ্রেণী</option>
+                    <option value="নবম শ্রেণী">নবম শ্রেণী</option>
+                    <option value="দশম শ্রেণী">দশম শ্রেণী</option>
+                    <option value="একাদশ শ্রেণী">একাদশ শ্রেণী</option>
+                    <option value="দ্বাদশ শ্রেণী">দ্বাদশ শ্রেণী</option>
+                    <option value="এডমিশন">এডমিশন</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-bold mb-1 block font-bengali font-bengali">পরীক্ষার ধরন (Type)</label>
+                  <select
+                    value={newExamType}
+                    onChange={(e) => setNewExamType(e.target.value)}
+                    className="w-full h-10 border rounded-xl px-3 bg-white font-bengali select-none outline-none focus:ring-1 focus:ring-primary text-sm focus:border-primary"
+                  >
+                    <option value="public">পাবলিক এক্সাম (Live Exam)</option>
+                    <option value="live_model_test">লাইভ মডেল টেস্ট (Live Model Test)</option>
+                  </select>
+                </div>
               </div>
               <div>
                 <label className="text-sm font-bold mb-1 block font-bengali">প্রশ্নসমূহ (JSON Array - Optional)</label>

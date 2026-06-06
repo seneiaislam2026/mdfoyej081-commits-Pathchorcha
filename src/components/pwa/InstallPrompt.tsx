@@ -94,17 +94,23 @@ export const InstallPrompt = () => {
             <X size={18} />
           </button>
           
-          <div className="flex gap-4 items-start pt-1">
-            <div className="w-16 h-16 shrink-0 relative bg-white flex items-center justify-center rounded-2xl shadow-sm border border-slate-100 overflow-hidden mt-1">
-               <img src="/icon.svg" alt="শিক্ষাঙ্গন Icon" className="w-[85%] h-[85%] object-contain" />
+          <div className="flex flex-col gap-4 pt-1">
+            {/* Brand/Product Header row */}
+            <div className="flex items-center gap-3.5">
+              <div className="w-14 h-14 shrink-0 relative bg-white flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-slate-200 overflow-hidden p-0.5">
+                 <img src="/icon.svg" alt="শিক্ষাঙ্গন Icon" className="w-full h-full object-contain rounded-full" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-bengali font-bold text-lg text-slate-800 leading-tight">শিক্ষাঙ্গন অ্যাপ ইনস্টল করুন</h3>
+                <span className="text-[10px] font-sans font-bold tracking-wider text-amber-500 uppercase">OFFICIAL MOBILE APP</span>
+              </div>
             </div>
             
+            {/* Description and layout content details */}
             <div className="flex-1">
-              <h3 className="font-bengali font-bold text-lg text-slate-800 leading-tight">শিক্ষাঙ্গন অ্যাপ ইনস্টল করুন</h3>
-              
               {!showInstructions ? (
                 <>
-                  <p className="font-bengali text-sm text-slate-500 mt-1 mb-4 leading-relaxed">
+                  <p className="font-bengali text-sm text-slate-500 mb-4 leading-relaxed">
                     এটি একটি প্রোগ্রেসিভ ওয়েব অ্যাপ (PWA)। ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই আইকন এবং সুবিধা পাবেন।
                   </p>
                   
@@ -130,7 +136,7 @@ export const InstallPrompt = () => {
                   <div className="flex gap-3">
                     <Button 
                       onClick={handleInstallClick}
-                      className="flex-1 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-sm font-bengali font-medium h-10"
+                      className="flex-1 bg-primary hover:bg-primary/95 text-white rounded-xl shadow-sm font-bengali font-medium h-10"
                     >
                       <Download className="w-4 h-4 mr-2" />
                       ইনস্টল অ্যাপ
@@ -138,7 +144,7 @@ export const InstallPrompt = () => {
                   </div>
                 </>
               ) : (
-                <div className="mt-2 text-sm text-slate-600 font-bengali leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <div className="text-sm text-slate-600 font-bengali leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
                   <p><strong>Android/Chrome:</strong> ব্রাউজারের মেনু (⋮) থেকে "Install app" বা "Add to Home Screen" নির্বাচন করুন।</p>
                   <p className="mt-2"><strong>iOS/Safari:</strong> Share <span className="inline-block border border-slate-300 rounded px-1 pb-1 mx-1">↑</span> আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।</p>
                   <p className="mt-3 text-primary font-medium text-center">এটি আপনার ফোনে একটি রিয়েল অ্যাপ হিসেবে ইনস্টল হবে!</p>

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { auth, db } from './firebase';
-import { User, GoogleAuthProvider, signInWithPopup, signOut as _signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { User, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, signOut as _signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
 
 interface UserData {
   uid: string;
@@ -26,6 +26,7 @@ interface AuthContextType {
   userData: UserData | null;
   loading: boolean;
   signInWithGoogle: () => Promise<UserData|null>;
+  signInWithFacebook: () => Promise<UserData|null>;
   signInOrSignUpWithEmail: (email: string, password: string) => Promise<UserData|null>;
   setupRecaptcha: (containerId: string) => any;
   signInWithPhone: (phoneNumber: string, appVerifier: any) => Promise<ConfirmationResult>;
@@ -38,6 +39,7 @@ const AuthContext = createContext<AuthContextType>({
   userData: null,
   loading: true,
   signInWithGoogle: async () => null,
+  signInWithFacebook: async () => null,
   signInOrSignUpWithEmail: async () => null,
   setupRecaptcha: () => null,
   signInWithPhone: async () => ({} as ConfirmationResult),
@@ -53,43 +55,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let unsubscribeUserDoc: (() => void) | null = null;
+
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       setUser(currentUser);
+      
+      if (unsubscribeUserDoc) {
+        unsubscribeUserDoc();
+        unsubscribeUserDoc = null;
+      }
+
       if (currentUser) {
-        try {
-          // Fetch or create user document
-          const userRef = doc(db, 'users', currentUser.uid);
-            const docSnap = await getDoc(userRef);
+        const userRef = doc(db, 'users', currentUser.uid);
+        
+        // Listen to changes in user doc in real-time
+        unsubscribeUserDoc = onSnapshot(userRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data() as UserData;
+            const userEmail = currentUser.email?.toLowerCase() || '';
+            const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
             
-            if (docSnap.exists()) {
-              const data = docSnap.data() as UserData;
-              const userEmail = currentUser.email?.toLowerCase() || '';
-              const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
-              
-              if (isAdmin || data.isTutor) {
-                data.isPro = true;
-              }
-
-              // Check if custom subscription hasn't expired
-              if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
-                // Only expire if not an admin/tutor
-                if (!isAdmin && !data.isTutor) {
-                  data.isPro = false;
-                }
-              }
-
-              setUserData(data);
-            } else {
-               // Fallback if exists() is false but also not an error
-               setUserData({
-                 uid: currentUser.uid,
-                 email: currentUser.email || '',
-                 fullName: currentUser.displayName || '',
-                 isPro: false,
-               } as UserData);
+            if (isAdmin || data.isTutor) {
+              data.isPro = true;
             }
-          } catch (e) {
-             console.warn("Could not fetch user document (offline), using cached basic data", e);
+
+            // Check if custom subscription hasn't expired
+            if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
+              if (!isAdmin && !data.isTutor) {
+                data.isPro = false;
+              }
+            }
+
+            setUserData(data);
+          } else {
              setUserData({
                uid: currentUser.uid,
                email: currentUser.email || '',
@@ -97,14 +95,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                isPro: false,
              } as UserData);
           }
-        } else {
-          setUserData(null);
-        }
+          setLoading(false);
+        }, (error) => {
+          console.warn("Real-time user snapshot failed:", error);
+          setLoading(false);
+        });
+      } else {
+        setUserData(null);
         setLoading(false);
-      });
+      }
+    });
 
     return () => {
       unsubscribe();
+      if (unsubscribeUserDoc) unsubscribeUserDoc();
     };
   }, []);
 
@@ -139,11 +143,41 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithFacebook = async (): Promise<UserData | null> => {
+    const provider = new FacebookAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const userRef = doc(db, 'users', result.user.uid);
+    const docSnap = await getDoc(userRef);
+    
+    if (!docSnap.exists()) {
+      // Create user document for first time users
+      const newUserData: UserData = {
+        uid: result.user.uid,
+        email: result.user.email || '',
+        fullName: result.user.displayName || '',
+        points: 0,
+        progress: { totalSolved: 0, accuracy: 0, streak: 0 },
+        isPro: false
+      };
+      
+      await setDoc(userRef, {
+        ...newUserData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+      setUserData(newUserData);
+      return newUserData;
+    } else {
+      const data = docSnap.data() as UserData;
+      setUserData(data);
+      return data;
+    }
+  };
+
   const signInOrSignUpWithEmail = async (email: string, password: string): Promise<UserData | null> => {
     let result;
     try {
       result = await signInWithEmailAndPassword(auth, email, password);
-      return { email: result.user.email || email, uid: result.user.uid, progress: { totalSolved: 0, accuracy: 0, streak: 0 } as any };
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
         try {
@@ -174,6 +208,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
         const existingData = docSnap.data() as UserData;
+        setUserData(existingData);
         return existingData;
       }
     } catch (e) {
@@ -181,25 +216,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     // For new users
-    setDoc(userRef, {
+    const newUserData: UserData = {
       uid: result.user.uid,
       email: result.user.email || email,
       fullName: '',
       points: 0,
       progress: { totalSolved: 0, accuracy: 0, streak: 0 },
       isPro: false,
+    };
+
+    await setDoc(userRef, {
+      ...newUserData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     }, { merge: true }).catch(e => console.error(e));
 
-    return {
-      uid: result.user.uid,
-      email: result.user.email || email,
-      fullName: '',
-      points: 0,
-      progress: { totalSolved: 0, accuracy: 0, streak: 0 },
-      isPro: false
-    };
+    setUserData(newUserData);
+    return newUserData;
   };
 
   const setupRecaptcha = (containerId: string) => {
@@ -250,7 +283,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, signInWithGoogle, signInOrSignUpWithEmail, setupRecaptcha, signInWithPhone, verifyPhoneCode, signOut }}>
+    <AuthContext.Provider value={{ user, userData, loading, signInWithGoogle, signInWithFacebook, signInOrSignUpWithEmail, setupRecaptcha, signInWithPhone, verifyPhoneCode, signOut }}>
       {children}
     </AuthContext.Provider>
   );

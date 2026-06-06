@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import fs from "fs";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 
@@ -11,6 +12,32 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // Intercept logo.png requests of any nested routes and serve as image/svg+xml
+  app.get("*/logo.png", (req, res) => {
+    res.setHeader("Content-Type", "image/svg+xml");
+    const logoPath = path.join(process.cwd(), "public", "logo.png");
+    if (fs.existsSync(logoPath)) {
+      res.sendFile(logoPath);
+    } else {
+      res.status(404).send("File not found");
+    }
+  });
+
+  // Helper for formatting phone num
+  const formatPhoneForGreenweb = (phone: string) => {
+    let clean = phone.trim().replace(/[^\d+]/g, "");
+    if (clean.startsWith("+880")) {
+      return clean.substring(1); // Ensure no + sign (returns 880...)
+    }
+    if (clean.startsWith("880")) {
+      return clean;
+    }
+    if (clean.startsWith("01")) {
+      return "88" + clean;
+    }
+    return clean;
+  };
 
   // Send OTP Route using GreenWeb SMS API
   app.post("/api/send-otp", async (req, res) => {
@@ -24,29 +51,35 @@ async function startServer() {
       otpStore.set(phone, { otp, expires: expirationTime });
       
       const message = `শিক্ষাঙ্গন (Shikshangon) অ্যাপে আপনার পাসওয়ার্ড রিসেট ওটিপি: ${otp}`;
+      const formattedPhone = formatPhoneForGreenweb(phone);
       
-      // Greenweb SMS API pattern
-      const smsApiUrl = `http://api.greenweb.com.bd/api.php?token=T445ZnbHEELavHNv3Tdw&to=${phone}&message=${encodeURIComponent(message)}`;
+      const token = process.env.GREENWEB_SMS_TOKEN || "T445ZnbHEELavHNv3Tdw";
+      const senderid = process.env.GREENWEB_SMS_SENDER_ID || "+8809617634384";
       
-      // For fetch, we simulate or actually make the call
+      // Try first WITH senderid
+      let smsApiUrl = `https://api.greenweb.com.bd/api.php?token=${token}&to=${formattedPhone}&message=${encodeURIComponent(message)}&senderid=${encodeURIComponent(senderid)}`;
+      
       let data = "Simulated Mock Response";
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
-        const response = await fetch(smsApiUrl, { signal: controller.signal });
+        let response = await fetch(smsApiUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
         data = await response.text();
-        console.log("Greenweb API Response:", data);
+        console.log("Greenweb OTP response:", data);
         
-        // If Greenweb returns error but token is wrong, it might look like "Error: ..."
-        if (data.toLowerCase().includes("error") && !data.toLowerCase().includes("dnd")) {
-            console.error("SMS API Error contents:", data);
+        if (data.toLowerCase().includes("error")) {
+          console.log("OTP failed with senderid, trying fallback without senderid...");
+          smsApiUrl = `https://api.greenweb.com.bd/api.php?token=${token}&to=${formattedPhone}&message=${encodeURIComponent(message)}`;
+          const responseFallback = await fetch(smsApiUrl);
+          data = await responseFallback.text();
+          console.log("Greenweb OTP fallback response:", data);
         }
       } catch(err) {
          console.warn("Failed to reach GreenWeb API, falling back to mock OTP sending.", err);
       }
       
-      res.json({ success: true, message: "OTP sent successfully", mockOtp: otp });
+      res.json({ success: true, message: "OTP sent successfully", mockOtp: otp, apiResponse: data });
     } catch (error: any) {
       console.error("SMS error:", error);
       res.status(500).json({ error: "Failed to send OTP" });
@@ -59,14 +92,36 @@ async function startServer() {
       const { phone, message } = req.body;
       if (!phone || !message) return res.status(400).json({ error: "Phone and message are required" });
       
-      const smsApiUrl = `http://api.greenweb.com.bd/api.php?token=T445ZnbHEELavHNv3Tdw&to=${phone}&message=${encodeURIComponent(message)}&senderid=%2B8809617634384`;
-      const response = await fetch(smsApiUrl);
-      const data = await response.text();
+      const formattedPhone = formatPhoneForGreenweb(phone);
+      
+      const token = process.env.GREENWEB_SMS_TOKEN || "T445ZnbHEELavHNv3Tdw";
+      const senderid = process.env.GREENWEB_SMS_SENDER_ID || "+8809617634384";
+      
+      // Try first WITH senderid
+      let smsApiUrl = `https://api.greenweb.com.bd/api.php?token=${token}&to=${formattedPhone}&message=${encodeURIComponent(message)}&senderid=${encodeURIComponent(senderid)}`;
+      
+      console.log(`Sending SMS to ${formattedPhone}...`);
+      let response = await fetch(smsApiUrl);
+      let data = await response.text();
+      console.log("Greenweb initial response:", data);
+      
+      // If error, try without senderid (for general non-masking sender accounts)
+      if (data.toLowerCase().includes("error")) {
+        console.log("SMS failed with senderid, trying fallback without senderid...");
+        smsApiUrl = `https://api.greenweb.com.bd/api.php?token=${token}&to=${formattedPhone}&message=${encodeURIComponent(message)}`;
+        response = await fetch(smsApiUrl);
+        data = await response.text();
+        console.log("Greenweb fallback response:", data);
+      }
+      
+      if (data.toLowerCase().includes("error")) {
+        return res.status(400).json({ error: `GreenWeb SMS Error: ${data}` });
+      }
       
       res.json({ success: true, message: "SMS sent successfully", data });
     } catch (error: any) {
       console.error("SMS error:", error);
-      res.status(500).json({ error: "Failed to send SMS" });
+      res.status(500).json({ error: "Failed to send SMS: " + (error.message || error) });
     }
   });
 
@@ -229,13 +284,33 @@ async function startServer() {
   });
 
   // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  const isDev = process.env.NODE_ENV !== "production" || 
+                process.env.VITE_DEV === "true" || 
+                (process.argv[1] && (process.argv[1].endsWith('server.ts') || process.argv[1].endsWith('server.js')));
+
+  console.log(`[Shikkhangon Server] NODE_ENV: ${process.env.NODE_ENV}, Port: ${PORT}, isDev: ${isDev}`);
+  console.log(`[Shikkhangon Server] Entrypoint script: ${process.argv[1]}`);
+
+  if (isDev) {
+    console.log("Starting server in development mode with Vite live compiler...");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
+    app.get('*', async (req, res, next) => {
+      const url = req.originalUrl;
+      try {
+        let template = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf-8');
+        template = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (e) {
+        vite.ssrFixStacktrace(e as Error);
+        next(e);
+      }
+    });
   } else {
+    console.log("Starting server in production static mode...");
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {

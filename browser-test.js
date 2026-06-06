@@ -11,7 +11,7 @@ import puppeteer from 'puppeteer';
   page.on('pageerror', err => console.log('BROWSER EXCEPTION:', err.message));
   
   console.log('Navigating...');
-  await page.goto('http://localhost:3000/public-exam/abcd');
+  await page.goto('http://localhost:3000/');
   
   // wait 3 seconds to see if it renders
   await new Promise(r => setTimeout(r, 3000));

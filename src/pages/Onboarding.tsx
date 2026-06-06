@@ -43,6 +43,11 @@ export default function Onboarding() {
     // If user already has a class, they shouldn't be here.
     if (userData?.class) {
       navigate("/dashboard", { replace: true });
+    } else if (userData?.fullName && userData.fullName !== "Student" && userData.fullName !== "") {
+      // If we already have a name but no class yet, set states and skip the name step
+      setName(userData.fullName);
+      if (userData.institution) setInstitution(userData.institution);
+      setStep("class");
     }
   }, [userData, navigate]);
 
@@ -300,7 +305,7 @@ export default function Onboarding() {
                 className="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-blue-800 rounded-3xl flex items-center justify-center p-0.5 shadow-lg shadow-primary/20 mb-8 transform -rotate-12 hover:rotate-0 transition-transform"
               >
                 <div className="w-full h-full border-2 border-white/30 rounded-[22px] flex items-center justify-center bg-transparent relative overflow-hidden">
-                   <span className="font-bengali font-bold text-4xl text-white tracking-tight">পা<span className="text-secondary">চ</span></span>
+                   <span className="font-bengali font-bold text-4xl text-white tracking-tight">শি<span className="text-secondary">ক্ষা</span></span>
                 </div>
               </motion.div>
 

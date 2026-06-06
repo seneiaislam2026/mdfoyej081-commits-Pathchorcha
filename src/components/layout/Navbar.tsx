@@ -3,12 +3,15 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, Bell, Menu, User, ShieldCheck, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../lib/AuthContext";
+import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from "firebase/firestore";
+import { db } from "../../lib/firebase";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { userData, signOut } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,6 +25,59 @@ export default function Navbar() {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (!userData?.uid) {
+      setNotifications([]);
+      return;
+    }
+
+    const q = query(
+      collection(db, "notifications"),
+      where("userId", "in", [userData.uid, "all"]),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const list: any[] = [];
+      snapshot.forEach((docSnapshot) => {
+        list.push({ id: docSnapshot.id, ...docSnapshot.data() });
+      });
+      setNotifications(list);
+    }, (err) => {
+      console.warn("Notifications listener error:", err);
+    });
+
+    return () => unsubscribe();
+  }, [userData?.uid]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      const batch = writeBatch(db);
+      notifications.forEach(n => {
+        if (!n.read && n.userId !== "all") {
+          batch.update(doc(db, "notifications", n.id), { read: true });
+        }
+      });
+      await batch.commit();
+      setShowNotifications(false);
+    } catch (e) {
+      console.error("Error marking read:", e);
+      setShowNotifications(false);
+    }
+  };
+
+  const formatBNTime = (timestamp: any) => {
+    if (!timestamp) return "";
+    try {
+      const date = new Date(timestamp.seconds * 1000);
+      return date.toLocaleDateString("bn-BD", { month: "long", day: "numeric" }) + " | " + date.toLocaleTimeString("bn-BD", { hour: "2-digit", minute: "2-digit" });
+    } catch(e) {
+      return "";
+    }
+  };
 
   const isAdminPath = location.pathname.startsWith("/admin");
   const isLogin = location.pathname === "/login";
@@ -91,49 +147,70 @@ export default function Navbar() {
               onClick={() => setShowNotifications(!showNotifications)}
             >
               <Bell className="h-5 w-5 md:h-6 md:w-6 text-slate-700" strokeWidth={2} />
-              <span className="absolute top-1.5 right-1.5 w-[10px] h-[10px] bg-red-500 rounded-full border-2 border-white"></span>
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 min-w-[16px] h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-sans font-bold px-1 animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
             </div>
             
             {showNotifications && (
               <div className="absolute right-[-10px] sm:right-0 origin-top-right mt-2 w-[300px] sm:w-[320px] max-w-[calc(100vw-32px)] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden font-bengali">
                 <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                   <h3 className="font-bold text-slate-800 text-sm">নোটিফিকেশন</h3>
-                  <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-medium">২টি নতুন</span>
+                  {unreadCount > 0 && (
+                    <span className="text-xs text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full font-bold">
+                      {unreadCount}টি বাকি
+                    </span>
+                  )}
                 </div>
                 <div className="max-h-[350px] overflow-y-auto">
-                  <div className="p-4 border-b border-slate-50 hover:bg-slate-50/80 transition-colors cursor-pointer group">
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
-                        <Bell className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-800 font-semibold leading-tight mb-1">নতুন মডেল টেস্ট যোগ করা হয়েছে!</p>
-                        <p className="text-xs text-slate-500 leading-snug">ঢাকা বিশ্ববিদ্যালয় গ ইউনিটের নতুন প্রশ্ন যোগ করা হয়েছে।</p>
-                        <p className="text-[10px] text-slate-400 mt-2 font-medium">২ ঘন্টা আগে</p>
-                      </div>
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-xs text-slate-400 font-medium leading-normal">
+                      কোনো নোটিফিকেশন পাওয়া যায়নি।
                     </div>
-                  </div>
-                  <div className="p-4 border-b border-slate-50 hover:bg-slate-50/80 transition-colors cursor-pointer group">
-                    <div className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform">
-                        <Search className="w-4 h-4 text-orange-600" />
+                  ) : (
+                    notifications.map((noti) => (
+                      <div 
+                        key={noti.id} 
+                        className={`p-4 border-b border-slate-50 hover:bg-slate-50/80 transition-colors cursor-pointer group ${!noti.read ? 'bg-amber-50/20' : ''}`}
+                        onClick={() => {
+                          if (!noti.read) {
+                            updateDoc(doc(db, "notifications", noti.id), { read: true });
+                          }
+                        }}
+                      >
+                        <div className="flex gap-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-105 transition-transform ${
+                            noti.type === 'pro_approval' ? 'bg-amber-100 text-amber-600' :
+                            noti.type === 'alert' ? 'bg-red-100 text-red-600' :
+                            'bg-blue-100 text-blue-600'
+                          }`}>
+                            <Bell className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm text-slate-800 font-bold leading-tight mb-1 flex items-center gap-1.5 break-words">
+                              {noti.title}
+                              {!noti.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>}
+                            </p>
+                            <p className="text-xs text-slate-500 leading-snug break-words">{noti.message}</p>
+                            <p className="text-[10px] text-slate-400 mt-2 font-mono">{formatBNTime(noti.createdAt)}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm text-slate-800 font-semibold leading-tight mb-1">এআই টিউটর আপডেট</p>
-                        <p className="text-xs text-slate-500 leading-snug">এআই টিউটর এখন আপনার প্রশ্নের আরও দ্রুত উত্তর দিতে পারে।</p>
-                        <p className="text-[10px] text-slate-400 mt-2 font-medium">১ দিন আগে</p>
-                      </div>
-                    </div>
+                    ))
+                  )}
+                </div>
+                {unreadCount > 0 && (
+                  <div className="p-3 text-center border-t border-slate-100 bg-slate-50/30">
+                    <button 
+                      className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors w-full py-1 border-0 bg-transparent cursor-pointer"
+                      onClick={handleMarkAllAsRead}
+                    >
+                      সবগুলো পঠিত হিসেবে চিহ্নিত করুন
+                    </button>
                   </div>
-                </div>
-                <div className="p-3 text-center border-t border-slate-100 bg-slate-50/30">
-                  <button 
-                    className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
-                    onClick={() => setShowNotifications(false)}
-                  >
-                    সবগুলো দেখেছি
-                  </button>
-                </div>
+                )}
               </div>
             )}
           </div>

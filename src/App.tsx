@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation, useNavigate, Navigate } from "react-router-dom";
 import React from "react";
 import Navbar from "./components/layout/Navbar";
+import ProApprovedCongrats from "./components/layout/ProApprovedCongrats";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
@@ -10,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import QuestionBank from "./pages/QuestionBank";
 import PaperView from "./pages/PaperView";
 import Notes from "./pages/Notes";
+import SubjectNotes from "./pages/SubjectNotes";
 import Exam from "./pages/Exam";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
@@ -62,8 +64,13 @@ function NoteLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center gap-2">
+          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
+            <span className="text-[#0F2744]">শিক্ষা</span>
+            <span className="text-[#F4B400]">ঙ্গন</span>
+          </span>
+        </div>
       </div>
     );
   }
@@ -113,12 +120,17 @@ function AppLayout() {
   const { user, loading } = useAuth();
   
   // Do not show back button on dashboard, exam, paper, and question-bank pages
-  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/question-bank" || location.pathname === "/notes" || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin";
+  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/question-bank" || location.pathname === "/notes" || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor";
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center gap-2">
+          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
+            <span className="text-[#0F2744]">শিক্ষা</span>
+            <span className="text-[#F4B400]">ঙ্গন</span>
+          </span>
+        </div>
       </div>
     );
   }
@@ -147,6 +159,7 @@ function AppLayout() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans mb-8">
       <Navbar />
+      <ProApprovedCongrats />
       <main className="flex-1 w-full max-w-[1240px] mx-auto p-4 sm:p-6 lg:p-8">
         {!hideGlobalBackButton && (
           <button 
@@ -183,6 +196,7 @@ export default function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/notes" element={<Notes />} />
+          <Route path="/notes/subject/:subjectName" element={<SubjectNotes />} />
           <Route path="/bank" element={<QuestionBank />} />
           <Route path="/paper" element={<PaperView />} />
           

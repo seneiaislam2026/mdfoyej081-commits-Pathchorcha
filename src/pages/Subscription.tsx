@@ -58,6 +58,7 @@ export default function Subscription() {
   const [customDays, setCustomDays] = useState(7);
   const [couponCode, setCouponCode] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
   const navigate = useNavigate();
   const { user, userData } = useAuth();
   
@@ -66,8 +67,14 @@ export default function Subscription() {
       try {
         const docRef = doc(db, "settings", "general");
         const docSnap = await getDoc(docRef);
-        if (docSnap.exists() && docSnap.data().subscriptionPlans) {
-          setPlans(docSnap.data().subscriptionPlans);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.subscriptionPlans) {
+            setPlans(data.subscriptionPlans);
+          }
+          if (data.discountPercentage) {
+            setDiscountPercentage(Number(data.discountPercentage));
+          }
         }
       } catch(e) {
         console.error(e);
@@ -152,7 +159,7 @@ export default function Subscription() {
       
       // Usually need to update context too, assuming reload or it triggers onSnapshot, else we navigate home
       alert("অভিনন্দন! আপনার সাবস্ক্রিপশন সফলভাবে এক্টিভ হয়েছে।");
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
       
     } catch (error) {
       console.error(error);
@@ -256,37 +263,57 @@ export default function Subscription() {
         </div>
 
         <div className="lg:col-span-7 flex flex-col gap-6 w-full lg:max-w-none">
-          <div className="flex flex-col gap-3">
-            {plans.map((plan) => (
-              <motion.div
-                key={plan.id}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setSelectedPlan(plan.id)}
-                className={`cursor-pointer rounded-2xl border-2 p-4 flex items-center justify-between transition-all ${
-                  selectedPlan === plan.id 
-                    ? "border-orange-500 bg-orange-50/40 shadow-[0_8px_20px_-8px_rgba(249,115,22,0.2)]" 
-                    : "border-slate-100 bg-white hover:border-orange-200 shadow-sm"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${selectedPlan === plan.id ? 'border-orange-500 bg-orange-500 scale-110' : 'border-slate-300'}`}>
-                     {selectedPlan === plan.id && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
-                  </div>
-                  <div className="flex flex-col">
-                    <div className="flex items-center gap-2">
-                       <h4 className={`text-base sm:text-lg font-bengali font-bold leading-tight ${selectedPlan === plan.id ? 'text-orange-800' : 'text-slate-800'}`}>{plan.name}</h4>
-                       {plan.popular && (
-                         <span className="bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full font-bengali shadow-sm">জনপ্রিয়</span>
-                       )}
-                    </div>
-                    <span className={`text-xs sm:text-sm font-bengali mt-0.5 ${selectedPlan === plan.id ? 'text-orange-600/80' : 'text-slate-500'}`}>{plan.duration}</span>
-                  </div>
-                </div>
+          {discountPercentage > 0 && (
+            <div className="bg-amber-50 border border-amber-200/60 rounded-3xl p-5 flex items-center justify-between gap-3 animate-pulse">
+               <div className="flex items-center gap-3">
+                 <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
+                    <Tag className="w-5 h-5" />
+                 </div>
+                 <div className="font-bengali">
+                   <p className="font-bold text-amber-900 text-sm sm:text-base">বিশেষ ক্যাম্পেইন অফার সক্রিয়! 🎉</p>
+                   <p className="text-xs sm:text-sm text-amber-800">সকল রেগুলার প্রো প্ল্যানে সরাসরি {discountPercentage}% ছাড় দেওয়া হয়েছে।</p>
+                 </div>
+               </div>
+               <span className="text-xs font-black font-sans text-amber-700 bg-amber-100/50 border border-amber-200 px-3 py-1 rounded-full shrink-0">-{discountPercentage}% Off</span>
+            </div>
+          )}
 
-                <div className="text-right shrink-0">
-                   {plan.id === 'custom' ? (
-                     <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-col gap-3">
+            {plans.map((plan) => {
+              const hasDiscount = discountPercentage > 0 && plan.id !== 'custom';
+              const originalPrice = plan.price;
+              const discountedPrice = hasDiscount ? Math.round(originalPrice * (1 - discountPercentage / 100)) : originalPrice;
+
+              return (
+                <motion.div
+                  key={plan.id}
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedPlan(plan.id)}
+                  className={`cursor-pointer rounded-2xl border-2 p-4 flex items-center justify-between transition-all ${
+                    selectedPlan === plan.id 
+                      ? "border-orange-500 bg-orange-50/40 shadow-[0_8px_20px_-8px_rgba(249,115,22,0.2)]" 
+                      : "border-slate-100 bg-white hover:border-orange-200 shadow-sm"
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${selectedPlan === plan.id ? 'border-orange-500 bg-orange-500 scale-110' : 'border-slate-300'}`}>
+                       {selectedPlan === plan.id && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="flex items-center gap-2">
+                        <h4 className={`text-base sm:text-lg font-bengali font-bold leading-tight ${selectedPlan === plan.id ? 'text-orange-800' : 'text-slate-800'}`}>{plan.name}</h4>
+                        {plan.popular && (
+                          <span className="bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full font-bengali shadow-sm">জনপ্রিয়</span>
+                        )}
+                      </div>
+                      <span className={`text-xs sm:text-sm font-bengali mt-0.5 ${selectedPlan === plan.id ? 'text-orange-600/80' : 'text-slate-500'}`}>{plan.duration}</span>
+                    </div>
+                  </div>
+
+                  <div className="text-right shrink-0">
+                    {plan.id === 'custom' ? (
+                      <div className="flex flex-col items-end gap-2">
                         <div className={`flex items-center gap-1 rounded-xl p-1 pl-2 pr-3 border transition-colors ${selectedPlan === plan.id ? 'bg-white border-orange-300 shadow-inner' : 'bg-slate-50 border-slate-200'}`}>
                           <Input 
                             type="number"
@@ -308,16 +335,24 @@ export default function Subscription() {
                            <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
                            <span className="text-3xl sm:text-4xl font-black">{Math.ceil((80/30) * customDays)}</span>
                         </div>
-                     </div>
-                   ) : (
-                     <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-slate-800'}`}>
-                        <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
-                        <span className="text-3xl sm:text-4xl font-black">{plan.price}</span>
-                     </div>
-                   )}
-                </div>
-              </motion.div>
-            ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-end">
+                        {hasDiscount && (
+                          <span className="text-xs font-sans font-bold text-red-500 line-through mb-0.5">
+                            ৳{originalPrice}
+                          </span>
+                        )}
+                        <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-slate-800'}`}>
+                           <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
+                           <span className="text-3xl sm:text-4xl font-black">{discountedPrice}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
 
           <div className="bg-white border border-slate-100 rounded-3xl p-5 flex flex-col gap-4 shadow-sm mt-2">
@@ -348,12 +383,21 @@ export default function Subscription() {
             ) : (
                <PaymentButton 
                  plan={selectedPlan} 
-                 amount={selectedPlan === 'custom' ? Math.ceil((80/30) * customDays) : (plans.find(p => p.id === selectedPlan)?.price || 0)} 
+                 amount={
+                   selectedPlan === 'custom' 
+                     ? Math.ceil((80/30) * customDays) 
+                     : (() => {
+                         const plan = plans.find(p => p.id === selectedPlan);
+                         if (!plan) return 0;
+                         const hasDiscount = discountPercentage > 0 && plan.id !== 'custom';
+                         return hasDiscount ? Math.round(plan.price * (1 - discountPercentage / 100)) : plan.price;
+                       })()
+                 } 
                  days={selectedPlan === 'custom' ? customDays : undefined} 
                />
             )}
             <p className="text-center font-bengali text-sm text-slate-500 mt-5">
-              বিকাশ, নগদ, রকেট সহ যে কোনো কার্ডে পেমেন্ট করতে পারবেন।
+              বিকাশ, নগদ, রকেট, উপায় সহ যেকোনো কার্ডে পেমেন্ট করতে পারবেন।
             </p>
           </div>
         </div>

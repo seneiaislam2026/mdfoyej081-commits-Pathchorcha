@@ -85,7 +85,7 @@ export default function Dashboard() {
       try {
         const { collection, getDocs, limit, query, orderBy, where } = await import("firebase/firestore");
         const { db } = await import("../lib/firebase");
-        const q = query(collection(db, "public_exams"), where("active", "==", true), orderBy("createdAt", "desc"), limit(3));
+        const q = query(collection(db, "public_exams"), where("active", "==", true), orderBy("createdAt", "desc"), limit(40));
         const snap = await getDocs(q);
         setPublicExams(snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       } catch (error) { console.error("ERR", error); }
@@ -126,6 +126,17 @@ export default function Dashboard() {
   ];
 
   const { userData } = useAuth();
+
+  const userClass = userData?.class || "";
+  const eligibleExams = publicExams.filter((exam) => {
+    if (!exam.targetClass || exam.targetClass === "সকল ক্লাস") {
+      return true;
+    }
+    return exam.targetClass === userClass;
+  });
+
+  const liveExams = eligibleExams.filter((exam) => !exam.type || exam.type === "public");
+  const liveModelTests = eligibleExams.filter((exam) => exam.type === "live_model_test");
 
   const cards = [
     {
@@ -393,16 +404,16 @@ export default function Dashboard() {
       </section>
 
       {/* Live Public Exams Banner */}
-      {publicExams && publicExams.length > 0 && (
+      {liveExams && liveExams.length > 0 && (
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
              <h3 className="text-2xl font-bengali font-bold text-slate-900 flex items-center gap-2">
                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-               চলমান লাইভ এক্সাম
+               চলমান লাইভ এক্সাম (পাবলিক এক্সাম)
              </h3>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {publicExams.map((exam) => (
+            {liveExams.map((exam) => (
               <Link to={`/public-exam/${exam.id}`} key={exam.id}>
                 <motion.div
                   whileHover={{ y: -4, transition: { duration: 0.2 } }}
@@ -410,8 +421,15 @@ export default function Dashboard() {
                 >
                   <div className="absolute top-0 right-0 w-24 h-24 bg-white/40 rounded-full -translate-y-8 translate-x-8 blur-xl"></div>
                   <div className="flex justify-between items-start mb-3 relative z-10">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider">
-                      <span className="w-1.5 h-1.5 bg-red-600 rounded-full"></span> লাইভ
+                    <div className="inline-flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider">
+                        <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span> লাইভ
+                      </span>
+                      {exam.targetClass && (
+                        <span className="px-2.5 py-1 rounded-full bg-indigo-150/50 border border-indigo-200/40 text-indigo-700 text-[10px] font-bold font-bengali">
+                          {exam.targetClass}
+                        </span>
+                      )}
                     </div>
                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-indigo-500">
                       <Trophy className="w-5 h-5" />
@@ -507,18 +525,18 @@ export default function Dashboard() {
         </section>
       )}
 
-      {/* Live Public Exams (লাইভ মডেল টেস্ট) */}
-      {publicExams.length > 0 && (
+      {/* Live Model Test */}
+      {liveModelTests && liveModelTests.length > 0 && (
         <section className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-5 sm:p-6 my-2">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl font-bold font-bengali text-slate-800 flex items-center gap-2">
               <span className="w-1.5 h-6 bg-[#f59e0b] rounded-full"></span>
               লাইভ মডেল টেস্ট
             </h2>
-            <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full text-xs font-bold animate-pulse">LIVE NOW</span>
+            <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">MODEL TEST LIVE</span>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {publicExams.map((exam, idx) => (
+            {liveModelTests.map((exam, idx) => (
                <motion.div 
                  key={exam.id}
                  initial={{ opacity: 0, scale: 0.95 }}
@@ -532,6 +550,9 @@ export default function Dashboard() {
                         <div className="flex flex-wrap items-center gap-3 text-[12px] sm:text-xs text-slate-500 mt-2.5 font-medium font-bengali">
                           <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-200"><Clock className="w-3.5 h-3.5 text-orange-500" /> {exam.duration} মি.</span>
                           <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-200"><HelpCircle className="w-3.5 h-3.5 text-blue-500" /> {exam.questions?.length || 0} টি প্রশ্ন</span>
+                          {exam.targetClass && (
+                            <span className="flex items-center gap-1.5 bg-indigo-50/70 border border-indigo-150 px-2.5 py-1 rounded-md text-indigo-700 font-bold">{exam.targetClass}</span>
+                          )}
                         </div>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-primary group-hover:border-primary transition-all">

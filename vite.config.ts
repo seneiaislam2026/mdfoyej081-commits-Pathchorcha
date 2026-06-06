@@ -13,7 +13,7 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         injectRegister: 'auto',
         devOptions: {
-          enabled: true
+          enabled: false
         },
         workbox: {
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,

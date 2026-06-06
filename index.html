@@ -2,6 +2,19 @@
 <html lang="bn">
   <head>
   <script>
+    // Unregister any stale Service Workers in development to prevent white-screens caused by cached assets
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister().then(function() {
+            console.log('Unregistered stale Service Worker');
+            // Hard reload once to clean up
+            window.location.reload();
+          });
+        }
+      });
+    }
+
     window.onerror = function(msg, url, lineNo, columnNo, error) {
       const err = document.createElement('div');
       err.style.color = 'red';

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Brain, User, Sparkles, Loader2, ImagePlus, X, MessageCircleQuestion, Users, CheckCircle2 } from "lucide-react";
+import { Send, Brain, User, Sparkles, Loader2, ImagePlus, X, MessageCircleQuestion, Users, CheckCircle2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ReactMarkdown from 'react-markdown';
 import { useAuth } from "../lib/AuthContext";
 import { collection, addDoc, getDocs, query, where, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -40,6 +40,7 @@ interface Doubt {
 export default function AITutor() {
   const { userData } = useAuth();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const defaultTab = (searchParams.get("tab") as "ai" | "community_doubts" | "solve_doubts") || "ai";
   
   const [activeTab, setActiveTab] = useState<"ai" | "community_doubts" | "solve_doubts">(defaultTab);
@@ -342,10 +343,19 @@ export default function AITutor() {
     <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-140px)] bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative">
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-blue-800 p-6 flex flex-col gap-2 relative shrink-0">
-        <h1 className="text-2xl font-bengali font-bold text-white flex items-center gap-2">
-          <Sparkles className="w-6 h-6 text-yellow-300" /> পড়াশোনার সাহায্যকারী
-        </h1>
-        <p className="text-white/80 font-bengali text-sm md:text-base">এআই টিউটর বা সরাসরি শিক্ষকের কাছে যেকোনো প্রশ্নের উত্তর নাও।</p>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors focus:outline-none"
+            title="ড্যাশবোর্ডে ফিরে যান"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-2xl font-bengali font-bold text-white flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-yellow-300" /> পড়াশোনার সাহায্যকারী
+          </h1>
+        </div>
+        <p className="text-white/80 font-bengali text-sm md:text-base pl-13">এআই টিউটর বা সরাসরি শিক্ষকের কাছে যেকোনো প্রশ্নের উত্তর নাও।</p>
         
         <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide">
           <Button 
