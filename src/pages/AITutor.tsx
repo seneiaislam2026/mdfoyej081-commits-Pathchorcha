@@ -7,6 +7,7 @@ import { useAuth } from "../lib/AuthContext";
 import { collection, addDoc, getDocs, query, where, orderBy, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { getSubjectsByGroup, mapUserClassToGroup } from "./Notes";
 
 interface Message {
   id: string;
@@ -28,6 +29,7 @@ interface Doubt {
   userId: string;
   userName: string;
   userClass?: string;
+  subject?: string;
   question: string;
   image?: string;
   status: "pending" | "answered";
@@ -58,6 +60,9 @@ export default function AITutor() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const [selectedDoubtSubject, setSelectedDoubtSubject] = useState("সাধারণ");
+  const dynamicSubjects = getSubjectsByGroup(userData?.group, mapUserClassToGroup(userData?.class));
 
   // Doubts state
   const [myDoubts, setMyDoubts] = useState<Doubt[]>([]);
@@ -70,8 +75,10 @@ export default function AITutor() {
   };
 
   useEffect(() => {
-    if (activeTab === "ai") scrollToBottom();
-  }, [messages, activeTab]);
+    if (activeTab === "ai" || activeTab === "community_doubts") {
+      scrollToBottom();
+    }
+  }, [messages, myDoubts, activeTab]);
 
   useEffect(() => {
     if (activeTab === "community_doubts" && userData?.uid) {
@@ -85,14 +92,13 @@ export default function AITutor() {
     if (!userData?.uid) return;
     setDoubtLoading(true);
     try {
-      const classQuery = userData.class ? where("userClass", "==", userData.class) : where("userId", "==", userData.uid);
       const q = query(
         collection(db, "doubts"),
-        classQuery
+        where("userId", "==", userData.uid)
       );
       const snapshot = await getDocs(q);
       const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Doubt));
-      docs.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+      docs.sort((a, b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
       setMyDoubts(docs);
     } catch (e) {
       console.error(e);
@@ -106,7 +112,13 @@ export default function AITutor() {
     try {
       const q = query(collection(db, "doubts"), where("status", "==", "pending"));
       const snapshot = await getDocs(q);
-      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Doubt));
+      let docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Doubt));
+      
+      // Filter based on tutor subjects if they have it set
+      if (userData?.tutorSubjects && userData.tutorSubjects.length > 0) {
+        docs = docs.filter(d => userData.tutorSubjects.includes(d.subject || "সাধারণ"));
+      }
+      
       setAllDoubts(docs);
     } catch (e) {
       console.error(e);
@@ -196,19 +208,19 @@ export default function AITutor() {
         userId: userData.uid,
         userName: userData.fullName || "Student",
         userClass: userData.class || "",
+        subject: selectedDoubtSubject,
         question: input,
         image: selectedImage || null,
         status: "pending",
         comments: [],
         createdAt: serverTimestamp()
       });
-      alert("তোমার প্রশ্নটি পোস্ট করা হয়েছে।");
       setInput("");
       setSelectedImage(null);
       fetchCommunityDoubts();
     } catch (e) {
       console.error(e);
-      alert("প্রশ্ন পোস্ট করতে সমস্যা হয়েছে।");
+      alert("বার্তা পাঠাতে সমস্যা হয়েছে।");
     } finally {
       setLoading(false);
     }
@@ -269,9 +281,10 @@ export default function AITutor() {
     <div key={doubt.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
       <div className="flex justify-between items-start gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className="font-bold text-sm text-slate-800">{doubt.userName}</span>
             {doubt.userClass && <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">Class {doubt.userClass}</span>}
+            {doubt.subject && <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full border border-blue-100">{doubt.subject}</span>}
             <span className="text-xs text-slate-400">asked a doubt</span>
           </div>
           <p className="font-bengali text-slate-900 text-[15px]">{doubt.question}</p>
@@ -338,6 +351,57 @@ export default function AITutor() {
       )}
     </div>
   );
+
+  // Generate a flattened list of chat messages from direct doubts
+  const humanChatMessages = myDoubts
+    .flatMap(doubt => {
+      const msgs = [];
+      const t = doubt.createdAt?.toMillis 
+        ? new Date(doubt.createdAt.toMillis()) 
+        : (doubt.createdAt instanceof Date ? doubt.createdAt : new Date());
+      
+      // User's custom doubt question
+      msgs.push({
+        id: `q-${doubt.id}`,
+        sender: "user" as const,
+        text: doubt.question,
+        image: doubt.image || undefined,
+        senderName: doubt.userName || "Student",
+        time: t,
+        subject: doubt.subject,
+        doubtId: doubt.id
+      });
+      
+      // Tutor's official answer
+      if (doubt.status === "answered" && doubt.answer) {
+        msgs.push({
+          id: `a-${doubt.id}`,
+          sender: "teacher" as const,
+          text: doubt.answer,
+          senderName: doubt.answeredBy || "শিক্ষক (Tutor)",
+          time: new Date(t.getTime() + 1000),
+          doubtId: doubt.id
+        });
+      }
+      
+      // Comments on this doubt
+      if (doubt.comments && doubt.comments.length > 0) {
+        doubt.comments.forEach((c, idx) => {
+          msgs.push({
+            id: `c-${c.id || idx}`,
+            sender: c.userId === userData?.uid ? ("user" as const) : ("teacher" as const),
+            text: c.text,
+            senderName: c.userName || "শিক্ষক (Tutor)",
+            time: new Date(c.createdAt),
+            doubtId: doubt.id
+          });
+        });
+      }
+      return msgs;
+    });
+
+  // Sort them chronologically
+  humanChatMessages.sort((a, b) => a.time.getTime() - b.time.getTime());
 
   return (
     <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-140px)] bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden relative">
@@ -489,31 +553,108 @@ export default function AITutor() {
       )}
 
       {activeTab === "community_doubts" && (
-        <div className="flex-1 overflow-y-auto flex flex-col bg-slate-50">
-          <div className="p-4 md:p-6 space-y-4 flex-1">
-            <h2 className="font-bengali font-bold text-lg text-slate-800">শিক্ষককে প্রশ্ন করো ({userData?.class ? `Class ${userData.class}` : "All"})</h2>
-            
-            {doubtLoading ? (
+        <div className="flex-1 overflow-hidden flex flex-col bg-slate-50">
+          {/* Messenger Status Header */}
+          <div className="bg-white border-b border-slate-200/80 px-4 py-2.5 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                  <span className="font-sans font-bold text-sm">T</span>
+                </div>
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
+              </div>
+              <div>
+                <h3 className="font-bengali font-bold text-slate-800 text-sm leading-tight">সরাসরি শিক্ষক সাপোর্ট</h3>
+                <p className="font-bengali text-[11px] text-emerald-600 font-medium">● অনলাইন (Teachers are active)</p>
+              </div>
+            </div>
+            <div className="text-[11px] font-sans text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+              {userData?.class ? `Class ${userData.class}` : "General"}
+            </div>
+          </div>
+
+          {/* Chat Messages Area */}
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
+            {doubtLoading && humanChatMessages.length === 0 ? (
                <div className="flex items-center justify-center p-12">
                  <Loader2 className="w-8 h-8 animate-spin text-primary" />
                </div>
-            ) : myDoubts.length === 0 ? (
-               <div className="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-500 font-bengali shadow-sm">
-                 আপনার ক্লাসে এখনও কোনো প্রশ্ন জিজ্ঞাসা করা হয়নি।
+            ) : humanChatMessages.length === 0 ? (
+               <div className="flex flex-col items-center justify-center text-center p-12 space-y-3 h-full">
+                 <div className="w-16 h-16 rounded-full bg-orange-50 flex items-center justify-center text-orange-500">
+                   <MessageCircleQuestion className="w-8 h-8" />
+                 </div>
+                 <div>
+                   <h4 className="font-bengali font-bold text-slate-700">কোনো চ্যাট হিস্ট্রি নেই</h4>
+                   <p className="font-bengali text-xs text-slate-500 max-w-xs mt-1">শিক্ষককে যেকোনো প্রশ্ন বা ডাউট জিজ্ঞেস করতে নিচে ম্যাসেজ পাঠান!</p>
+                 </div>
                </div>
             ) : (
-               <div className="space-y-4 md:space-y-6">
-                 {myDoubts.map(renderDoubt)}
-               </div>
+              <div className="space-y-4">
+                {humanChatMessages.map((msg, idx) => {
+                  const isUser = msg.sender === "user";
+                  return (
+                    <div key={msg.id || idx} className={`flex gap-2.5 items-end ${isUser ? "justify-end" : "justify-start"}`}>
+                      {/* Teacher Avatar */}
+                      {!isUser && (
+                        <div className="w-8 h-8 rounded-full bg-orange-500 text-white flex-shrink-0 flex items-center justify-center text-xs font-bold font-sans">
+                          T
+                        </div>
+                      )}
+                      
+                      <div className="flex flex-col max-w-[75%] sm:max-w-[70%]">
+                        {/* Name/Label */}
+                        <span className={`text-[10px] text-slate-400 font-bengali mb-0.5 px-1 ${isUser ? "text-right" : "text-left"}`}>
+                          {isUser ? "You" : msg.senderName}
+                        </span>
+
+                        <div className={`p-3 relative font-bengali shadow-[0_1px_2px_rgba(0,0,0,0.06)] ${
+                          isUser 
+                            ? "bg-[#0084FF] text-white rounded-[18px] rounded-br-[4px]" 
+                            : "bg-[#E4E6EB] text-[#050505] rounded-[18px] rounded-bl-[4px]"
+                        }`}>
+                          {/* Subject Tag */}
+                          {msg.subject && msg.subject !== "সাধারণ" && (
+                            <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mb-1.5 ${
+                              isUser ? "bg-white/20 text-white" : "bg-white text-slate-700 border border-slate-200"
+                            }`}>
+                              {msg.subject}
+                            </span>
+                          )}
+
+                          {msg.image && (
+                            <div className="mb-2 max-w-sm rounded-xl overflow-hidden border border-slate-200/50 bg-slate-900/5">
+                              <img src={msg.image} alt="Attachment" className="max-h-60 w-auto object-contain" />
+                            </div>
+                          )}
+
+                          {isUser ? (
+                            <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.text}</p>
+                          ) : (
+                            <div className="prose prose-sm max-w-none text-sm text-[#050505] leading-relaxed select-text">
+                              <ReactMarkdown>{msg.text}</ReactMarkdown>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Optional small time detail */}
+                        <span className={`text-[9px] text-slate-400 mt-1 px-1 font-mono ${isUser ? "text-right" : "text-left"}`}>
+                          {msg.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             )}
             <div ref={messagesEndRef} />
           </div>
           
           {/* Input Area Human Tutor */}
-          <div className="p-4 bg-white border-t border-slate-100 shrink-0">
+          <div className="p-3 bg-white border-t border-slate-200/60 shrink-0">
             {selectedImage && (
               <div className="relative inline-block mb-3 bg-slate-100 p-2 rounded-xl">
-                 <img src={selectedImage} alt="Preview" className="h-20 w-20 object-cover rounded-lg border border-slate-200 shadow-sm"/>
+                 <img src={selectedImage} alt="Preview" className="h-16 w-16 object-cover rounded-lg border border-slate-200 shadow-sm"/>
                  <button 
                   onClick={() => setSelectedImage(null)}
                   className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600"
@@ -522,7 +663,7 @@ export default function AITutor() {
                  </button>
               </div>
             )}
-            <form onSubmit={handleAskHuman} className="flex gap-2">
+            <form onSubmit={handleAskHuman} className="flex gap-2 items-center">
               <input 
                 type="file" 
                 accept="image/*" 
@@ -533,24 +674,39 @@ export default function AITutor() {
               <Button 
                 type="button" 
                 variant="outline" 
-                className="h-12 w-12 shrink-0 border-slate-200 text-slate-500"
+                size="icon"
+                className="h-10 w-10 shrink-0 border-slate-200 text-slate-500 rounded-full hover:bg-slate-50"
                 onClick={() => fileInputRef.current?.click()}
+                title="ছবি যুক্ত করুন"
               >
-                <ImagePlus className="w-5 h-5" />
+                <ImagePlus className="w-4 h-4" />
               </Button>
+              
+              <select
+                value={selectedDoubtSubject}
+                onChange={(e) => setSelectedDoubtSubject(e.target.value)}
+                className="h-10 px-2 rounded-full border border-slate-200 bg-white text-xs font-bengali text-slate-600 outline-none focus:border-blue-400 max-w-[100px] shrink-0"
+              >
+                <option value="সাধারণ">সাধারণ</option>
+                {dynamicSubjects.map(sub => (
+                  <option key={sub} value={sub}>{sub}</option>
+                ))}
+              </select>
+
               <Input 
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={"শিক্ষককে প্রশ্ন পাঠাও..."}
-                className="flex-1 h-12 rounded-xl border-slate-200 focus:bg-orange-50 focus:border-orange-200 border-2 font-bengali"
+                placeholder={"শিক্ষককে ম্যাসেজ পাঠান..."}
+                className="flex-1 h-10 rounded-full border-slate-200 focus:bg-slate-50 focus:border-blue-300 font-bengali min-w-0 shadow-none text-sm"
                 disabled={loading}
               />
+
               <Button 
                 type="submit" 
                 disabled={loading || (!input.trim() && !selectedImage)}
-                className="h-12 border-orange-500 px-6 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold shrink-0 font-bengali"
+                className="h-10 w-10 rounded-full bg-[#0084FF] hover:bg-[#0074e4] text-white shrink-0 p-0 flex items-center justify-center focus:ring-2 focus:ring-blue-300 transition-all shadow-none"
               >
-                পাঠিয়ে দাও
+                <Send className="w-4 h-4" />
               </Button>
             </form>
           </div>

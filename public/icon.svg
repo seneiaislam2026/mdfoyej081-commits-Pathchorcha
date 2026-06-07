@@ -7,9 +7,7 @@
       }
     </style>
   </defs>
-  <circle cx="256" cy="256" r="256" fill="white" />
-  <!-- Circular outer ring border matching Shikkhangon theme -->
-  <circle cx="256" cy="256" r="236" fill="none" stroke="#F4B400" stroke-opacity="0.2" stroke-width="12"/>
+  <rect width="512" height="512" fill="white" />
   <!-- Shikkhangon official logo design in a single horizontal line -->
   <text x="256" y="290" class="bengali-text" font-size="90" font-weight="700" text-anchor="middle" letter-spacing="-0.5">
     <tspan fill="#0F2744">শিক্ষা</tspan><tspan fill="#F4B400">ঙ্গন</tspan>

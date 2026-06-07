@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { BookOpen, FileText, Bookmark, BookmarkCheck } from "lucide-react";
+import { BookOpen, FileText, Bookmark, BookmarkCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../lib/AuthContext";
 import { db } from "../lib/firebase";
@@ -59,6 +59,16 @@ export default function NoteDetails() {
   return (
     <div className="w-full flex justify-center pb-10 px-0 sm:px-4">
       <div className="bg-white w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            className="text-slate-500 hover:text-primary pl-0 font-bengali text-sm -translate-x-2"
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft className="w-4 h-4 mr-1.5" />
+            ফিরে যান
+          </Button>
+        </div>
         <div className="flex justify-between items-start gap-4 mb-2">
           <h1 className="text-3xl font-bengali font-bold text-slate-900 leading-tight">
             {noteTitle}

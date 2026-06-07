@@ -13,6 +13,16 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const notificationRef = useRef<HTMLDivElement>(null);
+  const [settings, setSettings] = useState<any>(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "general"), (snapshot) => {
+      if (snapshot.exists()) {
+        setSettings(snapshot.data());
+      }
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -84,7 +94,7 @@ export default function Navbar() {
   
   // Get email to determine admin status
   const userEmail = userData?.email || localStorage.getItem("userEmail") || "";
-  const isAdmin = userEmail.toLowerCase() === "mdfoyej081@gmail.com" || userEmail.toLowerCase() === "seneiaislam@gmail.com";
+  const isAdmin = userEmail.toLowerCase() === "mdfoyej081@gmail.com" || userEmail.toLowerCase() === "seneiaislam@gmail.com" || userData?.isAdmin === true;
 
   if (isLogin) return null;
 
@@ -94,7 +104,19 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100">
+    <>
+      {settings?.alertBannerActive && (
+        <div className="bg-gradient-to-r from-[#ffa726] to-[#e65100] text-white text-center py-2.5 px-4 text-xs sm:text-sm font-semibold font-bengali flex items-center justify-center gap-2 select-none relative z-[51] shadow-xs">
+          <span className="animate-bounce">📢</span>
+          <span>{settings.alertBannerMessage}</span>
+          {settings.discountPercentage > 0 && (
+            <span className="bg-white/25 text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold font-sans shrink-0">
+              SAVE {settings.discountPercentage}%
+            </span>
+          )}
+        </div>
+      )}
+      <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100">
       <div className="container mx-auto max-w-[1200px] px-4 flex h-[88px] items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/dashboard" className="flex items-center space-x-2">
@@ -226,5 +248,6 @@ export default function Navbar() {
         </div>
       </div>
     </header>
+    </>
   );
 }

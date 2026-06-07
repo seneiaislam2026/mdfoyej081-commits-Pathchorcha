@@ -95,7 +95,9 @@ export default function Profile() {
               <UserCircle className="w-24 h-24 text-slate-300" />
             </div>
             <div className="text-center sm:text-left flex-1 pb-2">
-              <h1 className="text-3xl font-bengali font-bold text-foreground">{userData?.fullName || userData?.email || "নাম জানা যায়নি"}</h1>
+              <h1 className="text-3xl font-bengali font-bold text-foreground">
+                {userData?.fullName || (userData?.email ? (userData.email.includes("@pathchorcha") || userData.email.includes("@shikkhangon") || userData.email.includes("@pathchola") ? userData.email.split("@")[0] : userData.email) : "নাম জানা যায়নি")}
+              </h1>
               <p className="text-muted-foreground font-bengali">{userData?.institution || "শিক্ষাপ্রতিষ্ঠান যুক্ত করা হয়নি"}</p>
             </div>
             <div className="flex gap-3 pb-2 pt-4 sm:pt-0">

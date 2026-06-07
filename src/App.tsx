@@ -17,6 +17,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
 import AITutor from "./pages/AITutor";
+import Memorize from "./pages/Memorize";
 import NoteDetails from "./pages/NoteDetails";
 import NoteHonesty from "./pages/NoteHonesty";
 import Doubts from "./pages/Doubts";
@@ -117,10 +118,10 @@ function NoteLayout() {
 function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, loading } = useAuth();
+  const { user, loading, userData } = useAuth();
   
   // Do not show back button on dashboard, exam, paper, and question-bank pages
-  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/question-bank" || location.pathname === "/notes" || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor";
+  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize";
 
   if (loading) {
     return (
@@ -141,7 +142,7 @@ function AppLayout() {
 
   if (location.pathname.startsWith('/admin')) {
     const userEmail = user.email || "";
-    const isAdmin = userEmail.toLowerCase() === "mdfoyej081@gmail.com" || userEmail.toLowerCase() === "seneiaislam@gmail.com";
+    const isAdmin = userEmail.toLowerCase() === "mdfoyej081@gmail.com" || userEmail.toLowerCase() === "seneiaislam@gmail.com" || userData?.isAdmin === true;
     if (!isAdmin) {
       return <Navigate to="/dashboard" replace />;
     }
@@ -199,6 +200,7 @@ export default function App() {
           <Route path="/notes/subject/:subjectName" element={<SubjectNotes />} />
           <Route path="/bank" element={<QuestionBank />} />
           <Route path="/paper" element={<PaperView />} />
+          <Route path="/memorize" element={<Memorize />} />
           
           
           <Route path="/exam" element={<Exam />} />
@@ -212,12 +214,6 @@ export default function App() {
           <Route path="/payment-fail" element={<PaymentFail />} />
           <Route path='/payment-cancel' element={<PaymentCancel />} />
           <Route path='/mock-payment' element={<MockPaymentPortal />} />
-        </Route>
-        
-        {/* Full screen authenticated notes routes */}
-        <Route element={<NoteLayout />}>
-          <Route path="/notes/sonar-tori" element={<NoteDetails />} />
-          <Route path="/notes/sototar-puroshkar" element={<NoteHonesty />} />
         </Route>
         {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

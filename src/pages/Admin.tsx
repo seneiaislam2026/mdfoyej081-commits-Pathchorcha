@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw } from "lucide-react";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -22,6 +22,7 @@ const menuItems = [
   { id: "students", label: "শিক্ষার্থী (Students)", icon: <Users className="w-5 h-5 mr-3" /> },
   { id: "payments", label: "পেমেন্ট ভেরিফাই (Payments)", icon: <Crown className="w-5 h-5 mr-3 text-amber-500" /> },
   { id: "questions", label: "প্রশ্ন ব্যাংক (Questions)", icon: <FileQuestion className="w-5 h-5 mr-3" /> },
+  { id: "vocabulary", label: "শব্দকোষ (Vocabulary)", icon: <BookOpen className="w-5 h-5 mr-3 text-indigo-500" /> },
   { id: "subjects", label: "বিষয় (Subjects)", icon: <BookOpen className="w-5 h-5 mr-3" /> },
   { id: "chapters", label: "অধ্যায় (Chapters)", icon: <Layers className="w-5 h-5 mr-3" /> },
   { id: "exams", label: "পাবলিক পরীক্ষা (Exams)", icon: <Target className="w-5 h-5 mr-3" /> },
@@ -36,7 +37,7 @@ const menuItems = [
 
 export const formatEmail = (email: string) => {
   if (!email) return "";
-  if (email.includes("@pathchola.com") || email.includes("@shikkhangon.com")) {
+  if (email.includes("@pathchola.com") || email.includes("@shikkhangon.com") || email.includes("@pathchorcha")) {
      return email.split("@")[0];
   }
   return email;
@@ -87,13 +88,28 @@ export default function Admin() {
   const [questionSubjectFilter, setQuestionSubjectFilter] = useState("All Subjects");
   const [studentSearch, setStudentSearch] = useState("");
   const [studentClassFilter, setStudentClassFilter] = useState("All Classes");
+  const [userRoleTab, setUserRoleTab] = useState("all"); // "all", "tutor", "admin", "leaderboard"
+  const [studentsLimit, setStudentsLimit] = useState(24);
+
+  useEffect(() => {
+    setStudentsLimit(24);
+  }, [studentSearch, studentClassFilter, userRoleTab]);
+  const [selectedUserModal, setSelectedUserModal] = useState<any | null>(null);
   const [selectedBankTitle, setSelectedBankTitle] = useState<string | null>(null);
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [premiumData, setPremiumData] = useState<any>(null);
   const [paymentRequests, setPaymentRequests] = useState<any[]>([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [customMonths, setCustomMonths] = useState<Record<string, number>>({});
+  const [proGiftUser, setProGiftUser] = useState<{ id: string, name: string } | null>(null);
+  const [giftMonths, setGiftMonths] = useState<string>("1");
+  const [tutorSubjectModal, setTutorSubjectModal] = useState<{ userId: string, name: string, subjects: string[] } | null>(null);
+  const [vocabulary, setVocabulary] = useState<any[]>([]);
+  const [vocabularyLoading, setVocabularyLoading] = useState(false);
+  const [newVocabJSON, setNewVocabJSON] = useState("");
   const navigate = useNavigate();
+
+  const allDynamicSubjects = ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত", "ICT", "হিসাববিজ্ঞান", "ফিন্যান্স", "ব্যবসায় উদ্যোগ", "অর্থনীতি", "পৌরনীতি", "ইতিহাস", "ভূগোল", "সাধারণ জ্ঞান"];
 
   useEffect(() => {
     if (activeTab === "students" || activeTab === "dashboard") {
@@ -112,6 +128,8 @@ export default function Admin() {
       fetchSubjects();
     } else if (activeTab === "questions") {
       fetchQuestions();
+    } else if (activeTab === "vocabulary") {
+      fetchVocabulary();
     } else if (activeTab === "payments") {
       fetchPaymentRequests();
     } else if (activeTab === "analytics") {
@@ -133,6 +151,79 @@ export default function Admin() {
       console.error(error);
     } finally {
       setQuestionsLoading(false);
+    }
+  };
+
+  const fetchVocabulary = async () => {
+    setVocabularyLoading(true);
+    try {
+      const qs = await getDocs(collection(db, "vocabulary"));
+      const data: any[] = [];
+      qs.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
+      setVocabulary(data.sort((a, b) => (b.createdAt?.localeCompare?.(a.createdAt) || 0)));
+    } catch (error) {
+      console.error("Error fetching vocabulary:", error);
+    } finally {
+      setVocabularyLoading(false);
+    }
+  };
+
+  const handleBulkUploadVocabulary = async () => {
+    if (!newVocabJSON.trim()) {
+      alert("দয়াকরে JSON Array টেক্সট বক্সে লিখুন!");
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(newVocabJSON.trim());
+      const wordsToInsert = Array.isArray(parsed) ? parsed : [parsed];
+
+      setVocabularyLoading(true);
+      let successCount = 0;
+      
+      for (const item of wordsToInsert) {
+        if (!item.word || !item.language || !item.category || !item.meaning) {
+          console.warn("Skipping invalid item (missing required fields):", item);
+          continue;
+        }
+
+        const payload = {
+          word: String(item.word).trim(),
+          language: item.language === "bangla" ? "bangla" : "english",
+          category: String(item.category).trim(),
+          pronunciation: item.pronunciation ? String(item.pronunciation).trim() : "",
+          meaning: String(item.meaning).trim(),
+          synonyms: Array.isArray(item.synonyms) ? item.synonyms.map((s: any) => String(s).trim()) : [],
+          antonyms: Array.isArray(item.antonyms) ? item.antonyms.map((s: any) => String(s).trim()) : [],
+          example: item.example ? String(item.example).trim() : "",
+          createdAt: new Date().toISOString()
+        };
+
+        await addDoc(collection(db, "vocabulary"), payload);
+        successCount++;
+      }
+
+      alert(`সাফল্যের সাথে ${successCount}টি শব্দ যোগ করা হয়েছে!`);
+      setNewVocabJSON("");
+      fetchVocabulary();
+    } catch (error: any) {
+      alert("JSON পার্সিং বা আপলোডে ত্রুটি হয়েছে: " + error.message);
+    } finally {
+      setVocabularyLoading(false);
+    }
+  };
+
+  const deleteVocabularyWord = async (id: string) => {
+    if (!window.confirm("আপনি কি নিশ্চিতভাবে এই শব্দটি মুছে ফেলতে চান?")) return;
+    try {
+      setVocabularyLoading(true);
+      await deleteDoc(doc(db, "vocabulary", id));
+      alert("শব্দটি মুছে ফেলা হয়েছে!");
+      fetchVocabulary();
+    } catch (error: any) {
+      alert("মুছে ফেলতে ত্রুটি হয়েছে: " + error.message);
+    } finally {
+      setVocabularyLoading(false);
     }
   };
 
@@ -758,7 +849,19 @@ export default function Admin() {
       const querySnapshot = await getDocs(collection(db, "users"));
       const usersData: any[] = [];
       querySnapshot.forEach((doc) => {
-        usersData.push({ id: doc.id, ...doc.data() });
+        const data = doc.data();
+        let isPro = data.isPro;
+        
+        const userEmail = data.email?.toLowerCase() || '';
+        const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com" || data.isAdmin === true;
+        
+        if (isAdmin || data.isTutor) {
+          isPro = true;
+        } else if (data.proUntil && new Date(data.proUntil.toMillis ? data.proUntil.toMillis() : data.proUntil).getTime() < Date.now()) {
+          isPro = false;
+        }
+        
+        usersData.push({ id: doc.id, ...data, isPro, isAdmin });
       });
       setUsers(usersData);
     } catch (error) {
@@ -768,14 +871,12 @@ export default function Admin() {
     }
   };
 
-  const toggleProStatus = async (userId: string, currentStatus: boolean) => {
+  const toggleProStatus = async (userId: string, currentStatus: boolean, months?: number) => {
     try {
       if (!currentStatus) {
-        const monthsStr = window.prompt("কত মাসের জন্য সাবস্ক্রিপশন দিতে চান? (উদাহরন: 1, 3, 6)", "1");
-        if (!monthsStr || isNaN(parseInt(monthsStr))) return;
-        const months = parseInt(monthsStr);
+        const giftMonthsValue = months || 1;
         const { Timestamp } = await import("firebase/firestore");
-        const proUntilMillis = Date.now() + months * 30 * 24 * 60 * 60 * 1000;
+        const proUntilMillis = Date.now() + giftMonthsValue * 30 * 24 * 60 * 60 * 1000;
         await updateDoc(doc(db, "users", userId), { 
           isPro: true,
           proUntil: Timestamp.fromMillis(proUntilMillis)
@@ -788,6 +889,23 @@ export default function Admin() {
       console.error("Error updating pro status:", error);
       alert("Failed to update user.");
     }
+  };
+
+  const toggleAdminStatus = async (userId: string, currentStatus: boolean) => {
+    setConfirmDialog({
+      isOpen: true,
+      message: `আপনি কি নিশ্চিতভাবে এই ইউজারকে ${currentStatus ? 'এডমিন থেকে সাধারণ ইউজার' : 'এডমিন'} করতে চান?`,
+      onConfirm: async () => {
+        try {
+          await updateDoc(doc(db, "users", userId), { isAdmin: !currentStatus });
+          fetchUsers();
+          alert("Admin status updated successfully!");
+        } catch (error) {
+          console.error("Error updating admin status:", error);
+          alert("Failed to update status.");
+        }
+      }
+    });
   };
 
   const toggleTutorStatus = async (userId: string, currentStatus: boolean) => {
@@ -844,8 +962,14 @@ export default function Admin() {
   const filteredUsers = users.filter(u => {
     const matchesSearch = studentSearch ? (u.fullName?.toLowerCase().includes(studentSearch.toLowerCase()) || u.phoneNumber?.includes(studentSearch) || u.email?.toLowerCase().includes(studentSearch.toLowerCase())) : true;
     const matchesClass = studentClassFilter !== "All Classes" ? u.class === studentClassFilter : true;
-    return matchesSearch && matchesClass;
+    let matchesRole = true;
+    if (userRoleTab === "tutor") matchesRole = u.isTutor === true;
+    if (userRoleTab === "admin") matchesRole = u.isAdmin === true;
+    
+    return matchesSearch && matchesClass && matchesRole;
   });
+
+  const topTutors = [...users].filter(u => u.isTutor).sort((a, b) => (b.points || 0) - (a.points || 0));
 
   return (
     <div className="flex flex-col md:flex-row min-h-[80vh] gap-6 -mt-2">
@@ -1131,102 +1255,125 @@ window.location.reload();
               </div>
             </div>
 
-            <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-              <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <CardTitle className="text-lg whitespace-nowrap">সব ইউজার ({filteredUsers.length})</CardTitle>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <Input 
-                    placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..." 
-                    className="w-full sm:max-w-xs bg-white" 
-                    value={studentSearch}
-                    onChange={(e) => setStudentSearch(e.target.value)}
-                  />
-                  <select 
-                    className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background sm:max-w-[150px]"
-                    value={studentClassFilter}
-                    onChange={(e) => setStudentClassFilter(e.target.value)}
-                  >
-                    <option value="All Classes">সব ক্লাস</option>
-                    {uniqueClasses.map((cls: any) => (
-                      <option key={cls} value={cls}>{cls}</option>
-                    ))}
-                  </select>
-                  <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loading} className="h-10">
-                    {loading ? "Loading..." : "Refresh"}
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 bg-slate-50/50">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {filteredUsers.map((u) => (
-                    <div key={u.id} className="group bg-white border border-slate-200/80 rounded-[24px] p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative overflow-hidden flex flex-col gap-4">
-                      <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-blue-400 via-indigo-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-3">
-                           <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden font-bold text-slate-400">
-                             {u.photoURL ? <img src={u.photoURL} alt={u.fullName} className="w-full h-full object-cover" /> : u.fullName?.charAt(0) || <User className="w-6 h-6" />}
-                           </div>
-                           <div>
-                             <h4 className="font-bengali font-bold text-slate-800 text-lg leading-tight group-hover:text-primary transition-colors">{u.fullName || 'No Name'}</h4>
-                             <p className="text-xs text-slate-500 truncate max-w-[150px] sm:max-w-xs ">{formatEmail(u.email) || u.phoneNumber}</p>
-                           </div>
+            <div className="flex space-x-2 border-b border-border pb-2 overflow-x-auto hide-scrollbar">
+              <Button variant={userRoleTab === "all" ? "default" : "outline"} className={`rounded-full ${userRoleTab === "all" ? "bg-[#0F2744] text-white" : ""}`} size="sm" onClick={() => setUserRoleTab("all")}>All Users</Button>
+              <Button variant={userRoleTab === "tutor" ? "default" : "outline"} className={`rounded-full ${userRoleTab === "tutor" ? "bg-blue-600 text-white" : ""}`} size="sm" onClick={() => setUserRoleTab("tutor")}>Tutors</Button>
+              <Button variant={userRoleTab === "admin" ? "default" : "outline"} className={`rounded-full ${userRoleTab === "admin" ? "bg-purple-600 text-white" : ""}`} size="sm" onClick={() => setUserRoleTab("admin")}>Admins</Button>
+              <Button variant={userRoleTab === "leaderboard" ? "default" : "outline"} className={`rounded-full ${userRoleTab === "leaderboard" ? "bg-amber-500 text-slate-900" : ""}`} size="sm" onClick={() => setUserRoleTab("leaderboard")}>Top Tutors (Ranking)</Button>
+            </div>
+
+            {userRoleTab === "leaderboard" ? (
+              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
+                <CardHeader className="bg-amber-50 border-b border-amber-100 pb-4 p-6">
+                  <CardTitle className="text-xl font-bengali flex items-center gap-2 text-amber-600">
+                    <Trophy className="w-5 h-5" /> সেরা টিউটর র‍্যাংকিং
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="divide-y divide-slate-100">
+                    {topTutors.map((u, index) => (
+                      <div key={u.id} className="flex items-center justify-between p-4 sm:p-6 hover:bg-slate-50 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : index === 1 ? "bg-slate-200 text-slate-600 border border-slate-300" : index === 2 ? "bg-orange-100 text-orange-600 border border-orange-200" : "bg-slate-50 text-slate-400"}`}>
+                            {index + 1}
+                          </div>
+                          <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center text-slate-400 font-bold">
+                            {u.photoURL ? <img src={u.photoURL} alt={u.fullName} className="w-full h-full object-cover" /> : u.fullName?.charAt(0) || <User className="w-6 h-6" />}
+                          </div>
+                          <div>
+                            <h4 className="font-bengali font-bold text-slate-800 text-lg leading-tight">{u.fullName || 'No Name'}</h4>
+                            <p className="text-xs text-blue-600 font-bold font-sans truncate">{formatEmail(u.email) || u.phoneNumber}</p>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="font-mono text-xl font-extrabold text-[#0F2744] bg-slate-100 px-3 py-1 rounded-xl">{u.points || 0}</span>
+                          <span className="text-[10px] text-slate-500 font-bold">POINTS</span>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                         <div className="flex flex-wrap gap-2">
-                           {u.isPro ? (
-                             <Badge className="bg-orange-50 text-orange-600 hover:bg-orange-100 border border-orange-200/50 flex w-fit items-center gap-1.5 px-2.5 py-0.5 rounded-full shadow-sm text-xs font-semibold">
-                               <Crown className="w-3.5 h-3.5" /> Pro
-                             </Badge>
-                           ) : (
-                             <Badge variant="secondary" className="bg-slate-50 text-slate-600 border border-slate-200/60 px-2.5 py-0.5 rounded-full text-xs font-medium">Free</Badge>
-                           )}
-                           {u.isTutor && (
-                             <Badge className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200/50 flex w-fit items-center gap-1.5 px-2.5 py-0.5 rounded-full shadow-sm text-xs font-semibold">
-                               <BookOpen className="w-3.5 h-3.5" /> Tutor
-                             </Badge>
-                           )}
-                           {u.class && <Badge variant="outline" className="bg-green-50/50 text-green-700 border-green-200/60 text-xs px-2.5 py-0.5 rounded-full font-bengali font-medium">{u.class}</Badge>}
-                         </div>
-                         <div className="flex gap-1.5 items-center">
-                            <span className="font-mono text-sm font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200/50">{u.points || 0} <span className="text-[10px] text-slate-500 font-normal">pts</span></span>
-                         </div>
+                    ))}
+                    {topTutors.length === 0 && (
+                      <div className="text-center py-10 text-muted-foreground font-bengali">
+                        কোনো টিউটর পাওয়া যায়নি
                       </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
+                <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                  <CardTitle className="text-lg whitespace-nowrap">
+                    {userRoleTab === "all" ? "সব ইউজার" : userRoleTab === "tutor" ? "সব টিউটর" : "সব এডমিন"} ({filteredUsers.length})
+                  </CardTitle>
+                  <div className="flex flex-col sm:flex-row gap-2 w-full xl:w-auto">
+                    <Input 
+                      placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..." 
+                      className="w-full sm:w-64 bg-white" 
+                      value={studentSearch}
+                      onChange={(e) => setStudentSearch(e.target.value)}
+                    />
+                    <select 
+                      className="flex h-10 w-full sm:w-auto rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background"
+                      value={studentClassFilter}
+                      onChange={(e) => setStudentClassFilter(e.target.value)}
+                    >
+                      <option value="All Classes">সব ক্লাস</option>
+                      {uniqueClasses.map((cls: any) => (
+                        <option key={cls} value={cls}>{cls}</option>
+                      ))}
+                    </select>
+                    <Button variant="outline" size="sm" onClick={fetchUsers} disabled={loading} className="h-10">
+                      {loading ? "Loading..." : "Refresh"}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 bg-slate-50/50">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {filteredUsers.slice(0, studentsLimit).map((u) => (
+                      <div 
+                        key={u.id} 
+                        onClick={() => setSelectedUserModal(u)}
+                        className="group bg-white border border-slate-200/80 rounded-[20px] p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-3 relative overflow-hidden"
+                      >
+                        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-slate-200 to-slate-300 group-hover:from-blue-400 group-hover:to-indigo-500 transition-colors duration-300" />
+                        <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden font-bold text-slate-400">
+                             {u.photoURL ? <img src={u.photoURL} alt={u.fullName} className="w-full h-full object-cover" /> : u.fullName?.charAt(0) || <User className="w-5 h-5" />}
+                           </div>
+                           <div className="overflow-hidden">
+                             <h4 className="font-bengali font-bold text-slate-800 text-sm truncate group-hover:text-primary transition-colors">{u.fullName || 'No Name'}</h4>
+                             <p className="text-[11px] text-blue-600 font-bold font-sans truncate">{formatEmail(u.email) || u.phoneNumber}</p>
+                           </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
+                          {u.isPro && <Badge className="bg-orange-50 text-orange-600 border border-orange-200/50 px-1.5 py-0 rounded-md text-[9px] font-semibold"><Crown className="w-3 h-3 mr-0.5" /> Pro</Badge>}
+                          {u.isTutor && <Badge className="bg-blue-50 text-blue-600 border border-blue-200/50 px-1.5 py-0 rounded-md text-[9px] font-semibold"><BookOpen className="w-3 h-3 mr-0.5" /> Tutor</Badge>}
+                          {u.isAdmin && <Badge className="bg-purple-50 text-purple-650 border border-purple-200/50 px-1.5 py-0 rounded-md text-[9px] font-semibold"><User className="w-3 h-3 mr-0.5" /> Admin</Badge>}
+                          {(!u.isPro && !u.isTutor && !u.isAdmin) && <span className="text-[10px] text-slate-400 font-medium">Free User</span>}
+                        </div>
+                      </div>
+                    ))}
+                    {filteredUsers.length === 0 && !loading && (
+                      <div className="col-span-full py-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-200">
+                        <User className="w-10 h-10 text-slate-300 mb-3" />
+                        <h4 className="text-slate-600 font-bold font-bengali">ইউজার পাওয়া যায়নি</h4>
+                      </div>
+                    )}
+                  </div>
 
-                      <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100/80">
-                        <Button 
-                          variant={u.isPro ? "outline" : "default"} 
-                          className={`flex-1 font-semibold rounded-xl text-sm py-5 transition-all shadow-sm ${u.isPro ? "text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 hover:border-red-300" : "bg-gradient-to-br from-[#FFB800] to-[#F59E0B] text-white hover:from-[#E5A600] hover:to-[#D97706] hover:shadow-md border-0"}`}
-                          onClick={() => toggleProStatus(u.id, u.isPro)}
-                        >
-                          {u.isPro ? "Revoke Pro" : <><Crown className="w-4 h-4 mr-1.5" /> Gift Pro</>}
-                        </Button>
-                        <Button 
-                          variant={u.isTutor ? "outline" : "secondary"} 
-                          className={`flex-1 font-semibold rounded-xl text-sm py-5 transition-all shadow-sm ${u.isTutor ? "text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600 hover:border-red-300" : "bg-indigo-50 text-indigo-600 border border-indigo-100/50 hover:bg-indigo-100 hover:text-indigo-700"}`}
-                          onClick={() => toggleTutorStatus(u.id, u.isTutor)}
-                        >
-                          {u.isTutor ? "Revoke Tutor" : <><BookOpen className="w-4 h-4 mr-1.5" /> Make Tutor</>}
-                        </Button>
-                      </div>
-                      <div className="mt-2">
-                        <Button variant="outline" className="w-full text-red-500 border-red-200 hover:bg-red-50" onClick={() => deleteUser(u.id)}>
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete User
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  {users.length === 0 && !loading && (
-                    <div className="col-span-full text-center py-6 text-muted-foreground bg-white border rounded-2xl">
-                      No users found.
+                  {filteredUsers.length > studentsLimit && (
+                    <div className="mt-8 flex justify-center pb-2">
+                      <Button
+                        onClick={() => setStudentsLimit(prev => prev + 24)}
+                        className="bg-white border hover:bg-slate-50 font-bengali font-bold px-8 py-2 text-slate-700 rounded-xl shadow-xs transition-all cursor-pointer"
+                      >
+                        আরও লোড করুন ({filteredUsers.length - studentsLimit} জন বাকি আছে)
+                      </Button>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         ) : activeTab === "exams" ? (
           <div className="space-y-6 overflow-hidden">
@@ -1552,6 +1699,61 @@ window.location.reload();
                        </div>
                      )}
                      
+                     <div className="border-t pt-6 flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-bold font-bengali text-slate-800">স্টার্টআপ ক্যাম্পেইন পপ-আপ (Startup Promotional Pop-up)</p>
+                          <p className="text-sm text-slate-500 mr-2 font-bengali">স্টুডেন্ট ড্যাশবোর্ডে ঢোকার পর একটি আকর্ষক প্রোমোশনাল কুপন পপ-আপ ও ডিসকাউন্ট অফার নোটিশ দেখান।</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only peer"
+                            checked={settingsData.popupActive || false}
+                            onChange={(e) => setSettingsData({ ...settingsData, popupActive: e.target.checked })}
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                        </label>
+                     </div>
+                     {settingsData.popupActive && (
+                       <div className="space-y-4 bg-slate-50/50 p-5 rounded-3xl border border-slate-100 flex flex-col gap-3 font-bengali">
+                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Startup Pop-up Parameters</p>
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                           <div className="space-y-3">
+                             <label className="text-sm font-medium">পপ-আপ টাইটেল (Title)</label>
+                             <Input 
+                               value={settingsData.popupTitle || ""} 
+                               onChange={(e) => setSettingsData({ ...settingsData, popupTitle: e.target.value })}
+                               placeholder="যেমন: মেগা ডিসকাউন্ট অফার! HSC 25 🌟"
+                             />
+                           </div>
+                           <div className="space-y-3">
+                             <label className="text-sm font-medium">প্রোমো কুপন কোড (Promo Coupon Code)</label>
+                             <Input 
+                               value={settingsData.popupCoupon || ""} 
+                               onChange={(e) => setSettingsData({ ...settingsData, popupCoupon: e.target.value })}
+                               placeholder="যেমন: PRO20"
+                             />
+                           </div>
+                         </div>
+                         <div className="space-y-3">
+                           <label className="text-sm font-medium">মূল বার্তা (Message Details)</label>
+                           <Input 
+                             value={settingsData.popupMessage || ""} 
+                             onChange={(e) => setSettingsData({ ...settingsData, popupMessage: e.target.value })}
+                             placeholder="যেমন: সকল প্রো মেম্বারশিপে ২০% অতিরিক্ত ছাড় পেতে আজই সাবস্ক্রাইব করুন।"
+                           />
+                         </div>
+                         <div className="space-y-3">
+                           <label className="text-sm font-medium">অ্যাকশন বাটন লেখা (Action Button Text)</label>
+                           <Input 
+                             value={settingsData.popupButtonText || ""} 
+                             onChange={(e) => setSettingsData({ ...settingsData, popupButtonText: e.target.value })}
+                             placeholder="যেমন: প্রো মেম্বার হোন"
+                           />
+                         </div>
+                       </div>
+                     )}
+
                      <div className="border-t pt-6">
                         <div className="flex justify-between items-center mb-4">
                           <div className="mb-6 bg-amber-50/40 p-5 rounded-2xl border border-amber-100/70 space-y-3">
@@ -2030,7 +2232,7 @@ window.location.reload();
                           <div className="flex justify-between items-start">
                             <div className="flex flex-col">
                               <span className="font-bold text-slate-800 font-bengali text-sm">{req.fullName || 'No Name'}</span>
-                              <span className="text-xs text-slate-500 font-mono mt-0.5 max-w-[170px] truncate">{req.email}</span>
+                              <span className="text-xs text-blue-600 font-bold font-sans mt-0.5 max-w-[170px] truncate">{formatEmail(req.email) || req.phone}</span>
                               {req.className && (
                                 <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full w-fit mt-1 font-bengali font-semibold">
                                   {req.className}
@@ -2151,7 +2353,7 @@ window.location.reload();
                               <TableCell>
                                 <div className="flex flex-col">
                                   <span className="font-bold text-slate-800 font-bengali text-sm">{req.fullName || 'No Name'}</span>
-                                  <span className="text-xs text-slate-500 font-mono mt-0.5">{req.email}</span>
+                                  <span className="text-xs text-blue-600 font-bold font-sans mt-0.5">{formatEmail(req.email) || req.phone}</span>
                                   {req.className && (
                                     <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full w-fit mt-1 font-bengali font-semibold">
                                       {req.className}
@@ -2257,6 +2459,143 @@ window.location.reload();
                         </TableBody>
                       </Table>
                     </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+        ) : activeTab === "vocabulary" ? (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl font-bold font-bengali">সিস্টেম শব্দকোষ ব্যবস্থাপনা Panel</h3>
+                <p className="text-muted-foreground font-bengali text-sm mt-0.5">যে কোনো ভাষায় JSON Array ফরম্যাটে সিস্টেম শব্দকোষে নতুন শব্দ যোগ করুন বা মুছুন।</p>
+              </div>
+              <Button variant="outline" className="font-bengali bg-white border-slate-200" onClick={fetchVocabulary} disabled={vocabularyLoading}>
+                Refresh Vocabulary
+              </Button>
+            </div>
+
+            {/* Quick JSON array guidelines card */}
+            <Card className="border border-indigo-100 shadow-sm rounded-[24px] bg-slate-50/40">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-bold text-indigo-700 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-indigo-600" />
+                  <span>JSON ফরম্যাট গাইডলাইন ও উদাহরণসমূহ</span>
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  নিচের উদাহরণটির মতন JSON ফরম্যাট করে আপনি একসাথে একাধিক শব্দকোষ আপলোড করতে পারবেন। আবশ্যিক ফিল্ডগুলো হলো: <code className="font-mono bg-slate-100 px-1 rounded text-red-600 text-[10px]">{"word"}</code>, <code className="font-mono bg-slate-100 px-1 rounded text-red-600 text-[10px]">{"language"}</code>, <code className="font-mono bg-slate-100 px-1 rounded text-red-600 text-[10px]">{"category"}</code> এবং <code className="font-mono bg-slate-100 px-1 rounded text-red-600 text-[10px]">{"meaning"}</code>।
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <pre className="text-[10px] font-mono bg-slate-950 text-emerald-400 p-4 rounded-xl overflow-x-auto border border-slate-800">
+{`[
+  {
+    "word": "Candid",
+    "language": "english",
+    "category": "vocabulary",
+    "pronunciation": "ক্যান্ডিড",
+    "meaning": "অকপট, সরল, স্পষ্টভাষী (Truthful and straightforward)",
+    "synonyms": ["Frank", "Honest", "Sincere"],
+    "antonyms": ["Deceitful", "Evasive"],
+    "example": "She gave a candid opinion about the proposal."
+  },
+  {
+    "word": "তিমির",
+    "language": "bangla",
+    "category": "samarthok",
+    "meaning": "অন্ধকার, আঁধার",
+    "synonyms": ["অন্ধকার", "তমসা", "আঁধার"],
+    "antonyms": ["আলো", "দীপ্তি"],
+    "example": "তিমির বিদীর্ণ করে ভোরের সূর্যের আগমন ঘটল।"
+  }
+]`}
+                </pre>
+              </CardContent>
+            </Card>
+
+            {/* Upload form card */}
+            <Card className="border border-muted shadow-sm rounded-[24px]">
+              <CardHeader>
+                <CardTitle className="text-base font-bengali">নতুন শব্দকোষ যুক্ত করুন (Bulk Upload)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <textarea
+                    rows={8}
+                    className="w-full font-mono text-[11px] p-4 bg-slate-50 border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-slate-800"
+                    placeholder="[ { ... }, { ... } ]"
+                    value={newVocabJSON}
+                    onChange={(e) => setNewVocabJSON(e.target.value)}
+                  />
+                </div>
+                <div className="flex justify-end">
+                  <Button 
+                    onClick={handleBulkUploadVocabulary}
+                    disabled={vocabularyLoading}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bengali h-10 text-xs px-6 font-bold"
+                  >
+                    {vocabularyLoading ? "আপলোড হচ্ছে..." : "শব্দগুলো যুক্ত করুন (Save List)"}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* List of existing vocabulary */}
+            <Card className="border border-muted shadow-sm rounded-[24px] overflow-hidden">
+              <CardHeader className="bg-slate-50 border-b p-6 pb-4">
+                <CardTitle className="text-base font-bengali">আপলোডকৃত কাস্টম শব্দসমূহের তালিকা ({vocabulary.length})</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 bg-slate-50/50">
+                {vocabularyLoading && vocabulary.length === 0 ? (
+                  <div className="p-12 text-center text-muted-foreground font-bengali font-bold">লোড হচ্ছে...</div>
+                ) : vocabulary.length === 0 ? (
+                  <div className="p-16 text-center text-slate-400 font-bengali font-bold text-xs">আজ পর্যন্ত কোনো কাস্টম শব্দ আপলোড করা হয়নি।</div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader className="bg-white">
+                        <TableRow>
+                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">শব্দ</TableHead>
+                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">ভাষা</TableHead>
+                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">ক্যাটাগরি</TableHead>
+                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">উচ্চারণ</TableHead>
+                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">বাংলা অর্থ</TableHead>
+                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">অন্যান্য</TableHead>
+                          <TableHead className="text-right font-bengali font-bold text-slate-800 text-xs">অ্যাকশন</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {vocabulary.map((vocab) => (
+                          <TableRow key={vocab.id} className="bg-white border-b hover:bg-slate-50/50 transition-colors">
+                            <TableCell className="font-bold text-slate-900">{vocab.word}</TableCell>
+                            <TableCell>
+                              <Badge className={vocab.language === "bangla" ? "bg-amber-50 text-amber-700 hover:bg-amber-100 border-0 text-[10px]" : "bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 text-[10px]"}>
+                                {vocab.language}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-xs uppercase font-mono tracking-wider font-semibold text-slate-500">{vocab.category}</TableCell>
+                            <TableCell className="text-xs font-mono text-slate-400">{vocab.pronunciation || "-"}</TableCell>
+                            <TableCell className="text-xs text-slate-700 font-semibold max-w-[200px] truncate" title={vocab.meaning}>{vocab.meaning}</TableCell>
+                            <TableCell className="text-[10px] text-slate-400 max-w-[150px] truncate" title={`Synonyms: ${vocab.synonyms?.join(', ')}, Antonyms: ${vocab.antonyms?.join(', ')}`}>
+                              {vocab.synonyms?.length > 0 && `Syn: ${vocab.synonyms.slice(0, 2).join(', ')}`}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-550 hover:bg-red-50 border border-transparent hover:border-red-100 h-8 w-8 p-0 rounded-lg shrink-0"
+                                onClick={() => deleteVocabularyWord(vocab.id)}
+                                title="মুছে ফেলুন"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
                   </div>
                 )}
               </CardContent>
@@ -2522,6 +2861,299 @@ window.location.reload();
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setConfirmDialog(null)} className="font-bengali">বাতিল (Cancel)</Button>
               <Button variant="destructive" onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }} className="font-bengali">নিশ্চিত (Confirm)</Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {proGiftUser && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[24px] overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 pb-4 border-b flex justify-between items-center bg-slate-50/50">
+              <h3 className="text-lg font-bold font-bengali text-slate-800 flex items-center gap-2">
+                <Crown className="w-5 h-5 text-orange-500 animate-pulse animate-duration-1000" /> প্রো এক্সেস গিফট (Gift Pro)
+              </h3>
+              <button 
+                onClick={() => setProGiftUser(null)} 
+                className="text-slate-400 hover:text-slate-600 rounded-full p-1.5 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-slate-600 text-sm font-bengali leading-relaxed">
+                ইউজার <strong className="text-slate-900">{proGiftUser.name}</strong> কে প্রো সুবিধা গিফট করছেন। কত মাসের এক্সেস দিতে চান তা সিলেক্ট করুন:
+              </p>
+              
+              <div className="grid grid-cols-4 gap-2">
+                {["1", "3", "6", "12"].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setGiftMonths(m)}
+                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${
+                      giftMonths === m 
+                        ? "bg-slate-900 border-slate-900 text-white shadow-md" 
+                        : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200"
+                    }`}
+                  >
+                    <span className="font-bengali">{m === "12" ? "১ বছর" : `${m} মাস`}</span>
+                    <span className="text-[9px] font-normal opacity-85">{m}m</span>
+                  </button>
+                ))}
+              </div>
+              
+              <div className="relative mt-2">
+                <label className="text-xs font-bold text-slate-500 mb-1.5 block font-bengali">কাস্টম মাস সংখ্যা দিন:</label>
+                <Input
+                  type="number"
+                  min="1"
+                  placeholder="যেমন: ৩ বা ১২ মাস..."
+                  value={giftMonths}
+                  onChange={(e) => setGiftMonths(e.target.value)}
+                  className="bg-white rounded-xl py-4.5 font-bold text-sm"
+                />
+              </div>
+            </div>
+            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setProGiftUser(null)} 
+                className="font-bengali rounded-xl py-4.5"
+              >
+                বাতিল
+              </Button>
+              <Button 
+                onClick={() => {
+                  const months = parseInt(giftMonths);
+                  if (isNaN(months) || months < 1) {
+                    return;
+                  }
+                  toggleProStatus(proGiftUser.id, false, months);
+                  setProGiftUser(null);
+                }} 
+                className="bg-gradient-to-br from-[#FFB800] to-[#F59E0B] text-white hover:from-[#E5A600] hover:to-[#D97706] font-bengali rounded-xl py-4.5 font-bold border-0"
+              >
+                গিফট প্রো কনফার্ম
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedUserModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4" onClick={() => setSelectedUserModal(null)}>
+          <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 pb-4 border-b flex justify-between items-start bg-slate-50/50">
+              <div className="flex items-center gap-4">
+                 <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden font-bold text-slate-400 text-xl">
+                   {selectedUserModal.photoURL ? <img src={selectedUserModal.photoURL} alt={selectedUserModal.fullName} className="w-full h-full object-cover" /> : selectedUserModal.fullName?.charAt(0) || <User className="w-8 h-8" />}
+                 </div>
+                 <div>
+                   <h3 className="text-xl font-bold font-bengali text-slate-800 leading-tight flex items-center gap-2">
+                     {selectedUserModal.fullName || 'No Name'}
+                     {selectedUserModal.isAdmin && <Crown className="w-4 h-4 text-purple-500" />}
+                   </h3>
+                   <p className="text-sm font-sans font-bold text-blue-600">{formatEmail(selectedUserModal.email) || selectedUserModal.phoneNumber}</p>
+                 </div>
+              </div>
+              <button 
+                onClick={() => setSelectedUserModal(null)} 
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex flex-col">
+                  <span className="text-xs text-slate-400 font-bold tracking-wider mb-1">POINTS</span>
+                  <span className="font-mono text-2xl font-black text-[#0F2744] bg-slate-100 px-4 py-1.5 rounded-xl border border-slate-200/50 w-fit">{selectedUserModal.points || 0}</span>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-end max-w-[150px]">
+                  {selectedUserModal.isPro && <Badge className="bg-orange-50 text-orange-600 border border-orange-200/50 text-xs px-2.5 py-1 rounded-md"><Crown className="w-3.5 h-3.5 mr-1" /> Pro</Badge>}
+                  {selectedUserModal.isTutor && <Badge className="bg-blue-50 text-blue-600 border border-blue-200/50 text-xs px-2.5 py-1 rounded-md"><BookOpen className="w-3.5 h-3.5 mr-1" /> Tutor</Badge>}
+                  {selectedUserModal.isAdmin && <Badge className="bg-purple-50 text-purple-650 border border-purple-200/50 text-xs px-2.5 py-1 rounded-md font-bengali"><Crown className="w-3.5 h-3.5 mr-1 text-purple-500 animate-pulse" /> Admin</Badge>}
+                  {selectedUserModal.class && <Badge variant="outline" className="bg-green-50/50 text-green-700 border-green-200/60 text-xs px-2.5 py-1 rounded-md font-bengali">{selectedUserModal.class}</Badge>}
+                </div>
+              </div>
+
+              <div className="grid gap-3 pt-6 border-t border-slate-100">
+                <Button 
+                  disabled={selectedUserModal.isAdmin || selectedUserModal.isTutor}
+                  variant={selectedUserModal.isPro ? "outline" : "default"} 
+                  className={`w-full font-semibold rounded-xl text-sm py-5 transition-all shadow-sm ${selectedUserModal.isAdmin || selectedUserModal.isTutor ? "bg-slate-100 text-slate-400 border-slate-200" : selectedUserModal.isPro ? "text-red-500 border-red-200 hover:bg-red-50 hover:text-red-655 hover:border-red-300" : "bg-gradient-to-br from-[#FFB800] to-[#F59E0B] text-white hover:from-[#E5A600] hover:to-[#D97706] hover:shadow-md border-0"}`}
+                  onClick={() => {
+                    if (selectedUserModal.isAdmin || selectedUserModal.isTutor) return;
+                    if (selectedUserModal.isPro) {
+                      setConfirmDialog({
+                        isOpen: true,
+                        message: `${selectedUserModal.fullName || selectedUserModal.email || 'ইউজার'} এর প্রো সাবস্ক্রিপশন বাতিল করতে চান?`,
+                        onConfirm: () => {
+                          toggleProStatus(selectedUserModal.id, selectedUserModal.isPro);
+                          setSelectedUserModal(null);
+                        }
+                      });
+                    } else {
+                      setProGiftUser({ id: selectedUserModal.id, name: selectedUserModal.fullName || selectedUserModal.email || 'User' });
+                      setGiftMonths("1");
+                    }
+                  }}
+                >
+                  {selectedUserModal.isAdmin || selectedUserModal.isTutor ? <><Crown className="w-4 h-4 mr-2" /> Lifetime Pro (Role Based)</> : selectedUserModal.isPro ? "Revoke Pro Access" : <><Crown className="w-4 h-4 mr-2" /> Gift Pro Subscription</>}
+                </Button>
+                
+                <Button 
+                  variant={selectedUserModal.isTutor ? "outline" : "secondary"} 
+                  className={`w-full font-semibold rounded-xl text-sm py-5 transition-all shadow-sm ${selectedUserModal.isTutor ? "text-red-500 border-red-200 hover:bg-red-50 hover:text-red-655 hover:border-red-300" : "bg-indigo-50 text-indigo-600 border border-indigo-100/50 hover:bg-indigo-100 hover:text-indigo-700"}`}
+                  onClick={() => {
+                    toggleTutorStatus(selectedUserModal.id, selectedUserModal.isTutor);
+                    setSelectedUserModal(null);
+                  }}
+                >
+                  {selectedUserModal.isTutor ? "Revoke Tutor Role" : <><BookOpen className="w-4 h-4 mr-2" /> Assign Tutor Role</>}
+                </Button>
+
+                {selectedUserModal.isTutor && (
+                  <Button
+                    variant="outline"
+                    className="w-full border-blue-200 text-blue-600 hover:bg-blue-50 rounded-xl py-5 text-sm"
+                    onClick={() => {
+                      setTutorSubjectModal({ userId: selectedUserModal.id, name: selectedUserModal.fullName || selectedUserModal.email || 'User', subjects: selectedUserModal.tutorSubjects || [] });
+                    }}
+                  >
+                    <Settings className="w-4 h-4 mr-2" /> Configure Tutor Subjects
+                  </Button>
+                )}
+
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  <Button 
+                    variant={selectedUserModal.isAdmin ? "outline" : "secondary"} 
+                     className={`font-semibold rounded-xl text-xs py-5 transition-all shadow-sm ${selectedUserModal.isAdmin ? "text-purple-650 border-purple-200 hover:bg-purple-100" : "bg-purple-50 text-purple-650 border border-purple-100 hover:bg-[#F3E8FF]"}`}
+                    onClick={() => {
+                      toggleAdminStatus(selectedUserModal.id, selectedUserModal.isAdmin);
+                      setSelectedUserModal(null);
+                    }}
+                  >
+                    {selectedUserModal.isAdmin ? "Revoke Admin" : <><User className="w-4 h-4 mr-1.5" /> Make Admin</>}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="text-red-500 border-red-200 hover:bg-red-50 rounded-xl text-xs py-5" 
+                    onClick={() => {
+                      deleteUser(selectedUserModal.id);
+                      setSelectedUserModal(null);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1.5" /> Delete User
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {tutorSubjectModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-[24px] overflow-hidden shadow-2xl max-w-lg w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 pb-4 border-b flex justify-between items-center bg-slate-50/50">
+              <h3 className="text-lg font-bold font-bengali text-slate-800 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-blue-500" /> টিউটর সাবজেক্ট অ্যাক্সেস
+              </h3>
+              <button 
+                onClick={() => setTutorSubjectModal(null)} 
+                className="text-slate-400 hover:text-slate-600 rounded-full p-1.5 hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 max-h-[60vh] overflow-y-auto">
+              <p className="text-slate-600 text-sm font-bengali leading-relaxed mb-4">
+                টিউটর <strong className="text-slate-900">{tutorSubjectModal.name}</strong> কোন কোন বিষয় বা টপিকের প্রশ্ন দেখতে ও উত্তর দিতে পারবেন তা সিলেক্ট করুন অথবা নতুন যুক্ত করুন:
+              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {Array.from(new Set([...allDynamicSubjects, ...(tutorSubjectModal.subjects || [])])).map(sub => {
+                  const isSelected = tutorSubjectModal.subjects?.includes(sub);
+                  return (
+                    <button
+                      key={sub}
+                      type="button"
+                      onClick={() => {
+                        const currentSubs = tutorSubjectModal.subjects || [];
+                        const newSubs = isSelected 
+                          ? currentSubs.filter(s => s !== sub)
+                          : [...currentSubs, sub];
+                        setTutorSubjectModal({ ...tutorSubjectModal, subjects: newSubs });
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-bengali transition-colors border ${isSelected ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200"}`}
+                    >
+                      {sub}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex items-center gap-2">
+                <Input 
+                  type="text" 
+                  placeholder="নতুন টপিক লিখুন..." 
+                  className="font-bengali h-10"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                      const newTopic = e.currentTarget.value.trim();
+                      if (!tutorSubjectModal.subjects?.includes(newTopic)) {
+                        setTutorSubjectModal({ 
+                          ...tutorSubjectModal, 
+                          subjects: [...(tutorSubjectModal.subjects || []), newTopic] 
+                        });
+                      }
+                      e.currentTarget.value = '';
+                    }
+                  }}
+                />
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={(e) => {
+                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                    if (input && input.value.trim()) {
+                      const newTopic = input.value.trim();
+                      if (!tutorSubjectModal.subjects?.includes(newTopic)) {
+                        setTutorSubjectModal({ 
+                          ...tutorSubjectModal, 
+                          subjects: [...(tutorSubjectModal.subjects || []), newTopic] 
+                        });
+                      }
+                      input.value = '';
+                    }
+                  }}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setTutorSubjectModal(null)} 
+                className="font-bengali rounded-xl py-4.5"
+              >
+                বাতিল
+              </Button>
+              <Button 
+                onClick={async () => {
+                   try {
+                     await updateDoc(doc(db, "users", tutorSubjectModal.userId), { tutorSubjects: tutorSubjectModal.subjects });
+                     alert("Tutor subjects updated successfully!");
+                     fetchUsers();
+                     setTutorSubjectModal(null);
+                   } catch(e) {
+                     console.error("Failed to update subjects", e);
+                     alert("Failed to update subjects.");
+                   }
+                }} 
+                className="bg-blue-600 text-white hover:bg-blue-700 font-bengali rounded-xl py-4.5 font-bold border-0"
+              >
+                সংরক্ষণ করুন (Save)
+              </Button>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, BookOpen, Bookmark, BookmarkCheck, ArrowLeft, Eye, Sparkles, X, ChevronRight, FileText, CheckCircle, Clock, LayoutList, PenTool } from "lucide-react";
+import { Search, BookOpen, Bookmark, BookmarkCheck, ArrowLeft, Eye, Sparkles, X, ChevronRight, FileText, CheckCircle, Clock, LayoutList, PenTool, Sun, Moon, Type, BookOpenCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +24,46 @@ export default function SubjectNotes() {
   const [savedNotesState, setSavedNotesState] = useState<Record<string, boolean>>({});
   const [readingNote, setReadingNote] = useState<any | null>(null);
   const [saveLoading, setSaveLoading] = useState<string | null>(null);
+  const [readerTheme, setReaderTheme] = useState<"light" | "sepia" | "dark">("light");
+  const [readerFontSize, setReaderFontSize] = useState<"base" | "lg" | "xl">("lg");
+  const [isBlurred, setIsBlurred] = useState(false);
+
+  // Security Focus & Key blocker for Screenshot/Printscreen/Copying Prevention
+  useEffect(() => {
+    if (!readingNote) {
+      setIsBlurred(false);
+      return;
+    }
+
+    const handleBlur = () => {
+      setIsBlurred(true);
+    };
+
+    const handleFocus = () => {
+      setIsBlurred(false);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Block Ctrl+C (Copy), Ctrl+S (Save), Ctrl+P (Print), Ctrl+U (View source), F12 (DevTools)
+      if (
+        (e.ctrlKey && (e.key === "c" || e.key === "s" || e.key === "p" || e.key === "u")) ||
+        e.key === "PrintScreen" ||
+        e.key === "F12"
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [readingNote]);
 
   // Load saved notes status on mount
   useEffect(() => {
@@ -242,106 +282,229 @@ export default function SubjectNotes() {
 
       {/* Interactive Desktop textbook / E-Reader Overlay Modal */}
       <AnimatePresence>
-        {readingNote && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-[#070E1B]/75 backdrop-blur-md z-999 flex justify-end overflow-hidden font-sans"
-          >
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 30, stiffness: 200 }}
-              className="bg-[#FCFBF7] w-full max-w-3xl min-h-screen shadow-2xl flex flex-col relative overflow-y-auto"
+        {readingNote && (() => {
+          // Inner theme mappings
+          const readerThemeConfig = {
+            light: {
+              bg: "bg-[#FDFCF7]", // Soft warm ivory book paper
+              textTitle: "text-slate-900",
+              textBody: "text-slate-800",
+              textMute: "text-slate-500",
+              border: "border-[#ECEAD9]",
+              headerBg: "bg-[#FDFCF7]/90",
+              headerBorder: "border-[#ECEAD9]",
+              navButtonHover: "hover:bg-slate-100",
+              introBg: "bg-[#F7F5EA] border-amber-500/35 text-amber-955",
+              itemBg: "bg-white border-[#ECEAD9]",
+              itemHover: "hover:bg-slate-50/40",
+              itemNumberBg: "bg-[#F3EFE0] text-[#0F2744] border-[#ECEAD9]",
+              footerBg: "bg-[#F4F2E6] border-[#ECEAD9]",
+              footerBtn: "bg-[#0F2744] hover:bg-[#1a3a61] text-white"
+            },
+            sepia: {
+              bg: "bg-[#F3EAD3]", // Premium sepia reader page
+              textTitle: "text-[#3D2C1A]",
+              textBody: "text-[#47301B]",
+              textMute: "text-[#75624A]",
+              border: "border-[#E2D5B4]",
+              headerBg: "bg-[#F3EAD3]/90",
+              headerBorder: "border-[#E2D5B4]",
+              navButtonHover: "hover:bg-[#EAE0C5]",
+              introBg: "bg-[#EAE0C5] border-amber-600/30 text-[#3D2C1A]",
+              itemBg: "bg-[#FCF6EB] border-[#DDD1B4]",
+              itemHover: "hover:bg-[#F2E7CC]",
+              itemNumberBg: "bg-[#EFE5CD] text-[#7A644D] border-[#DDD1B4]",
+              footerBg: "bg-[#EFE5CD] border-[#DDD1B4]",
+              footerBtn: "bg-amber-800 hover:bg-amber-900 text-[#FCFBF7]"
+            },
+            dark: {
+              bg: "bg-[#111111]", // Rich OLED dark
+              textTitle: "text-[#EDEDED]",
+              textBody: "text-[#D0D0D0]",
+              textMute: "text-[#808080]",
+              border: "border-[#242424]",
+              headerBg: "bg-[#111111]/90",
+              headerBorder: "border-[#242424]",
+              navButtonHover: "hover:bg-[#1F1F1F]",
+              introBg: "bg-[#1D1B1A] border-amber-500/20 text-amber-200/90",
+              itemBg: "bg-[#161616] border-[#242424]",
+              itemHover: "hover:bg-[#1E1E1E]",
+              itemNumberBg: "bg-[#222222] text-[#888888] border-[#242424]",
+              footerBg: "bg-[#161616] border-[#242424]",
+              footerBtn: "bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold"
+            }
+          };
+
+          const tc = readerThemeConfig[readerTheme];
+
+          const fontSizeClass = {
+            base: "text-[14px] sm:text-[15px] leading-relaxed",
+            lg: "text-[16px] sm:text-[17px] leading-relaxed",
+            xl: "text-[18px] sm:text-[19px] leading-relaxed"
+          }[readerFontSize];
+
+          return (
+            <motion.div 
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
+               exit={{ opacity: 0 }}
+               className="fixed inset-0 bg-[#070E1B]/80 backdrop-blur-md z-999 flex justify-end overflow-hidden font-sans"
+               onContextMenu={(e) => e.preventDefault()}
             >
-              
-              {/* E-Reader Fixed Header */}
-              <header className="sticky top-0 bg-[#FCFBF7]/95 backdrop-blur-md border-b border-[#EDECDF] py-4 px-6 flex items-center justify-between z-50">
-                <div className="flex items-center gap-3">
-                  <button 
-                    onClick={() => setReadingNote(null)}
-                    className="p-1 rounded-full text-slate-400 hover:text-slate-650 hover:bg-slate-100 transition-colors cursor-pointer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                  <div className="border-l border-[#E6E5D7] h-5" />
-                  <div className="space-y-0.5">
-                    <p className="font-bengali text-[10px] text-amber-600 font-extrabold tracking-wide uppercase">LECTURE PREVIEW</p>
-                    <h3 className="font-bengali font-bold text-sm text-slate-800 line-clamp-1">{readingNote.title}</h3>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <Badge className="font-bengali font-semibold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 hover:bg-emerald-500/10 text-xs py-0.5">
-                    পড়ছেন
-                  </Badge>
-                </div>
-              </header>
-
-              {/* Real Book-style detailed content */}
-              <div className="flex-1 px-8 py-10 max-w-2xl mx-auto space-y-10 selection:bg-amber-100 selection:text-amber-900 select-none">
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 200 }}
+                className={`w-full max-w-2xl min-h-screen shadow-2xl flex flex-col relative overflow-y-auto overflow-x-hidden select-none ${tc.bg}`}
+              >
                 
-                {/* Title and Intro */}
-                <div className="space-y-4 text-center pb-8 border-b border-dashed border-[#EDECDF]">
-                  <div className="inline-flex items-center justify-center bg-amber-500/10 text-amber-600 font-bengali text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/20 gap-1.5 mx-auto">
-                    <BookOpen className="w-3.5 h-3.5" /> <span>আজকের পাঠ্য বিষয়</span>
+                {/* Secure Overlay blur blocker */}
+                {isBlurred && (
+                  <div className="absolute inset-0 bg-slate-950/95 z-999 flex flex-col items-center justify-center p-6 text-center select-none animate-fade-in">
+                    <span className="text-5xl mb-4">🛡️</span>
+                    <h3 className="text-white font-bengali font-bold text-xl md:text-2xl">স্ক্রিনশট বা কপি করা সম্পূর্ণ নিষিদ্ধ!</h3>
+                    <p className="text-slate-400 font-bengali text-xs md:text-sm mt-2 max-w-sm">
+                      শিক্ষাঙ্কন প্ল্যাটফর্মের গোপনীয়তা ও মেধা সম্পদ রক্ষার স্বার্থে এই পেইজের স্ক্রিনশট বা কপি মেকানিজম ব্লক করা হয়েছে।
+                    </p>
+                    <p className="text-amber-500 font-bold text-[11px] uppercase tracking-widest mt-4">Screen capture protected</p>
                   </div>
-                  <h1 className="font-bengali text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                    {readingNote.title}
-                  </h1>
-                  <p className="font-bengali text-slate-500 text-sm sm:text-base leading-relaxed max-w-xl mx-auto">
-                    {readingNote.content?.intro}
-                  </p>
+                )}
+                
+                {/* E-Reader Fixed Header */}
+                <header className={`sticky top-0 backdrop-blur-md border-b py-3.5 px-4 sm:px-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 .z-50 transition-colors duration-300 ${tc.headerBg} ${tc.headerBorder}`}>
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <button 
+                      onClick={() => setReadingNote(null)}
+                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${tc.navButtonHover}`}
+                    >
+                      <X className={`w-5 h-5 ${tc.textTitle}`} />
+                    </button>
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[9px] font-sans tracking-widest text-amber-600 font-bold uppercase block">LECTURE PREVIEW</span>
+                      <h3 className={`font-bengali font-bold text-xs sm:text-sm truncate select-none ${tc.textTitle}`}>
+                        {readingNote.title}
+                      </h3>
+                    </div>
+                  </div>
+
+                  {/* Settings Controls (Themes & Font Sizes) */}
+                  <div className={`flex items-center gap-2 shrink-0 self-end sm:self-center bg-black/5 dark:bg-white/5 rounded-2xl p-1 border ${tc.border}`}>
+                    {/* Theme buttons */}
+                    <div className="flex items-center gap-0.5">
+                      <button 
+                        onClick={() => setReaderTheme("light")}
+                        className={`h-7 px-3 text-[11px] font-bengali font-bold rounded-xl transition-all ${readerTheme === "light" ? "bg-white text-slate-900 shadow-xs" : `${tc.textMute} hover:text-slate-700`}`}
+                      >
+                        দিন
+                      </button>
+                      <button 
+                        onClick={() => setReaderTheme("sepia")}
+                        className={`h-7 px-3 text-[11px] font-bengali font-bold rounded-xl transition-all ${readerTheme === "sepia" ? "bg-[#ECD9B8] text-[#5C4217] shadow-xs" : `${tc.textMute} hover:text-slate-700`}`}
+                      >
+                        সেপিয়া
+                      </button>
+                      <button 
+                        onClick={() => setReaderTheme("dark")}
+                        className={`h-7 px-3 text-[11px] font-bengali font-bold rounded-xl transition-all ${readerTheme === "dark" ? "bg-zinc-800 text-zinc-100 shadow-xs" : `${tc.textMute} hover:text-zinc-100`}`}
+                      >
+                        রাত
+                      </button>
+                    </div>
+
+                    <div className="h-4 w-[1px] bg-current/15" />
+
+                    {/* Font Sizer buttons */}
+                    <div className="flex items-center gap-0.5">
+                      <button 
+                        onClick={() => setReaderFontSize("base")}
+                        className={`h-7 w-7 text-xs font-semibold rounded-xl transition-all ${readerFontSize === "base" ? "bg-amber-400 text-slate-950 font-black" : `${tc.textMute} hover:text-slate-800`}`}
+                      >
+                        Ab
+                      </button>
+                      <button 
+                        onClick={() => setReaderFontSize("lg")}
+                        className={`h-7 w-7 text-sm font-semibold rounded-xl transition-all ${readerFontSize === "lg" ? "bg-amber-400 text-slate-950 font-black" : `${tc.textMute} hover:text-slate-800`}`}
+                      >
+                        Ab+
+                      </button>
+                    </div>
+                  </div>
+                </header>
+
+                {/* Reader Core Content Body */}
+                <div className="p-5 sm:p-8 md:p-10 flex-1 w-full max-w-2xl mx-auto space-y-8 select-none overflow-x-hidden break-words">
+                  
+                  {/* Note Banner Info */}
+                  <div className="space-y-4 text-center pb-8 border-b border-dashed border-current/10">
+                    <div className="inline-flex items-center justify-center bg-amber-500/10 text-amber-700 font-bengali text-xs font-bold px-3 py-1.5 rounded-full border border-amber-500/20 gap-1.5 mx-auto">
+                      <BookOpenCheck className="w-3.5 h-3.5" /> <span>আজকের পাঠ্য বিষয়</span>
+                    </div>
+                    <h1 className={`font-bengali font-extrabold text-2xl sm:text-3xl leading-tight transition-colors duration-300 ${tc.textTitle}`}>
+                      {readingNote.title}
+                    </h1>
+                    <p className={`text-sm sm:text-base font-bengali leading-relaxed border-l-4 p-4 rounded-r-2xl text-left transition-all duration-300 ${tc.introBg}`}>
+                      {readingNote.content?.intro}
+                    </p>
+                  </div>
+
+                  {/* Chapters / Sections Content blocks - CLEAN NO-GHINJI FORMAT */}
+                  <div className="space-y-8 pt-2">
+                    {readingNote.content?.chapters?.map((chapter: any, cIdx: number) => (
+                      <section key={cIdx} className={`space-y-4 p-6 sm:p-8 rounded-3xl border shadow-xs transition-colors duration-300 ${tc.itemBg} ${tc.border}`}>
+                        <div className="flex items-start gap-3 border-b border-current/5 pb-3">
+                          <span className={`font-sans text-xs select-none h-6 w-6 rounded-lg flex items-center justify-center font-bold shrink-0 mt-1 shadow-xs ${tc.itemNumberBg}`}>
+                            {cIdx + 1}
+                          </span>
+                          <h2 className={`font-bengali font-bold text-lg sm:text-xl transition-colors duration-300 ${tc.textTitle}`}>
+                            {chapter.title}
+                          </h2>
+                        </div>
+                        
+                        {/* Clear, spacious listing with divider rows instead of nested boxes */}
+                        <div className="divide-y divide-current/5 w-full">
+                          {chapter.items.map((item: string, iIdx: number) => (
+                            <div 
+                              key={iIdx} 
+                              className="py-4.5 flex gap-3.5 items-start w-full group transition-colors"
+                            >
+                              <span className="text-amber-500 font-bold shrink-0 mt-[4px] select-none text-base">✦</span>
+                              <p className={`font-bengali ${fontSizeClass} select-none break-words flex-1 leading-relaxed ${tc.textBody}`}>
+                                {item}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+
+                  <div className={`h-[1px] w-full transition-colors duration-300 ${tc.border}`} />
+
+                  {/* Footnote stamp */}
+                  <div className={`rounded-3xl border p-6 text-center space-y-3.5 select-none transition-colors duration-300 ${tc.footerBg} ${tc.border}`}>
+                    <div className="h-10 w-10 bg-amber-500/15 rounded-full flex items-center justify-center mx-auto">
+                      <BookOpenCheck className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <h4 className={`font-bengali font-bold text-base transition-colors duration-300 ${tc.textTitle}`}>অনলাইন পাঠ সমাপ্ত!</h4>
+                    <p className={`font-bengali text-xs max-w-sm mx-auto leading-relaxed transition-colors duration-300 ${tc.textMute}`}>এই লেকচারটি আপনি সম্পূর্ণ পড়তে পেরেছেন। প্র্যাকটিস এবং কুপন কার্ডের সাথে নিজেকে রাখুন এগিয়ে।</p>
+                    
+                    <div className="pt-2">
+                      <Button 
+                        onClick={() => setReadingNote(null)}
+                        className={`font-bengali text-xs font-bold rounded-xl shadow-xs px-6 py-2.5 h-9.5 transition-all hover:scale-[1.02] active:scale-[0.98] ${tc.footerBtn}`}
+                      >
+                        পড়া শেষ করুন
+                      </Button>
+                    </div>
+                  </div>
+
                 </div>
 
-                {/* Subsections */}
-                <div className="space-y-8">
-                  {readingNote.content?.chapters?.map((chap: any, idx: number) => (
-                    <section key={idx} className="space-y-4 bg-white p-6 sm:p-8 rounded-3xl border border-[#EDECDF] shadow-xs hover:shadow-md transition-all duration-200">
-                      <div className="flex items-start gap-3">
-                        <span className="font-sans text-xs bg-[#0F2744] text-white h-6 w-6 rounded-lg flex items-center justify-center font-bold shrink-0 mt-0.5 shadow-sm shadow-[#0F2744]/10">
-                          {idx + 1}
-                        </span>
-                        <h2 className="font-bengali font-bold text-lg sm:text-xl text-slate-900">
-                          {chap.title}
-                        </h2>
-                      </div>
-                      
-                      <div className="divide-y divide-[#F5F4EC]">
-                        {chap.items?.map((item: string, i: number) => (
-                          <div key={i} className="py-4 flex gap-3 text-slate-700 font-bengali leading-relaxed text-sm sm:text-base">
-                            <span className="text-amber-500 font-bold shrink-0 mt-[3px] select-none text-sm font-sans">▸</span>
-                            <p className="flex-1">{item}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </section>
-                  ))}
-                </div>
-
-                {/* Book End Signature Mark */}
-                <div className="pt-8 border-t border-dashed border-[#EDECDF] text-center space-y-2">
-                  <div className="h-2 w-2 bg-amber-500 rounded-full mx-auto animate-pulse" />
-                  <p className="font-bengali text-xs text-slate-400 font-medium">শিক্ষাঙ্গন লেকচার নোটস — কপিরাইট ২০২৬ © সর্বস্বত্ব সংরক্ষিত</p>
-                </div>
-              </div>
-
-              {/* E-Reader Screen Bottom Status */}
-              <footer className="sticky bottom-0 bg-[#FCFBF7]/95 backdrop-blur-md border-t border-[#EDECDF] py-3.5 px-6 flex items-center justify-between z-40 select-none">
-                <p className="text-[11px] font-sans text-slate-400">PAGE 1 OF 1 PHYSICAL VERSION</p>
-                <Button 
-                  onClick={() => setReadingNote(null)}
-                  className="font-bengali text-xs font-bold rounded-xl h-8 bg-[#0F2744] text-white hover:bg-[#0F2744]/90 shadow-sm"
-                >
-                  পড়া শেষ
-                </Button>
-              </footer>
-
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          );
+        })()}
       </AnimatePresence>
 
       {/* Bottom Navigation Tab Bar (exactly matching screenshot 3) */}
@@ -360,7 +523,7 @@ export default function SubjectNotes() {
           className="flex-1 flex flex-col items-center gap-1 transition-all relative text-slate-400 hover:text-slate-500 cursor-pointer"
         >
           <LayoutList className="w-5 h-5 shrink-0" />
-          <span className="text-[11px] sm:text-xs font-bengali font-bold">টপিক ভিত্তিক প্রশ্ন</span>
+          <span className="text-[11px] sm:text-xs font-bengali font-bold">টপিক ভিত্তিক নোটস</span>
         </Link>
 
         <Link 

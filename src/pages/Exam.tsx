@@ -533,43 +533,47 @@ export default function Exam() {
   return (
     <div className="w-full max-w-4xl mx-auto pb-20 px-0 sm:px-4 pt-0 sm:pt-4">
       {/* Top Section */}
-      <div className="sticky top-[88px] z-40 bg-white sm:bg-transparent py-2 sm:py-4 px-2 sm:px-0 mb-0 sm:mb-4 sm:border-0 shadow-sm sm:shadow-none">
-        <div className="max-w-[800px] mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-4 flex-1">
+      <div className="sticky top-[88px] z-40 bg-white sm:bg-transparent py-2 sm:py-4 px-1 sm:px-0 mb-0 sm:mb-4 sm:border-0 shadow-sm sm:shadow-none">
+        <div className="max-w-[800px] mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 sm:gap-4 flex-1 min-w-0">
             <button 
              onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
-             className="w-10 h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
+             className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
             >
-             <ArrowLeft className="w-5 h-5 text-slate-700" />
+             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
             </button>
-            <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-semibold rounded-full text-sm border border-blue-100/50 shadow-sm shrink-0">
-               <FileText className="w-4 h-4 opacity-70" />
-               <span className="font-bengali font-bold">বাকি:</span>
-               <span className="font-mono text-[15px] font-bold">{Math.max(0, dbQuestions.length - Object.keys(selectedOptions).length)}</span>
+            <div className="flex items-center gap-1 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-semibold rounded-full text-xs sm:text-sm border border-blue-100/50 shadow-xs shrink-0">
+               <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
+               <span className="font-bengali font-bold hidden xs:inline">বাকি:</span>
+               <span className="font-mono text-xs sm:text-[15px] font-bold">{Math.max(0, dbQuestions.length - Object.keys(selectedOptions).length)}</span>
             </div>
           </div>
           
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 font-bold rounded-full text-sm border border-orange-100/50 shadow-sm font-mono shrink-0">
-               <Timer className="w-[18px] h-[18px] text-orange-500 animate-pulse" />
-              {timeLeft}
-            </div>
-            
-            <Button 
-              variant="default" 
-              size="sm" 
-              className={`font-bengali font-bold px-6 h-[38px] shrink-0 text-sm rounded-full whitespace-nowrap shadow-md ${isSubmitted ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20' : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20'}`}
-              onClick={() => {
-                if (isSubmitted) {
-                   setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null);
-                } else {
-                   setIsSubmitted(true);
-                   window.scrollTo({ top: 0, behavior: 'smooth' });
-                }
-              }}
-            >
-              {isSubmitted ? 'ফিরে যান' : 'পরীক্ষা শেষ করুন'}
-            </Button>
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            {isSubmitted ? (
+              <div className="flex items-center gap-1 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-emerald-50 text-emerald-800 font-bold rounded-full text-xs sm:text-sm border border-emerald-150 shadow-xs whitespace-nowrap">
+                <span className="font-bengali">পরীক্ষা সম্পন্ন</span>
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center gap-1 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 font-bold rounded-full text-xs sm:text-sm border border-orange-100/50 shadow-xs font-mono shrink-0">
+                   <Timer className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] text-orange-500 animate-pulse" />
+                  <span>{timeLeft}</span>
+                </div>
+                
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="font-bengali font-bold px-3 sm:px-6 h-[34px] sm:h-[38px] shrink-0 text-xs sm:text-sm rounded-full whitespace-nowrap transition-all bg-red-100/60 hover:bg-red-100 text-red-700 border border-red-200 shadow-none"
+                  onClick={() => {
+                     setIsSubmitted(true);
+                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                >
+                  <span className="hidden sm:inline">পরীক্ষা </span>শেষ করুন
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -602,6 +606,19 @@ export default function Exam() {
             <p className="font-bengali text-sm text-[#147e42] mt-6 bg-[#d1f0df]/50 inline-block px-4 py-2 rounded-full border border-[#b2e7ca]/50">
               আপনার পয়েন্টগুলো লিডারবোর্ডে যুক্ত করা হয়েছে। লিডারবোর্ডে আপনার অবস্থান দেখুন!
             </p>
+            <div className="mt-8 flex justify-center">
+              <Button
+                onClick={() => {
+                  setActiveSet(null); 
+                  setIsSubmitted(false); 
+                  setSelectedOptions({}); 
+                  setRemainingTime(null);
+                }}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bengali font-bold px-8 py-5.5 h-12 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-sm border-0"
+              >
+                <ArrowLeft className="w-5 h-5" /> সেট তালিকায় ফিরে যান
+              </Button>
+            </div>
           </motion.div>
         )}
 
@@ -616,6 +633,7 @@ export default function Exam() {
                <p className="text-slate-500 font-bengali">কোনো প্রশ্ন পাওয়া যায়নি।</p>
              </div>
           ) : (
+         <>
         <div className="bg-white sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
           {dbQuestions.map((q) => (
             <div key={q.id} className="question-block p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
@@ -735,8 +753,6 @@ export default function Exam() {
             </div>
           ))}
         </div>
-        )}
-        </div>
 
         {!isSubmitted && (
           <div className="mt-8 flex justify-center border-t border-slate-100 pt-8">
@@ -749,6 +765,9 @@ export default function Exam() {
             </Button>
           </div>
         )}
+         </>
+        )}
+        </div>
       </main>
 
     </div>

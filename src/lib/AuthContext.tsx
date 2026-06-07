@@ -19,6 +19,8 @@ interface UserData {
   isPro?: boolean;
   proUntil?: any;
   isTutor?: boolean;
+  isAdmin?: boolean;
+  tutorSubjects?: string[];
 }
 
 interface AuthContextType {
@@ -73,7 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (docSnap.exists()) {
             const data = docSnap.data() as UserData;
             const userEmail = currentUser.email?.toLowerCase() || '';
-            const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com";
+            const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com" || data.isAdmin === true;
             
             if (isAdmin || data.isTutor) {
               data.isPro = true;
@@ -87,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
 
             setUserData(data);
+            localStorage.setItem("cachedUserData", JSON.stringify(data));
           } else {
              setUserData({
                uid: currentUser.uid,
@@ -98,13 +101,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setLoading(false);
         }, (error) => {
           console.warn("Real-time user snapshot failed:", error);
+          const cached = localStorage.getItem("cachedUserData");
+          if (cached) {
+            setUserData(JSON.parse(cached));
+          }
           setLoading(false);
         });
       } else {
         setUserData(null);
+        localStorage.removeItem("cachedUserData");
         setLoading(false);
       }
     });
+
+    // Optimistic offline check
+    const cachedUser = localStorage.getItem("cachedUserData");
+    if (cachedUser && !navigator.onLine) {
+       setUserData(JSON.parse(cachedUser));
+       setLoading(false);
+    }
 
     return () => {
       unsubscribe();

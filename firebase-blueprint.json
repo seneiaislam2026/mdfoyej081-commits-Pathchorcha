@@ -23,12 +23,39 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "email", "createdAt", "updatedAt"]
+    },
+    "Vocabulary": {
+      "title": "Vocabulary",
+      "description": "System vocabulary containing words, definitions, translations for memorizing",
+      "type": "object",
+      "properties": {
+        "word": { "type": "string" },
+        "language": { "type": "string" },
+        "category": { "type": "string" },
+        "pronunciation": { "type": "string" },
+        "meaning": { "type": "string" },
+        "synonyms": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "antonyms": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "example": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["word", "language", "category", "meaning"]
     }
   },
   "firestore": {
     "users/{userId}": {
       "schema": { "$ref": "#/entities/User" },
       "description": "Stores user profiles and their cumulative progress."
+    },
+    "vocabulary/{wordId}": {
+      "schema": { "$ref": "#/entities/Vocabulary" },
+      "description": "Stores custom system vocabulary items uploaded by the Admin."
     }
   }
 }

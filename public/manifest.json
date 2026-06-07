@@ -1,0 +1,27 @@
+{
+  "name": "Shikkhangon - শিক্ষাঙ্গন",
+  "short_name": "Shikkhangon",
+  "description": "Bengali Educational Exam Preparation Platform for HSC & SSC",
+  "start_url": "./index.html",
+  "id": "/index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3F4F6",
+  "theme_color": "#0F2744",
+  "categories": ["education", "utilities"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

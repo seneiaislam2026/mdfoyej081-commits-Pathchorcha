@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   BrainCircuit,
   Target,
@@ -77,9 +77,34 @@ function getDailyChallenge(group: string | undefined, isAdmission: boolean) {
 }
 
 export default function Dashboard() {
+  const { userData } = useAuth();
   const isPWA = useIsPWA();
   const [syncingOffline, setSyncingOffline] = useState(false);
   const [publicExams, setPublicExams] = useState<any[]>([]);
+  const [settings, setSettings] = useState<any>(null);
+  const [showPromoPopup, setShowPromoPopup] = useState(false);
+
+  useEffect(() => {
+    async function listenSettings() {
+      const { doc, onSnapshot } = await import("firebase/firestore");
+      const { db } = await import("../lib/firebase");
+      return onSnapshot(doc(db, "settings", "general"), (snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          setSettings(data);
+          
+          // Show popup if active, user is not pro, and hasn't dismissed in current session
+          const dismissedThisSession = sessionStorage.getItem("dismissedPromoPopup");
+          if (data?.popupActive && !userData?.isPro && !dismissedThisSession) {
+            setShowPromoPopup(true);
+          }
+        }
+      });
+    }
+    let unsub: any;
+    listenSettings().then(u => unsub = u);
+    return () => { if (unsub) unsub(); };
+  }, [userData?.isPro]);
   useEffect(() => {
     async function fetchPublicExams() {
       try {
@@ -124,8 +149,6 @@ export default function Dashboard() {
       bg: "bg-yellow-50",
     },
   ];
-
-  const { userData } = useAuth();
 
   const userClass = userData?.class || "";
   const eligibleExams = publicExams.filter((exam) => {
@@ -266,6 +289,29 @@ export default function Dashboard() {
       ),
     },
     {
+      title: "মেমোরাইজিং পার্ট",
+      description: "সমার্থক, বিপরীত ও\nশব্দকোষ চর্চা করুন",
+      link: "/memorize",
+      bgContent: "bg-[#f5f3ff]",
+      borderColor: "border-[#ddd6fe]",
+      textColor: "text-[#8b5cf6]",
+      icon: (
+        <div className="relative w-28 h-28 flex items-center justify-center">
+          <div className="absolute inset-0 bg-[#8b5cf6]/20 translate-y-3 rounded-[24px] blur-md"></div>
+          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#a78bfa] to-[#7c3aed] rounded-[20px] shadow-lg border-b-[5px] border-[#5b21b6] flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-300">
+             <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
+             <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex shrink-0 items-center justify-center overflow-hidden font-sans text-3xl">
+                🧠
+             </div>
+             <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-[#c4b5fd] to-[#8b5cf6] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
+                <BrainCircuit className="w-5 h-5 text-white" />
+             </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "ভুলের প্র্যাকটিস",
       description: "পুর্বে ভুল হওয়া\nপ্রশ্নগুলোর পুনরাবৃত্তি",
       link: "/exam?type=mistakes",
@@ -281,29 +327,6 @@ export default function Dashboard() {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex items-center justify-center">
               <span className="text-3xl">🔄</span>
             </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "শিক্ষককে প্রশ্ন",
-      description: "এআই টিউটর ব্যবহার করে\nযেকোনো প্রশ্ন সমাধান",
-      link: "/tutor?tab=ai",
-      bgContent: "bg-[#f5f3ff]",
-      borderColor: "border-[#ddd6fe]",
-      textColor: "text-[#8b5cf6]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#8b5cf6]/20 translate-y-3 rounded-[24px] blur-md"></div>
-          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#a78bfa] to-[#7c3aed] rounded-[20px] shadow-lg border-b-[5px] border-[#5b21b6] flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-300">
-             <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
-             <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex shrink-0 items-center justify-center overflow-hidden">
-                <BrainCircuit className="w-8 h-8 text-[#7c3aed]" />
-             </div>
-             <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-[#c4b5fd] to-[#8b5cf6] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
-                <HelpCircle className="w-5 h-5 text-white" />
-             </div>
           </div>
         </div>
       ),
@@ -675,6 +698,110 @@ export default function Dashboard() {
           </div>
         </div>
       </section>
+
+      {/* Dynamic Campaign Startup Pop-up Modal */}
+      <AnimatePresence>
+        {showPromoPopup && settings && (
+          <div className="fixed inset-0 bg-[#070E1B]/75 backdrop-blur-md z-9999 flex items-center justify-center p-4 font-sans text-left">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white border-none w-full max-w-md rounded-[36px] overflow-hidden shadow-2xl relative flex flex-col font-bengali"
+            >
+              {/* Premium Gradient Hero section */}
+              <div className="bg-gradient-to-r from-amber-500 via-orange-600 to-red-500 p-8 text-center text-white relative">
+                <button
+                  onClick={() => {
+                    setShowPromoPopup(false);
+                    sessionStorage.setItem("dismissedPromoPopup", "true");
+                  }}
+                  className="absolute top-4 right-4 h-8 w-8 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-white transition-colors cursor-pointer border-none outline-none text-xs"
+                >
+                  ✕
+                </button>
+                <span className="text-5xl mb-3 block animate-bounce">🎁</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                  {settings.popupTitle || "উৎসব স্পেশাল ক্যাম্পেইন অফার! 🌟"}
+                </h2>
+                <p className="text-white/80 text-xs sm:text-sm mt-1 max-w-xs mx-auto leading-relaxed">
+                  সাবস্ক্রাইব করে আজই খুলে ফেলুন প্রিমিয়াম মেম্বারশিপের সকল দরজা!
+                </p>
+              </div>
+
+              {/* Promo code area & features */}
+              <div className="p-6 sm:p-8 space-y-6 flex flex-col">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2.5 text-center">
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest font-sans">ACTIVE DISCOUNT COUPON</p>
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="font-mono bg-orange-100 text-orange-900 px-4 py-1.5 rounded-xl text-lg sm:text-xl font-bold tracking-wider select-text border border-orange-200">
+                      {settings.popupCoupon || "PRO20"}
+                    </span>
+                    <button 
+                      onClick={() => {
+                        navigator.clipboard.writeText(settings.popupCoupon || "PRO20");
+                        alert("কুপন কোডটি কপি করা হয়েছে! 🏷️");
+                      }}
+                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer border-none"
+                    >
+                      কপি করুন
+                    </button>
+                  </div>
+                  {settings.discountPercentage > 0 && (
+                    <p className="text-xs text-red-500 font-bold shrink-0">
+                      🏷️ এই কোড ব্যবহারে {settings.discountPercentage}% অতিরিক্ত ছাড় কার্যকর!
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-3.5">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest font-sans text-left">👑 প্রো ইউজারদের স্পেশাল বেনিফিটস:</p>
+                  <ul className="space-y-2.5 text-slate-600 text-xs sm:text-sm font-medium text-left">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 shrink-0 select-none">✔</span>
+                      <span>১০,০০০+ প্রশ্নের বিস্তারিত ব্যাখ্যা ও কুইজ সমাধান।</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 shrink-0 select-none">✔</span>
+                      <span>সকল অধ্যায়ভিত্তিক ও সাজেশন্স ভিত্তিক স্পেশাল মক টেস্ট।</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-500 shrink-0 select-none">✔</span>
+                      <span>ভুল উত্তরের প্র্যাকটিস এবং প্রফেশনাল মেজারমেন্ট গ্রাফ।</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="bg-amber-50 p-3.5 rounded-2xl border border-amber-100 text-amber-900 text-xs leading-relaxed font-semibold text-center">
+                  {settings.popupMessage || "সকল প্রো প্ল্যানে বিশেষ অফার সক্রিয় পেতে আজই আমাদের সাথে যুক্ত হয়ে যান।"}
+                </div>
+
+                {/* Subscriptions navigation trigger */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setShowPromoPopup(false);
+                      sessionStorage.setItem("dismissedPromoPopup", "true");
+                    }}
+                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 h-12 rounded-full font-bold transition-all text-xs cursor-pointer border-none"
+                  >
+                    পরে দেখব
+                  </button>
+                  <Link to="/subscription" className="flex-1" onClick={() => {
+                    setShowPromoPopup(false);
+                    sessionStorage.setItem("dismissedPromoPopup", "true");
+                  }}>
+                    <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white h-12 rounded-full font-bold shadow-md shadow-orange-500/25 border-none text-xs">
+                      {settings.popupButtonText || "প্রো মেম্বার হোন"}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

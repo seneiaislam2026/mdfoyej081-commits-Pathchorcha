@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence } from 'firebase/auth';
 import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
@@ -8,18 +8,12 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId); 
 
 enableIndexedDbPersistence(db).catch((err) => {
-  if (err.code == 'failed-precondition') {
-    // Multiple tabs open, persistence can only be enabled
-    // in one tab at a a time.
-    console.warn('Firebase persistence failed: multiple tabs open');
-  } else if (err.code == 'unimplemented') {
-    // The current browser does not support all of the
-    // features required to enable persistence
-    console.warn('Firebase persistence not supported by browser');
-  }
+  console.warn('Firebase persistence warning:', err);
 });
 
-export const auth = getAuth();
+export const auth = initializeAuth(app, {
+  persistence: [indexedDBLocalPersistence, browserLocalPersistence]
+});
 
 export enum OperationType {
   CREATE = 'create',

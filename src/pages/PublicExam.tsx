@@ -338,7 +338,7 @@ export default function PublicExam() {
                <>
                  <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-indigo-50 text-indigo-700 font-semibold rounded-full text-[12px] sm:text-[13px] border border-indigo-100/50 shadow-sm whitespace-nowrap tracking-tight">
                    <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
-                   <span className="font-bengali font-bold">বাকি:</span>
+                   <span className="font-bengali font-bold hidden xs:inline">বাকি:</span>
                    <span className="font-mono font-bold">{remainingQuestions}</span>
                  </div>
     
@@ -349,9 +349,11 @@ export default function PublicExam() {
                </>
              )}
              
-             <Button variant="default" className={`font-bengali font-bold rounded-full h-[32px] sm:h-[38px] px-3 sm:px-5 shadow-md text-[13px] sm:text-sm whitespace-nowrap ml-1 sm:ml-0 ${isSubmitted ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20 text-white' : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/20'}`} onClick={() => isSubmitted ? navigate("/") : handleSubmit()}>
-                {isSubmitted ? 'ফিরে যান' : 'শেষ করুন'}
-             </Button>
+             {!isSubmitted && (
+               <Button variant="default" className="font-bengali font-bold rounded-full h-[32px] sm:h-[38px] px-3 sm:px-5 shadow-none text-[13px] sm:text-sm whitespace-nowrap ml-1 sm:ml-0 transition-all bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:text-red-700" onClick={handleSubmit}>
+                  শেষ করুন
+               </Button>
+             )}
           </div>
         </div>
       </header>
@@ -386,6 +388,14 @@ export default function PublicExam() {
              <div className="bg-slate-50 border border-slate-100 rounded-[20px] p-4 inline-flex items-center gap-3 flex-col sm:flex-row shadow-inner">
                 <span className="text-slate-500 font-medium text-sm sm:text-base">Total Score:</span>
                 <span className="text-2xl font-bold text-primary">{score} <span className="text-base text-slate-400">/ {questions.length}</span></span>
+             </div>
+             <div className="mt-8 flex justify-center">
+                <Button
+                   onClick={() => navigate("/")}
+                   className="bg-slate-900 hover:bg-black text-white font-bengali font-bold px-8 py-5.5 h-12 rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 text-sm border-0 cursor-pointer"
+                >
+                   <ArrowLeft className="w-5 h-5" /> ড্যাশবোর্ডে ফিরে যান
+                </Button>
              </div>
           </div>
         )}
