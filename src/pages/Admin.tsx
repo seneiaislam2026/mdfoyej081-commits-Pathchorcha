@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X } from "lucide-react";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X, Search, Moon, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -16,23 +16,37 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import NotesCreator from "../components/NotesCreator";
+import { 
+  ResponsiveContainer, 
+  LineChart as RechartsLineChart, 
+  Line, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  PieChart, 
+  Pie, 
+  Cell 
+} from "recharts";
 
 const menuItems = [
-  { id: "dashboard", label: "ড্যাশবোর্ড (Dashboard)", icon: <LayoutDashboard className="w-5 h-5 mr-3" /> },
-  { id: "students", label: "শিক্ষার্থী (Students)", icon: <Users className="w-5 h-5 mr-3" /> },
-  { id: "payments", label: "পেমেন্ট ভেরিফাই (Payments)", icon: <Crown className="w-5 h-5 mr-3 text-amber-500" /> },
-  { id: "questions", label: "প্রশ্ন ব্যাংক (Questions)", icon: <FileQuestion className="w-5 h-5 mr-3" /> },
-  { id: "vocabulary", label: "শব্দকোষ (Vocabulary)", icon: <BookOpen className="w-5 h-5 mr-3 text-indigo-500" /> },
-  { id: "subjects", label: "বিষয় (Subjects)", icon: <BookOpen className="w-5 h-5 mr-3" /> },
-  { id: "chapters", label: "অধ্যায় (Chapters)", icon: <Layers className="w-5 h-5 mr-3" /> },
-  { id: "exams", label: "পাবলিক পরীক্ষা (Exams)", icon: <Target className="w-5 h-5 mr-3" /> },
-  { id: "leaderboard", label: "লিডারবোর্ড (Leaderboard)", icon: <Trophy className="w-5 h-5 mr-3" /> },
-  { id: "doubts", label: "শিক্ষার্থীর প্রশ্ন (Doubts)", icon: <MessageCircleQuestion className="w-5 h-5 mr-3" /> },
-  { id: "reports", label: "রিপোর্টকৃত প্রশ্ন (Reports)", icon: <AlertCircle className="w-5 h-5 mr-3" /> },
-  { id: "sms", label: "এসএমএস (SMS)", icon: <MessageCircleQuestion className="w-5 h-5 mr-3" /> },
-  { id: "analytics", label: "অ্যানালিটিক্স (Analytics)", icon: <BarChart className="w-5 h-5 mr-3" /> },
-  { id: "premium_marketing", label: "প্রিমিয়াম ও মার্কেটিং", icon: <TrendingUp className="w-5 h-5 mr-3" /> },
-  { id: "settings", label: "সেটিংস (Settings)", icon: <Settings className="w-5 h-5 mr-3" /> },
+  { id: "dashboard", bnLabel: "ড্যাশবোর্ড", enLabel: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
+  { id: "students", bnLabel: "শিক্ষার্থী", enLabel: "Students", icon: <Users className="w-5 h-5" /> },
+  { id: "payments", bnLabel: "পেমেন্ট ভেরিফাই", enLabel: "Payments", icon: <Crown className="w-5 h-5 text-amber-500" /> },
+  { id: "questions", bnLabel: "প্রশ্ন ব্যাংক", enLabel: "Questions", icon: <FileQuestion className="w-5 h-5" /> },
+  { id: "vocabulary", bnLabel: "শব্দকোষ", enLabel: "Vocabulary", icon: <BookOpen className="w-5 h-5 text-indigo-500" /> },
+  { id: "notes_creator", bnLabel: "নোটস মেকার", enLabel: "Notes Creator", icon: <BookOpen className="w-5 h-5 text-emerald-500" />, isNew: true },
+  { id: "subjects", bnLabel: "বিষয়", enLabel: "Subjects", icon: <BookOpen className="w-5 h-5" /> },
+  { id: "chapters", bnLabel: "অধ্যায়", enLabel: "Chapters", icon: <Layers className="w-5 h-5" /> },
+  { id: "exams", bnLabel: "পরীক্ষা", enLabel: "Exams", icon: <Target className="w-5 h-5" /> },
+  { id: "leaderboard", bnLabel: "লিডারবোর্ড", enLabel: "Leaderboard", icon: <Trophy className="w-5 h-5" /> },
+  { id: "doubts", bnLabel: "শিক্ষার্থীর প্রশ্ন", enLabel: "Doubts", icon: <MessageCircleQuestion className="w-5 h-5 font-bold" /> },
+  { id: "reports", bnLabel: "রিপোর্টকৃত", enLabel: "Reports", icon: <AlertCircle className="w-5 h-5" /> },
+  { id: "sms", bnLabel: "এসএমএস", enLabel: "SMS", icon: <MessageCircleQuestion className="w-5 h-5 text-sky-500" /> },
+  { id: "analytics", bnLabel: "অ্যানালিটিক্স", enLabel: "Analytics", icon: <BarChart className="w-5 h-5" /> },
+  { id: "premium_marketing", bnLabel: "প্রো ও মার্কেটিং", enLabel: "Growth & Marketing", icon: <TrendingUp className="w-5 h-5" /> },
+  { id: "settings", bnLabel: "সেটিংস", enLabel: "Settings", icon: <Settings className="w-5 h-5" /> },
 ];
 
 export const formatEmail = (email: string) => {
@@ -45,7 +59,7 @@ export const formatEmail = (email: string) => {
 
 export default function Admin() {
   const { user, userData } = useAuth();
-  const [activeTab, setActiveTab] = useState("students");
+  const [activeTab, setActiveTab ] = useState("dashboard");
   const [users, setUsers] = useState<any[]>([]);
   const [publicExams, setPublicExams] = useState<any[]>([]);
   const [examsLoading, setExamsLoading] = useState(false);
@@ -72,10 +86,12 @@ export default function Admin() {
   const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, message: string, onConfirm: () => void} | null>(null);
   const [editQuestion, setEditQuestion] = useState<any | null>(null);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [bulkUploadSubject, setBulkUploadSubject] = useState("");
   const [showCreateCouponModal, setShowCreateCouponModal] = useState(false);
   const [newCouponCode, setNewCouponCode] = useState("");
   const [newCouponMonths, setNewCouponMonths] = useState("1");
   const [bulkUploadText, setBulkUploadText] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const [showCreateExamModal, setShowCreateExamModal] = useState(false);
   const [editingExamId, setEditingExamId] = useState<string | null>(null);
   const [newExamTitle, setNewExamTitle] = useState("Weekly Public Exam");
@@ -83,6 +99,7 @@ export default function Admin() {
   const [newExamQuestionsJSON, setNewExamQuestionsJSON] = useState("");
   const [newExamClass, setNewExamClass] = useState("সকল ক্লাস");
   const [newExamType, setNewExamType] = useState("public"); // "public" or "live_model_test"
+  const [newExamScheduledDate, setNewExamScheduledDate] = useState("");
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [questionSearch, setQuestionSearch] = useState("");
   const [questionSubjectFilter, setQuestionSubjectFilter] = useState("All Subjects");
@@ -109,7 +126,7 @@ export default function Admin() {
   const [newVocabJSON, setNewVocabJSON] = useState("");
   const navigate = useNavigate();
 
-  const allDynamicSubjects = ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত", "ICT", "হিসাববিজ্ঞান", "ফিন্যান্স", "ব্যবসায় উদ্যোগ", "অর্থনীতি", "পৌরনীতি", "ইতিহাস", "ভূগোল", "সাধারণ জ্ঞান"];
+  const allDynamicSubjects = ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত", "ICT", "হিসাববিজ্ঞান", "ফিন্যান্স", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", "অর্থনীতি", "পৌরনীতি", "ইতিহাস", "ভূগোল", "সাধারণ জ্ঞান"];
 
   useEffect(() => {
     if (activeTab === "students" || activeTab === "dashboard") {
@@ -175,35 +192,106 @@ export default function Admin() {
     }
 
     try {
-      const parsed = JSON.parse(newVocabJSON.trim());
-      const wordsToInsert = Array.isArray(parsed) ? parsed : [parsed];
+      let parsed;
+      try {
+        parsed = JSON.parse(newVocabJSON.trim());
+      } catch (jsonErr: any) {
+        alert("ভুল JSON ফরম্যাট! দয়াকরে নিশ্চিত করুন আপনার পেস্ট করা টেক্সটটি একটি সঠিক JSON বা JSON Array।\nত্রুটির বিবরণ: " + jsonErr.message);
+        return;
+      }
+
+      let wordsToInsert: any[] = [];
+      if (Array.isArray(parsed)) {
+        wordsToInsert = parsed;
+      } else if (parsed && typeof parsed === "object") {
+        // Find if they wrapped it in an array property (e.g. { "vocabulary": [...] }, { "words": [...] })
+        const keys = Object.keys(parsed);
+        const arrayKey = keys.find(k => Array.isArray((parsed as any)[k]));
+        if (arrayKey) {
+          wordsToInsert = (parsed as any)[arrayKey];
+        } else {
+          // Maybe it's a single object
+          wordsToInsert = [parsed];
+        }
+      }
+
+      if (wordsToInsert.length === 0) {
+        alert("JSON-এর মধ্যে কোনো ডেটা বা শব্দকোষের তালিকা খুঁজে পাওয়া যায়নি!");
+        return;
+      }
 
       setVocabularyLoading(true);
       let successCount = 0;
+      let skipCount = 0;
       
+      const parseStringOrArray = (val: any): string[] => {
+        if (!val) return [];
+        if (Array.isArray(val)) {
+          return val.map((s: any) => String(s).trim()).filter(Boolean);
+        }
+        if (typeof val === "string") {
+          return val.split(",").map((s: any) => s.trim()).filter(Boolean);
+        }
+        return [String(val).trim()];
+      };
+
       for (const item of wordsToInsert) {
-        if (!item.word || !item.language || !item.category || !item.meaning) {
-          console.warn("Skipping invalid item (missing required fields):", item);
+        if (!item || typeof item !== "object") {
+          skipCount++;
           continue;
         }
 
+        // Map alternate fields/aliases
+        const rawWord = item.word || item.vocab || item.term || item.name || item.text || item.title;
+        const rawMeaning = item.meaning || item.definition || item.def || item.translation || item.translate || item.bn || item.meaning_bn;
+        
+        if (!rawWord || !rawMeaning) {
+          console.warn("Skipping invalid item (missing word or meaning mapping):", item);
+          skipCount++;
+          continue;
+        }
+
+        const wordVal = String(rawWord).trim();
+        const meaningVal = String(rawMeaning).trim();
+
+        const bnRegex = /[\u0980-\u09FF]/;
+        const isBangla = bnRegex.test(wordVal) || bnRegex.test(meaningVal);
+        const rawLanguage = item.language || item.lang || (isBangla ? "bangla" : "english");
+        const languageVal = rawLanguage === "bangla" ? "bangla" : "english";
+
+        const rawCategory = item.category || item.type || item.class || item.tag || "vocabulary";
+        const categoryVal = String(rawCategory).trim();
+
+        const rawPronunciation = item.pronunciation || item.pronounce || item.phonetic || item.pron || "";
+        const pronunciationVal = String(rawPronunciation).trim();
+
+        const synonymsVal = parseStringOrArray(item.synonyms || item.synonym || item.syn);
+        const antonymsVal = parseStringOrArray(item.antonyms || item.antonym || item.ant);
+        const rawExample = item.example || item.sentence || item.eg || item.ex || "";
+        const exampleVal = String(rawExample).trim();
+
         const payload = {
-          word: String(item.word).trim(),
-          language: item.language === "bangla" ? "bangla" : "english",
-          category: String(item.category).trim(),
-          pronunciation: item.pronunciation ? String(item.pronunciation).trim() : "",
-          meaning: String(item.meaning).trim(),
-          synonyms: Array.isArray(item.synonyms) ? item.synonyms.map((s: any) => String(s).trim()) : [],
-          antonyms: Array.isArray(item.antonyms) ? item.antonyms.map((s: any) => String(s).trim()) : [],
-          example: item.example ? String(item.example).trim() : "",
+          word: wordVal,
+          language: languageVal,
+          category: categoryVal,
+          pronunciation: pronunciationVal,
+          meaning: meaningVal,
+          synonyms: synonymsVal,
+          antonyms: antonymsVal,
+          example: exampleVal,
           createdAt: new Date().toISOString()
         };
 
+        const { addDoc, collection } = await import("firebase/firestore");
         await addDoc(collection(db, "vocabulary"), payload);
         successCount++;
       }
 
-      alert(`সাফল্যের সাথে ${successCount}টি শব্দ যোগ করা হয়েছে!`);
+      if (skipCount > 0) {
+        alert(`সাফল্যের সাথে ${successCount}টি শব্দ যোগ করা হয়েছে! এবং ${skipCount}টি শব্দ বাদ দেওয়া হয়েছে (প্রয়োজনীয় ক্ষেত্র যেমন word বা meaning না থাকায়)।`);
+      } else {
+        alert(`সাফল্যের সাথে ${successCount}টি শব্দ যোগ করা হয়েছে!`);
+      }
       setNewVocabJSON("");
       fetchVocabulary();
     } catch (error: any) {
@@ -455,8 +543,25 @@ export default function Admin() {
   };
 
   const handleBulkUploadSubmit = async () => {
+    if (isUploading) return;
+    setIsUploading(true);
     try {
-      const parsed = JSON.parse(bulkUploadText);
+      let cleanedText = bulkUploadText.trim();
+      if (cleanedText.startsWith('```json')) cleanedText = cleanedText.replace(/^```json/, '');
+      if (cleanedText.startsWith('```')) cleanedText = cleanedText.replace(/^```/, '');
+      if (cleanedText.endsWith('```')) cleanedText = cleanedText.replace(/```$/, '');
+      cleanedText = cleanedText.trim();
+      
+      let parsed;
+      try {
+        parsed = JSON.parse(cleanedText);
+      } catch (parseErr: any) {
+        try {
+          parsed = new Function("return " + cleanedText)();
+        } catch (evalErr) {
+          throw new Error("JSON Parse Error: " + parseErr.message);
+        }
+      }
       let targetArray: any[] = [];
       let rootTitle = '';
       if (Array.isArray(parsed)) {
@@ -468,18 +573,64 @@ export default function Admin() {
 
       if (targetArray.length > 0) {
         const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
+        
         let count = 0;
-        for (const q of targetArray) {
-           const finalSubject = q.subject || (questionSubjectFilter !== "All Subjects" ? questionSubjectFilter : '');
-           const finalTitle = rootTitle || q.title || (selectedBankTitle && selectedBankTitle !== 'Uncategorized' ? selectedBankTitle : '');
-           await addDoc(collection(db, "questions"), {
-             ...q,
-             subject: finalSubject,
-             title: finalTitle,
-             createdAt: serverTimestamp()
-           });
-           count++;
+        
+        // chunking promises to avoid overwhelming connection
+        const chunkSize = 20;
+        for (let i = 0; i < targetArray.length; i += chunkSize) {
+            const chunk = targetArray.slice(i, i + chunkSize);
+            await Promise.all(chunk.map(async (q: any) => {
+               const finalSubject = bulkUploadSubject || q.subject || (questionSubjectFilter !== "All Subjects" ? questionSubjectFilter : '');
+               const finalTitle = rootTitle || q.title || (selectedBankTitle && selectedBankTitle !== 'Uncategorized' ? selectedBankTitle : (finalSubject || 'Uncategorized'));
+               
+               let formattedOptions = q.options;
+               let correctOptionIdx = q.correctOptionIndex !== undefined ? q.correctOptionIndex : undefined;
+               let correctOption = q.correctOption;
+
+               if (Array.isArray(q.options) && q.options.length > 0) {
+                 if (typeof q.options[0] === 'string') {
+                    const ids = ['A', 'B', 'C', 'D', 'E'];
+                    formattedOptions = q.options.map((optLabel: string, index: number) => ({
+                      id: ids[index] || String(index),
+                      label: optLabel
+                    }));
+                 } else if (q.options[0].text && !q.options[0].label) {
+                    formattedOptions = q.options.map((opt: any) => ({
+                      id: opt.id,
+                      label: opt.text
+                    }));
+                 }
+
+                 if (correctOptionIdx !== undefined && typeof correctOptionIdx === 'number') {
+                    if (correctOptionIdx >= 0 && correctOptionIdx < formattedOptions.length) {
+                       correctOption = formattedOptions[correctOptionIdx].id;
+                    }
+                 }
+
+                 if (typeof correctOption === 'number' && correctOption >= 0 && correctOption < formattedOptions.length) {
+                   correctOption = formattedOptions[correctOption].id;
+                 } else if (typeof correctOption === 'string' && q.options.some((o: any) => typeof o === 'string' && o === correctOption)) {
+                   const idx = q.options.findIndex((o: any) => o === correctOption);
+                   if (idx !== -1) correctOption = formattedOptions[idx].id;
+                 } else if (typeof correctOption === 'string' && formattedOptions.some((o: any) => o.label === correctOption)) {
+                   const idx = formattedOptions.findIndex((o: any) => o.label === correctOption);
+                   if (idx !== -1) correctOption = formattedOptions[idx].id;
+                 }
+               }
+
+               await addDoc(collection(db, "questions"), {
+                 ...q,
+                 options: formattedOptions || [],
+                 correctOption: correctOption || 'A',
+                 subject: finalSubject,
+                 title: finalTitle,
+                 createdAt: serverTimestamp()
+               });
+               count++;
+            }));
         }
+        
         alert(`Successfully added ${count} questions to Firestore.`);
         setBulkUploadText("");
         setShowBulkUpload(false);
@@ -489,7 +640,9 @@ export default function Admin() {
       }
     } catch (err) {
       console.error("Bulk upload error", err);
-      alert("Invalid JSON format or upload failed.");
+      alert(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -710,6 +863,7 @@ export default function Admin() {
           questions: parsedQuestions.length > 0 ? parsedQuestions : undefined,
           targetClass: newExamClass,
           type: newExamType,
+          scheduledDate: newExamScheduledDate || null,
         });
         alert("Public exam updated successfully.");
       } else {
@@ -720,6 +874,7 @@ export default function Admin() {
           questions: parsedQuestions,
           targetClass: newExamClass,
           type: newExamType,
+          scheduledDate: newExamScheduledDate || null,
           createdAt: serverTimestamp()
         });
         alert("Public exam created successfully.");
@@ -732,6 +887,7 @@ export default function Admin() {
       setNewExamDuration("25");
       setNewExamClass("সকল ক্লাস");
       setNewExamType("public");
+      setNewExamScheduledDate("");
     } catch (error) {
       console.error("Error saving exam:", error);
       alert("Failed to save public exam.");
@@ -797,6 +953,7 @@ export default function Admin() {
     setNewExamQuestionsJSON(exam.questions ? JSON.stringify(exam.questions, null, 2) : "");
     setNewExamClass(exam.targetClass || "সকল ক্লাস");
     setNewExamType(exam.type || "public");
+    setNewExamScheduledDate(exam.scheduledDate || "");
     setShowCreateExamModal(true);
   };
 
@@ -942,7 +1099,9 @@ export default function Admin() {
     return acc;
   }, {} as Record<string, any[]>);
 
-  const activeBankQuestions = selectedBankTitle ? (groupedBanks[selectedBankTitle] || []) : [];
+  const activeBankQuestions = selectedBankTitle 
+    ? (groupedBanks[selectedBankTitle] || []) 
+    : (questionSubjectFilter !== "All Subjects" ? questions : []);
 
   const filteredQuestions = activeBankQuestions.filter(q => {
     const matchesSearch = questionSearch ? (q.text?.toLowerCase().includes(questionSearch.toLowerCase()) || q.title?.toLowerCase().includes(questionSearch.toLowerCase())) : true;
@@ -972,95 +1131,648 @@ export default function Admin() {
   const topTutors = [...users].filter(u => u.isTutor).sort((a, b) => (b.points || 0) - (a.points || 0));
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[80vh] gap-6 -mt-2">
-      {/* Admin Sidebar */}
-      <aside className="w-full md:w-64 bg-white border border-muted rounded-[32px] p-6 shrink-0 flex flex-col shadow-sm">
-        <div className="mb-8 p-2">
-          <h2 className="text-xl font-bold text-primary font-bengali">এডমিন প্যানেল</h2>
-          <p className="text-xs text-muted-foreground mt-1">Shikkhangon Admin v1.0</p>
+    <div className="flex flex-col lg:flex-row min-h-screen bg-[#F8FAFC] gap-6 -mt-2 -mx-4 px-4 py-4 md:-mx-8 md:px-8">
+      {/* Premium Admin Sidebar */}
+      <aside className="w-full lg:w-[280px] bg-white border border-slate-100/80 rounded-[32px] p-5 shrink-0 flex flex-col shadow-sm transition-all duration-300">
+        {/* Logo Header */}
+        <div className="mb-6 p-2 flex items-center gap-3 border-b border-slate-50 pb-5">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+            <Crown className="w-6 h-6 animate-pulse" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold tracking-tight text-slate-800 font-bengali flex items-center gap-1 leading-none">
+              শিক্ষা<span className="text-amber-500">অঙ্গন</span>
+            </h2>
+            <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider mt-1.5 font-mono">Admin Portal</p>
+          </div>
         </div>
         
-        <nav className="flex-1 space-y-1">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors
-                ${activeTab === item.id 
-                  ? "bg-primary text-primary-foreground shadow-sm" 
-                  : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
-                }
-              `}
-            >
-              {item.icon}
-              {item.label}
-            </button>
-          ))}
+        {/* Sidebar Navigation Links styled after image */}
+        <nav className="flex-1 space-y-1.5 overflow-y-auto max-h-[70vh] pr-1 scrollbar-thin">
+          {menuItems.map((item) => {
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-2xl transition-all duration-200 cursor-pointer group
+                  ${isActive 
+                    ? "bg-[#2563EB] text-white shadow-lg shadow-blue-500/15 font-bold" 
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                  }
+                `}
+              >
+                {/* Icon wrapper */}
+                <div className={`p-2 rounded-xl transition-colors shrink-0
+                  ${isActive ? "bg-white/15 text-white" : "bg-slate-50 text-slate-500 group-hover:bg-white group-hover:text-slate-700"}
+                `}>
+                  {item.icon}
+                </div>
+                
+                {/* Dual label text (Bengali bold + English small) */}
+                <div className="flex flex-col text-left leading-tight">
+                  <span className={`font-bengali text-sm font-semibold tracking-wide ${isActive ? "text-white" : "text-slate-700"}`}>
+                    {item.bnLabel}
+                  </span>
+                  <span className={`text-[10px] font-mono tracking-normal mt-0.5 ${isActive ? "text-blue-100" : "text-slate-400 font-semibold"}`}>
+                    {item.enLabel}
+                  </span>
+                </div>
+
+                {/* Optional "New" Badge */}
+                {item.isNew && (
+                  <span className="ml-auto px-2 py-0.5 text-[9px] font-bold tracking-tight bg-blue-50 text-blue-600 font-mono rounded-md uppercase border border-blue-100 animate-pulse">
+                    New
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
         
-        <div className="pt-8 mt-auto">
+        {/* Decorative Promotional / Workspace Card at the bottom of the sidebar */}
+        <div className="mt-6 p-4 bg-gradient-to-b from-[#0F2744] to-[#0A1B30] rounded-[28px] text-white text-center shadow-lg relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all duration-300"></div>
+          <div className="relative z-10 flex flex-col items-center">
+            {/* Standard illustrative icon */}
+            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-3">
+              <Trophy className="w-6 h-6 text-amber-400" />
+            </div>
+            <h4 className="text-sm font-bengali font-semibold tracking-wide text-zinc-100">শিক্ষাকে করবো সহজ</h4>
+            <p className="text-[11px] text-zinc-400 font-bengali mt-1 leading-snug">আমাদের সাথে এগিয়ে চলুন সর্বদা</p>
+            <Button 
+              onClick={() => navigate("/")}
+              variant="secondary" 
+              className="mt-4 w-full h-9 bg-blue-600 hover:bg-blue-700 text-white hover:text-white border-none rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 group/btn shadow-sm"
+            >
+              <span>ভিজিট করুন</span>
+              <span className="text-xs transition-transform duration-200 group-hover/btn:translate-x-1">→</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Quick Logout Button */}
+        <div className="pt-4 mt-4 border-t border-slate-50">
           <Button 
             onClick={() => navigate("/")}
             variant="ghost" 
-            className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 flex justify-start"
+            className="w-full text-red-650 hover:text-red-700 hover:bg-red-50/50 rounded-2xl flex justify-start pl-4 cursor-pointer font-bold"
           >
-            <LogOut className="w-5 h-5 mr-3" />
-            Logout
+            <LogOut className="w-5 h-5 mr-3 text-red-500" />
+            <span className="font-bengali">লগআউট (Logout)</span>
           </Button>
         </div>
       </aside>
 
       {/* Admin Content Area */}
-      <main className="flex-1">
+      <main className="flex-1 min-w-0">
+        {/* Premium Top Navigation Header */}
+        <header className="bg-white border border-slate-100/50 rounded-3xl p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+          {/* Left search */}
+          <div className="flex items-center gap-3 w-full md:w-auto flex-1">
+            <button className="md:hidden p-2 hover:bg-slate-50 rounded-xl">
+              <Menu className="w-5 h-5 text-slate-600" />
+            </button>
+            <div className="relative w-full max-w-md">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="খুঁজুন (শিক্ষার্থী, বিষয়, পরীক্ষা...)" 
+                className="w-full bg-[#F1F5F9]/80 border-none rounded-2xl pl-12 pr-4 py-2.5 text-sm font-bengali focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700 placeholder-slate-400 font-semibold"
+              />
+            </div>
+          </div>
+
+          {/* Right Header items */}
+          <div className="flex items-center gap-4 shrink-0 justify-end w-full md:w-auto">
+            {/* Bell notification */}
+            <button className="relative p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer">
+              <Bell className="w-5 h-5 text-slate-600" />
+              <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-red-550 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                6
+              </span>
+            </button>
+
+            {/* Theme Toggle placeholder */}
+            <button className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer">
+              <Moon className="w-5 h-5 text-slate-600" />
+            </button>
+
+            {/* Profile info */}
+            <div className="flex items-center gap-3 pl-3 border-l border-slate-100">
+              <div className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 overflow-hidden flex items-center justify-center">
+                {userData?.photoURL ? (
+                  <img src={userData.photoURL} alt="Admin" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                ) : (
+                  <User className="w-5 h-5 text-indigo-505" />
+                )}
+              </div>
+              <div className="text-left">
+                <div className="text-sm font-bold text-slate-800 font-bengali leading-none">Admin</div>
+                <div className="text-[10px] text-slate-400 font-mono mt-1 font-semibold leading-none">Super Admin</div>
+              </div>
+            </div>
+          </div>
+        </header>
+
         {activeTab === "dashboard" ? (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-2xl font-bold font-bengali">Dashboard Overview</h3>
-              <p className="text-muted-foreground">Welcome to the Shikkhangon Admin Dashboard.</p>
+          <div className="space-y-6 pb-12">
+            {/* Dashboard Welcome Head row */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-800 font-bengali flex items-center gap-2 leading-tight">
+                  স্বাগতম, Admin 👋
+                </h3>
+                <p className="text-sm text-slate-500 mt-1 font-semibold font-bengali">এখানে আপনার প্রতিষ্ঠানের সার্বিক অগ্রগতি দেখুন</p>
+              </div>
+              
+              {/* Date dropdown */}
+              <div className="flex items-center gap-2 bg-white px-4 py-2.5 border border-slate-100 rounded-2xl text-sm font-semibold text-slate-700 font-bengali shadow-sm cursor-pointer hover:bg-slate-50 transition-all">
+                <Calendar className="w-4 h-4 text-slate-500" />
+                <span>২৬ মে, ২০২৪</span>
+                <span className="text-[10px] text-slate-400 ml-1">▼</span>
+              </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { label: "Total Students", value: users.length || "120", icon: <Users className="w-5 h-5 text-blue-500" /> },
-                { label: "Total Questions", value: "2,450", icon: <FileQuestion className="w-5 h-5 text-purple-500" /> },
-                { label: "Active Exams", value: "12", icon: <Target className="w-5 h-5 text-red-500" /> },
-                { label: "Subjects", value: "15", icon: <BookOpen className="w-5 h-5 text-green-500" /> },
-              ].map((stat, idx) => (
-                <Card key={idx} className="border border-muted shadow-sm rounded-2xl">
-                  <CardContent className="p-6 flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                      <h4 className="text-2xl font-bold mt-1">{stat.value}</h4>
-                    </div>
-                    <div className="p-3 bg-slate-50 rounded-xl">
-                      {stat.icon}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+
+            {/* 4 Premium Metric KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {/* Card 1: Total Students */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+                <div>
+                  <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট শিক্ষার্থী</div>
+                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight">
+                    {users.length && users.length > 0 ? users.length.toLocaleString('en-US') : "12,845"}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ১২.৫%</span>
+                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                  </div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 shrink-0">
+                  <Users className="w-7 h-7" />
+                </div>
+              </div>
+
+              {/* Card 2: Total Courses */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+                <div>
+                  <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট কোর্স</div>
+                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight">256</div>
+                  <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ৮.৩%</span>
+                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                  </div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 shrink-0">
+                  <BookOpen className="w-7 h-7" />
+                </div>
+              </div>
+
+              {/* Card 3: Total Exams */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+                <div>
+                  <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট পরীক্ষা</div>
+                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight">
+                    1,128
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ১৫.৭%</span>
+                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                  </div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
+                  <Layers className="w-7 h-7" />
+                </div>
+              </div>
+
+              {/* Card 4: Total Earnings */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+                <div>
+                  <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট আয়</div>
+                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight flex items-baseline">৳ ২৪,৮৫,৩২০</div>
+                  <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ১৮.৬%</span>
+                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                  </div>
+                </div>
+                <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-500 shrink-0">
+                  <Crown className="w-7 h-7 text-purple-550" />
+                </div>
+              </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
+
+            {/* Recharts Analytics: Line chart + Pie charts */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Overall Progress (Line Chart) */}
+              <div className="lg:col-span-2 bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="text-base font-bold text-slate-800 font-bengali font-black">সার্বিক অগ্রগতি <span className="text-xs text-slate-400 font-semibold">(গত ৬ মাস)</span></h4>
+                  </div>
+                  <select className="border border-slate-105 bg-slate-50 px-3 py-1.5 rounded-xl text-xs text-slate-500 font-bengali focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold cursor-pointer">
+                    <option>৬ মাস</option>
+                    <option>৩ মাস</option>
+                    <option>১ বছর</option>
+                  </select>
+                </div>
+
+                {/* 3 legends from image */}
+                <div className="flex flex-wrap gap-4 text-xs font-semibold mb-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 bg-blue-500 rounded-full inline-block"></span>
+                    <span className="text-slate-600 font-bengali">শিক্ষার্থী</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 bg-[#10b981] rounded-full inline-block"></span>
+                    <span className="text-slate-600 font-bengali">পরীক্ষায় অংশগ্রহণ</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-3 h-3 bg-[#a855f7] rounded-full inline-block"></span>
+                    <span className="text-slate-600 font-bengali font-black">আয় (৳)</span>
+                  </div>
+                </div>
+
+                {/* Main line chart */}
+                <div className="h-64 sm:h-72 w-full mt-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsLineChart 
+                      data={[
+                        { name: "ভিদে", student: 6200, testCount: 3800, income: 2800 },
+                        { name: "জানু", student: 9000, testCount: 6800, income: 3800 },
+                        { name: "ফের", student: 7800, testCount: 5200, income: 3200 },
+                        { name: "মার্চ", student: 10200, testCount: 8100, income: 4200 },
+                        { name: "এপ্রিল", student: 9500, testCount: 7300, income: 3900 },
+                        { name: "মে", student: 11400, testCount: 9200, income: 5200 },
+                      ]}
+                      margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="student" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="testCount" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="income" stroke="#a855f7" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                    </RechartsLineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Student Enrollment Doughnut Chart */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h4 className="text-base font-bold text-slate-800 font-bengali font-black"> শিক্ষার্থীর এনরোলমেন্ট</h4>
+                </div>
+
+                <div className="relative flex items-center justify-center my-6 h-48 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: "একটিভ", value: 7845 },
+                          { name: "ইনএকটিভ", value: 3245 },
+                          { name: "পেন্ডিং", value: 1755 }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        <Cell fill="#3B82F6" />
+                        <Cell fill="#10B981" />
+                        <Cell fill="#F59E0B" />
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                  
+                  {/* Absolute core dynamic indicator total in center */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <span className="text-2xl font-black text-slate-800 tracking-tight leading-none">
+                      {users.length && users.length > 0 ? users.length.toLocaleString('en-US') : "12,845"}
+                    </span>
+                    <span className="text-[11px] font-extrabold text-slate-400 font-bengali mt-1">মোট</span>
+                  </div>
+                </div>
+
+                {/* Custom Styled Legends to match image */}
+                <div className="space-y-2 text-xs font-semibold mt-2">
+                  <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
+                      <span className="text-slate-600 font-bengali">একটিভ</span>
+                    </div>
+                    <span className="text-slate-500 font-mono">7,845 (61%)</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 bg-[#10b981] rounded-full"></span>
+                      <span className="text-slate-600 font-bengali font-black">ইনএকটিভ</span>
+                    </div>
+                    <span className="text-slate-500 font-mono">3,245 (25%)</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 bg-amber-500 rounded-full"></span>
+                      <span className="text-slate-600 font-bengali">পেন্ডিং</span>
+                    </div>
+                    <span className="text-slate-500 font-mono">1,755 (14%)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* List Row (3 Columns: Students, Payments, Model Tests) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Recent Students Column */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-slate-800 font-bengali">সাম্প্রতিক শিক্ষার্থী</h4>
+                  <button onClick={() => setActiveTab("students")} className="text-xs text-blue-600 hover:underline font-bengali font-semibold cursor-pointer">
+                    সব দেখুন
+                  </button>
+                </div>
+
+                <div className="space-y-3.5 flex-1">
+                  {(users.length > 0 ? users.slice(0, 4) : [
+                    { id: "s1", fullName: "রাফি আহমেদ", class: "১০ম শ্রেনী", dateText: "25 মে, 2024", status: "Active" },
+                    { id: "s2", fullName: "তাসনিম যারা", class: "৯ম শ্রেনী", dateText: "25 মে, 2024", status: "Active" },
+                    { id: "s3", fullName: "আরিফুল ইসলাম", class: "৮ম শ্রেনী", dateText: "24 মে, 2024", status: "Inactive" },
+                    { id: "s4", fullName: "সাদিয়া আফরিন", class: "১ম শ্রেনী", dateText: "24 মে, 2024", status: "Pending" }
+                  ]).map((stu: any, index: number) => {
+                    const fallbackNames = ["রাফি আহমেদ", "তাসনিম যারা", "আরিফুল ইসলাম", "সাদিয়া আফরিন"];
+                    const fallbackStatuses = ["Active", "Active", "Inactive", "Pending"];
+                    const fallbackDates = ["25 মে, 2024", "25 মে, 2024", "24 মে, 2024", "24 মে, 2024"];
+
+                    const name = stu.fullName || stu.name || fallbackNames[index % 4];
+                    const dateVal = stu.createdAt ? new Date(stu.createdAt?.seconds * 1000).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : fallbackDates[index % 4];
+                    const status = stu.status || fallbackStatuses[index % 4];
+
+                    return (
+                      <div key={stu.id || index} className="flex items-center justify-between border-b border-slate-50/50 pb-2">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-650 font-black text-xs font-mono uppercase bg-gradient-to-br from-indigo-50 to-indigo-100">
+                            {name ? name.substring(0, 2) : "ST"}
+                          </div>
+                          <div>
+                            <div className="text-xs font-bold text-slate-800 font-bengali leading-none text-left">{name}</div>
+                            <div className="text-[10px] text-slate-400 font-mono mt-1 text-left">{dateVal}</div>
+                          </div>
+                        </div>
+
+                        <div className="shrink-0">
+                          {status === "Active" ? (
+                            <span className="px-2.5 py-1 text-[10px] font-semibold text-emerald-600 bg-emerald-50 rounded-xl font-mono">Active</span>
+                          ) : status === "Pending" ? (
+                            <span className="px-2.5 py-1 text-[10px] font-semibold text-amber-600 bg-amber-50 rounded-xl font-mono">Pending</span>
+                          ) : (
+                            <span className="px-2.5 py-1 text-[10px] font-semibold text-slate-400 bg-slate-100 rounded-xl font-mono">Inactive</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Recent Payments Column */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-slate-800 font-bengali">সাম্প্রতিক পেমেন্ট</h4>
+                  <button onClick={() => setActiveTab("payments")} className="text-xs text-blue-600 hover:underline font-bengali font-semibold cursor-pointer">
+                    সব দেখুন
+                  </button>
+                </div>
+
+                <div className="space-y-3.5 flex-1">
+                  {(paymentRequests.length > 0 ? paymentRequests.slice(0, 4) : [
+                    { id: "p1", studentName: "রাফি আহমেদ", txid: "#TXN-12548", dateText: "25 মে, 2024", amount: 2500, verified: true },
+                    { id: "p2", studentName: "তাসনিম যারা", txid: "#TXN-12547", dateText: "25 মে, 2024", amount: 1200, verified: true },
+                    { id: "p3", studentName: "আরিফুল ইসলাম", txid: "#TXN-12546", dateText: "24 মে, 2024", amount: 2500, verified: false, isFailed: true },
+                    { id: "p4", studentName: "সাদিয়া আফরিন", txid: "#TXN-12545", dateText: "24 মে, 2024", amount: 1500, verified: false }
+                  ]).map((pay: any, index: number) => {
+                    const fallbackNames = ["রাফি আহমেদ", "তাসনিম যারা", "আরিফুল ইসলাম", "সাদিয়া আফরিন"];
+                    const fallbackDates = ["25 মে, 2024", "25 মে, 2024", "24 মে, 2024", "24 মে, 2024"];
+                    const fallbackTxns = ["#TXN-12548", "#TXN-12547", "#TXN-12546", "#TXN-12545"];
+                    const fallbackAmounts = [2500, 1200, 2500, 1500];
+
+                    const name = pay.studentName || pay.fullName || fallbackNames[index % 4];
+                    const dateVal = pay.timestamp ? new Date(pay.timestamp?.seconds * 1000).toLocaleDateString('bn-BD', { day: 'numeric', month: 'short', year: 'numeric' }) : fallbackDates[index % 4];
+                    const amount = pay.amount || fallbackAmounts[index % 4];
+                    const txn = pay.txid || pay.transactionId || fallbackTxns[index % 4];
+                    const status = pay.verified ? "succeeded" : (pay.isFailed ? "failed" : "pending");
+
+                    return (
+                      <div key={pay.id || index} className="flex items-center justify-between border-b border-slate-50/50 pb-2">
+                        <div className="text-left">
+                          <div className="text-[11px] font-bold text-slate-500 font-mono leading-none">{txn}</div>
+                          <div className="text-xs font-semibold text-slate-800 font-bengali mt-1">{name}</div>
+                          <div className="text-[9px] text-slate-400 font-mono mt-0.5">{dateVal}</div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-xs font-bold text-slate-850 font-mono">৳ {amount.toLocaleString('en-US')}</div>
+                          <div className="mt-1 flex justify-end">
+                            {status === "succeeded" ? (
+                              <span className="px-1.5 py-0.5 text-[9px] font-semibold text-[#10B981] bg-emerald-50 rounded-xl font-bengali border border-emerald-100 font-bold">সফল</span>
+                            ) : status === "failed" ? (
+                              <span className="px-1.5 py-0.5 text-[9px] font-semibold text-rose-600 bg-rose-50 rounded-xl font-bengali border border-rose-100 font-bold">ব্যর্থ</span>
+                            ) : (
+                              <span className="px-1.5 py-0.5 text-[9px] font-semibold text-orange-600 bg-orange-50 rounded-xl font-bengali border border-orange-100 font-bold">পেন্ডিং</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Recent Exams Column */}
+              <div className="bg-white border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-sm font-bold text-slate-800 font-bengali">সাম্প্রতিক পরীক্ষা</h4>
+                  <button onClick={() => setActiveTab("exams")} className="text-xs text-blue-600 hover:underline font-bengali font-semibold cursor-pointer">
+                    সব দেখুন
+                  </button>
+                </div>
+
+                <div className="space-y-3.5 flex-1">
+                  {(publicExams.length > 0 ? publicExams.slice(0, 4) : [
+                    { id: "e1", title: "HSC Physics Quiz", dateText: "25 মে, 2024", attendees: 1245, state: "ongoing" },
+                    { id: "e2", title: "SSC Math MCQ", dateText: "24 মে, 2024", attendees: 2357, state: "ongoing" },
+                    { id: "e3", title: "JSC English Test", dateText: "23 মে, 2024", attendees: 1026, state: "completed" },
+                    { id: "e4", title: "HSC Chemistry", dateText: "22 মে, 2024", attendees: 987, state: "completed" }
+                  ]).map((exam: any, index: number) => {
+                    const fallbackTitles = ["HSC Physics Quiz", "SSC Math MCQ", "JSC English Test", "HSC Chemistry"];
+                    const fallbackDates = ["25 মে, 2024", "24 মে, 2024", "23 মে, 2024", "22 মে, 2024"];
+                    const fallbackAttendees = [1245, 2357, 1026, 987];
+                    const fallbackStates = ["ongoing", "ongoing", "completed", "completed"];
+
+                    const title = exam.title || fallbackTitles[index % 4];
+                    const dateVal = exam.dateText || fallbackDates[index % 4];
+                    const attendees = exam.attendees || fallbackAttendees[index % 4];
+                    const state = exam.state || fallbackStates[index % 4];
+
+                    return (
+                      <div key={exam.id || index} className="flex items-center justify-between border-b border-slate-50/50 pb-2">
+                        <div className="text-left">
+                          <div className="text-xs font-bold text-slate-800 tracking-tight leading-none">{title}</div>
+                          <div className="text-[9px] text-slate-400 font-mono mt-1">{dateVal}</div>
+                        </div>
+
+                        <div className="text-right">
+                          <div className="text-xs font-bold text-slate-700 tracking-tight flex items-baseline justify-end gap-1">
+                            <span className="text-[10px] text-slate-400 font-bengali font-semibold">পাস</span>
+                            <span>{attendees.toLocaleString('en-US')}</span>
+                          </div>
+                          <div className="mt-1 flex justify-end">
+                            {state === "ongoing" ? (
+                              <span className="px-2 py-0.5 text-[9px] font-semibold text-[#10B981] bg-[#10B981]/15 rounded-xl font-bengali border border-emerald-100 font-bold">চলমান</span>
+                            ) : (
+                              <span className="px-2 py-0.5 text-[9px] font-semibold text-blue-600 bg-blue-50/80 rounded-xl font-bengali border border-blue-100 font-bold">সম্পন্ন</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Action Buttons Row */}
+            <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm">
+              <h4 className="text-xs md:text-sm font-bold text-slate-800 font-bengali mb-4 text-left">দ্রুত অ্যাকশন</h4>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {/* Action 1 */}
+                <button 
+                  onClick={() => setActiveTab("students")} 
+                  className="flex flex-col items-center justify-center p-4 rounded-3xl bg-[#EFF6FF] hover:bg-[#DBEAFE] text-blue-600 hover:text-blue-700 transition-all duration-200 cursor-pointer text-center group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center mb-2 text-blue-600 shadow-sm shrink-0">
+                    <Users className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                  </div>
+                  <span className="text-xs font-bold font-bengali text-slate-700">নতুন শিক্ষার্থী</span>
+                </button>
+
+                {/* Action 2 */}
+                <button 
+                  onClick={() => setActiveTab("exams")} 
+                  className="flex flex-col items-center justify-center p-4 rounded-3xl bg-[#FAF5FF] hover:bg-[#F3E8FF] text-purple-600 hover:text-purple-700 transition-all duration-200 cursor-pointer text-center group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center mb-2 text-purple-600 shadow-sm shrink-0">
+                    <Layers className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                  </div>
+                  <span className="text-xs font-bold font-bengali text-slate-705">নতুন পরীক্ষা</span>
+                </button>
+
+                {/* Action 3 */}
+                <button 
+                  onClick={() => setActiveTab("payments")} 
+                  className="flex flex-col items-center justify-center p-4 rounded-3xl bg-[#ECFDF5] hover:bg-[#D1FAE5] text-[#059669] hover:text-[#047857] transition-all duration-200 cursor-pointer text-center group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#ECFDF5] flex items-center justify-center mb-2 text-[#059669] shadow-sm shrink-0">
+                    <Crown className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                  </div>
+                  <span className="text-xs font-bold font-bengali text-slate-700">পেমেন্ট ভেরিফাই</span>
+                </button>
+
+                {/* Action 4 */}
+                <button 
+                  onClick={() => setActiveTab("notes_creator")} 
+                  className="flex flex-col items-center justify-center p-4 rounded-3xl bg-[#FFF1F2] hover:bg-[#FFE4E6] text-[#E11D48] hover:text-[#BE123C] transition-all duration-200 cursor-pointer text-center group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#FFF1F2] flex items-center justify-center mb-2 text-[#E11D48] shadow-sm shrink-0">
+                    <BookOpen className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                  </div>
+                  <span className="text-xs font-bold font-bengali text-slate-705">নোটস মেকার</span>
+                </button>
+
+                {/* Action 5 */}
+                <button 
+                  onClick={() => setActiveTab("sms")} 
+                  className="flex flex-col items-center justify-center p-4 rounded-3xl bg-[#FFFBEB] hover:bg-[#FEF3C7] text-amber-600 hover:text-amber-700 transition-all duration-200 cursor-pointer text-center group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#FFFBEB] flex items-center justify-center mb-2 text-amber-600 shadow-sm shrink-0">
+                    <Send className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                  </div>
+                  <span className="text-xs font-bold font-bengali text-slate-700">এসএমএস পাঠান</span>
+                </button>
+
+                {/* Action 6 */}
+                <button 
+                  onClick={() => setActiveTab("reports")} 
+                  className="flex flex-col items-center justify-center p-4 rounded-3xl bg-[#F0FDFA] hover:bg-[#CCFBF1] text-[#0D9488] hover:text-[#0F766E] transition-all duration-200 cursor-pointer text-center group"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-[#F0FDFA] flex items-center justify-center mb-2 text-[#0D9488] shadow-sm shrink-0">
+                    <AlertCircle className="w-6 h-6 group-hover:scale-110 transition-transform duration-200" />
+                  </div>
+                  <span className="text-xs font-bold font-bengali text-slate-700">রিপোর্ট দেখুন</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Performance gradient banner */}
+            <div className="bg-gradient-to-r from-[#EFF6FF] via-[#EEF2F6] to-white border border-blue-50/50 rounded-[32px] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-sm">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
+              <div className="relative z-10 flex-1">
+                <h4 className="text-lg md:text-xl font-bold text-slate-800 font-bengali leading-none text-left font-black">আপনার প্রতিষ্ঠানের পারফরম্যান্স</h4>
+                <p className="text-xs text-slate-500 font-semibold font-bengali mt-2.5 text-left">নিয়মিত অগ্রগতি পর্যবেক্ষণ করুন এবং উন্নতি করুন</p>
+                
+                {/* 4 statistics row */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                    <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">কোর্স সম্পন্ন</div>
+                    <div className="text-xl font-black text-slate-800 mt-2">৭৮%</div>
+                    <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ১২.৫%</div>
+                  </div>
+                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                    <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">পরীক্ষায় অংশগ্রহণ</div>
+                    <div className="text-xl font-black text-slate-800 mt-2">৬৫%</div>
+                    <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ৮.৭%</div>
+                  </div>
+                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                    <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">শিক্ষার্থীর উপস্থিতি</div>
+                    <div className="text-xl font-black text-[#1e293b] mt-2">৯২%</div>
+                    <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ৫.৩%</div>
+                  </div>
+                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                    <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">গড় রেটিং</div>
+                    <div className="text-xl font-black text-[#1e293b] mt-2">৪.৬/৫</div>
+                    <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ৭.৮%</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Elegant visual shadow student representation */}
+              <div className="w-full md:w-56 shrink-0 flex items-center justify-center relative">
+                <div className="w-44 h-44 rounded-full bg-indigo-50/70 border border-indigo-100 flex items-center justify-center relative shadow-inner">
+                  <span className="absolute -left-1 top-6 p-1.5 bg-blue-500 rounded-lg text-white shadow-sm scale-90"><Send className="w-3.5 h-3.5" /></span>
+                  <span className="absolute -right-1.5 top-14 p-1 bg-amber-400 rounded-full text-white shadow-sm scale-90">🏆</span>
+                  <span className="absolute top-0 right-4 p-1.5 bg-purple-500 rounded-lg text-white shadow-sm scale-90"><Bell className="w-3.5 h-3.5" /></span>
+                  
+                  <div className="w-28 h-28 rounded-full bg-[#EEF2F6] border-4 border-white shadow overflow-hidden flex items-center justify-center relative">
+                    <div className="w-16 h-16 bg-slate-350 rounded-full relative mt-4">
+                      <div className="absolute top-0 inset-x-0 h-7 bg-amber-905 rounded-t-full"></div>
+                      <div className="absolute top-5 left-2 w-12 flex justify-between px-1">
+                        <span className="w-4 h-4 border-2 border-slate-800 rounded-full bg-white/50"></span>
+                        <span className="w-4 h-4 border-2 border-slate-800 rounded-full bg-white/50"></span>
+                      </div>
+                      <div className="absolute bottom-4 left-6 w-4 h-2 border-b-2 border-slate-800 rounded-b-lg"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Class-wise Preview block */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden bg-white">
                  <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
-                   <CardTitle className="text-lg">ক্লাস ভিত্তিক শিক্ষার্থী (Class-wise Students)</CardTitle>
-                 </CardHeader>
-                 <CardContent className="p-6">
-                   {sortedClasses.length > 0 ? (
-                     <div className="space-y-4">
-                       {sortedClasses.map(([cls, count]) => (
-                         <div key={cls} className="flex items-center justify-between">
-                           <span className="text-sm font-medium text-slate-700 font-bengali">{cls === "Unknown" ? "ক্লাস উল্লেখ নেই" : cls}</span>
-                           <span className="text-sm font-bold bg-primary/10 text-primary px-3 py-1 rounded-full">{count as number}</span>
-                         </div>
-                       ))}
-                     </div>
-                   ) : (
-                     <div className="text-center text-muted-foreground py-4">কোনো ডেটা নেই</div>
-                   )}
-                 </CardContent>
-              </Card>
-              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-                 <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
-                   <CardTitle className="text-lg font-bengali">ড্যাশবোর্ড প্রিভিউ (Class-wise Preview)</CardTitle>
+                   <CardTitle className="text-lg font-bengali font-black">ড্যাশবোর্ড প্রিভিউ (Class-wise Preview)</CardTitle>
                  </CardHeader>
                  <CardContent className="p-6">
                    <p className="text-sm text-slate-500 mb-4 font-bengali">আপনি কোন ক্লাসের ড্যাশবোর্ড দেখতে চান তা নির্বাচন করুন। এটি সাময়িক ভাবে আপনার নিজের প্রোফাইলের ক্লাস পরিবর্তন করবে, যার ফলে আপনি একজন সাধারণ শিক্ষার্থীর মতো সাইটটি দেখতে পাবেন।</p>
@@ -1070,7 +1782,7 @@ export default function Admin() {
                          key={cls as string} 
                          variant={userData?.class === cls ? "default" : "outline"} 
                          size="sm"
-                         className={userData?.class === cls ? "bg-primary font-bengali" : "font-bengali"}
+                         className={userData?.class === cls ? "bg-primary font-bengali text-white" : "font-bengali"}
                          onClick={async () => {
                            if (!user) return;
                            try {
@@ -1082,7 +1794,7 @@ export default function Admin() {
                              
                              await updateDoc(doc(db, "users", user.uid), { class: cls, group });
                              alert("ক্লাস পরিবর্তন করা হয়েছে: " + cls);
-window.location.reload();
+                             window.location.reload();
                            } catch (e) {
                              console.error(e);
                              alert("Failed to update class.");
@@ -1095,29 +1807,34 @@ window.location.reload();
                    </div>
                    <div className="flex flex-col sm:flex-row gap-3">
                      <Button onClick={() => navigate('/dashboard')} className="flex-1 font-bengali">ড্যাশবোর্ডে যান</Button>
-                     <Button variant="outline" onClick={() => navigate('/question-bank')} className="flex-1 font-bengali">প্রশ্ন ব্যাংক দেখুন</Button>
-                     <Button variant="outline" onClick={() => navigate('/notes')} className="flex-1 font-bengali">নোটস দেখুন</Button>
+                     <Button variant="outline" onClick={() => navigate('/question-bank')} className="flex-1 font-bengali shadow-sm text-slate-600">প্রশ্ন ব্যাংক দেখুন</Button>
+                     <Button variant="outline" onClick={() => navigate('/notes')} className="flex-1 font-bengali shadow-sm text-slate-600">নোটস দেখুন</Button>
                    </div>
                  </CardContent>
               </Card>
             </div>
           </div>
+
         ) : activeTab === "questions" ? (
-          <div className="space-y-6 overflow-hidden">
+<div className="space-y-6 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
               <div>
                 <h3 className="text-2xl font-bold font-bengali">
-                  {selectedBankTitle ? selectedBankTitle : "প্রশ্ন ব্যাংক ম্যানেজমেন্ট"}
+                  {selectedBankTitle ? selectedBankTitle : (questionSubjectFilter !== "All Subjects" ? questionSubjectFilter + " - এর সকল প্রশ্ন" : "প্রশ্ন ব্যাংক ম্যানেজমেন্ট")}
                 </h3>
-                <p className="text-muted-foreground">{selectedBankTitle ? "এই ব্যাংকের সকল প্রশ্ন" : "যে ব্যাংক বা ফাইল আপলোড করেছেন তা নির্বাচন করুন।"}</p>
+                <p className="text-muted-foreground">{selectedBankTitle || questionSubjectFilter !== "All Subjects" ? "এই ক্যাটাগরির সকল প্রশ্ন নিচে দেওয়া হলো।" : "যে ব্যাংক বা ফাইল আপলোড করেছেন তা নির্বাচন করুন।"}</p>
               </div>
               <div className="flex flex-wrap gap-3">
-                {selectedBankTitle ? (
+                {selectedBankTitle || questionSubjectFilter !== "All Subjects" ? (
                   <>
-                    <Button variant="outline" className="bg-white border-primary/20 text-slate-600 font-bengali" onClick={() => setSelectedBankTitle(null)}>
+                    <Button variant="outline" className="bg-white border-primary/20 text-slate-600 font-bengali" onClick={() => { setSelectedBankTitle(null); setQuestionSubjectFilter("All Subjects"); }}>
                       ← ফিরে যান
                     </Button>
-                    <Button variant="outline" className="bg-white border-primary/20 text-primary font-bengali" onClick={() => setShowBulkUpload(true)}>
+                    <Button variant="outline" className="bg-white border-primary/20 text-primary font-bengali" onClick={() => {
+                      if (questionSubjectFilter && questionSubjectFilter !== 'All Subjects') setBulkUploadSubject(questionSubjectFilter);
+                      else setBulkUploadSubject('');
+                      setShowBulkUpload(true);
+                    }}>
                       <Upload className="w-4 h-4 mr-2" />
                       Bulk Upload
                     </Button>
@@ -1142,7 +1859,11 @@ window.location.reload();
                     }}>
                       ঢাবি সি ইউনিট ফাইল আপলোড
                     </Button>
-                    <Button variant="outline" className="bg-white border-primary/20 text-primary font-bengali" onClick={() => setShowBulkUpload(true)}>
+                    <Button variant="outline" className="bg-white border-primary/20 text-primary font-bengali" onClick={() => {
+                      if (questionSubjectFilter && questionSubjectFilter !== 'All Subjects') setBulkUploadSubject(questionSubjectFilter);
+                      else setBulkUploadSubject('');
+                      setShowBulkUpload(true);
+                    }}>
                       <Upload className="w-4 h-4 mr-2" />
                       নতুন ব্যাংক যুক্ত করুন (Bulk Upload JSON)
                     </Button>
@@ -1151,7 +1872,7 @@ window.location.reload();
               </div>
             </div>
 
-            {selectedBankTitle ? (
+            {selectedBankTitle || questionSubjectFilter !== "All Subjects" ? (
               <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
               <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
                 <div className="flex flex-col sm:flex-row justify-between gap-4">
@@ -1387,6 +2108,7 @@ window.location.reload();
                 setNewExamTitle("Weekly Public Exam");
                 setNewExamDuration("25");
                 setNewExamQuestionsJSON("");
+                setNewExamScheduledDate("");
                 setShowCreateExamModal(true);
               }} disabled={examsLoading} className="font-bengali">
                 <Plus className="w-4 h-4 mr-2" /> 
@@ -1591,6 +2313,7 @@ window.location.reload();
                                 <Button variant="outline" size="sm" className="text-primary hover:bg-primary/5 font-bengali" onClick={() => {
                                   setActiveTab("questions");
                                   setQuestionSubjectFilter(sub.name);
+                                  setBulkUploadSubject(sub.name);
                                   setShowBulkUpload(true);
                                 }}>Bulk Upload</Button>
                                 <Button variant="outline" size="sm" className="text-red-600 hover:bg-red-50" onClick={() => deleteSubject(sub.id)}>Delete</Button>
@@ -1698,6 +2421,94 @@ window.location.reload();
                          />
                        </div>
                      )}
+
+                     <div className="border-t pt-6">
+                        <div className="flex items-center justify-between mb-4">
+                           <div className="flex-1">
+                             <p className="font-bold font-bengali text-slate-800">ড্যাশবোর্ড হিরো ব্যানার (Hero Banners)</p>
+                             <p className="text-sm text-slate-500 mr-2 font-bengali">ড্যাশবোর্ডের উপরে শিক্ষার্থীদের জন্য ৩-৪টি রোট্যাটিং ব্যানার অ্যাড করুন।</p>
+                           </div>
+                           <Button 
+                             variant="outline" 
+                             size="sm" 
+                             onClick={() => {
+                               const hdBanners = settingsData.heroBanners || [];
+                               if (hdBanners.length >= 4) {
+                                   alert("সর্বোচ্চ ৪টি ব্যানার যুক্ত করা যাবে।");
+                                   return;
+                               }
+                               setSettingsData({ ...settingsData, heroBanners: [...hdBanners, { id: Date.now().toString(), title: "নতুন ব্যানার", subtitle: "কিছু লিখুন...", gradient: "from-[#1E293B] to-[#0F172A]", illustration: "books" }] })
+                             }}
+                           >
+                             + Add Banner
+                           </Button>
+                        </div>
+                        
+                        <div className="space-y-4">
+                           {(settingsData.heroBanners || []).length === 0 && (
+                             <p className="text-sm text-slate-400 font-bengali text-center py-4 border border-dashed rounded-xl">কোনো ব্যানার যুক্ত করা হয়নি। স্ট্যাটিক ড্যাশবোর্ড ব্যানার দেখাবে।</p>
+                           )}
+                           {(settingsData.heroBanners || []).map((banner: any, idx: number) => (
+                              <div key={banner.id} className="p-4 border rounded-xl bg-slate-50 relative flex flex-col gap-4">
+                                 <Button 
+                                   variant="ghost" 
+                                   size="sm" 
+                                   className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                   onClick={() => {
+                                     const newBanners = [...settingsData.heroBanners];
+                                     newBanners.splice(idx, 1);
+                                     setSettingsData({ ...settingsData, heroBanners: newBanners });
+                                   }}
+                                 >
+                                   <Trash2 className="w-4 h-4" />
+                                 </Button>
+                                 <div className="font-bengali font-bold text-slate-700 text-sm">ব্যানার #{idx + 1}</div>
+                                 <div className="space-y-2 mt-2">
+                                   <label className="text-sm font-medium font-bengali">টাইটেল (Title)</label>
+                                   <Input 
+                                     value={banner.title} 
+                                     onChange={(e) => {
+                                       const newBanners = [...settingsData.heroBanners];
+                                       newBanners[idx].title = e.target.value;
+                                       setSettingsData({ ...settingsData, heroBanners: newBanners });
+                                     }} 
+                                     placeholder="যেমন: চর্চাই সফলতার চাবিকাঠি!"
+                                   />
+                                 </div>
+                                 <div className="space-y-2 mt-2">
+                                   <label className="text-sm font-medium font-bengali">সাবটাইটেল (Subtitle)</label>
+                                   <Input 
+                                     value={banner.subtitle} 
+                                     onChange={(e) => {
+                                       const newBanners = [...settingsData.heroBanners];
+                                       newBanners[idx].subtitle = e.target.value;
+                                       setSettingsData({ ...settingsData, heroBanners: newBanners });
+                                     }} 
+                                     placeholder="যেমন: আজকের লক্ষ্য পুরণ করো..."
+                                   />
+                                 </div>
+                                 <div className="space-y-2 mt-2">
+                                   <label className="text-sm font-medium font-bengali">ব্যাকগ্রাউন্ড (Background)</label>
+                                   <select
+                                     className="w-full form-select rounded border px-3 py-2 text-sm"
+                                     value={banner.gradient || "from-[#1E293B] to-[#0F172A]"}
+                                     onChange={(e) => {
+                                       const newBanners = [...settingsData.heroBanners];
+                                       newBanners[idx].gradient = e.target.value;
+                                       setSettingsData({ ...settingsData, heroBanners: newBanners });
+                                     }}
+                                   >
+                                     <option value="from-[#1e293b] to-[#0f172a]">Dark Navy Blue (Default)</option>
+                                     <option value="from-[#637cf2] to-[#768bfa]">Light Blue Gradient</option>
+                                     <option value="from-emerald-600 to-emerald-800">Emerald Green</option>
+                                     <option value="from-orange-500 to-orange-700">Sunset Orange</option>
+                                     <option value="from-purple-600 to-violet-800">Royal Purple</option>
+                                   </select>
+                                 </div>
+                              </div>
+                           ))}
+                        </div>
+                     </div>
                      
                      <div className="border-t pt-6 flex items-center justify-between gap-4">
                         <div className="flex-1">
@@ -2530,7 +3341,48 @@ window.location.reload();
                     onChange={(e) => setNewVocabJSON(e.target.value)}
                   />
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-between items-center">
+                  <Button
+                    variant="outline"
+                    type="button"
+                    onClick={() => {
+                      setNewVocabJSON(`[
+  {
+    "word": "Alacrity",
+    "language": "english",
+    "category": "vocabulary",
+    "pronunciation": "অ্যালাক্রিটি",
+    "meaning": "আগ্রহ, ক্লান্তিহীন ক্ষিপ্রতা (DU B-Unit / High Yield)",
+    "synonyms": ["Eagerness", "Enthusiasm", "Promptness"],
+    "antonyms": ["Apathy", "Lethargy", "Indifference"],
+    "example": "He accepted the admission challenge with alacrity."
+  },
+  {
+    "word": "Castigate",
+    "language": "english",
+    "category": "vocabulary",
+    "pronunciation": "ক্যাস্টিগেট",
+    "meaning": "কঠোর তিরস্কার করা (Severe reprimand - Varsity Admission)",
+    "synonyms": ["Chastise", "Reprimand", "Chide"],
+    "antonyms": ["Praise", "Laud", "Commend"],
+    "example": "The principal did not castigate the students but advised them with warmth."
+  },
+  {
+    "word": "Frugality",
+    "language": "english",
+    "category": "vocabulary",
+    "pronunciation": "ফ্রুগালিটি",
+    "meaning": "মিতব্যয়িতা, হিসেবি চলা (Thrifty or economical behavior)",
+    "synonyms": ["Thrift", "Economy", "Parsimony"],
+    "antonyms": ["Extravagance", "Wastefulness"],
+    "example": "Frugality is a wonderful quality when residing in varsity hostels."
+  }
+]`);
+                    }}
+                    className="border-indigo-200 text-indigo-700 hover:bg-indigo-50 font-bengali text-xs h-10 px-4"
+                  >
+                    Load Sample Admission JSON
+                  </Button>
                   <Button 
                     onClick={handleBulkUploadVocabulary}
                     disabled={vocabularyLoading}
@@ -2602,6 +3454,9 @@ window.location.reload();
             </Card>
           </div>
 
+        ) : activeTab === "notes_creator" ? (
+          <NotesCreator />
+
         ) : (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -2653,11 +3508,16 @@ window.location.reload();
                 </div>
                 <div>
                   <label className="text-sm font-bold mb-1 block font-bengali">বিষয়</label>
-                  <Input 
-                    value={editQuestion.subject || ""} 
-                    onChange={(e) => setEditQuestion({ ...editQuestion, subject: e.target.value })} 
-                    className="font-bengali"
-                  />
+                  <select
+                    className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
+                    value={editQuestion.subject || ""}
+                    onChange={(e) => setEditQuestion({ ...editQuestion, subject: e.target.value })}
+                  >
+                    <option value="">বিষয় নির্বাচন করুন</option>
+                    {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)])).map((sub: string) => (
+                      <option key={sub} value={sub}>{sub}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -2727,9 +3587,24 @@ window.location.reload();
               <Button variant="ghost" size="sm" onClick={() => setShowBulkUpload(false)} className="h-8 w-8 p-0 rounded-full">✕</Button>
             </div>
             <div className="p-6 flex-1 overflow-y-auto">
-              <p className="text-sm text-slate-500 mb-4">Paste your array of questions in JSON format here.</p>
+              <p className="text-sm text-slate-500 mb-4">Paste your array of questions in JSON format here. You can select a subject below to automatically assign all uploaded questions to that subject.</p>
+              
+              <div className="mb-4">
+                <label className="text-sm font-bold mb-1 block font-bengali">বিষয় নির্বাচন করুন (Optional)</label>
+                <select
+                  className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
+                  value={bulkUploadSubject}
+                  onChange={(e) => setBulkUploadSubject(e.target.value)}
+                >
+                  <option value="">কোনো বিষয় নির্দিষ্ট নয় (JSON থেকে নিবে)</option>
+                  {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)])).map((sub: string) => (
+                    <option key={sub} value={sub}>{sub}</option>
+                  ))}
+                </select>
+              </div>
+
               <textarea 
-                className="w-full border rounded-xl p-4 text-sm font-mono h-[400px] outline-none focus:border-primary focus:ring-1 focus:ring-primary whitespace-pre resize-none"
+                className="w-full border rounded-xl p-4 text-sm font-mono h-[300px] outline-none focus:border-primary focus:ring-1 focus:ring-primary whitespace-pre resize-none"
                 placeholder="[ { ... }, { ... } ]"
                 value={bulkUploadText}
                 onChange={(e) => setBulkUploadText(e.target.value)}
@@ -2737,8 +3612,10 @@ window.location.reload();
               />
             </div>
             <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowBulkUpload(false)} className="font-bengali">Cancel</Button>
-              <Button onClick={handleBulkUploadSubmit} className="font-bengali" disabled={!bulkUploadText.trim()}>Upload</Button>
+              <Button variant="outline" onClick={() => setShowBulkUpload(false)} className="font-bengali" disabled={isUploading}>Cancel</Button>
+              <Button onClick={handleBulkUploadSubmit} className="font-bengali" disabled={!bulkUploadText.trim() || isUploading}>
+                {isUploading ? "Uploading..." : "Upload"}
+              </Button>
             </div>
           </div>
         </div>
@@ -2797,6 +3674,15 @@ window.location.reload();
                     <option value="public">পাবলিক এক্সাম (Live Exam)</option>
                     <option value="live_model_test">লাইভ মডেল টেস্ট (Live Model Test)</option>
                   </select>
+                </div>
+                <div>
+                  <label className="text-sm font-bold mb-1 block font-bengali font-bengali">Scheduled Date & Time</label>
+                  <input 
+                    type="datetime-local" 
+                    value={newExamScheduledDate}
+                    onChange={(e) => setNewExamScheduledDate(e.target.value)}
+                    className="w-full h-10 border rounded-xl px-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary font-mono text-sm"
+                  />
                 </div>
               </div>
               <div>

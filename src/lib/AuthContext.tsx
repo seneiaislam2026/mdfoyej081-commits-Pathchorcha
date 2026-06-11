@@ -21,6 +21,7 @@ interface UserData {
   isTutor?: boolean;
   isAdmin?: boolean;
   tutorSubjects?: string[];
+  photoURL?: string;
 }
 
 interface AuthContextType {

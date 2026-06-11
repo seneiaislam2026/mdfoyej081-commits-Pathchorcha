@@ -11,7 +11,7 @@ export const InstallPrompt = () => {
 
   useEffect(() => {
     // Check if the app is already installed or if it's running standalone
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isStandalone = window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : false;
     if (isStandalone) {
       console.log('App is running in standalone mode, skipping install prompt');
       return;

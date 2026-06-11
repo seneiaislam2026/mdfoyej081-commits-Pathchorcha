@@ -46,6 +46,43 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["word", "language", "category", "meaning"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "Dynamic lecture notes created by tutors or administrators.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "subject": { "type": "string" },
+        "classGroup": { "type": "string" },
+        "badges": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "content": {
+          "type": "object",
+          "properties": {
+            "intro": { "type": "string" },
+            "chapters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "items": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "isExternal": { "type": "boolean" },
+        "link": { "type": "string" }
+      },
+      "required": ["title", "subject", "classGroup", "createdAt"]
     }
   },
   "firestore": {
@@ -56,6 +93,10 @@
     "vocabulary/{wordId}": {
       "schema": { "$ref": "#/entities/Vocabulary" },
       "description": "Stores custom system vocabulary items uploaded by the Admin."
+    },
+    "notes/{noteId}": {
+      "schema": { "$ref": "#/entities/Note" },
+      "description": "Stores dynamic study guides and lecture notes created by Tutors or Admins."
     }
   }
 }

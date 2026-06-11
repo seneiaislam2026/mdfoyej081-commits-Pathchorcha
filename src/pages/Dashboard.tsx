@@ -1,110 +1,46 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
+  Lightbulb,
+  Brain,
   BrainCircuit,
   Target,
   CheckCircle2,
-  TrendingUp,
+  Check,
   Trophy,
-  ArrowRight,
   BookOpen,
-  Atom,
-  Calculator,
   MessageCircleQuestion,
-  HelpCircle,
-  Code2,
-  Crown,
-  Clock, LayoutList,
+  ChevronRight,
+  Home,
+  Bookmark,
+  ClipboardList,
+  RefreshCw,
+  SearchCheck,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "../lib/AuthContext";
-import { useIsPWA } from "../lib/useIsPWA";
-
-function getDailyChallenge(group: string | undefined, isAdmission: boolean) {
-  const epoch = new Date('2024-01-01').getTime();
-  const now = new Date().getTime();
-  let dayIndex = Math.floor((now - epoch) / (1000 * 60 * 60 * 24));
-  
-  // For admission, speed up syllabus progression by 3x (6 months vs 2 months)
-  if (isAdmission) {
-     dayIndex = dayIndex * 3;
-  }
-  
-  // Group subjects by group
-  const syllabus: Record<string, { subject: string, chapters: number }[]> = {
-     "বিজ্ঞান": [
-        { subject: "এইচএসসি পদার্থবিজ্ঞান", chapters: 10 },
-        { subject: "এইচএসসি রসায়ন", chapters: 10 },
-        { subject: "এইচএসসি উচ্চতর গণিত", chapters: 10 },
-        { subject: "এইচএসসি জীববিজ্ঞান", chapters: 10 },
-     ],
-     "মানবিক": [
-        { subject: "এইচএসসি ইতিহাস", chapters: 10 },
-        { subject: "এইচএসসি পৌরনীতি", chapters: 10 },
-        { subject: "এইচএসসি যুক্তিবিদ্যা", chapters: 10 },
-        { subject: "এইচএসসি ভূগোল", chapters: 10 },
-     ],
-     "বাণিজ্য": [
-        { subject: "এইচএসসি হিসাববিজ্ঞান", chapters: 10 },
-        { subject: "এইচএসসি ব্যবসায় সংগঠন", chapters: 10 },
-        { subject: "এইচএসসি ফিন্যান্স", chapters: 10 },
-        { subject: "এইচএসসি উৎপাদন ব্যবস্থাপনা", chapters: 10 },
-     ]
-  };
-  
-  const userGroup = (group && syllabus[group]) ? group : "বিজ্ঞান";
-  const groupSyllabus = syllabus[userGroup];
-  
-  let totalChapters = 0;
-  groupSyllabus.forEach((s: any) => totalChapters += s.chapters);
-  
-  // Assume to cover in 180 days for regular, 60 days for admission
-  const daysPerChapter = isAdmission ? (60 / totalChapters) : (180 / totalChapters);
-  
-  let currentChapterIndex = Math.floor(dayIndex / daysPerChapter) % totalChapters;
-  
-  let runningSum = 0;
-  for (let s of groupSyllabus) {
-     if (currentChapterIndex < runningSum + s.chapters) {
-        const chapNum = currentChapterIndex - runningSum + 1;
-        return { subject: s.subject, chapterTitle: `অধ্যায় ${chapNum}: মডেল টেস্ট` };
-     }
-     runningSum += s.chapters;
-  }
-  
-  return { subject: "সাধারণ জ্ঞান", chapterTitle: "অধ্যায় ১: মডেল টেস্ট" };
-}
 
 export default function Dashboard() {
   const { userData } = useAuth();
-  const isPWA = useIsPWA();
-  const [syncingOffline, setSyncingOffline] = useState(false);
   const [publicExams, setPublicExams] = useState<any[]>([]);
-  const [settings, setSettings] = useState<any>(null);
-  const [showPromoPopup, setShowPromoPopup] = useState(false);
+  const [globalSettings, setGlobalSettings] = useState<any>(null);
 
   useEffect(() => {
-    async function listenSettings() {
-      const { doc, onSnapshot } = await import("firebase/firestore");
-      const { db } = await import("../lib/firebase");
-      return onSnapshot(doc(db, "settings", "general"), (snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.data();
-          setSettings(data);
-          
-          // Show popup if active, user is not pro, and hasn't dismissed in current session
-          const dismissedThisSession = sessionStorage.getItem("dismissedPromoPopup");
-          if (data?.popupActive && !userData?.isPro && !dismissedThisSession) {
-            setShowPromoPopup(true);
-          }
+    async function fetchSettings() {
+      try {
+        const { doc, getDoc } = await import("firebase/firestore");
+        const { db } = await import("../lib/firebase");
+        const docRef = doc(db, "settings", "general");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setGlobalSettings(docSnap.data());
         }
-      });
+      } catch (error) { console.error("ERR settings", error); }
     }
-    let unsub: any;
-    listenSettings().then(u => unsub = u);
-    return () => { if (unsub) unsub(); };
-  }, [userData?.isPro]);
+    fetchSettings();
+  }, []);
+
   useEffect(() => {
     async function fetchPublicExams() {
       try {
@@ -118,38 +54,6 @@ export default function Dashboard() {
     fetchPublicExams();
   }, []);
 
-
-  const quickStats = [
-    {
-      title: "মোট প্রশ্ন সমাধান",
-      value: "০",
-      icon: <CheckCircle2 className="w-5 h-5" />,
-      color: "text-blue-500",
-      bg: "bg-blue-50",
-    },
-    {
-      title: "নির্ভুলতা (Accuracy)",
-      value: "০%",
-      icon: <Target className="w-5 h-5" />,
-      color: "text-green-500",
-      bg: "bg-green-50",
-    },
-    {
-      title: "টানা চর্চা (Streak)",
-      value: "০ দিন",
-      icon: <TrendingUp className="w-5 h-5" />,
-      color: "text-orange-500",
-      bg: "bg-orange-50",
-    },
-    {
-      title: "র‍্যাঙ্কিং",
-      value: "-",
-      icon: <Trophy className="w-5 h-5" />,
-      color: "text-secondary",
-      bg: "bg-yellow-50",
-    },
-  ];
-
   const userClass = userData?.class || "";
   const eligibleExams = publicExams.filter((exam) => {
     if (!exam.targetClass || exam.targetClass === "সকল ক্লাস") {
@@ -158,650 +62,466 @@ export default function Dashboard() {
     return exam.targetClass === userClass;
   });
 
-  const liveExams = eligibleExams.filter((exam) => !exam.type || exam.type === "public");
-  const liveModelTests = eligibleExams.filter((exam) => exam.type === "live_model_test");
-
-  const cards = [
-    {
-      title: "নোটস",
-      description: "বিষয়ভিত্তিক সাজানো\nগুরুত্বপূর্ণ নোটস",
-      link: "/notes",
-      bgContent: "bg-[#f4fbf4]",
-      borderColor: "border-[#bce5c0]",
-      textColor: "text-[#187829]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#358742]/10 translate-y-3 rounded-[20px] blur-md"></div>
-          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#4db05c] to-[#298a37] rounded-lg flex items-center justify-center shadow-lg border-b-[5px] border-[#1b5e20] before:absolute before:inset-y-[6px] before:inset-x-3 before:bg-white before:rounded-sm before:opacity-95">
-            <div className="w-[14px] h-[3px] bg-[#e0e0e0] absolute top-[28px] left-[18px] rounded-full opacity-100"></div>
-            <div className="w-[18px] h-[3px] bg-[#e0e0e0] absolute top-[40px] left-[18px] rounded-full opacity-100"></div>
-            <div className="w-[14px] h-[3px] bg-[#e0e0e0] absolute top-[52px] left-[18px] rounded-full opacity-100"></div>
-            <div className="w-[18px] h-[3px] bg-[#e0e0e0] absolute top-[28px] right-[18px] rounded-full opacity-100"></div>
-            <div className="w-[14px] h-[3px] bg-[#e0e0e0] absolute top-[40px] right-[18px] rounded-full opacity-100"></div>
-            <div className="w-[18px] h-[3px] bg-[#e0e0e0] absolute top-[52px] right-[18px] rounded-full opacity-100"></div>
-            <div className="w-[2px] h-[75%] bg-gradient-to-r from-gray-200 to-gray-300 absolute left-1/2 -translate-x-1/2 z-20 shadow-sm rounded-full"></div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "প্রশ্ন ব্যাংক",
-      description: "হাজারো প্রশ্ন\nঅনুশীলন করুন",
-      link: "/bank",
-      bgContent: "bg-[#f5f8ff]",
-      borderColor: "border-[#c4d4f8]",
-      textColor: "text-[#1b4db3]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#1b4db3]/10 translate-y-3 rounded-[20px] blur-md"></div>
-          <div className="relative z-10 w-16 h-20 bg-gradient-to-br from-[#3b7cf6] to-[#1244ac] rounded-[10px] shadow-lg border-b-[5px] border-[#0c2d73] flex flex-col items-center">
-            <div className="w-[30px] h-[10px] bg-[#f0f4ff] rounded-b-md mb-2 shadow-sm relative z-20 border-b border-[#c4d4f8]"></div>
-            <div className="w-[30px] h-[3px] bg-white/70 rounded-full mb-2 flex items-center justify-start">
-              <div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div>
-            </div>
-            <div className="w-[30px] h-[3px] bg-white/70 rounded-full mb-2 flex items-center justify-start">
-              <div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div>
-            </div>
-            <div className="w-[30px] h-[3px] bg-white/70 rounded-full mb-2 flex items-center justify-start">
-              <div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div>
-            </div>
-            <div className="absolute -bottom-2 -right-3 w-10 h-10 bg-[#3b7cf6] border-[3px] border-white rounded-full flex items-center justify-center shadow-md">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="white"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "মক টেস্ট",
-      description: "অধ্যায়ভিত্তিক\nমক টেস্ট দিন",
-      link: "/exam?type=mock",
-      bgContent: "bg-[#fdf4ff]",
-      borderColor: "border-[#f0abfc]",
-      textColor: "text-[#c026d3]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#c026d3]/20 translate-y-3 rounded-[24px] blur-md"></div>
-          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#e879f9] to-[#c026d3] rounded-[20px] shadow-lg border-b-[5px] border-[#86198f] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-            <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
-            <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex flex-col items-center justify-center gap-1.5 p-2">
-              <div className="flex w-full items-center gap-2">
-                <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 shrink-0"></div>
-                <div className="h-1.5 w-full bg-slate-200 rounded-full"></div>
-              </div>
-              <div className="flex w-full items-center gap-2">
-                <div className="w-3.5 h-3.5 rounded-full border-2 border-purple-500 bg-purple-100 flex items-center justify-center shrink-0">
-                  <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
-                </div>
-                <div className="h-1.5 w-full bg-slate-200 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "মডেল টেস্ট",
-      description: "মডেল টেস্ট দিয়ে\nপ্রস্তুতি যাচাই করুন",
-      link: "/exam?type=model",
-      bgContent: "bg-[#fff8f0]",
-      borderColor: "border-[#fce3c7]",
-      textColor: "text-[#e86a10]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#e86a10]/20 translate-y-3 rounded-[24px] blur-md"></div>
-          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#ffa726] to-[#e65100] rounded-[20px] shadow-lg border-b-[5px] border-[#bf360c] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-            <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
-            <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex shrink-0 items-center justify-center overflow-hidden">
-              <div className="w-full flex flex-col gap-1.5 p-2 px-3">
-                <div className="flex items-center gap-1.5 border-b border-orange-100 pb-1.5">
-                  <span className="w-2.5 h-2.5 bg-orange-400 rounded-full flex-shrink-0"></span>
-                  <div className="h-1.5 w-full bg-slate-200 rounded-full"></div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 bg-slate-200 rounded-full flex-shrink-0"></span>
-                  <div className="h-1.5 w-8 bg-slate-200 rounded-full"></div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 bg-slate-200 rounded-full flex-shrink-0"></span>
-                  <div className="h-1.5 w-6 bg-slate-200 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-[#ffb74d] to-[#ef6c00] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-white" />
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "মেমোরাইজিং পার্ট",
-      description: "সমার্থক, বিপরীত ও\nশব্দকোষ চর্চা করুন",
-      link: "/memorize",
-      bgContent: "bg-[#f5f3ff]",
-      borderColor: "border-[#ddd6fe]",
-      textColor: "text-[#8b5cf6]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#8b5cf6]/20 translate-y-3 rounded-[24px] blur-md"></div>
-          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#a78bfa] to-[#7c3aed] rounded-[20px] shadow-lg border-b-[5px] border-[#5b21b6] flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-300">
-             <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
-             <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex shrink-0 items-center justify-center overflow-hidden font-sans text-3xl">
-                🧠
-             </div>
-             <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-[#c4b5fd] to-[#8b5cf6] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
-                <BrainCircuit className="w-5 h-5 text-white" />
-             </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "ভুলের প্র্যাকটিস",
-      description: "পুর্বে ভুল হওয়া\nপ্রশ্নগুলোর পুনরাবৃত্তি",
-      link: "/exam?type=mistakes",
-      bgContent: "bg-[#fff1f2]",
-      borderColor: "border-[#fecdd3]",
-      textColor: "text-[#e11d48]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#e11d48]/20 translate-y-3 rounded-[24px] blur-md"></div>
-          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#fb7185] to-[#e11d48] rounded-[20px] shadow-lg border-b-[5px] border-[#9f1239] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-            <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
-            <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex items-center justify-center">
-              <span className="text-3xl">🔄</span>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "ডাউট সলভিং",
-      description: "যেকোনো প্রশ্নের উত্তর জানুন\nএবং আলোচনা করুন",
-      link: "/doubts",
-      bgContent: "bg-[#f0fdff]",
-      borderColor: "border-[#bbf7d0]",
-      textColor: "text-[#0ea5e9]",
-      icon: (
-        <div className="relative w-28 h-28 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[#0ea5e9]/20 translate-y-3 rounded-[24px] blur-md"></div>
-          <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#38bdf8] to-[#0284c7] rounded-[20px] shadow-lg border-b-[5px] border-[#0369a1] flex flex-col items-center justify-center group-hover:scale-110 transition-transform duration-300">
-             <div className="absolute top-2 right-2 w-3 h-3 bg-white/40 rounded-full"></div>
-             <div className="absolute bottom-3 left-3 w-4 h-4 bg-white/20 rounded-full"></div>
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-[12px] shadow-inner flex shrink-0 items-center justify-center overflow-hidden">
-                <BrainCircuit className="w-8 h-8 text-[#0284c7]" />
-             </div>
-             <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-br from-[#7dd3fc] to-[#0284c7] rounded-full border-4 border-white shadow-xl flex items-center justify-center">
-                <MessageCircleQuestion className="w-5 h-5 text-white" />
-             </div>
-          </div>
-        </div>
-      ),
-    },
-  ];
+  const liveExams = eligibleExams.filter((exam) => exam.type === "live_model_test" || !exam.type);
 
   return (
-    <div className="w-full flex flex-col gap-8 pb-10 mt-1 md:mt-4">
-      {/* Pro Banner for Non-Pro Users */}
-      {!userData?.isPro && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-[#fff4e6] to-[#ffecb3] border border-[#ffd54f] p-5 sm:p-6 rounded-[24px] shadow-sm flex flex-col sm:flex-row items-center gap-4 justify-between"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
-              <Crown className="w-6 h-6 text-[#ffa726]" />
-            </div>
-            <div>
-              <h3 className="font-bengali font-bold text-slate-800 text-lg sm:text-xl">
-                প্রো মেম্বারশিপে আপগ্রেড করুন!
-              </h3>
-              <p className="font-bengali text-slate-700 text-sm sm:text-base mt-1">
-                সব প্রশ্নের বিস্তারিত ব্যাখ্যা ও আনলিমিটেড (Unlimited) মক টেস্ট
-                দিতে আজই প্রো মেম্বার হোন।
-              </p>
-            </div>
-          </div>
-          <Link
-            to="/subscription"
-            className="w-full sm:w-auto shrink-0 mt-2 sm:mt-0"
-          >
-            <Button className="w-full bg-gradient-to-r from-[#ffa726] to-[#e65100] hover:from-[#f57c00] hover:to-[#d84315] text-white rounded-full font-bengali font-bold shadow-md shadow-orange-500/20 px-6 h-12">
-              আপগ্রেড করুন
-            </Button>
-          </Link>
-        </motion.div>
-      )}
-
-      {/* Main Feature Cards */}
-      <section className="flex overflow-x-auto lg:grid lg:grid-cols-3 xl:grid-cols-5 md:grid-cols-2 gap-5 md:gap-8 snap-x pb-6 -mx-4 px-4 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-        {cards.map((card, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 + idx * 0.1 }}
-            className="w-[85vw] max-w-[320px] md:w-auto md:max-w-none md:min-w-0 snap-center shrink-0"
-          >
-            <Link to={card.link} className="block h-full group">
-              <div
-                className={`h-full ${card.bgContent} border-[2px] ${card.borderColor} rounded-[32px] p-8 pb-10 flex flex-col items-center text-center transition-all duration-300 transform group-hover:-translate-y-1 group-hover:shadow-[0_12px_24px_-8px_rgba(0,0,0,0.1)] relative overflow-hidden`}
-              >
-                {/* 3D Icon Container */}
-                <div className="mb-6 z-10 transition-transform duration-500 group-hover:scale-105">
-                  {card.icon}
-                </div>
-
-                <h3
-                  className={`text-[32px] font-bengali font-bold mb-4 ${card.textColor} tracking-wide z-10`}
+    <div className="w-full flex flex-col gap-6 pb-32 font-sans md:px-0">
+      
+      {/* Hero Banner Section */}
+      {globalSettings && globalSettings.heroBanners && globalSettings.heroBanners.length > 0 ? (
+        <div className="relative w-full">
+           <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 pb-2 flex-nowrap" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+             {globalSettings.heroBanners.map((banner: any, index: number) => (
+                <div 
+                  key={banner.id || index} 
+                  className={`shrink-0 w-full min-w-[full] snap-center bg-gradient-to-r ${banner.gradient || 'from-[#1e293b] to-[#0f172a]'} rounded-[24px] p-6 text-white relative overflow-hidden shadow-sm flex flex-col justify-center min-h-[180px]`}
                 >
-                  {card.title}
-                </h3>
-
-                <div className="w-full h-[1px] bg-black/5 rounded-full mb-5 z-10"></div>
-
-                <p className="text-[17px] font-bengali font-medium text-[#4b5563] whitespace-pre-line leading-[1.7] z-10 tracking-wide">
-                  {card.description}
-                </p>
-              </div>
-            </Link>
-          </motion.div>
-        ))}
-      </section>
-
-      {/* Live Public Exams Banner */}
-      {liveExams && liveExams.length > 0 && (
-        <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-             <h3 className="text-2xl font-bengali font-bold text-slate-900 flex items-center gap-2">
-               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-               চলমান লাইভ এক্সাম (পাবলিক এক্সাম)
-             </h3>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {liveExams.map((exam) => (
-              <Link to={`/public-exam/${exam.id}`} key={exam.id}>
-                <motion.div
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                  className="bg-gradient-to-br from-indigo-50 to-purple-50 p-5 rounded-3xl border border-indigo-100/50 shadow-sm relative overflow-hidden group"
-                >
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-white/40 rounded-full -translate-y-8 translate-x-8 blur-xl"></div>
-                  <div className="flex justify-between items-start mb-3 relative z-10">
-                    <div className="inline-flex items-center gap-1.5">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider">
-                        <span className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span> লাইভ
-                      </span>
-                      {exam.targetClass && (
-                        <span className="px-2.5 py-1 rounded-full bg-indigo-150/50 border border-indigo-200/40 text-indigo-700 text-[10px] font-bold font-bengali">
-                          {exam.targetClass}
-                        </span>
-                      )}
-                    </div>
-                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-indigo-500">
-                      <Trophy className="w-5 h-5" />
-                    </div>
-                  </div>
-                  <h4 className="font-bengali font-bold text-lg text-slate-800 mb-1 relative z-10 leading-snug">{exam.title}</h4>
-                  <div className="flex items-center gap-3 text-slate-500 text-sm font-medium mt-3 relative z-10">
-                     <span className="flex items-center gap-1 opacity-80"><Clock className="w-4 h-4"/> {exam.duration} মিনিট</span>
-                     <span className="w-1 h-1 rounded-full bg-slate-300"></span>
-                     <span className="flex items-center gap-1 opacity-80"><LayoutList className="w-4 h-4"/> {exam.questions ? exam.questions.length : 0} প্রশ্ন</span>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Quick Stats Grid */}
-      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {quickStats.map((stat, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: idx * 0.1 }}
-            className="bg-white p-5 rounded-[24px] shadow-sm border border-slate-100 flex flex-col justify-between"
-          >
-            <div
-              className={`w-10 h-10 rounded-full ${stat.bg} ${stat.color} flex items-center justify-center mb-4`}
-            >
-              {stat.icon}
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-slate-800 font-mono mb-0.5">
-                {stat.value}
-              </p>
-              <p className="text-xs font-bengali font-medium text-slate-500">
-                {stat.title}
-              </p>
-            </div>
-          </motion.div>
-        ))}
-      </section>
-
-      {/* Offline Sync Banner - Only show in PWA */}
-      {isPWA && (
-        <section>
-          <motion.div
-             initial={{ opacity: 0, y: 15 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.4, delay: 0.3 }}
-             className="bg-[#f0f9ff] border border-[rgba(14,165,233,0.3)] p-5 sm:p-6 rounded-[24px] shadow-sm flex flex-col sm:flex-row items-center gap-4 justify-between"
-          >
-            <div className="flex items-center gap-4">
-               <div className="w-12 h-12 bg-white flex items-center justify-center rounded-full text-blue-500 shadow-sm shrink-0">
-                  <BookOpen className="w-6 h-6" />
-               </div>
-               <div>
-                  <h3 className="font-bengali font-bold text-slate-800 text-lg">
-                     অফলাইন মোড
-                  </h3>
-                  <p className="font-bengali text-slate-600 text-sm mt-1">
-                     ইন্টারনেট সংযোগ ছাড়াই প্রশ্ন ব্যাংক, মক টেস্ট এবং নোটস অ্যাক্সেস করতে ডেটা সেভ করে রাখুন।
-                  </p>
-               </div>
-            </div>
-            <Button 
-              onClick={async () => {
-                if (syncingOffline) return;
-                setSyncingOffline(true);
-                try {
-                  const { collection, getDocs, limit, query } = await import("firebase/firestore");
-                  const { db } = await import("../lib/firebase");
-                  // Fetch basic data to cache for offline use (server-first to guarantee latest)
-                  await getDocs(query(collection(db, "questions"), limit(200)));
-                  await getDocs(query(collection(db, "public_exams"), limit(20)));
-                  alert("অফলাইন ব্যবহারের জন্য সব ডেটা সেভ করা হয়েছে!");
-                } catch(e: any) {
-                  console.error("Offline sync failed", e);
-                  alert("ডাউনলোড করতে সমস্যা হয়েছে: " + (e.message || "Unknown error"));
-                } finally {
-                  setSyncingOffline(false);
-                }
-              }}
-              variant="outline"
-              disabled={syncingOffline}
-              className="w-full sm:w-auto shrink-0 mt-2 sm:mt-0 font-bengali border-blue-500 text-blue-600 hover:bg-blue-50 bg-white"
-            >
-               {syncingOffline ? "সেভ হচ্ছে..." : "ডেটা সেভ করুন"}
-            </Button>
-          </motion.div>
-        </section>
-      )}
-
-      {/* Live Model Test */}
-      {liveModelTests && liveModelTests.length > 0 && (
-        <section className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-5 sm:p-6 my-2">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold font-bengali text-slate-800 flex items-center gap-2">
-              <span className="w-1.5 h-6 bg-[#f59e0b] rounded-full"></span>
-              লাইভ মডেল টেস্ট
-            </h2>
-            <span className="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold animate-pulse">MODEL TEST LIVE</span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {liveModelTests.map((exam, idx) => (
-               <motion.div 
-                 key={exam.id}
-                 initial={{ opacity: 0, scale: 0.95 }}
-                 animate={{ opacity: 1, scale: 1 }}
-                 transition={{ duration: 0.3, delay: idx * 0.1 }}
-               >
-                 <Link to={`/public-exam/${exam.id}`}>
-                   <div className="bg-slate-50 hover:bg-slate-100 hover:shadow-md transition-all rounded-[20px] p-4 sm:p-5 border border-slate-100 flex justify-between items-center group h-full">
-                      <div className="flex-1 pr-4">
-                        <h3 className="font-bold text-slate-800 text-[15px] sm:text-[16px] leading-snug group-hover:text-primary transition-colors font-bengali">{exam.title}</h3>
-                        <div className="flex flex-wrap items-center gap-3 text-[12px] sm:text-xs text-slate-500 mt-2.5 font-medium font-bengali">
-                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-200"><Clock className="w-3.5 h-3.5 text-orange-500" /> {exam.duration} মি.</span>
-                          <span className="flex items-center gap-1.5 bg-white px-2 py-1 rounded-md border border-slate-200"><HelpCircle className="w-3.5 h-3.5 text-blue-500" /> {exam.questions?.length || 0} টি প্রশ্ন</span>
-                          {exam.targetClass && (
-                            <span className="flex items-center gap-1.5 bg-indigo-50/70 border border-indigo-150 px-2.5 py-1 rounded-md text-indigo-700 font-bold">{exam.targetClass}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0 border border-slate-100 group-hover:bg-primary group-hover:border-primary transition-all">
-                        <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-white group-hover:-rotate-45 transition-all" />
-                      </div>
-                   </div>
-                 </Link>
-               </motion.div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* AI Assistant Banner */}
-      <section>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="bg-gradient-to-br from-primary to-[#18398a] rounded-[32px] p-6 md:p-8 shadow-lg shadow-primary/20 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6"
-        >
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl"></div>
-
-          <div className="flex items-center gap-4 relative z-10 w-full md:w-auto">
-            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center shrink-0 border border-white/20">
-              <BrainCircuit className="w-8 h-8 text-secondary" />
-            </div>
-            <div>
-              <div className="bg-white text-slate-800 text-base font-bengali font-bold py-2 px-5 rounded-2xl rounded-tl-sm shadow-md inline-block">
-                আজ কী শিখতে চাও?
-              </div>
-              <p className="text-white/80 font-bengali text-sm mt-1.5 ml-1">
-                AI টিউটরের সাহায্যে তোমার পড়া আরও সহজ করো
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-start w-full md:w-auto gap-3 relative z-10 shrink-0">
-            <Link to="/tutor" className="flex-auto md:flex-none max-w-full">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="w-full font-bengali bg-white text-primary hover:bg-slate-50 rounded-xl shadow-sm border-0 font-bold px-4 sm:px-6 whitespace-nowrap"
-              >
-                <HelpCircle className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">AI টিউটর</span>
-              </Button>
-            </Link>
-            <Link to="/doubts" className="flex-auto md:flex-none max-w-full">
-              <Button
-                size="lg"
-                className="w-full font-bengali bg-secondary hover:bg-secondary/90 text-primary rounded-xl shadow-sm font-bold px-4 sm:px-6 whitespace-nowrap"
-              >
-                <MessageCircleQuestion className="w-4 h-4 mr-2 shrink-0" /> <span className="truncate">শিক্ষককে প্রশ্ন করো</span>
-              </Button>
-            </Link>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Bottom Main Content */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Daily Challenge */}
-        <div className="lg:col-span-2 bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex flex-col justify-between min-h-[220px] relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-64 h-full bg-gradient-to-l from-yellow-50 to-transparent pointer-events-none"></div>
-
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 h-full">
-            <div className="flex-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-600 text-xs font-bold uppercase tracking-wider mb-3">
-                <div className="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></div>{" "}
-                Daily Challenge
-              </div>
-              <h3 className="text-2xl font-bengali font-bold text-slate-900 mb-2 leading-tight">
-                {(() => {
-                  const challenge = getDailyChallenge(userData?.group, userData?.class === "এডমিশন");
-                  return (
-                     <>
-                        {challenge.subject} <br />
-                        {challenge.chapterTitle}
-                     </>
-                  );
-                })()}
-              </h3>
-              <p className="font-bengali text-slate-500 text-sm mb-6 max-w-sm">
-                ২৫টি গুরুত্বপূর্ণ বহুনির্বাচনি প্রশ্ন। সময়: ২০ মিনিট। নিজেকে
-                যাচাই করো এখনই!
-              </p>
-
-              <Link to="/exam">
-                <Button className="bg-primary hover:bg-primary/95 text-white font-bengali rounded-full px-6 h-11 shadow-md hover:shadow-lg transition-all active:scale-95">
-                  শুরু করুন <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="hidden md:flex shrink-0 w-40 h-40 bg-white rounded-full border-[6px] border-slate-50 shadow-inner items-center justify-center relative">
-              <div className="absolute inset-0 rounded-full border-4 border-dashed border-secondary/30 animate-[spin_20s_linear_infinite]"></div>
-              <Target className="w-16 h-16 text-secondary" strokeWidth={1.5} />
-            </div>
-          </div>
-        </div>
-
-        {/* Leaderboard Snippet */}
-        <div className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-100 flex flex-col">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="font-bengali font-bold text-lg text-slate-800">
-              শীর্ষ শিক্ষার্থী (আজ)
-            </h3>
-            <Link
-              to="/leaderboard"
-              className="text-xs text-primary font-bold hover:underline"
-            >
-              সব দেখুন
-            </Link>
-          </div>
-
-          <div className="space-y-4 flex-1 flex flex-col items-center justify-center text-center text-slate-500">
-            <p className="font-bengali text-sm bg-slate-50 p-4 rounded-xl w-full">
-              আরও শিক্ষার্থী যোগ দিলে লিডারবোর্ড চালু হবে।
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Dynamic Campaign Startup Pop-up Modal */}
-      <AnimatePresence>
-        {showPromoPopup && settings && (
-          <div className="fixed inset-0 bg-[#070E1B]/75 backdrop-blur-md z-9999 flex items-center justify-center p-4 font-sans text-left">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white border-none w-full max-w-md rounded-[36px] overflow-hidden shadow-2xl relative flex flex-col font-bengali"
-            >
-              {/* Premium Gradient Hero section */}
-              <div className="bg-gradient-to-r from-amber-500 via-orange-600 to-red-500 p-8 text-center text-white relative">
-                <button
-                  onClick={() => {
-                    setShowPromoPopup(false);
-                    sessionStorage.setItem("dismissedPromoPopup", "true");
-                  }}
-                  className="absolute top-4 right-4 h-8 w-8 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center text-white transition-colors cursor-pointer border-none outline-none text-xs"
-                >
-                  ✕
-                </button>
-                <span className="text-5xl mb-3 block animate-bounce">🎁</span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  {settings.popupTitle || "উৎসব স্পেশাল ক্যাম্পেইন অফার! 🌟"}
-                </h2>
-                <p className="text-white/80 text-xs sm:text-sm mt-1 max-w-xs mx-auto leading-relaxed">
-                  সাবস্ক্রাইব করে আজই খুলে ফেলুন প্রিমিয়াম মেম্বারশিপের সকল দরজা!
-                </p>
-              </div>
-
-              {/* Promo code area & features */}
-              <div className="p-6 sm:p-8 space-y-6 flex flex-col">
-                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2.5 text-center">
-                  <p className="text-xs text-slate-500 font-bold uppercase tracking-widest font-sans">ACTIVE DISCOUNT COUPON</p>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="font-mono bg-orange-100 text-orange-900 px-4 py-1.5 rounded-xl text-lg sm:text-xl font-bold tracking-wider select-text border border-orange-200">
-                      {settings.popupCoupon || "PRO20"}
-                    </span>
-                    <button 
-                      onClick={() => {
-                        navigator.clipboard.writeText(settings.popupCoupon || "PRO20");
-                        alert("কুপন কোডটি কপি করা হয়েছে! 🏷️");
-                      }}
-                      className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold transition-all shrink-0 cursor-pointer border-none"
-                    >
-                      কপি করুন
-                    </button>
-                  </div>
-                  {settings.discountPercentage > 0 && (
-                    <p className="text-xs text-red-500 font-bold shrink-0">
-                      🏷️ এই কোড ব্যবহারে {settings.discountPercentage}% অতিরিক্ত ছাড় কার্যকর!
+                  <div className="absolute top-4 right-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                  <div className="absolute top-2 left-6 text-white/5 text-4xl transform -rotate-12 italic">✧</div>
+                  
+                  <div className="relative z-10 w-[60%] sm:w-[70%]">
+                    <h2 className="text-xl sm:text-2xl font-bold font-bengali mb-2 drop-shadow-sm leading-tight text-white">
+                      {banner.title}
+                    </h2>
+                    <p className="text-sm font-bengali text-white/80 drop-shadow-sm leading-relaxed">
+                      {banner.subtitle}
                     </p>
-                  )}
-                </div>
+                  </div>
 
-                <div className="space-y-3.5">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest font-sans text-left">👑 প্রো ইউজারদের স্পেশাল বেনিফিটস:</p>
-                  <ul className="space-y-2.5 text-slate-600 text-xs sm:text-sm font-medium text-left">
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 shrink-0 select-none">✔</span>
-                      <span>১০,০০০+ প্রশ্নের বিস্তারিত ব্যাখ্যা ও কুইজ সমাধান।</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 shrink-0 select-none">✔</span>
-                      <span>সকল অধ্যায়ভিত্তিক ও সাজেশন্স ভিত্তিক স্পেশাল মক টেস্ট।</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-emerald-500 shrink-0 select-none">✔</span>
-                      <span>ভুল উত্তরের প্র্যাকটিস এবং প্রফেশনাল মেজারমেন্ট গ্রাফ।</span>
-                    </li>
-                  </ul>
-                </div>
+                  {/* Illustration Right - Books / SVG */}
+                  <div className="absolute right-[-20px] sm:right-[5%] bottom-[-20px] sm:bottom-0 w-[180px] sm:w-[220px] h-[160px] flex flex-col justify-end pointer-events-none opacity-95">
+                    <svg viewBox="0 0 200 150" fill="none" className="w-full h-full drop-shadow-xl translate-y-3" preserveAspectRatio="xMidYMax meet">
+                      {/* Background Doodles */}
+                      <path d="M20 20 C 30 10, 40 30, 50 20" stroke="white" strokeOpacity="0.1" strokeWidth="2" fill="none" />
+                      <path d="M160 30 L 170 20 L 180 40 Z" fill="white" fillOpacity="0.05" />
+                      
+                      <rect x="70" y="110" width="80" height="15" rx="2" fill="#3B82F6"/>
+                      <path d="M70 125v-15l80 0v15H70z" fill="#000" fillOpacity="0.2"/>
+                      <path d="M150 110l-80 0v2h80v-2z" fill="#fff" fillOpacity="0.6"/>
 
-                <div className="bg-amber-50 p-3.5 rounded-2xl border border-amber-100 text-amber-900 text-xs leading-relaxed font-semibold text-center">
-                  {settings.popupMessage || "সকল প্রো প্ল্যানে বিশেষ অফার সক্রিয় পেতে আজই আমাদের সাথে যুক্ত হয়ে যান।"}
-                </div>
+                      <rect x="75" y="94" width="70" height="16" rx="2" fill="#FBBF24"/>
+                      <path d="M75 110v-16l70 0v16H75z" fill="#000" fillOpacity="0.1"/>
+                      <path d="M145 94l-70 0v2h70v-2z" fill="#fff" fillOpacity="0.6"/>
 
-                {/* Subscriptions navigation trigger */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      setShowPromoPopup(false);
-                      sessionStorage.setItem("dismissedPromoPopup", "true");
-                    }}
-                    className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 h-12 rounded-full font-bold transition-all text-xs cursor-pointer border-none"
-                  >
-                    পরে দেখব
-                  </button>
-                  <Link to="/subscription" className="flex-1" onClick={() => {
-                    setShowPromoPopup(false);
-                    sessionStorage.setItem("dismissedPromoPopup", "true");
-                  }}>
-                    <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white h-12 rounded-full font-bold shadow-md shadow-orange-500/25 border-none text-xs">
-                      {settings.popupButtonText || "প্রো মেম্বার হোন"}
-                    </Button>
-                  </Link>
+                      <rect x="72" y="78" width="76" height="16" rx="2" fill="#6366F1"/>
+                      <path d="M72 94v-16l76 0v16H72z" fill="#000" fillOpacity="0.2"/>
+                      <path d="M148 78l-76 0v2h76v-2z" fill="#fff" fillOpacity="0.6"/>
+
+                      {/* Small pencil holder */}
+                      <path d="M40 90 L50 125 H65 L75 90 Z" fill="#F59E0B" />
+                      <rect x="45" y="60" width="4" height="30" fill="#B45309" transform="rotate(-15 45 60)" />
+                      <path d="M41 55 L45 60 L49 55 L45 50 Z" fill="#EF4444" transform="rotate(-15 45 60)" />
+
+                      <rect x="55" y="65" width="4" height="25" fill="#4B5563" transform="rotate(5 55 65)" />
+                      <path d="M53 60 L57 65 L61 60 L57 55 Z" fill="#F472B6" transform="rotate(5 55 65)" />
+
+                      {/* Plant */}
+                      <path d="M165 105 Q 160 85 155 90 Q 160 75 170 85 Q 180 75 185 90 Q 180 85 175 105 Z" fill="#10B981" />
+                      <path d="M175 105 Q 185 90 195 95 Q 190 75 180 85 Q 170 80 170 100 Z" fill="#059669" />
+                      <rect x="160" y="105" width="20" height="20" rx="3" fill="#F8FAFC"/>
+                      <rect x="156" y="100" width="28" height="6" rx="2" fill="#E2E8F0"/>
+
+                      {/* Graduation Cap */}
+                      <path d="M110 40 L60 55 L110 70 L160 55 Z" fill="#1E293B"/>
+                      <path d="M85 64 V 75 C 85 85 135 85 135 75 V 64 Z" fill="#1E293B"/>
+                      <rect x="155" y="55" width="2" height="15" fill="#FBBF24" />
+                      <path d="M153 70 h6 l-3 10 z" fill="#FBBF24" />
+                      {/* Tassel cord */}
+                      <path d="M110 55 Q 140 50 156 55" fill="none" stroke="#FBBF24" strokeWidth="2" />
+                      <circle cx="110" cy="55" r="4" fill="#1E293B" />
+                    </svg>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+             ))}
+           </div>
+           {/* Dots indication if more than 1 banner */}
+           {globalSettings.heroBanners.length > 1 && (
+             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+               {globalSettings.heroBanners.map((_: any, idx: number) => (
+                 <div key={idx} className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+               ))}
+             </div>
+           )}
+        </div>
+      ) : (
+        <div className="bg-gradient-to-r from-[#637cf2] to-[#768bfa] rounded-[24px] p-6 text-white relative overflow-hidden shadow-lg shadow-blue-500/10 mt-2 min-h-[160px]">
+          <div className="absolute top-4 right-1/4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="absolute top-8 right-8 text-white/30 text-2xl font-sans">✧</div>
+          
+          <div className="z-10 relative">
+            <h2 className="text-[22px] font-bold font-bengali mb-1 drop-shadow-sm flex items-center gap-2">
+              চর্চাই সফলতার চাবিকাঠি!
+            </h2>
+            <p className="text-sm font-bengali text-white/90 mb-6 drop-shadow-sm">আজকের লক্ষ্য পূরণ করো, নিজেকে আরও এক ধাপ এগিয়ে নাও!</p>
           </div>
-        )}
-      </AnimatePresence>
+          
+          <div className="absolute right-[-10%] sm:right-[5%] bottom-[-20%] sm:bottom-0 w-[180px] sm:w-[220px] h-full flex flex-col justify-end pointer-events-none opacity-95 pb-2">
+             <div className="w-32 h-32 ml-auto shrink-0 drop-shadow-xl relative transform scale-[1.1] origin-bottom-right">
+                <div className="absolute bottom-4 right-1 bg-gradient-to-r from-orange-400 to-orange-500 w-24 h-5 rounded-xl transition-all shadow-md">
+                   <div className="absolute left-0 w-2 h-full bg-orange-300 rounded-l-xl"></div>
+                   <div className="absolute inset-x-2 bottom-1 h-3 bg-white/90"></div>
+                </div>
+                <div className="absolute bottom-9 right-1 bg-gradient-to-r from-blue-600 to-blue-700 w-24 h-5 rounded-xl transition-all shadow-md">
+                   <div className="absolute left-0 w-2 h-full bg-blue-400 rounded-l-xl"></div>
+                   <div className="absolute inset-x-2 bottom-1 h-3 bg-white/90"></div>
+                </div>
+                <div className="absolute bottom-16 right-0 text-[#0F2744] drop-shadow-2xl z-20">
+                   <div className="w-28 h-8 rounded-[50%] bg-[#21436e] absolute -bottom-3 -right-2 rotate-[-5deg]"></div>
+                   <div className="w-24 h-8 bg-[#183459] rounded-b-xl absolute bottom-0 right-0"></div>
+                   <div className="w-[110px] h-[36px] bg-[#1a3861] transform -skew-x-[45deg] absolute -bottom-1 -right-4 shadow-[0_4px_10px_rgba(0,0,0,0.3)]"></div>
+                   <div className="w-28 h-28 transform rotate-[45deg] bg-gradient-to-br from-[#2a5084] to-[#142c4b] absolute bottom-0 -right-[40px] rounded-[10px] shadow-[inset_0_2px_4px_rgba(255,255,255,0.1)]">
+                      <div className="absolute inset-[2px] border border-white/10 rounded-[8px]"></div>
+                   </div>
+                   <div className="w-1 h-12 bg-amber-400 absolute -bottom-4 right-[65px] rounded-full z-30 shadow-md"></div>
+                   <div className="w-4 h-6 border-[3px] border-amber-400 border-l-0 rounded-r-md absolute -bottom-8 right-[62px] z-30"></div>
+                </div>
+             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Features Grid ("এক নজরে সব ফিচার") */}
+      <section className="space-y-4">
+        <h3 className="font-bengali text-[17px] font-bold text-[#0F2744]">এক নজরে সব ফিচার</h3>
+        
+        <div className="flex flex-col gap-4">
+          {/* Row 1: 4 columns */}
+          <div className="grid grid-cols-4 gap-3 sm:gap-4">
+            
+            <Link to="/exam?type=mock" className="group">
+              <div className="bg-white border border-fuchsia-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-fuchsia-200 hover:-translate-y-1 h-full shadow-xs">
+                <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
+                  <div className="absolute inset-0 bg-[#C026D3] rounded-[16px] shadow-[0_6px_12px_rgba(192,38,211,0.3)] border-b-[4px] border-[#86198F]"></div>
+                  
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
+                  
+                  <div className="relative w-[28px] h-[30px] bg-white rounded-[8px] shadow-sm flex flex-col justify-center pl-[5px] gap-[5px]">
+                     {/* Row 1 */}
+                     <div className="flex items-center gap-[4px]">
+                        <div className="w-[7px] h-[7px] rounded-full border-[1.5px] border-[#E879F9]"></div>
+                        <div className="w-[10px] h-[3px] rounded-full bg-[#E879F9]"></div>
+                     </div>
+                     {/* Row 2 */}
+                     <div className="flex items-center gap-[4px]">
+                        <div className="relative w-[7px] h-[7px] rounded-full border-[1.5px] border-[#C026D3] flex items-center justify-center">
+                           <div className="w-[2.5px] h-[2.5px] rounded-full bg-[#C026D3]"></div>
+                        </div>
+                        <div className="w-[10px] h-[3px] rounded-full bg-[#E879F9]"></div>
+                     </div>
+                  </div>
+                </div>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-fuchsia-600 mb-1 leading-tight">মক<br/>টেস্ট</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight flex-1">অধ্যায়ভিত্তিক মক টেস্ট দিন</p>
+              </div>
+            </Link>
+
+            <Link to="/exam?type=model" className="group">
+              <div className="bg-white border border-orange-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-orange-200 hover:-translate-y-1 h-full shadow-xs">
+                <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
+                  <div className="absolute inset-0 bg-[#F97316] rounded-[16px] shadow-[0_6px_12px_rgba(249,115,22,0.3)] border-b-[4px] border-[#C2410C]"></div>
+                  
+                  <div className="relative w-[30px] h-[32px] bg-white rounded-[8px] shadow-sm flex flex-col pt-[6px] pl-[6px] gap-[4px] -ml-[2px] -mt-[2px]">
+                     <div className="flex items-center gap-[4px]">
+                        <div className="w-[6px] h-[6px] rounded-full bg-[#F97316]"></div>
+                        <div className="w-[10px] h-[3px] rounded-full bg-[#D5E1ED]"></div>
+                     </div>
+                     <div className="flex items-center pl-[10px]">
+                        <div className="w-[10px] h-[3px] rounded-full bg-[#D5E1ED]"></div>
+                     </div>
+                     <div className="flex items-center pl-[10px]">
+                        <div className="w-[7px] h-[3px] rounded-full bg-[#D5E1ED]"></div>
+                     </div>
+                  </div>
+
+                  <div className="absolute -bottom-1 -right-1.5 w-[22px] h-[22px] bg-[#F97316] rounded-full border-[2.5px] border-white flex items-center justify-center shadow-sm">
+                    <Check className="w-[14px] h-[14px] text-white" strokeWidth={3.5} />
+                  </div>
+                </div>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-orange-600 mb-1 leading-tight">মডেল<br/>টেস্ট</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight">মডেল টেস্ট দিয়ে প্রস্তুতি যাচাই</p>
+              </div>
+            </Link>
+
+            <Link to="/doubts" className="group">
+              <div className="bg-white border border-sky-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-sky-200 hover:-translate-y-1 h-full shadow-xs">
+                <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
+                  <div className="absolute inset-0 bg-[#0EA5E9] rounded-[16px] shadow-[0_6px_12px_rgba(14,165,233,0.3)] border-b-[4px] border-[#0284C7]"></div>
+                  
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
+                  
+                  <div className="relative w-[28px] h-[28px] bg-white rounded-[8px] shadow-sm flex items-center justify-center -mt-[2px]">
+                     <Brain className="w-[18px] h-[18px] text-[#0EA5E9]" strokeWidth={2.5} />
+                  </div>
+
+                  <div className="absolute -bottom-1 -right-1.5 w-[22px] h-[22px] bg-[#0EA5E9] rounded-full border-[2.5px] border-white flex items-center justify-center shadow-sm">
+                    <MessageCircleQuestion className="w-[14px] h-[14px] text-white" strokeWidth={2.5} />
+                  </div>
+                </div>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-sky-600 mb-1 leading-tight">ডাউট<br/>সলভিং</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight block">যেকোনো প্রশ্নের উত্তর জানুন<br/>এবং আলোচনা করুন</p>
+              </div>
+            </Link>
+
+            <Link to="/exam?type=mistakes" className="group">
+              <div className="bg-white border border-pink-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-pink-200 hover:-translate-y-1 h-full shadow-xs">
+                <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
+                  <div className="absolute inset-0 bg-[#F43F5E] rounded-[16px] shadow-[0_6px_12px_rgba(244,63,94,0.3)] border-b-[4px] border-[#BE123C]"></div>
+                  
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
+                  
+                  <div className="relative w-[28px] h-[28px] bg-white rounded-[8px] shadow-sm flex items-center justify-center -mt-[2px]">
+                     <div className="w-[18px] h-[18px] bg-[#6484A4] rounded-[5px] flex items-center justify-center">
+                        <svg className="w-[11px] h-[11px] text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M7 2L3 6l4 4"/>
+                          <path d="M21 11v-1a4 4 0 0 0-4-4H3"/>
+                          <path d="M17 22l4-4-4-4"/>
+                          <path d="M3 13v1a4 4 0 0 0 4 4h14"/>
+                        </svg>
+                     </div>
+                  </div>
+                </div>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-rose-600 mb-1 leading-tight">ভুলের<br/>প্র্যাকটিস</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight">ভুল হওয়া প্রশ্নগুলোর পুনরাবৃত্তি</p>
+              </div>
+            </Link>
+
+          </div>
+
+          {/* Row 2: 3 columns */}
+          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+            
+            <Link to="/notes" className="group">
+              <div className="bg-white border border-emerald-100 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-emerald-200 hover:-translate-y-1 h-full shadow-xs">
+                <div className="relative w-[56px] h-[56px] flex items-center justify-center group-hover:scale-105 transition-transform mb-4">
+                  <div className="absolute inset-0 bg-[#319936] rounded-[18px] shadow-[0_8px_16px_rgba(49,153,54,0.3)] border-b-[5px] border-[#1C6B1C]"></div>
+                  
+                  {/* White Book Pages */}
+                  <div className="relative w-[34px] h-[38px] bg-white rounded-[10px] shadow-sm overflow-hidden flex items-center justify-center -mt-0.5">
+                    {/* Center divider */}
+                    <div className="absolute top-1.5 bottom-1.5 left-1/2 w-[1.5px] bg-[#E0EBE0] -translate-x-1/2"></div>
+                    
+                    {/* Left page lines */}
+                    <div className="absolute left-0 w-[17px] flex flex-col items-center top-[10px] space-y-[5px]">
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                    </div>
+                    
+                    {/* Right page lines */}
+                    <div className="absolute right-0 w-[17px] flex flex-col items-center top-[10px] space-y-[5px]">
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
+                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-emerald-600 mb-1 leading-tight">নোটস</h4>
+                <p className="font-bengali text-[11px] sm:text-xs text-slate-400 leading-tight px-1">বিষয়ভিত্তিক সাজানো গুরুত্বপূর্ণ নোটস</p>
+              </div>
+            </Link>
+
+            <Link to="/memorize" className="group">
+              <div className="bg-white border border-purple-100 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-purple-200 hover:-translate-y-1 h-full shadow-xs">
+                <div className="w-[60px] h-[60px] bg-gradient-to-br from-[#c850f0] to-[#8026eb] rounded-[18px] flex items-center justify-center mb-4 shadow-[0_6px_16px_rgba(168,85,247,0.3)] relative group-hover:scale-105 transition-transform overflow-hidden ring-[3px] ring-purple-50 ring-offset-1">
+                  <div className="absolute inset-0 border-[2px] border-white/20 rounded-[18px] z-10 pointer-events-none"></div>
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent pointer-events-none"></div>
+                  <Lightbulb className="w-10 h-10 text-white z-10 drop-shadow-md" strokeWidth={2} />
+                </div>
+                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-violet-600 mb-1 leading-tight">মেমোরাইজিং পার্ট</h4>
+                <p className="font-bengali text-[11px] sm:text-xs text-slate-400 leading-tight px-1">সমার্থক, বিপরীত ও শব্দকোষ</p>
+              </div>
+            </Link>
+
+            <Link to="/bank" className="group">
+              <div className="bg-white border border-blue-100 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-blue-200 hover:-translate-y-1 h-full shadow-xs">
+                <div className="relative w-[64px] h-[64px] flex items-center justify-center group-hover:scale-105 transition-transform mb-4">
+                  {/* Floating dots on left */}
+                  <div className="absolute left-[6px] top-1/2 -translate-y-1/2 flex flex-col gap-[5px]">
+                    <div className="w-[3px] h-[3px] rounded-full bg-slate-400"></div>
+                    <div className="w-[3px] h-[3px] rounded-full bg-slate-400"></div>
+                    <div className="w-[3px] h-[3px] rounded-full bg-slate-400"></div>
+                  </div>
+
+                  {/* Main Blue Board */}
+                  <div className="relative w-[38px] h-[48px] bg-gradient-to-b from-[#3B82F6] to-[#2563EB] rounded-[10px] shadow-[0_8px_16px_rgba(37,99,235,0.3)] flex flex-col pt-[14px] px-[8px] gap-[6px]">
+                    {/* Top Cutout */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[18px] h-[6px] bg-white rounded-b-[4px]"></div>
+                    
+                    {/* Lines */}
+                    <div className="w-[18px] mx-auto h-[2.5px] bg-white rounded-full"></div>
+                    <div className="w-[18px] mx-auto h-[2.5px] bg-white rounded-full"></div>
+                    <div className="w-[18px] mx-auto h-[2.5px] bg-white rounded-full"></div>
+                  </div>
+
+                  {/* Checkmark Circle badge */}
+                  <div className="absolute bottom-[2px] right-[4px] w-[26px] h-[26px] bg-[#3B82F6] rounded-full border-[3px] border-white flex items-center justify-center shadow-sm">
+                    <Check className="w-[14px] h-[14px] text-white" strokeWidth={3.5} />
+                  </div>
+                </div>
+                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-blue-600 mb-1 leading-tight">প্রশ্ন ব্যাংক</h4>
+                <p className="font-bengali text-[11px] sm:text-xs text-slate-400 leading-tight px-1">হাজারো প্রশ্ন অনুশীলন করুন</p>
+              </div>
+            </Link>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Progress Section ("আজকের প্রগ্রেস") */}
+      <section className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <h3 className="font-bengali text-[16px] font-bold text-slate-800 tracking-tight">আজকের প্রগ্রেস</h3>
+          <Link to="/profile" className="text-blue-500 font-bengali text-xs font-bold flex items-center hover:underline bg-blue-50 px-3 py-1 rounded-full">
+            বিস্তারিত দেখুন <ChevronRight className="w-3.5 h-3.5 ml-0.5"/>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
+            <div className="w-[38px] h-[38px] rounded-full bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50">
+               <CheckCircle2 className="w-5 h-5 text-blue-500" strokeWidth={2.5}/>
+            </div>
+            <div className="text-center sm:text-left flex-1 min-w-0">
+               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">08</div>
+               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">স্টাডি সম্পন্ন</div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
+            <div className="w-[38px] h-[38px] rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100/50">
+               <Target className="w-5 h-5 text-emerald-500" strokeWidth={2.5}/>
+            </div>
+            <div className="text-center sm:text-left flex-1 min-w-0">
+               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">85%</div>
+               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">নির্ভুলতা</div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
+            <div className="w-[38px] h-[38px] rounded-full bg-orange-50 flex items-center justify-center shrink-0 border border-orange-100/50">
+               <span className="text-orange-500 text-lg leading-none mt-0.5">🔥</span>
+            </div>
+            <div className="text-center sm:text-left flex-1 min-w-0">
+               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">12</div>
+               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">দিনের স্ট্রাইক</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Ongoing Exams ("চলমান পরীক্ষা") */}
+      <section className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <h3 className="font-bengali text-[16px] font-bold text-slate-800 tracking-tight">চলমান পরীক্ষা</h3>
+          <Link to="/exam" className="text-blue-500 font-bengali text-xs font-bold flex items-center hover:underline bg-blue-50 px-3 py-1 rounded-full">
+            সব দেখুন <ChevronRight className="w-3.5 h-3.5 ml-0.5"/>
+          </Link>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {liveExams.length > 0 ? (
+            liveExams.slice(0, 3).map((exam, idx) => (
+              <Link to={`/public-exam/${exam.id}`} key={exam.id}>
+                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                  <div className="flex items-center gap-3">
+                     <div className={`w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 border ${
+                       idx === 0 ? "bg-rose-50 text-rose-500 border-rose-100" : idx === 1 ? "bg-violet-50 text-violet-500 border-violet-100" : "bg-orange-50 text-orange-500 border-orange-100"
+                     }`}>
+                        {idx === 0 ? <RefreshCw className="w-[22px] h-[22px]" strokeWidth={2.5}/> : idx === 1 ? <BrainCircuit className="w-[22px] h-[22px]" strokeWidth={2.5}/> : <SearchCheck className="w-[22px] h-[22px]" strokeWidth={2.5}/>}
+                     </div>
+                     <div>
+                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">{exam.title}</div>
+                        <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">
+                          {exam.subject || "সাধারণ"} • {exam.questions?.length || 0}টি প্রশ্ন
+                        </div>
+                     </div>
+                  </div>
+                  
+                  <div className={`font-bengali text-[11px] font-bold px-3 py-1.5 rounded-full ${
+                    idx === 0 ? "bg-emerald-50 text-emerald-600 border border-emerald-100/50" : idx === 1 ? "bg-emerald-50 text-emerald-600 border border-emerald-100/50" : "bg-orange-50 text-orange-600 border border-orange-100/50"
+                  }`}>
+                     {idx === 0 ? "৮০%" : idx === 1 ? "সম্পন্ন" : "৬৫%"}
+                  </div>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <>
+              {/* Dummy Data for exact design match if no exams are running */}
+              <Link to="/exam?type=mistakes">
+                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                  <div className="flex items-center gap-3">
+                     <div className="w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 bg-rose-50 border border-rose-100 text-rose-500">
+                        <RefreshCw className="w-[22px] h-[22px]" strokeWidth={2.5}/>
+                     </div>
+                     <div>
+                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">ভুলের প্র্যাকটিস</div>
+                        <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">গণিত • ২০টি প্রশ্ন</div>
+                     </div>
+                  </div>
+                  <div className="font-bengali text-[11px] font-bold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100/50">
+                     ৮০%
+                  </div>
+                </div>
+              </Link>
+              
+              <Link to="/memorize">
+                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                  <div className="flex items-center gap-3">
+                     <div className="w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 bg-violet-50 border border-violet-100 text-violet-500">
+                        <Lightbulb className="w-[22px] h-[22px]" strokeWidth={2.5}/>
+                     </div>
+                     <div>
+                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">মেমোরাইজিং পাঠ</div>
+                        <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">ইংরেজি শব্দকোষ</div>
+                     </div>
+                  </div>
+                  <div className="font-bengali text-[11px] font-bold px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100/50">
+                     সম্পন্ন
+                  </div>
+                </div>
+              </Link>
+              
+              <Link to="/exam?type=model">
+                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                  <div className="flex items-center gap-3">
+                     <div className="w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 bg-orange-50 border border-orange-100 text-orange-500">
+                        <SearchCheck className="w-[22px] h-[22px]" strokeWidth={2.5}/>
+                     </div>
+                     <div>
+                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">মডেল টেস্ট</div>
+                        <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">মডেল টেস্ট - ০৩</div>
+                     </div>
+                  </div>
+                  <div className="font-bengali text-[11px] font-bold px-3 py-1.5 rounded-full bg-orange-50 text-orange-600 border border-orange-100/50">
+                     ৬৫%
+                  </div>
+                </div>
+              </Link>
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Quick Access: AI Tutor & Ask Teacher */}
+      <section className="grid grid-cols-2 gap-3 pt-2">
+         <Link to="/tutor" className="bg-white rounded-[20px] p-4 shadow-sm border border-blue-100 flex flex-col items-center justify-center gap-2 hover:border-blue-300 transition-colors group">
+            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+               <Brain className="w-6 h-6 text-blue-500" strokeWidth={2.5} />
+            </div>
+            <span className="font-bengali font-bold text-slate-800 text-[14px]">এআই টিউটর</span>
+         </Link>
+
+         <Link to="/doubts" className="bg-white rounded-[20px] p-4 shadow-sm border border-orange-100 flex flex-col items-center justify-center gap-2 hover:border-orange-300 transition-colors group">
+            <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+               <MessageCircleQuestion className="w-6 h-6 text-orange-500" strokeWidth={2.5} />
+            </div>
+            <span className="font-bengali font-bold text-slate-800 text-[14px] text-center leading-tight">শিক্ষককে<br/>প্রশ্ন করুন</span>
+         </Link>
+      </section>
+
+
+      {/* End bottom spacer */}
     </div>
   );
 }

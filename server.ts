@@ -284,9 +284,7 @@ async function startServer() {
   });
 
   // Vite middleware for development
-  const isDev = process.env.NODE_ENV !== "production" || 
-                process.env.VITE_DEV === "true" || 
-                (process.argv[1] && (process.argv[1].endsWith('server.ts') || process.argv[1].endsWith('server.js')));
+  const isDev = process.env.NODE_ENV !== "production" && process.env.VITE_DEV !== "false";
 
   console.log(`[Shikkhangon Server] NODE_ENV: ${process.env.NODE_ENV}, Port: ${PORT}, isDev: ${isDev}`);
   console.log(`[Shikkhangon Server] Entrypoint script: ${process.argv[1]}`);

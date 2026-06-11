@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Brain, User, Sparkles, Loader2, ImagePlus, X, MessageCircleQuestion, Users, CheckCircle2, ArrowLeft } from "lucide-react";
+import { Send, Brain, User, Sparkles, Loader2, ImagePlus, X, MessageCircleQuestion, Users, CheckCircle2, ArrowLeft, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ReactMarkdown from 'react-markdown';
@@ -8,6 +8,7 @@ import { collection, addDoc, getDocs, query, where, orderBy, doc, updateDoc, ser
 import { db } from "../lib/firebase";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { getSubjectsByGroup, mapUserClassToGroup } from "./Notes";
+import NotesCreator from "../components/NotesCreator";
 
 interface Message {
   id: string;
@@ -43,9 +44,9 @@ export default function AITutor() {
   const { userData } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const defaultTab = (searchParams.get("tab") as "ai" | "community_doubts" | "solve_doubts") || "ai";
+  const defaultTab = (searchParams.get("tab") as "ai" | "community_doubts" | "solve_doubts" | "notes_creator") || "ai";
   
-  const [activeTab, setActiveTab] = useState<"ai" | "community_doubts" | "solve_doubts">(defaultTab);
+  const [activeTab, setActiveTab] = useState<"ai" | "community_doubts" | "solve_doubts" | "notes_creator">(defaultTab);
   
   // AI Chat state
   const [messages, setMessages] = useState<Message[]>([
@@ -439,14 +440,24 @@ export default function AITutor() {
             শিক্ষককে প্রশ্ন করো
           </Button>
           {userData?.isTutor && (
-            <Button 
-              variant={activeTab === "solve_doubts" ? "secondary" : "ghost"} 
-              className={`font-bengali ${activeTab !== "solve_doubts" && "text-white hover:text-white/80 hover:bg-white/10"}`}
-              onClick={() => setActiveTab("solve_doubts")}
-            >
-              <Users className="w-4 h-4 mr-2" />
-              সকল ডাউটস (Tutor)
-            </Button>
+            <>
+              <Button 
+                variant={activeTab === "solve_doubts" ? "secondary" : "ghost"} 
+                className={`font-bengali ${activeTab !== "solve_doubts" && "text-white hover:text-white/80 hover:bg-white/10"}`}
+                onClick={() => setActiveTab("solve_doubts")}
+              >
+                <Users className="w-4 h-4 mr-2" />
+                সকল ডাউটস (Tutor)
+              </Button>
+              <Button 
+                variant={activeTab === "notes_creator" ? "secondary" : "ghost"} 
+                className={`font-bengali ${activeTab !== "notes_creator" && "text-white hover:text-white/80 hover:bg-white/10"}`}
+                onClick={() => setActiveTab("notes_creator")}
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                নোটস মেকার (Notes Creator)
+              </Button>
+            </>
           )}
         </div>
       </div>
@@ -735,6 +746,12 @@ export default function AITutor() {
                {allDoubts.map(renderDoubt)}
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === "notes_creator" && userData?.isTutor && (
+        <div className="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-6 lg:p-8">
+          <NotesCreator />
         </div>
       )}
     </div>

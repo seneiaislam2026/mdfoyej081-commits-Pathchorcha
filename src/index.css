@@ -137,7 +137,7 @@
 }
 
 @media print {
-  body {
+  body:not(.printing-allowed) {
     display: none !important;
   }
 }

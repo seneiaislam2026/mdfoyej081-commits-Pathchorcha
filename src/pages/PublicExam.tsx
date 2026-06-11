@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Clock, BookOpen, User, CheckCircle2, AlertCircle, ArrowLeft, XCircle, ChevronDown, ChevronUp, Timer, FileText, Brain } from "lucide-react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { Clock, BookOpen, User, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, XCircle, ChevronDown, ChevronUp, Timer, FileText, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -247,65 +247,138 @@ export default function PublicExam() {
     );
   }
 
+  const enToBnNumber = (num: number | string) => {
+    const bnNumbers = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return String(num).replace(/[0-9]/g, (w) => bnNumbers[Number(w)]);
+  };
+
   if (!isStarted) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] font-bengali pb-24">
+      <div className="min-h-screen bg-[#F0F2F5] flex flex-col font-bengali relative overflow-hidden">
+        {/* Subtle background decoration */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/40 via-transparent to-transparent pointer-events-none"></div>
+
         {/* Top Brand Header */}
-        <div className="bg-white px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm">
+        <div className="bg-white px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm relative z-10">
            <div className="flex items-center">
-             <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-50 border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
+             <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
              </button>
              <div className="font-bold text-2xl sm:text-[28px] tracking-tight flex items-center !leading-relaxed">
                 <span className="text-[#1e293b]">শিক্ষা</span><span className="text-[#f59e0b]">ঙ্গন</span>
              </div>
            </div>
+           {userData?.uid && (
+             <Link to="/profile" className="w-[38px] h-[38px] rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0 bg-blue-100 flex items-center justify-center hover:shadow-md transition-shadow">
+               {userData.photoURL ? (
+                 <img src={userData.photoURL} alt={userData.fullName} className="w-full h-full object-cover" />
+               ) : (
+                 <User className="w-5 h-5 text-blue-600" />
+               )}
+             </Link>
+           )}
         </div>
-        
-        <main className="w-full max-w-md mx-auto p-4 sm:p-6 mt-6 sm:mt-12">
-          <Card className="w-full border-0 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:border sm:border-slate-100 rounded-[32px] sm:rounded-[40px] overflow-hidden bg-white">
-            <CardContent className="p-8">
-              <div className="w-20 h-20 bg-[#f1f5f9] text-[#0f172a] rounded-full flex items-center justify-center mx-auto mb-6">
-                <BookOpen className="w-10 h-10" />
-              </div>
-              <h2 className="text-[22px] font-bold text-center text-[#1e293b] mb-4 leading-snug">{exam.title}</h2>
-              <div className="flex items-center justify-center text-slate-500 gap-3 mb-10 text-[15px] font-medium">
-                <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> Time: {exam.duration}m</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
-                <span>Total: {questions.length}</span>
-              </div>
+
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 pb-24 relative z-10 w-full">
+          <Card className="w-full max-w-[460px] border-0 shadow-[0_20px_60px_rgb(0,0,0,0.06)] rounded-[32px] sm:rounded-[40px] bg-white relative z-10">
+          <CardContent className="p-6 sm:p-10">
+            {/* Custom SVG icon */}
+            <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-2 relative left-2">
+              <circle cx="70" cy="75" r="45" fill="#F0F5FF"/>
               
-              <div className="space-y-6">
+              <path d="M 87 23 L 83 31" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round"/>
+              <path d="M 103 30 L 94 34" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round"/>
+              <path d="M 108 45 L 98 45" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round"/>
+              
+              <rect x="50" y="40" width="36" height="50" rx="4" fill="white" stroke="#0F2744" strokeWidth="2.5"/>
+              <rect x="58" y="34" width="20" height="10" rx="3" fill="#0F2744"/>
+              <rect x="62" y="30" width="12" height="6" rx="2" fill="#0F2744"/>
+              
+              <text x="68" y="56" fill="#0F2744" fontSize="10" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">EXAM</text>
+              
+              <rect x="55" y="62" width="5" height="5" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
+              <line x1="64" y1="64" x2="74" y2="64" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
+              
+              <rect x="55" y="72" width="5" height="5" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
+              <line x1="64" y1="74" x2="72" y2="74" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
+              
+              <rect x="55" y="82" width="5" height="5" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
+              <line x1="64" y1="84" x2="70" y2="84" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
+
+              <path d="M 54.5 63.5 L 56.5 65.5 L 59 61" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M 54.5 73.5 L 56.5 75.5 L 59 71" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M 54.5 83.5 L 56.5 85.5 L 59 81" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+
+              <g transform="translate(68, 62) rotate(-35)">
+                <path d="M 8 0 L 16 0 L 12 -12 Z" fill="#FACC15" stroke="#0F2744" strokeWidth="2" strokeLinejoin="round"/>
+                <path d="M 12 -12 L 10 -6 L 14 -6 Z" fill="#0F2744"/>
+                <rect x="8" y="0" width="8" height="20" fill="#FACC15" stroke="#0F2744" strokeWidth="2"/>
+                <rect x="8" y="20" width="8" height="6" fill="#F97316" stroke="#0F2744" strokeWidth="2"/>
+              </g>
+            </svg>
+
+            <h2 className="text-[22px] sm:text-[26px] font-bold text-center text-[#0F2744] mb-4 leading-[1.35] px-2 uppercase tracking-tight">
+              {exam.title}
+            </h2>
+
+            <div className="flex flex-row items-center justify-center text-[#0F2744] gap-4 sm:gap-6 mb-8 text-[15px] sm:text-[16px] font-bold">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-[#F0F5FF] flex items-center justify-center">
+                  <Clock className="w-3.5 h-3.5 text-[#0F2744]" strokeWidth={2.5}/> 
+                </div>
+                <span>সময়: {enToBnNumber(exam.duration)} মিনিট</span>
+              </div>
+              <div className="w-[1.5px] h-5 bg-slate-200"></div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-[#F0F5FF] flex items-center justify-center">
+                  <FileText className="w-3.5 h-3.5 text-[#0F2744]" strokeWidth={2.5}/> 
+                </div>
+                <span>মোট নম্বর: {enToBnNumber(questions.length)}</span>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="bg-[#F4F6FB] rounded-[24px] p-5 flex flex-col items-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <div className="w-7 h-7 rounded-full bg-[#E5EDF9] flex items-center justify-center shrink-0">
+                     <User className="w-3.5 h-3.5 text-[#475569]" strokeWidth={2.5}/>
+                  </div>
+                  <span className="text-[#64748B] text-[15px] font-semibold">পরীক্ষার্থী</span>
+                </div>
+
                 {!userData?.fullName ? (
-                  <div>
-                    <label className="block text-[15px] font-semibold text-slate-700 mb-3 text-center">আপনার নাম প্রদান করুন</label>
-                    <div className="relative">
-                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                   <div className="w-full mt-2 relative">
                       <Input 
                         placeholder="আপনার নাম লিখুন..." 
-                        className="pl-12 h-[56px] bg-white border-slate-200 rounded-2xl text-[16px] shadow-sm focus:border-slate-400 focus:ring-0"
+                        className="h-[52px] bg-white border-0 rounded-xl text-center text-lg shadow-sm focus:ring-0 font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal"
                         value={studentName}
                         onChange={(e) => setStudentName(e.target.value)}
                       />
-                    </div>
-                  </div>
+                   </div>
                 ) : (
-                   <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-center">
-                     <p className="text-slate-500 text-sm mb-1">পরীক্ষার্থী</p>
-                     <p className="font-bold text-slate-800 text-lg">{userData.fullName}</p>
+                   <div className="text-[24px] font-bold text-[#0F2744] mt-1 tracking-tight">
+                     {userData.fullName}
                    </div>
                 )}
-                <Button 
-                  onClick={handleStart} 
-                  className={`w-full h-[56px] text-lg rounded-[20px] shadow-md font-bold transition-colors text-white ${(!userData?.fullName && !studentName.trim()) ? 'bg-slate-300' : 'bg-[#1e293b] hover:bg-black'}`}
-                  disabled={!userData?.fullName && !studentName.trim()}
-                >
-                  পরীক্ষা শুরু করুন
-                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </main>
+
+              <Button 
+                onClick={handleStart} 
+                className={`w-full h-[64px] rounded-[24px] font-bold transition-all flex items-center justify-between px-2 drop-shadow-xl border border-white/5 ${(!userData?.fullName && !studentName.trim()) ? 'bg-slate-300 shadow-none' : 'bg-gradient-to-r from-[#03112B] to-[#0D2452] hover:from-[#020B1D] hover:to-[#051C3F] shadow-[0_8px_24px_rgba(5,28,63,0.3)]'}`}
+                disabled={!userData?.fullName && !studentName.trim()}
+              >
+                <div className="flex items-center gap-3 pl-4 sm:pl-6">
+                  <span className="text-[26px] drop-shadow-md pb-1">🚀</span>
+                  <span className="text-[20px] text-white">পরীক্ষা শুরু করুন</span>
+                </div>
+                <div className={`w-[48px] h-[48px] rounded-[20px] flex items-center justify-center shrink-0 mr-0 transition-colors ${(!userData?.fullName && !studentName.trim()) ? 'bg-slate-200 text-slate-400' : 'bg-white text-[#0A2656]'}`}>
+                   <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        </div>
       </div>
     );
   }
@@ -432,7 +505,7 @@ export default function PublicExam() {
                 </h3>
 
                 <div className="space-y-3">
-                  {q.options.map((option: any) => {
+                  {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any) => {
                     const isSelected = selectedAnswers[idx] === option.id;
                     const isThisCorrect = isQuestionSubmitted && (correct === option.id);
                     

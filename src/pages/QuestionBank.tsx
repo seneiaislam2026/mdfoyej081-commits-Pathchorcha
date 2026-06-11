@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain } from "lucide-react";
+import { Search, Filter, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Map as MapIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -148,6 +148,23 @@ const getUniversitiesByGroup = (group?: string) => {
   return [...commonBefore, nu];
 };
 
+
+const TOPICS_METADATA: Record<string, any> = {
+  "বাংলা": { name: "বাংলা সাহিত্য", icon: Library, count: "২২৩", desc: "রবীন্দ্রনাথ, নজরুল, আধুনিক সাহিত্য ও ব্যাকরণ", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "English": { name: "English", icon: Languages, count: "১০৮", desc: "English Grammar, Tense, Voice Change", bg: "bg-purple-50", iconColor: "text-purple-500" },
+  "ICT": { name: "ICT", icon: Monitor, count: "৮৯", desc: "কম্পিউটার বেসিক, হার্ডওয়্যার, সফটওয়্যার", bg: "bg-blue-50", iconColor: "text-blue-500" },
+  "উচ্চতর গণিত": { name: "উচ্চতর গণিত", icon: Calculator, count: "৯৮", desc: "ম্যাট্রিক্স, ডিটারমিনেন্ট, ক্যালকুলাস", bg: "bg-amber-50", iconColor: "text-amber-500" },
+  "গণিত": { name: "গণিত", icon: Calculator, count: "৮৫", desc: "পাটিগণিত, বীজগণিত, পরিমিতি", bg: "bg-amber-50", iconColor: "text-amber-500" },
+  "পদার্থবিজ্ঞান": { name: "পদার্থবিজ্ঞান", icon: Atom, count: "৭৬", desc: "যান্ত্রিক, তরঙ্গ, তাপগতিবিদ্যা", bg: "bg-indigo-50", iconColor: "text-indigo-500" },
+  "রসায়ন": { name: "রসায়ন", icon: FlaskConical, count: "৬৪", desc: "জৈব রসায়ন, অজৈব রসায়ন, গাণিতিক রসায়ন", bg: "bg-rose-50", iconColor: "text-rose-500" },
+  "রসায়ন": { name: "রসায়ন", icon: FlaskConical, count: "৬৪", desc: "জৈব রসায়ন, অজৈব রসায়ন, গাণিতিক রসায়ন", bg: "bg-rose-50", iconColor: "text-rose-500" },
+  "জীববিজ্ঞান": { name: "জীববিজ্ঞান", icon: Dna, count: "৫৮", desc: "উদ্ভিদবিজ্ঞান, প্রাণিবিজ্ঞান, জেনেটিক্স", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "ইতিহাস": { name: "ইতিহাস", icon: Globe, count: "৫৫", desc: "প্রাচীন, মধ্যযুগ, আধুনিক ইতিহাস", bg: "bg-orange-50", iconColor: "text-orange-500" },
+  "ভূগোল": { name: "ভূগোল", icon: MapIcon, count: "৪২", desc: "ভূ-প্রাকৃতিক, মানচিত্র, বাংলাদেশ ও বিশ্ব ভূগোল", bg: "bg-cyan-50", iconColor: "text-cyan-500" }
+};
+
+import { managementMCQs } from "../data/managementMcqs";
+
 export default function QuestionBank() {
   const { userData } = useAuth();
   const isPWA = useIsPWA();
@@ -166,6 +183,7 @@ export default function QuestionBank() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const tabParam = searchParams.get("tab") as "bank" | "topics" | "practice" | null;
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeSubTab, setActiveSubTab] = useState<"bank" | "topics" | "practice">(tabParam || "bank");
 
   useEffect(() => {
@@ -265,6 +283,15 @@ export default function QuestionBank() {
         const snap = await getDocs(q);
         let results: any[] = [];
         snap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
+
+        // Insert local management MCQs if we are in Admission classGroup (filter locally to match)
+        let filteredLocal = (managementMCQs as any[]).filter(m => m.classGroup === activeClassGroup);
+        if (activeClassGroup === "Admission" && activeClass) {
+          filteredLocal = filteredLocal.filter(m => !m.university || m.university === activeClass);
+        } else if (activeClassGroup !== "Admission" && activeClass) {
+          filteredLocal = filteredLocal.filter(m => !m.class || m.class === activeClass);
+        }
+        results = [...results, ...filteredLocal];
 
         // Group by title
         const grouped = results.reduce((acc, q) => {
@@ -564,11 +591,11 @@ export default function QuestionBank() {
           
           <div className="flex flex-col min-w-0">
             <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold text-blue-600 font-sans">
-              {activeSubTab === "bank" ? "নোটস • Question Bank" : activeSubTab === "topics" ? "টপিক ভিত্তিক • Topics" : "প্র্যাকটিস • Practice Engine"}
+              {activeSubTab === "bank" ? "প্রশ্নপত্র • Question Bank" : activeSubTab === "topics" ? "টপিক ভিত্তিক • Topics" : "প্র্যাকটিস • Practice Engine"}
             </span>
             <h2 className="text-[14px] sm:text-[17px] font-bengali font-extrabold text-slate-800 leading-tight truncate">
               {activeSubTab === "topics" 
-                ? "বিষয়ভিত্তিক নোটস" 
+                ? "বিষয়ভিত্তিক প্রশ্নমালা" 
                 : (activeClass === "ঢাকা বিশ্ববিদ্যালয়" 
                    ? "ঢাকা বিশ্ববিদ্যালয় C Unit নোটস" 
                    : (activeClass === "রাজশাহী বিশ্ববিদ্যালয়" 
@@ -664,73 +691,112 @@ export default function QuestionBank() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="space-y-5"
+              className="space-y-6"
             >
-              {/* Dynamic Horizontal scrolling Subject Pills */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-                {dynamicSubjects.map(sub => (
-                  <button
-                    key={sub}
-                    onClick={() => setActiveTopicSubject(sub)}
-                    className={`h-9 px-4 rounded-full font-bengali font-bold text-xs shrink-0 transition-all border ${activeTopicSubject === sub ? "bg-emerald-600 text-white border-emerald-600 shadow-sm" : "bg-white text-slate-600 hover:bg-slate-50 border-slate-200"}`}
-                  >
-                    {sub}
-                  </button>
-                ))}
+              {/* Hero Banner matched to user design */}
+              <div className="relative bg-[#EBECFF]/50 rounded-[32px] p-6 sm:p-8 overflow-hidden flex flex-row items-center justify-between gap-6">
+                {/* Decorative blobs */}
+                <div className="absolute top-[-20%] left-[-10%] w-[200px] h-[200px] bg-indigo-200/50 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute bottom-[-30%] right-[-10%] w-[250px] h-[250px] bg-purple-200/50 rounded-full blur-3xl pointer-events-none" />
+                
+                <div className="space-y-3 z-10 hidden sm:block">
+                  <div className="inline-flex items-center gap-1.5 text-indigo-700 font-sans text-xs font-bold uppercase tracking-wider">
+                    <BookOpen className="w-3.5 h-3.5" />
+                    টপিক ভিত্তিক • TOPICS
+                  </div>
+                  <h2 className="font-bengali text-2xl sm:text-3xl font-extrabold text-[#0F2744] tracking-tight leading-tight">
+                    বিষয়ভিত্তিক প্রশ্নমালা
+                  </h2>
+                  <p className="text-sm font-bengali text-slate-600 max-w-sm leading-relaxed">
+                    আপনার পছন্দের বিষয় নির্বাচন করে বহুনির্বাচনী প্রশ্ন (MCQ) প্র্যাকটিস করুন
+                  </p>
+                </div>
+
+                <div className="space-y-3 z-10 sm:hidden flex-1">
+                  <div className="inline-flex items-center gap-1.5 text-indigo-700 font-sans text-[10px] font-bold uppercase tracking-wider">
+                    <ArrowLeft className="w-3.5 h-3.5" onClick={() => setActiveSubTab("bank")} />
+                    টপিক ভিত্তিক • TOPICS
+                  </div>
+                  <h2 className="font-bengali text-xl font-extrabold text-[#0F2744] tracking-tight leading-tight">
+                    বিষয়ভিত্তিক প্রশ্নমালা
+                  </h2>
+                  <p className="text-xs font-bengali text-slate-600 max-w-xs leading-relaxed">
+                    আপনার পছন্দের বিষয় নির্বাচন করে বহুনির্বাচনী প্রশ্ন (MCQ) প্র্যাকটিস করুন
+                  </p>
+                </div>
+
+                {/* Vector / Abstract Illo */}
+                <div className="z-10 relative shrink-0">
+                  <div className="w-20 h-24 sm:w-28 sm:h-32 relative bg-white/60 backdrop-blur-sm rounded-xl border border-white shadow-[10px_10px_30px_rgba(0,0,0,0.05)] flex items-center justify-center skew-x-[-10deg] rotate-6 transform">
+                     <Library className="w-10 h-10 sm:w-14 sm:h-14 text-indigo-400 rotate-[-6deg] skew-x-[10deg]" />
+                     <div className="absolute -bottom-2 -left-2 w-8 h-8 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center rotate-[-6deg] skew-x-[10deg]">
+                       <Sparkles className="w-4 h-4 text-emerald-500" />
+                     </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Topic List */}
-              <div className="flex flex-col gap-4 mt-2">
-                {(() => {
-                  const filteredTopicNotes = ALL_NOTES.filter(note => {
-                    const matchSubj = note.subject.toLowerCase() === activeTopicSubject.toLowerCase();
-                    const matchClass = note.classGroup === "Admission" || note.classGroup === "HSC" || true; // let's just match subject for now to show something
-                    return matchSubj;
-                  });
+              {/* Search inside the subject page */}
+              <div className="relative w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Input 
+                  type="search" 
+                  placeholder="বিষয় খুঁজুন..." 
+                  className="pl-12 pr-14 font-bengali bg-white border-none shadow-[0_2px_15px_rgba(0,0,0,0.04)] rounded-[20px] h-14 text-base placeholder:text-slate-400" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-slate-500 hover:text-[#0F2744] transition-colors">
+                  <Filter className="w-4 h-4" />
+                  <span className="font-bengali text-sm font-semibold hidden sm:inline">ফিল্টার</span>
+                </button>
+              </div>
 
-                  if (filteredTopicNotes.length === 0) {
+              {/* Topic Cards List */}
+              <div className="grid gap-4 mt-6">
+                {dynamicSubjects
+                  .filter(sub => !searchQuery || sub.toLowerCase().includes(searchQuery.toLowerCase()))
+                  .map(sub => {
+                    const meta = TOPICS_METADATA[sub] || { 
+                      name: sub, 
+                      icon: BookOpen, 
+                      count: "১৫", 
+                      desc: `${sub} বিষয়ের গুরুত্বপূর্ণ সকল বহুনির্বাচনী প্রশ্ন (MCQ)`, 
+                      bg: "bg-slate-50", 
+                      iconColor: "text-slate-500" 
+                    };
+                    const IconComp = meta.icon;
                     return (
-                      <div className="bg-white p-12 text-center rounded-[32px] border border-slate-100 shadow-sm">
-                        <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                        <p className="font-bengali text-sm text-slate-500">এই বিষয়ের কোনো নোটস এখনো আপলোড করা হয়নি।</p>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="grid gap-5">
-                      {filteredTopicNotes.map(note => (
-                        <Link 
-                          key={note.id} 
-                          to={"/notes/subject/" + encodeURIComponent(activeTopicSubject)}
-                          className="bg-white p-5 sm:p-7 rounded-[28px] border border-slate-200/60 shadow-sm hover:shadow-md transition-all flex flex-col gap-3 group block cursor-pointer"
-                        >
-                          <div className="flex gap-2 flex-wrap">
-                            {note.badges?.map((b, i) => (
-                              <span key={i} className="text-[10px] font-bold tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bengali">
-                                {b}
-                              </span>
-                            ))}
-                          </div>
-                          <h4 className="font-bengali font-bold text-slate-800 text-lg group-hover:text-emerald-600 transition-colors">
-                            {note.title}
-                          </h4>
-                          <p className="text-sm font-bengali text-slate-500 line-clamp-2">
-                            {note.description}
-                          </p>
-                          <div className="flex items-center gap-2 mt-2 text-emerald-600 text-xs font-bold uppercase tracking-wider font-sans opacity-0 group-hover:opacity-100 transition-opacity">
-                            Read Note <ArrowRight className="w-3.5 h-3.5" />
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  );
-                })()}
+                      <Link 
+                        key={sub} 
+                        to={`/paper?title=${encodeURIComponent("Subject-wise Questions")}&subject=${encodeURIComponent(sub)}&classGroup=${encodeURIComponent(activeClassGroup || "")}&university=${encodeURIComponent(activeClass || "")}`}
+                        className="bg-white p-4 sm:p-5 rounded-[24px] border border-slate-100/50 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-slate-200 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] transition-all flex items-center justify-between gap-4 group"
+                      >
+                         <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
+                           <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] flex items-center justify-center ${meta.bg} ${meta.iconColor} shrink-0 group-hover:scale-105 transition-transform duration-300`}>
+                             <IconComp className="w-7 h-7 sm:w-8 sm:h-8" strokeWidth={1.5} />
+                           </div>
+                           <div className="space-y-0.5 sm:space-y-1 flex-1 min-w-0">
+                             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                               <h4 className="font-bengali font-bold text-slate-800 text-base sm:text-[19px] group-hover:text-[#0F2744] transition-colors truncate mb-1">
+                                 {meta.name}
+                               </h4>
+                               <span className="font-bengali text-[10px] sm:text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full shrink-0">
+                                 {meta.count} টপিকস
+                               </span>
+                             </div>
+                             <p className="font-bengali text-[13px] sm:text-[14px] text-slate-500 leading-snug font-medium truncate sm:whitespace-normal sm:line-clamp-2 pr-2">
+                               {meta.desc}
+                             </p>
+                           </div>
+                         </div>
+                         <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#0F2744] group-hover:translate-x-1 transition-all shrink-0 mr-1" />
+                      </Link>
+                    )
+                })}
               </div>
-
             </motion.div>
           )}
-
           {activeSubTab === "practice" && (
             <motion.div 
               key="practice-view"

@@ -4,12 +4,15 @@ import { ArrowLeft, Lightbulb } from "lucide-react";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
+import { managementMCQs } from "../data/managementMcqs";
+
 export default function PaperView() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const title = searchParams.get("title");
   const classGroup = searchParams.get("classGroup");
   const university = searchParams.get("university");
+  const subjectParam = searchParams.get("subject");
 
   const [questions, setQuestions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,15 +33,37 @@ export default function PaperView() {
           } else {
             q = query(q, where("class", "==", university));
           }
+          if (subjectParam) {
+            q = query(q, where("subject", "==", subjectParam));
+          }
+        } else if (subjectParam) {
+          q = query(q, where("subject", "==", subjectParam));
         }
         
         const snap = await getDocs(q);
-        const results: any[] = [];
+        let results: any[] = [];
         snap.forEach(doc => {
           const data = doc.data();
           if (title === "Subject-wise Questions" && data.title) return; // Skip questions that belong to a specific paper
           results.push({ id: doc.id, ...data });
         });
+
+        // Insert local management MCQs if title matches (or all if we want to filter later)
+        let localQ = managementMCQs as any[];
+        if (title && title !== "Subject-wise Questions") {
+          localQ = localQ.filter(m => m.title === title);
+        } else if (classGroup && university) {
+          localQ = localQ.filter(m => m.classGroup === classGroup);
+          if (classGroup === "Admission") {
+            localQ = localQ.filter(m => m.university === university);
+          } else {
+            localQ = localQ.filter(m => m.class === university);
+          }
+        }
+        if (subjectParam) {
+          localQ = localQ.filter(m => m.subject === subjectParam);
+        }
+        results = [...results, ...localQ];
         
         // Remove duplicates by question text
         const unique = new Map();
@@ -97,7 +122,7 @@ export default function PaperView() {
         </button>
         <div>
           <h1 className="text-xl md:text-2xl font-bengali font-bold text-slate-800">
-            {title || "প্রশ্নমালা"}
+            {title === "Subject-wise Questions" ? `${subjectParam || "বিষয়ভিত্তিক"} MCQ` : (title || "প্রশ্নমালা")}
           </h1>
           <p className="text-slate-500 text-sm font-bengali">{questions.length} টি প্রশ্ন</p>
         </div>
@@ -112,7 +137,7 @@ export default function PaperView() {
             
             <div className="space-y-12">
               {qs.map((q, idx) => (
-                <div key={q.id} className="relative">
+                <div key={q.id || q.text || idx} className="relative">
                   {/* Decorative line for options list */}
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -126,10 +151,10 @@ export default function PaperView() {
                   </div>
                   
                   <div className="grid gap-3 pl-2 md:pl-4">
-                    {q.options && q.options.map((opt: any) => {
-                      const isSelected = selectedAns[q.id] === opt.id;
+                    {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, label: q.options[k], text: q.options[k] }))).map((opt: any, optIdx: number) => {
+                      const isSelected = selectedAns[q.id || q.text] === opt.id;
                       const isCorrect = q.correctOption === opt.id;
-                      const isRevealed = revealedAns[q.id] || selectedAns[q.id];
+                      const isRevealed = revealedAns[q.id || q.text] || selectedAns[q.id || q.text];
 
                       let optionClass = 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 cursor-pointer';
                       let letterClass = 'bg-slate-100 text-slate-700';
@@ -146,22 +171,29 @@ export default function PaperView() {
                         }
                       }
 
+                      // Handle both 'A'/'B' and 'ক'/'খ' formats
+                      let displayLetter = opt.id;
+                      if (opt.id === 'A') displayLetter = 'ক';
+                      else if (opt.id === 'B') displayLetter = 'খ';
+                      else if (opt.id === 'C') displayLetter = 'গ';
+                      else if (opt.id === 'D') displayLetter = 'ঘ';
+
                       return (
                         <div 
-                          key={opt.id} 
+                          key={opt.id || optIdx} 
                           onClick={() => {
                             if (!isRevealed) {
-                              setSelectedAns(prev => ({ ...prev, [q.id]: opt.id }));
-                              setRevealedAns(prev => ({ ...prev, [q.id]: true }));
+                              setSelectedAns(prev => ({ ...prev, [q.id || q.text]: opt.id }));
+                              setRevealedAns(prev => ({ ...prev, [q.id || q.text]: true }));
                             }
                           }}
                           className={`flex flex-row items-center rounded-[14px] transition-all min-h-[44px] md:min-h-[48px] relative border-[1.5px] ${optionClass}`}
                         >
-                          <div className={`w-10 md:w-11 h-full self-stretch flex-shrink-0 flex items-center justify-center font-bold text-[13px] md:text-sm font-bengali border-r border-[rgba(0,0,0,0.05)] rounded-l-[12.5px] transition-colors ${letterClass}`}>
-                            {opt.id === 'A' ? 'ক' : opt.id === 'B' ? 'খ' : opt.id === 'C' ? 'গ' : 'ঘ'}
+                          <div className={`w-10 md:w-11 h-full flex-shrink-0 flex items-center justify-center font-bold text-[13px] md:text-sm font-bengali border-r border-[rgba(0,0,0,0.05)] rounded-l-[12.5px] transition-colors ${letterClass}`}>
+                            {displayLetter}
                           </div>
                           <div className="font-bengali font-medium text-[15px] px-3 py-2 flex-1 relative">
-                            {opt.label}
+                            {opt.label || opt.text}
                           </div>
                         </div>
                       )
@@ -170,13 +202,13 @@ export default function PaperView() {
                   
                   <div className="mt-4 pl-2 md:pl-4">
                     <button 
-                      onClick={() => setRevealedAns(prev => ({ ...prev, [q.id]: !prev[q.id] }))}
+                      onClick={() => setRevealedAns(prev => ({ ...prev, [q.id || q.text]: !prev[q.id || q.text] }))}
                       className="text-sm font-bengali text-primary font-bold hover:underline"
                     >
-                      {revealedAns[q.id] || selectedAns[q.id] ? "উত্তর লুকান" : "উত্তর দেখুন"}
+                      {revealedAns[q.id || q.text] || selectedAns[q.id || q.text] ? "উত্তর লুকান" : "উত্তর দেখুন"}
                     </button>
                     
-                    {(revealedAns[q.id] || selectedAns[q.id]) && (
+                    {(revealedAns[q.id || q.text] || selectedAns[q.id || q.text]) && (
                       <div className="mt-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 md:p-5">
                         <p className="font-bengali text-slate-800 mb-2 font-medium">
                           <span className="font-bold text-green-700">সঠিক উত্তর:</span> {

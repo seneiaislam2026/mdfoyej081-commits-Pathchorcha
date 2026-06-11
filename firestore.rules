@@ -15,9 +15,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      let isAllowedEmail = request.auth != null && request.auth.token != null && request.auth.token.email != null && (request.auth.token.email == 'mdfoyej081@gmail.com' || request.auth.token.email == 'seneiaislam@gmail.com' || request.auth.token.email.lower() == 'mdfoyej081@gmail.com');
-      let isDbAdmin = isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-      return isAllowedEmail || isDbAdmin;
+      return (request.auth != null && request.auth.token != null && request.auth.token.email != null && (request.auth.token.email == 'mdfoyej081@gmail.com' || request.auth.token.email == 'seneiaislam@gmail.com' || request.auth.token.email.lower() == 'mdfoyej081@gmail.com')) || (isSignedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true);
     }
 
     function isTutor() {
@@ -59,7 +57,7 @@ service cloud.firestore {
 
     match /questions/{questionId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if true;
     }
 
     match /subjects/{subjectId} {
@@ -116,6 +114,11 @@ service cloud.firestore {
     match /vocabulary/{wordId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    match /notes/{noteId} {
+      allow read: if true;
+      allow write: if isAdmin() || isTutor();
     }
   }
 }

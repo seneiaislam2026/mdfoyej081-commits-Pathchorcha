@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain } from "lucide-react";
+import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
@@ -20,27 +20,27 @@ const modelSets = [
 
 const subjectsByGroup: Record<string, {name: string, icon: any, color: string}[]> = {
   "common": [
-    { name: "বাংলা", icon: <BookOpen className="w-8 h-8 text-red-500" />, color: "bg-red-50 hover:border-red-200" },
-    { name: "English", icon: <span className="font-bold text-xl text-indigo-500">Aa</span>, color: "bg-indigo-50 hover:border-indigo-200" },
-    { name: "তথ্য ও যোগাযোগ প্রযুক্তি", icon: <Laptop className="w-8 h-8 text-blue-500" />, color: "bg-blue-50 hover:border-blue-200" },
+    { name: "বাংলা", icon: <BookOpen className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-red-50 hover:border-red-200" },
+    { name: "English", icon: <span className="font-bold text-[18px]">Aa</span>, color: "bg-indigo-50 hover:border-indigo-200" },
+    { name: "তথ্য ও যোগাযোগ প্রযুক্তি", icon: <Laptop className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-blue-50 hover:border-blue-200" },
   ],
   "বিজ্ঞান": [
-    { name: "পদার্থবিজ্ঞান", icon: <Atom className="w-8 h-8 text-purple-500" />, color: "bg-purple-50 hover:border-purple-200" },
-    { name: "রসায়ন", icon: <span className="text-2xl pt-1">🧪</span>, color: "bg-pink-50 hover:border-pink-200" },
-    { name: "উচ্চতর গণিত", icon: <span className="text-2xl pt-1 font-bold text-orange-500">π</span>, color: "bg-orange-50 hover:border-orange-200" },
-    { name: "জীববিজ্ঞান", icon: <span className="text-2xl pt-1">🧬</span>, color: "bg-green-50 hover:border-green-200" },
+    { name: "পদার্থবিজ্ঞান", icon: <Atom className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-purple-50 hover:border-purple-200" },
+    { name: "রসায়ন", icon: <TestTube className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-pink-50 hover:border-pink-200" },
+    { name: "উচ্চতর গণিত", icon: <span className="text-[18px] font-bold">π</span>, color: "bg-orange-50 hover:border-orange-200" },
+    { name: "জীববিজ্ঞান", icon: <Dna className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-green-50 hover:border-green-200" },
   ],
   "ব্যবসায় শিক্ষা": [
-    { name: "হিসাববিজ্ঞান", icon: <Calculator className="w-8 h-8 text-blue-500" />, color: "bg-blue-50 hover:border-blue-200" },
-    { name: "ব্যবসায় সংগঠন", icon: <Users className="w-8 h-8 text-green-600" />, color: "bg-emerald-50 hover:border-emerald-200" },
-    { name: "ফিন্যান্স", icon: <span className="text-2xl pt-1">💹</span>, color: "bg-rose-50 hover:border-rose-200" },
-    { name: "উৎপাদন ব্যবস্থাপনা", icon: <span className="text-2xl pt-1 px-1">🏭</span>, color: "bg-yellow-50 hover:border-yellow-200" },
+    { name: "হিসাববিজ্ঞান", icon: <Calculator className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-blue-50 hover:border-blue-200" },
+    { name: "ব্যবসায় সংগঠন", icon: <Users className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-emerald-50 hover:border-emerald-200" },
+    { name: "ফিন্যান্স", icon: <TrendingUp className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-rose-50 hover:border-rose-200" },
+    { name: "উৎপাদন ব্যবস্থাপনা", icon: <Factory className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-yellow-50 hover:border-yellow-200" },
   ],
   "মানবিক": [
-    { name: "ইতিহাস", icon: <span className="text-2xl pt-1">🏛️</span>, color: "bg-amber-50 hover:border-amber-200" },
-    { name: "ভূগোল", icon: <span className="text-2xl pt-1">🌍</span>, color: "bg-cyan-50 hover:border-cyan-200" },
-    { name: "অর্থনীতি", icon: <span className="text-2xl pt-1 px-1">৳</span>, color: "bg-fuchsia-50 hover:border-fuchsia-200" },
-    { name: "পৌরনীতি", icon: <span className="text-2xl pt-1 px-1">⚖️</span>, color: "bg-slate-50 hover:border-slate-300" },
+    { name: "ইতিহাস", icon: <Landmark className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-amber-50 hover:border-amber-200" },
+    { name: "ভূগোল", icon: <Globe className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-cyan-50 hover:border-cyan-200" },
+    { name: "অর্থনীতি", icon: <TrendingUp className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-fuchsia-50 hover:border-fuchsia-200" },
+    { name: "পৌরনীতি", icon: <Building2 className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-slate-50 hover:border-slate-300" },
   ]
 };
 
@@ -158,8 +158,16 @@ export default function Exam() {
              allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
           }
           
-          // Shuffle
-          const shuffled = allQs.sort(() => Math.random() - 0.5);
+          let finalQs = allQs;
+          if (type !== 'mistakes') {
+            finalQs = allQs.sort(() => Math.random() - 0.5);
+          } else {
+            finalQs = allQs.sort((a, b) => {
+               const idA = a.id || "";
+               const idB = b.id || "";
+               return idA.localeCompare(idB, undefined, {numeric: true, sensitivity: 'base'});
+            });
+          }
           
           let numQuestions = 10;
           if (type === 'mock' || type === 'mistakes') {
@@ -173,7 +181,7 @@ export default function Exam() {
              numQuestions = setInfo ? setInfo.totalQuestions : 50;
           }
           
-          const selectedQs = shuffled.slice(0, numQuestions);
+          const selectedQs = finalQs.slice(0, numQuestions);
           
           setDbQuestions(selectedQs.map((q: any, idx) => ({
              id: q.id,
@@ -328,78 +336,312 @@ export default function Exam() {
   // Screen 1: Subject Selection (for Mock Test only)
   if (type === 'mock' && !selectedSubject && !activeSet) {
     return (
-      <div className="max-w-4xl mx-auto py-12 px-4">
-         <div className="text-center mb-10">
-           <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">{pageTitle}</h2>
-           
-           <div className="flex items-center justify-center gap-3 mb-6">
-             {isOffline ? (
-               <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
-                 <AlertCircle className="w-4 h-4" /> অফলাইন মোড
-               </span>
-             ) : (
-               isPWA && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleOfflineSync} 
-                  disabled={isSyncing}
-                  className="font-bengali text-slate-600 rounded-full shrink-0"
+      <div className="w-full max-w-[500px] mx-auto pb-32 sm:max-w-2xl lg:max-w-4xl px-4 sm:px-6 pt-6 font-bengali">
+         
+         {/* Hero Banner Section */}
+         <div className="bg-[#F4F7FB] rounded-[20px] py-4 px-5 sm:px-6 sm:py-5 relative overflow-hidden mb-6 min-h-[110px] flex items-center">
+            <div className="relative z-10 w-[65%] sm:w-[70%]">
+              <h1 className="text-[22px] sm:text-[28px] font-bold text-[#0F2744] leading-normal mb-1">
+                মক টেস্ট<span className="hidden sm:inline"><br/></span> <span className="sm:inline">অনুশীলন</span>
+              </h1>
+              <p className="text-[#64748B] text-[12px] sm:text-[14px] leading-snug mt-1">
+                নিজেকে যাচাই করো অধ্যায়ভিত্তিক মক টেস্ট দিয়ে
+              </p>
+            </div>
+            
+            {/* SVG Illustration */}
+            <div className="absolute -right-4 -top-2 sm:top-1 w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] sm:right-2 opacity-90 sm:opacity-100 pointer-events-none">
+              <svg width="100%" height="100%" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="70" cy="75" r="45" fill="#E8F0FE"/>
+                
+                {/* Decorative sparks */}
+                <path d="M 35 45 L 30 35" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M 45 30 L 35 25" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M 55 20 L 50 10" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
+
+                <rect x="50" y="40" width="40" height="55" rx="4" fill="white" stroke="#0F2744" strokeWidth="2.5"/>
+                <rect x="58" y="35" width="24" height="10" rx="3" fill="#0F2744"/>
+                <rect x="62" y="33" width="16" height="3" rx="1.5" fill="white"/>
+                
+                <text x="70" y="55" fill="#0F2744" fontSize="9" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">EXAM</text>
+                
+                <rect x="56" y="63" width="4" height="4" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
+                <line x1="64" y1="65" x2="76" y2="65" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
+                
+                <rect x="56" y="73" width="4" height="4" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
+                <line x1="64" y1="75" x2="76" y2="75" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
+                
+                <rect x="56" y="83" width="4" height="4" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
+                <line x1="64" y1="85" x2="72" y2="85" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
+
+                <path d="M 55.5 64.5 L 57.5 66.5 L 61 62" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                
+                {/* Pencil */}
+                <g transform="translate(80, 56) rotate(-35) scale(0.9)">
+                  <path d="M 12 0 L 24 0 L 18 -18 Z" fill="#FACC15" stroke="#0F2744" strokeWidth="2" strokeLinejoin="round"/>
+                  <path d="M 18 -18 L 16 -12 L 20 -12 Z" fill="#0F2744"/>
+                  <rect x="12" y="0" width="12" height="28" fill="#FACC15" stroke="#0F2744" strokeWidth="2"/>
+                  <rect x="12" y="28" width="12" height="6" fill="#F97316" stroke="#0F2744" strokeWidth="2"/>
+                </g>
+              </svg>
+            </div>
+         </div>
+
+         {/* Heading */}
+         <div className="flex justify-between items-center mb-6">
+            <h2 className="text-[20px] font-bold text-[#0F2744] flex flex-col relative">
+               বিষয়ভিত্তিক
+               <div className="w-10 h-[3px] bg-amber-400 mt-1 rounded-full"></div>
+            </h2>
+            <Button variant="ghost" className="text-slate-500 text-sm hover:text-slate-800 bg-white border border-slate-100 px-3 py-1.5 h-auto rounded-full font-medium">
+               সব দেখুন &gt;
+            </Button>
+         </div>
+
+         {/* Subjects Grid */}
+         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-20">
+            {displaySubjects.slice(0, 8).map((subject, idx) => {
+              // Extract colors from typical tailwind classes
+              let iconBg = subject.color.split(' ')[0] || "bg-slate-50"; 
+              let iconColor = subject.color.split(' ')[1] || "text-slate-500";
+              
+              // For custom styling resembling the design
+              if (subject.name.includes("বাংলা")) { iconBg = "bg-rose-50"; iconColor = "text-rose-500"; }
+              if (subject.name.includes("English") || subject.name.includes("ইংরেজি")) { iconBg = "bg-violet-50"; iconColor = "text-violet-500"; }
+              if (subject.name.includes("তথ্য")) { iconBg = "bg-blue-50"; iconColor = "text-blue-500"; }
+              if (subject.name.includes("হিসাববিজ্ঞান")) { iconBg = "bg-blue-50"; iconColor = "text-blue-500"; }
+              if (subject.name.includes("ব্যবসায়")) { iconBg = "bg-emerald-50"; iconColor = "text-emerald-500"; }
+              if (subject.name.includes("ফিন্যান্স")) { iconBg = "bg-emerald-50"; iconColor = "text-emerald-500"; }
+              if (subject.name.includes("পৌরনীতি")) { iconBg = "bg-amber-50"; iconColor = "text-amber-500"; }
+              
+              // Map test counts to subjects visually (dummy numbers for UI copy matching if db varies)
+              let testCount = "১০ টেস্ট";
+              if(idx===0) testCount = "২০ টেস্ট";
+              else if(idx===1) testCount = "১৮ টেস্ট";
+              else if(idx===2) testCount = "১২ টেস্ট";
+              else if(idx===3) testCount = "১৫ টেস্ট";
+              else if(idx===4) testCount = "১০ টেস্ট";
+              else if(idx===5) testCount = "৮ টেস্ট";
+              else if(idx===6) testCount = "৯ টেস্ট";
+
+              return (
+                <div
+                  key={idx}
+                  onClick={() => setSelectedSubject(subject.name)}
+                  className="bg-white border border-slate-100 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] hover:shadow-md py-3 px-3 sm:px-4 rounded-[20px] transition-all flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
                 >
-                  <BookOpen className="w-4 h-4 mr-1.5" />
-                  {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
-                </Button>
-               )
-             )}
-           </div>
-
-           <p className="text-slate-500 font-bengali text-lg max-w-xl mx-auto mb-8">
-             {pageDesc}
-           </p>
-
-           <Button 
-             variant="default" 
-             size="lg" 
-             onClick={() => setSelectedSubject("সকল বিষয়")}
-             className="font-bengali bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90 rounded-full px-8 mb-4 h-12"
-           >
-             শুরু করুন সকল বিষয় একসাথে
-           </Button>
+                  <div className={`w-[40px] h-[40px] sm:w-[46px] sm:h-[46px] rounded-full ${iconBg} ${iconColor} flex items-center justify-center shrink-0`}>
+                    {subject.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                     <h4 className="font-bold text-[#0F2744] text-[13px] sm:text-[14px] leading-tight mb-0.5 whitespace-normal break-words pr-1">{subject.name}</h4>
+                     <p className="text-[11px] sm:text-[12px] text-slate-500 font-medium">{testCount}</p>
+                  </div>
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors shrink-0">
+                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </div>
+                </div>
+              );
+            })}
          </div>
 
-         <div className="mb-10 text-center">
-            <h3 className="text-2xl font-bengali font-bold text-slate-800 inline-block relative after:content-[''] after:absolute after:-bottom-3 after:left-1/2 after:-translate-x-1/2 after:w-16 after:h-1.5 after:bg-secondary after:rounded-full">
-               বিষয় ভিত্তিক
-            </h3>
+         {/* Fixed Bottom Button */}
+         <div className="fixed bottom-0 left-0 w-full p-4 sm:px-6 bg-gradient-to-t from-white via-white to-transparent pb-6 sm:pb-8 z-40 max-w-[500px] sm:max-w-2xl lg:max-w-4xl mx-auto md:left-1/2 md:-translate-x-1/2 md:pb-6">
+            <Button 
+               onClick={() => { setSelectedSubject("সকল বিষয়"); setActiveSet("mock-10"); }} 
+               className="w-full h-[64px] rounded-[32px] bg-gradient-to-r from-[#17316E] to-[#2563EB] shadow-[0_8px_24px_rgba(37,99,235,0.25)] flex items-center justify-between px-3 hover:scale-[1.02] transition-transform"
+            >
+               <div className="flex items-center gap-3 pl-3">
+                 <span className="text-[24px]">🚀</span>
+                 <span className="text-white font-bold text-[18px]">দ্রুত মক টেস্ট শুরু করুন</span>
+               </div>
+               <div className="w-[48px] h-[48px] rounded-full bg-white flex items-center justify-center text-[#2563EB] shrink-0 font-bold shadow-sm">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+               </div>
+            </Button>
          </div>
 
-         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-           {displaySubjects.map((subject, idx) => {
-             // Extract just the bg color, e.g. "bg-red-50"
-             const baseColor = subject.color.split(' ')[0];
-             return (
-               <motion.div
-                 key={idx}
-                 whileHover={{ scale: 1.05, translateY: -5 }}
-                 whileTap={{ scale: 0.95 }}
-                 onClick={() => setSelectedSubject(subject.name)}
-                 className="cursor-pointer bg-white border border-slate-100 hover:border-slate-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] p-5 sm:p-6 rounded-3xl transition-all duration-300 flex flex-col items-center text-center gap-4 group relative overflow-hidden"
-               >
-                 <div className={`absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-300 ease-out ${baseColor.replace('50', '500')}`}></div>
-                 <div className={`w-16 h-16 sm:w-20 sm:h-20 ${baseColor} border border-white ring-4 ring-slate-50/50 rounded-2xl shadow-sm flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500 ease-out relative z-10`}>
-                   {subject.icon}
-                 </div>
-                 <h4 className="font-bengali font-bold text-slate-800 text-sm sm:text-base relative z-10 leading-snug group-hover:text-primary transition-colors">{subject.name}</h4>
-               </motion.div>
-             );
-           })}
-         </div>
       </div>
     );
   }
 
   // Screen 2: Test Sets Selection
   if (!activeSet) {
+    if (type === 'model') {
+       return (
+         <div className="max-w-2xl mx-auto py-12 px-4">
+           {/* Header */}
+           <div className="text-center mb-10 relative">
+              <div className="flex justify-center mb-6">
+                 {/* Circle with clipboard icon */}
+                 <div className="w-[100px] h-[100px] rounded-full bg-slate-50 flex items-center justify-center relative shadow-sm border border-slate-100">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                       <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                       <rect x="9" y="3" width="6" height="4" rx="2"/>
+                       <path d="M9 14h6"/>
+                       <path d="M9 10h6"/>
+                    </svg>
+                    <div className="absolute bottom-2 -right-1 bg-white p-1 rounded-full shadow-sm">
+                       <div className="bg-amber-400 p-2 rounded-full border-2 border-white">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                             <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                          </svg>
+                       </div>
+                    </div>
+                    {/* Decorative dashes */}
+                    <div className="absolute top-2 -left-2 text-amber-500 rotate-12">
+                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 12h-4"/>
+                          <path d="M12 3v4"/>
+                          <path d="M20 5l-2.5 2.5"/>
+                       </svg>
+                    </div>
+                 </div>
+              </div>
+
+              <h2 className="text-[32px] sm:text-[40px] font-bengali font-extrabold mb-5 leading-tight">
+                 <span className="text-slate-800">মডেল টেস্ট</span> <span className="text-[#FFB800]">অনুশীলন</span>
+              </h2>
+
+              <div className="flex items-center justify-center gap-3 text-slate-500 font-bengali font-medium mb-6">
+                 <div className="w-12 sm:w-16 h-[1px] bg-slate-300"></div>
+                 <div className="flex items-center gap-2">
+                   <BookOpen className="w-4 h-4 text-slate-600" />
+                   <span className="text-sm sm:text-base text-slate-600">সাফল্যের পথে এক ধাপ এগিয়ে</span>
+                 </div>
+                 <div className="w-12 sm:w-16 h-[1px] bg-slate-300"></div>
+              </div>
+
+              <p className="text-slate-500 font-bengali text-sm sm:text-base max-w-[90%] mx-auto leading-relaxed">
+                 {pageDesc}
+              </p>
+
+              {/* Offline mode button */}
+              <div className="flex items-center justify-center gap-3 mt-6">
+                 {isOffline ? (
+                   <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
+                     <AlertCircle className="w-4 h-4" /> অফলাইন মোড
+                   </span>
+                 ) : (
+                   isPWA && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleOfflineSync} 
+                      disabled={isSyncing}
+                      className="font-bengali text-slate-600 rounded-full shrink-0"
+                    >
+                      <BookOpen className="w-4 h-4 mr-1.5" />
+                      {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
+                    </Button>
+                   )
+                 )}
+              </div>
+           </div>
+
+           {/* Cards List */}
+           <div className="flex flex-col gap-4 mb-6">
+             {sets.map((set, idx) => (
+                <motion.div
+                   key={set.id}
+                   whileHover={{ scale: 1.02 }}
+                   whileTap={{ scale: 0.98 }}
+                   onClick={() => setActiveSet(set.id)}
+                   className="cursor-pointer bg-white border border-slate-200 hover:border-slate-300 shadow-sm rounded-3xl p-4 sm:p-5 flex items-center justify-between group transition-all"
+                >
+                   <div className="flex items-center gap-5 sm:gap-6">
+                      <div className="relative shrink-0">
+                         {/* Document Icon Graphic */}
+                         <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#F8FAFC"/>
+                            <path d="M14 2v6h6" strokeWidth="1"/>
+                            <path d="M8 13h8" strokeWidth="1.5"/>
+                            <path d="M8 17h8" strokeWidth="1.5"/>
+                            {/* tiny checkmarks */}
+                            <path d="M8 9l1 1 2-2" strokeWidth="1.5" stroke="#10B981" />
+                            <path d="M8 13l1 1 2-2" strokeWidth="1.5" stroke="#10B981" />
+                         </svg>
+                         {/* Pen */}
+                         <div className="absolute -bottom-1 -right-2 text-amber-400 rotate-[15deg] bg-white rounded-full">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="#FBBF24" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                               <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+                            </svg>
+                         </div>
+                         {/* Number Badge */}
+                         <div className="absolute -bottom-1 -left-2 bg-[#0F172A] text-white font-mono font-bold text-sm sm:text-base px-2 py-0.5 rounded-lg shadow-md border-2 border-white tracking-widest pl-2.5">
+                            {(idx + 1).toString().padStart(2, '0').replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])}
+                         </div>
+                      </div>
+
+                      <div className="pl-2">
+                         <h3 className="text-lg sm:text-xl font-bengali font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors">
+                             {set.title}
+                         </h3>
+                         <div className="flex flex-wrap items-center gap-3 text-slate-500 font-bengali text-xs sm:text-sm">
+                            <div className="flex items-center gap-1.5">
+                               <Timer className="w-4 h-4 text-slate-400" />
+                               <span>{
+                                  set.timeMinutes >= 60 
+                                      ? `${Math.floor(set.timeMinutes / 60)} ঘণ্টা ${set.timeMinutes % 60 > 0 ? `${set.timeMinutes % 60} মিনিট` : ''}`.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])
+                                      : `${set.timeMinutes} মিনিট`.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])
+                               }</span>
+                            </div>
+                            <div className="text-slate-300">|</div>
+                            <div className="flex items-center gap-1.5">
+                               <FileText className="w-4 h-4 text-slate-400" />
+                               <span>{set.totalQuestions.toString().replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])} নম্বর</span>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0F172A] border-[3px] border-amber-400 flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform">
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
+                   </div>
+                </motion.div>
+             ))}
+           </div>
+
+           {/* Bottom Banner */}
+           <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 sm:p-6 mt-6 flex items-center gap-4 sm:gap-6 justify-center sm:justify-start text-center sm:text-left shadow-sm relative overflow-hidden">
+               {/* Pattern */}
+               <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20">
+                  <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <pattern id="dotsBanner" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <circle fill="#0F172A" cx="2" cy="2" r="2"></circle>
+                      </pattern>
+                    </defs>
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#dotsBanner)"></rect>
+                  </svg>
+               </div>
+               
+               <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-transparent shrink-0">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                     <circle cx="12" cy="12" r="10" stroke="#0F172A" strokeWidth="2"/>
+                     <circle cx="12" cy="12" r="6" stroke="#0F172A" strokeWidth="2"/>
+                     <circle cx="12" cy="12" r="2" stroke="#0F172A" strokeWidth="2"/>
+                     <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#0F172A" opacity="0.3" />
+                  </svg>
+               </div>
+               <div className="relative z-10">
+                  <div className="text-lg sm:text-xl font-bengali font-bold text-slate-800">
+                     লক্ষ্য ঠিক রাখো,
+                  </div>
+                  <div className="text-xl sm:text-2xl font-bengali font-extrabold mt-0.5 relative inline-block">
+                     <span className="text-[#FFB800]">সাফল্য</span> <span className="text-slate-800">হবেই তোমার!</span>
+                     <span className="text-amber-400 absolute -right-6 top-0">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                           <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
+                        </svg>
+                     </span>
+                  </div>
+               </div>
+           </div>
+         </div>
+       );
+    }
+
     return (
       <div className="max-w-4xl mx-auto py-12 px-4">
         {type === 'mock' && (
@@ -459,7 +701,7 @@ export default function Exam() {
                 শুরু করুন
              </button>
           </div>
-        ) : type === 'mock' ? (
+        ) : (
           <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden">
              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-secondary"></div>
              <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6 text-center">কয়টি প্রশ্নের পরীক্ষা দিতে চাও?</h3>
@@ -502,27 +744,6 @@ export default function Exam() {
                    শুরু করুন
                  </button>
              </div>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sets.map((set) => (
-              <motion.div
-                key={set.id}
-                whileHover={{ scale: 1.02, translateY: -4 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setActiveSet(set.id)}
-                className="cursor-pointer bg-white border border-slate-100 hover:border-primary/50 shadow-sm hover:shadow-md p-6 rounded-[24px] transition-all flex flex-col items-center text-center group relative overflow-hidden"
-              >
-                <div className="bg-primary/5 w-16 h-16 rounded-full flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
-                  <PlayCircle className="w-8 h-8 text-primary" />
-                </div>
-                <h3 className="text-xl font-bengali font-bold text-slate-800 mb-2">{set.title}</h3>
-                <div className="flex gap-4 text-slate-500 font-bengali text-sm mt-auto">
-                   <span>⏱️ {set.timeMinutes} মিনিট</span>
-                   <span>📝 {set.totalQuestions} প্রশ্ন</span>
-                </div>
-              </motion.div>
-            ))}
           </div>
         )}
       </div>
@@ -651,7 +872,7 @@ export default function Exam() {
 
                {/* Options */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                 {q.options.map((option: any) => {
+                 {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any) => {
                    const selected = selectedOptions[q.id] === option.id;
                    const correct = isCorrect(q.id, option.id);
                    const wrong = isIncorrect(q.id, option.id);

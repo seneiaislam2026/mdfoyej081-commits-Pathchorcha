@@ -30,7 +30,6 @@ import PublicExam from "./pages/PublicExam";
 import { ArrowLeft } from "lucide-react";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
-import ReloadPrompt from "./components/ReloadPrompt";
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -56,6 +55,8 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 }
 
+import LocalNotificationSystem from "./components/layout/LocalNotificationSystem";
+
 // Layout for user pages inside the app (post-authentication)
 
 // Layout for full screen notes
@@ -66,7 +67,10 @@ function NoteLayout() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-2">
+        <div className="animate-pulse flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200/60 flex items-center justify-center shadow-md overflow-hidden p-1.5 mb-1.5">
+            <img src="/icon.svg" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+          </div>
           <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
             <span className="text-[#0F2744]">শিক্ষা</span>
             <span className="text-[#F4B400]">ঙ্গন</span>
@@ -126,7 +130,10 @@ function AppLayout() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-2">
+        <div className="animate-pulse flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200/60 flex items-center justify-center shadow-md overflow-hidden p-1.5 mb-1.5">
+            <img src="/icon.svg" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+          </div>
           <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
             <span className="text-[#0F2744]">শিক্ষা</span>
             <span className="text-[#F4B400]">ঙ্গন</span>
@@ -136,7 +143,7 @@ function AppLayout() {
     );
   }
 
-  if (!user) {
+  if (!user && location.pathname !== '/memorize') {
     return <Navigate to="/auth" replace />;
   }
 
@@ -157,11 +164,14 @@ function AppLayout() {
     }
   };
 
+  const isFullScreenPage = location.pathname.startsWith("/notes");
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans mb-8">
       <Navbar />
+      <LocalNotificationSystem />
       <ProApprovedCongrats />
-      <main className="flex-1 w-full max-w-[1240px] mx-auto p-4 sm:p-6 lg:p-8">
+      <main className={isFullScreenPage ? "flex-1 w-full" : "flex-1 w-full max-w-[1240px] mx-auto p-4 sm:p-6 lg:p-8"}>
         {!hideGlobalBackButton && (
           <button 
             onClick={handleGoBack}
@@ -182,7 +192,6 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <InstallPrompt />
-        <ReloadPrompt />
         <Router>
           <Routes>
           {/* Public Routes without Navbar */}
