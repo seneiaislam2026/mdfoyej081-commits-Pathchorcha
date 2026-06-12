@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Map as MapIcon } from "lucide-react";
+import { Search, Filter, Briefcase, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Map as MapIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -110,7 +110,7 @@ const getSubjectsByGroup = (group?: string, classGroup?: string) => {
   if (group === "মানবিক" || group === "Arts") {
     return [...common, "ইতিহাস", "পৌরনীতি", "ভূগোল", "অর্থনীতি", "যুক্তিবিদ্যা", "সমাজবিজ্ঞান"];
   } else if (group === "বাণিজ্য" || group?.includes("ব্যবসায়") || group?.includes("ব্যবসায়") || group?.includes("Commerce") || group?.includes("Business")) {
-    return [...common, "হিসাববিজ্ঞান", "ব্যবসায় সংগঠন", "ফিন্যান্স", "উৎপাদন ব্যবস্থাপনা"];
+    return [...common, "হিসাববিজ্ঞান", "ম্যানেজমেন্ট", "ফিন্যান্স", "উৎপাদন ব্যবস্থাপনা"];
   }
   // Default to science
   return [...common, "উচ্চতর গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "রসায়ন", "জীববিজ্ঞান", "Math", "Physics", "Chemistry", "Biology"];
@@ -152,6 +152,8 @@ const getUniversitiesByGroup = (group?: string) => {
 const TOPICS_METADATA: Record<string, any> = {
   "বাংলা": { name: "বাংলা সাহিত্য", icon: Library, count: "২২৩", desc: "রবীন্দ্রনাথ, নজরুল, আধুনিক সাহিত্য ও ব্যাকরণ", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
   "English": { name: "English", icon: Languages, count: "১০৮", desc: "English Grammar, Tense, Voice Change", bg: "bg-purple-50", iconColor: "text-purple-500" },
+  "ম্যানেজমেন্ট": { name: "ম্যানেজমেন্ট", icon: Briefcase, count: "৫০", desc: "ব্যবস্থাপনা, সংগঠন, ব্যবসায় নীতি", bg: "bg-blue-50", iconColor: "text-blue-500" },
+  "হিসাববিজ্ঞান": { name: "হিসাববিজ্ঞান", icon: BookOpen, count: "০", desc: "হিসাববিজ্ঞান মূলনীতি, জাবেদা", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
   "ICT": { name: "ICT", icon: Monitor, count: "৮৯", desc: "কম্পিউটার বেসিক, হার্ডওয়্যার, সফটওয়্যার", bg: "bg-blue-50", iconColor: "text-blue-500" },
   "উচ্চতর গণিত": { name: "উচ্চতর গণিত", icon: Calculator, count: "৯৮", desc: "ম্যাট্রিক্স, ডিটারমিনেন্ট, ক্যালকুলাস", bg: "bg-amber-50", iconColor: "text-amber-500" },
   "গণিত": { name: "গণিত", icon: Calculator, count: "৮৫", desc: "পাটিগণিত, বীজগণিত, পরিমিতি", bg: "bg-amber-50", iconColor: "text-amber-500" },
@@ -239,36 +241,7 @@ export default function QuestionBank() {
     }
   }, [questionFormat, activeClassGroup]);
 
-  // Auto-merge duplicate exams based on user instructions
-  useEffect(() => {
-    async function runFix() {
-      try {
-        const qTarget = query(collection(db, "questions"), where("title", "==", "ঢাবি সি ইউনিট ২৫-২৬ (MCQ)"));
-        const snapTarget = await getDocs(qTarget);
-        if (snapTarget.docs.length > 0) {
-          const qBase = query(collection(db, "questions"), where("title", "==", "ঢাবি সি ২০২৫-২০২৬ (MCQ)"));
-          const snapBase = await getDocs(qBase);
-          let baseCount = snapBase.docs.length > 0 ? snapBase.docs.length : 36;
-          
-          let { writeBatch } = await import("firebase/firestore");
-          const batch = writeBatch(db);
-          let updated = 0;
-          snapTarget.docs.forEach((doc, idx) => {
-            batch.update(doc.ref, { 
-              title: "ঢাবি সি ২০২৫-২০২৬ (MCQ)",
-              question_no: baseCount + idx + 1
-            });
-            updated++;
-          });
-          await batch.commit();
-          window.location.reload();
-        }
-      } catch(e) {
-        console.error(e);
-      }
-    }
-    runFix();
-  }, []);
+
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -644,7 +617,7 @@ export default function QuestionBank() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {questionsList.map((paper, idx) => (
+                  {questionsList.filter(p => !p.title || p.title !== 'Subject-wise Questions').map((paper, idx) => (
                     <Link 
                       key={idx}
                       to={`/paperview?title=${encodeURIComponent(paper.title)}&classGroup=${encodeURIComponent(activeClassGroup)}`}

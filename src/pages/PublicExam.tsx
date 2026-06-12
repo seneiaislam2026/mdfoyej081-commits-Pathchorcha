@@ -505,7 +505,7 @@ export default function PublicExam() {
                 </h3>
 
                 <div className="space-y-3">
-                  {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any) => {
+                  {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any, optIdx: number) => {
                     const isSelected = selectedAnswers[idx] === option.id;
                     const isThisCorrect = isQuestionSubmitted && (correct === option.id);
                     
@@ -540,7 +540,7 @@ export default function PublicExam() {
 
                     return (
                       <button
-                        key={option.id}
+                        key={`${q.id || idx}-${option.id || optIdx}`}
                         onClick={() => { if (!isQuestionSubmitted) setSelectedAnswers({ ...selectedAnswers, [idx]: option.id }) }}
                         disabled={isQuestionSubmitted}
                         className={`w-full flex items-stretch rounded-[16px] border-[1.5px] overflow-hidden transition-all text-left ${optStyle}`}

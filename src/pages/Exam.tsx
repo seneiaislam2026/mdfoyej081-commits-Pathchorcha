@@ -856,8 +856,8 @@ export default function Exam() {
           ) : (
          <>
         <div className="bg-white sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
-          {dbQuestions.map((q) => (
-            <div key={q.id} className="question-block p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
+          {dbQuestions.map((q, idx) => (
+            <div key={q.id || idx} className="question-block p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
                {/* Question Header */}
                <div className="mb-4">
                  <div className="flex items-center gap-2 mb-2">
@@ -872,7 +872,7 @@ export default function Exam() {
 
                {/* Options */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                 {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any) => {
+                 {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any, optIdx: number) => {
                    const selected = selectedOptions[q.id] === option.id;
                    const correct = isCorrect(q.id, option.id);
                    const wrong = isIncorrect(q.id, option.id);
@@ -893,7 +893,7 @@ export default function Exam() {
 
                    return (
                      <motion.div 
-                       key={option.id}
+                       key={`${q.id || idx}-${option.id || optIdx}`}
                        whileHover={!isSubmitted ? { scale: 1.01 } : {}}
                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
                        onClick={() => handleSelect(q.id, option.id)}

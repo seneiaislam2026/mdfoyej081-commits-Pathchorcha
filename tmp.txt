@@ -1,0 +1,238 @@
+1:import { BrowserRouter as Router, Routes, Route, Outlet, useLocation, useNavigate, Navigate } from "react-router-dom";
+2:import React from "react";
+3:import Navbar from "./components/layout/Navbar";
+4:import WhatsAppSupport from "./components/WhatsAppSupport";
+5:import ProApprovedCongrats from "./components/layout/ProApprovedCongrats";
+6:import Login from "./pages/Login";
+7:import Home from "./pages/Home";
+8:import Landing from "./pages/Landing";
+9:import Auth from "./pages/Auth";
+10:import Onboarding from "./pages/Onboarding";
+11:import Dashboard from "./pages/Dashboard";
+12:import QuestionBank from "./pages/QuestionBank";
+13:import PaperView from "./pages/PaperView";
+14:import Notes from "./pages/Notes";
+15:import SubjectNotes from "./pages/SubjectNotes";
+16:import Exam from "./pages/Exam";
+17:import Leaderboard from "./pages/Leaderboard";
+18:import Profile from "./pages/Profile";
+19:import Admin from "./pages/Admin";
+20:import AITutor from "./pages/AITutor";
+21:import Memorize from "./pages/Memorize";
+22:import NoteDetails from "./pages/NoteDetails";
+23:import NoteHonesty from "./pages/NoteHonesty";
+24:import Doubts from "./pages/Doubts";
+25:import Subscription from "./pages/Subscription";
+26:import PaymentSuccess from "./pages/PaymentSuccess";
+27:import PaymentFail from "./pages/PaymentFail";
+28:import PaymentCancel from './pages/PaymentCancel';
+29:import MockPaymentPortal from './pages/MockPaymentPortal';
+30:import PublicExam from "./pages/PublicExam";
+31:import { ArrowLeft } from "lucide-react";
+32:import { AuthProvider, useAuth } from "./lib/AuthContext";
+33:import { InstallPrompt } from "./components/pwa/InstallPrompt";
+34:
+35:class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
+36:  constructor(props: {children: React.ReactNode}) {
+37:    super(props);
+38:    this.state = { hasError: false, error: null };
+39:  }
+40:
+41:  static getDerivedStateFromError(error: Error) {
+42:    return { hasError: true, error };
+43:  }
+44:
+45:  render() {
+46:    if (this.state.hasError) {
+47:      return (
+48:        <div className="p-10 font-mono text-red-500 bg-red-50 min-h-screen">
+49:          <h1 className="text-xl font-bold mb-4">Something went wrong.</h1>
+50:          <pre className="whitespace-pre-wrap">{this.state.error?.message}</pre>
+51:          <pre className="whitespace-pre-wrap mt-4 text-sm text-slate-600">{this.state.error?.stack}</pre>
+52:        </div>
+53:      );
+54:    }
+55:    return this.props.children;
+56:  }
+57:}
+58:
+59:import LocalNotificationSystem from "./components/layout/LocalNotificationSystem";
+60:
+61:// Layout for user pages inside the app (post-authentication)
+62:
+63:// Layout for full screen notes
+64:function NoteLayout() {
+65:  const navigate = useNavigate();
+66:  const { user, loading } = useAuth();
+67:
+68:  if (loading) {
+69:    return (
+70:      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+71:        <div className="animate-pulse flex flex-col items-center gap-3">
+72:          <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200/60 flex items-center justify-center shadow-md overflow-hidden p-1.5 mb-1.5">
+73:            <img src="/icon.svg" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+74:          </div>
+75:          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
+76:            <span className="text-[#0F2744]">শিক্ষা</span>
+77:            <span className="text-[#F4B400]">ঙ্গন</span>
+78:          </span>
+79:        </div>
+80:      </div>
+81:    );
+82:  }
+83:
+84:  if (!user) {
+85:    return <Navigate to="/auth" replace />;
+86:  }
+87:
+88:  const handleGoBack = () => {
+89:    if (window.history.state && window.history.state.idx > 0) {
+90:      navigate(-1);
+91:    } else {
+92:      navigate("/notes");
+93:    }
+94:  };
+95:
+96:  return (
+97:    <div 
+98:      className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans" 
+99:      style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+100:      onContextMenu={(e) => e.preventDefault()}
+101:    >
+102:      <main className="flex-1 w-full mx-auto p-4 sm:p-6 lg:p-8 relative">
+103:        <button 
+104:          onClick={handleGoBack}
+105:          className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors mb-4 md:mb-6 font-bengali font-medium px-4 py-2 rounded-2xl hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm w-fit"
+106:        >
+107:          <ArrowLeft className="w-5 h-5" />
+108:          ফিরে যান
+109:        </button>
+110:        
+111:      <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center opacity-[0.03] overflow-hidden">
+112:        <div className="transform -rotate-45 text-4xl sm:text-6xl font-black text-slate-900 whitespace-nowrap">
+113:          {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'} • {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'} • {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'}
+114:        </div>
+115:      </div>
+116:
+117:        <Outlet />
+118:        <WhatsAppSupport />
+119:      </main>
+120:    </div>
+121:  );
+122:}
+123:
+124:function AppLayout() {
+125:  const location = useLocation();
+126:  const navigate = useNavigate();
+127:  const { user, loading, userData } = useAuth();
+128:  
+129:  // Do not show back button on dashboard, exam, paper, and question-bank pages
+130:  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize";
+131:
+132:  if (loading) {
+133:    return (
+134:      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+135:        <div className="animate-pulse flex flex-col items-center gap-3">
+136:          <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200/60 flex items-center justify-center shadow-md overflow-hidden p-1.5 mb-1.5">
+137:            <img src="/icon.svg" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+138:          </div>
+139:          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
+140:            <span className="text-[#0F2744]">শিক্ষা</span>
+141:            <span className="text-[#F4B400]">ঙ্গন</span>
+142:          </span>
+143:        </div>
+144:      </div>
+145:    );
+146:  }
+147:
+148:  if (!user && location.pathname !== '/memorize') {
+149:    return <Navigate to="/auth" replace />;
+150:  }
+151:
+152:  if (location.pathname.startsWith('/admin')) {
+153:    const userEmail = user.email || "";
+154:    const isAdmin = userEmail.toLowerCase() === "mdfoyej081@gmail.com" || userEmail.toLowerCase() === "seneiaislam@gmail.com" || userData?.isAdmin === true;
+155:    if (!isAdmin) {
+156:      return <Navigate to="/dashboard" replace />;
+157:    }
+158:  }
+159:
+160:  const handleGoBack = () => {
+161:    // Check if React Router has history state indicating a previous page
+162:    if (window.history.state && window.history.state.idx > 0) {
+163:      navigate(-1);
+164:    } else {
+165:      navigate("/dashboard");
+166:    }
+167:  };
+168:
+169:  const isFullScreenPage = location.pathname.startsWith("/notes");
+170:
+171:  return (
+172:    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans mb-8">
+173:      <Navbar />
+174:      <LocalNotificationSystem />
+175:      <ProApprovedCongrats />
+176:      <main className={isFullScreenPage ? "flex-1 w-full" : "flex-1 w-full max-w-[1240px] mx-auto p-4 sm:p-6 lg:p-8"}>
+177:        {!hideGlobalBackButton && (
+178:          <button 
+179:            onClick={handleGoBack}
+180:            className="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors mb-4 md:mb-6 font-bengali font-medium px-4 py-2 rounded-2xl hover:bg-white border border-transparent hover:border-slate-200 hover:shadow-sm w-fit"
+181:          >
+182:            <ArrowLeft className="w-5 h-5" />
+183:            ফিরে যান
+184:          </button>
+185:        )}
+186:        <Outlet />
+187:      </main>
+188:    </div>
+189:  );
+190:}
+191:
+192:export default function App() {
+193:  return (
+194:    <ErrorBoundary>
+195:      <AuthProvider>
+196:        <InstallPrompt />
+197:        <Router>
+198:          <Routes>
+199:          {/* Public Routes without Navbar */}
+200:          <Route path="/" element={<Landing />} />
+201:          <Route path="/public-exam/:id" element={<PublicExam />} />
+202:        <Route path="/auth" element={<Auth />} />
+203:        <Route path="/onboarding" element={<Onboarding />} />
+204:        <Route path="/login" element={<Login />} />
+205:        
+206:        {/* Authenticated Routes with Navbar */}
+207:        <Route element={<AppLayout />}>
+208:          <Route path="/home" element={<Home />} />
+209:          <Route path="/dashboard" element={<Dashboard />} />
+210:          <Route path="/notes" element={<Notes />} />
+211:          <Route path="/notes/subject/:subjectName" element={<SubjectNotes />} />
+212:          <Route path="/bank" element={<QuestionBank />} />
+213:          <Route path="/paper" element={<PaperView />} />
+214:          <Route path="/memorize" element={<Memorize />} />
+215:          
+216:          
+217:          <Route path="/exam" element={<Exam />} />
+218:          <Route path="/leaderboard" element={<Leaderboard />} />
+219:          <Route path="/profile" element={<Profile />} />
+220:          <Route path="/admin" element={<Admin />} />
+221:          <Route path="/tutor" element={<AITutor />} />
+222:          <Route path="/doubts" element={<Doubts />} />
+223:          <Route path="/subscription" element={<Subscription />} />
+224:          <Route path="/payment-success" element={<PaymentSuccess />} />
+225:          <Route path="/payment-fail" element={<PaymentFail />} />
+226:          <Route path='/payment-cancel' element={<PaymentCancel />} />
+227:          <Route path='/mock-payment' element={<MockPaymentPortal />} />
+228:        </Route>
+229:        {/* Fallback */}
+230:          <Route path="*" element={<Navigate to="/" replace />} />
+231:        </Routes>
+232:      
+233:        </Router>
+234:    </AuthProvider>
+235:    </ErrorBoundary>
+236:  );
+237:}
+238:

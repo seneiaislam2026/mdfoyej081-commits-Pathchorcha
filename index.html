@@ -1,21 +1,7 @@
 <!doctype html>
 <html lang="bn">
   <head>
-  <script>
-    window.onerror = function(msg, url, lineNo, columnNo, error) {
-      const err = document.createElement('div');
-      err.style.color = 'red';
-      err.style.padding = '20px';
-      err.style.background = 'white';
-      err.style.position = 'absolute';
-      err.style.top = '0';
-      err.style.left = '0';
-      err.style.zIndex = '999999';
-      err.innerHTML = 'Error: ' + msg + '<br>Line: ' + lineNo + '<br>Col: ' + columnNo + '<br>Err: ' + (error ? error.stack : '');
-      document.body.appendChild(err);
-      return false;
-    };
-  </script>
+  
   
     <meta charset="UTF-8" />
     <link rel="manifest" href="/manifest.json" />

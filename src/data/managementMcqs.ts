@@ -21,8 +21,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "মুনাফা অর্জনের উদ্দেশ্যেই প্রধানত ব্যবসায়িক কার্যক্রম পরিচালিত হয়। মুনাফা অর্জন ব্যতীত কোনো অর্থনৈতিক কাজ ব্যবসায় নয়।"
   },
   {
@@ -47,8 +47,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ঘ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "'Business' শব্দটি লাতিন শব্দ 'Busyness' থেকে আসেনি, বরং এটি প্রাচীন ইংরেজি শব্দ 'bisignis' থেকে এসেছে। তবে প্রচলিত প্রশ্নে উত্তরটি 'Busyness' ধরা হয়, যার অর্থ ব্যস্ত থাকা বা 'state of being busy'।"
   },
   {
@@ -73,8 +73,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "মুনাফা অর্জন অর্থনৈতিক উদ্দেশ্য হলেও, সমাজে কর্মসংস্থান সৃষ্টি করা, পণ্যের নায্যমূল্য নিশ্চিত করা ইত্যাদি ব্যবসায়ের সামাজিক উদ্দেশ্য।"
   },
   {
@@ -99,8 +99,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "শিল্প হলো উৎপাদনের বাহন। প্রকৃতি প্রদত্ত সম্পদ সংগ্রহ করে মানুষের ব্যবহার উপযোগী পণ্যে রূপান্তরিত করা বা রূপগত উপযোগ সৃষ্টি করাই শিল্পের কাজ।"
   },
   {
@@ -125,8 +125,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "উৎপাদনকারীর নিকট থেকে পণ্য বা সেবা চূড়ান্ত ভোক্তার নিকট পৌঁছানোর যাবতীয় কার্যাবলিকে বাণিজ্য বলে।"
   },
   {
@@ -151,8 +151,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "পণ্য উৎপাদন করা মূলত শিল্পের কাজ, বাণিজ্যের নয়। বাণিজ্য হলো উৎপাদিত পণ্য ভোক্তার কাছে পৌঁছানোর বণ্টন প্রক্রিয়া।"
   },
   {
@@ -177,8 +177,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ঘ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "পরিবহন ব্যবস্থার মাধ্যমে এক স্থানের পণ্য অন্য স্থানে সহজে পৌঁছানো যায়, ফলে স্থানগত বাধা দূর হয়।"
   },
   {
@@ -203,8 +203,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ঘ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "গুদামজাতকরণের মাধ্যমে নির্দিষ্ট মৌসুমের পণ্য অন্য মৌসুমে ব্যবহারের জন্য সংরক্ষণ করা যায়, যা সময়গত উপযোগ সৃষ্টি করে।"
   },
   {
@@ -229,8 +229,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "ব্যাংকিং ব্যবস্থা ব্যবসায়ীদের মূলধন সরবরাহ করা এবং লেনদেনের অর্থ নিষ্পত্তিতে সহায়তা করে, ফলে অর্থগত বাধা দূর হয়।"
   },
   {
@@ -255,8 +255,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "বিমা চুক্তির মাধ্যমে ব্যবসায়ী তার সম্ভাব্য আর্থিক ঝুঁকির ক্ষতিপূরণ পাওয়ার নিশ্চয়তা লাভ করে, যা ঝুঁকিগত বাধা দূর করে।"
   },
   {
@@ -281,8 +281,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "বিজ্ঞাপনের মাধ্যমে সম্ভাব্য ক্রেতাদের নতুন পণ্য ও তার ব্যবহার সম্পর্কে জ্ঞান বা তথ্য প্রদান করা হয়।"
   },
   {
@@ -307,8 +307,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "প্রাচীন যুগে মানুষ তাদের প্রয়োজন মেটাতে দ্রব্য বিনিময় প্রথা শুরু করে, যা থেকে অর্থনৈতিক কার্যক্রমের সূচনা হয়।"
   },
   {
@@ -333,8 +333,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "১৭৬০-১৮৫০ সালের দিকে যুক্তরাজ্যে (গ্রেট ব্রিটেনে) সর্বপ্রথম শিল্প বিপ্লবের সূচনা ঘটে।"
   },
   {
@@ -359,8 +359,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "ঐতিহাসিকদের মতে, যুক্তরাজ্যে ১৭৬০ থেকে ১৮৫০ সালের সময়কালকে শিল্প বিপ্লবের সময়কাল ধরা হয়।"
   },
   {
@@ -385,8 +385,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "শিল্প বিপ্লবের ফলে যন্ত্রপাতির আবিষ্কার হয় এবং ব্যাপক উৎপাদনের মাধ্যমে বৃহদায়তন ব্যবসায়ের প্রসার ঘটে।"
   },
   {
@@ -411,8 +411,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "পরিবহন হলো বাণিজ্যের একটি শাখা, এটি শিল্পের কোনো প্রকারভেদ নয়। শিল্পের প্রকাবভেদ যেমন- প্রজনন, নিষ্কাশন, নির্মাণ ইত্যাদি।"
   },
   {
@@ -437,8 +437,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "যে শিল্পের মাধ্যমে ভূগর্ভ, পানি বা বায়ু থেকে সম্পদ উত্তোলন করা হয় তাকে নিষ্কাশন শিল্প বলে। যেমন- খনিজ সম্পদ উত্তোলন।"
   },
   {
@@ -463,8 +463,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "যে শিল্পে উৎপাদিত সামগ্রী পুনরায় উৎপাদনের কাজে ব্যবহৃত হয়, তাকে প্রজনন শিল্প বলে। যেমন- হ্যাচারি, নার্সারি।"
   },
   {
@@ -489,8 +489,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "যেসকল শিল্পের মাধ্যমে রাস্তা, ঘাট, দালানকোঠা, ব্রিজ ইত্যাদি অবকাঠামো তৈরি করা হয়, তাকে নির্মাণ শিল্প বলে।"
   },
   {
@@ -515,8 +515,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "যন্ত্রপাতি ও শ্রমের সাহায্যে কাঁচামাল বা অর্ধপ্রস্তুত জিনিসকে মানুষের ব্যবহার উপযোগী পণ্যে রূপান্তরিত করাকে উৎপাদন বা প্রস্তুত শিল্প বলে। তুলা থেকে সুতা ও কাপড় তৈরি এর উদাহরণ।"
   },
   {
@@ -541,8 +541,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "যে শিল্পের মাধ্যমে মানুষের জীবনযাত্রাকে সহজ ও আরামদায়ক করার জন্য বিভিন্ন সেবা সরবরাহ করা হয়, তাকে সেবা পরিবেশক শিল্প বলে। যেমন- বিদ্যুৎ, গ্যাস ও পানি সরবরাহ।"
   },
   {
@@ -567,8 +567,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "পেশাগত জ্ঞান ও দক্ষতার মাধ্যমে গ্রাহকদের সরাসরি যে সেবা প্রদান করা হয়, তা প্রত্যক্ষ সেবা। ওকালতি বা ডাক্তারি পেশা এর উদাহরণ।"
   },
   {
@@ -593,8 +593,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "বাণিজ্যে মূলত ক্রয়-বিক্রয়ের মাধ্যমে পণ্যের মালিকানা পরিবর্তন হয়, ফলে স্বত্বগত বা মালিকানাগত উপযোগ সৃষ্টি হয়।"
   },
   {
@@ -619,8 +619,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "ঐতিহাসিকভাবে মানুষের প্রথম ব্যবসায়িক উদ্যোগ ছিল একমালিকানা ব্যবসায়। একমালিকানা ব্যবসায় মানব সভ্যতার মতই প্রাচীন।"
   },
   {
@@ -645,8 +645,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "যেকোনো ব্যবসায় দীর্ঘমেয়াদে টিকে থাকতে এবং সাফল্য লাভ করতে সততা ও দক্ষতার কোনো বিকল্প নেই।"
   },
   {
@@ -671,8 +671,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "পণ্য বিনিময় বা ট্রেড বলতে মূলত মুনাফা অর্জনের উদ্দেশ্যে পণ্য বা সেবা ক্রয়-বিক্রয়কে বোঝায়।"
   },
   {
@@ -697,8 +697,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ঘ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "মুনাফা অর্জনের উদ্দেশ্যে ঝুঁকি নিয়ে গঠনমূলক অর্থনৈতিক কাজ সম্পাদন করাই হলো ব্যবসায়।"
   },
   {
@@ -723,8 +723,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "ব্যবসায়ের অন্যতম প্রধান এবং স্বকীয় বৈশিষ্ট্য হলো ঝুঁকি গ্রহণ ও মুনাফা অর্জন।"
   },
   {
@@ -749,8 +749,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ঘ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "পণ্য বিনিময়ের মাধ্যমে একজন বিক্রেতার কাছ থেকে পণ্যের মালিকানা ক্রেতার কাছে স্থানান্তরিত হয়, যা রূপগত নয়, বরং স্বত্বগত উপযোগ সৃষ্টি করে।"
   },
   {
@@ -775,8 +775,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "শিল্প সাধারণত উপকরণ বা কাঁচামালের আকার ও রূপ পরিবর্তন করে নতুন পণ্য তৈরি করে; এটি রূপগত উপযোগ।"
   },
   {
@@ -801,8 +801,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "সাধারণত শিল্পকে পাঁচ ভাগে ভাগ করা যায়: প্রজনন শিল্প, নিষ্কাশন শিল্প, নির্মাণ শিল্প, প্রস্তুতকরণ/উৎপাদন শিল্প এবং সেবা পরিবেশক শিল্প।"
   },
   {
@@ -827,8 +827,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "ট্রেড বা পণ্য বিনিময় প্রধানত ২ প্রকার: অভ্যন্তরীণ বাণিজ্য (Internal Trade) এবং বৈদেশিক বাণিজ্য (Foreign Trade)।"
   },
   {
@@ -853,8 +853,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "২টি ভিন্ন দেশের মধ্যে যে বাণিজ্য সংঘটিত হয়। এর ৩টি রূপ: আমদানি, রপ্তানি ও পুনরপ্তানি।"
   },
   {
@@ -879,8 +879,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "একটি দেশ থেকে পণ্য আমদানি করে, কোনো রূপ পরিবর্তন না করে বা সামান্য পরিবর্তন করে তৃতীয় একটি দেশে পুনরায় রপ্তানি করাকে পুনরপ্তানি বলে।"
   },
   {
@@ -905,8 +905,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "সিঙ্গাপুর ও হংকং তাদের ভৌগোলিক অবস্থানের কারণে পুনরপ্তানি বাণিজ্যের জন্য সারা বিশ্বে বিখ্যাত।"
   },
   {
@@ -931,8 +931,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "দেশের ভেতরে সংঘটিত বাণিজ্য মূলত দুটি উপায়ে হয়: পাইকারি ব্যবসায় (উৎপাদকের কাছ থেকে কেনা) এবং খুচরা ব্যবসায় (ভোক্তার কাছে বিক্রি)।"
   },
   {
@@ -957,8 +957,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "বাণিজ্য হলো উৎপাদক এবং চূড়ান্ত ভোক্তার মাঝে সংযোগনকারী সেতু। এটি উৎপাদকের পণ্য ভোক্তার কাছে পৌঁছে দেয়।"
   },
   {
@@ -983,8 +983,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "শিল্প হলো উৎপাদনের বাহন। কাঁচামালকে প্রক্রিয়া করে মানুষের ব্যবহার উপযোগী পণ্যে রূপান্তরিত করাকে শিল্প (Industry) বলে।"
   },
   {
@@ -1009,8 +1009,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "নোবেলজয়ী অর্থনীতিবিদ ড. মুহাম্মদ ইউনূস সর্বপ্রথম সামাজিক ব্যবসায় বা Social Business এর ধারণা প্রবর্তন করেন।"
   },
   {
@@ -1035,8 +1035,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "সামাজিক ব্যবসায়ের মূল উদ্দেশ্য সমাজের কোনো একটি সমস্যার সমাধান করা। এতে মুনাফা অর্জিত হলেও মালিকরা মূলধনের বেশি লভ্যাংশ নেন না।"
   },
   {
@@ -1061,8 +1061,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "লভ্যাংশ বিনিয়োগকারীদের মধ্যে বণ্টন করা সামাজিক ব্যবসায়ের বৈশিষ্ট্য নয়। বিনিয়োগকারী শুধুমাত্র তার বিনিয়োগকৃত মূলধন ফেরত নিতে পারেন, কোনো বাড়তি লভ্যাংশ নয়।"
   },
   {
@@ -1087,8 +1087,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "অর্থনীতির জনক অ্যাডাম স্মিথ তার 'The Wealth of Nations' (১৭৭৬) বইয়ে শ্রমবিভাগের ধারণা প্রথম প্রবর্তন করেন।"
   },
   {
@@ -1113,8 +1113,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "মানব ইতিহাস ও সভ্যতার আদিকাল থেকেই মানুষ ব্যক্তিগত উদ্যোগে ব্যবসায় শুরু করেছে, যা একমালিকানা ব্যবসায়।"
   },
   {
@@ -1139,8 +1139,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "শিল্প বিপ্লবের সময়কালে (আধুনিক যুগের সূচনালগ্নে) যন্ত্রের ব্যবহার শুরু হওয়ায় বৃহদায়তন ব্যবসায় বা যৌথ মূলধনী কোম্পানির উদ্ভব ঘটে।"
   },
   {
@@ -1165,8 +1165,8 @@ export const managementMCQs = [
     ],
     "correctOption": "ক",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "উৎপাদন প্রক্রিয়ার মাধ্যমে বস্তুর আকার ও রূপ পরিবর্তন করা হয়, ফলে রূপগত বা আকারগত উপযোগ সৃষ্টি হয়।"
   },
   {
@@ -1191,8 +1191,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "শিল্পের মাধ্যমে কাঁচামাল বা উপকরণকে ব্যবহার উপযোগী পণ্যে রূপান্তরিত করা হয়, তাই এটি একটি উৎপাদনমূলক কাজ।"
   },
   {
@@ -1217,8 +1217,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "বাণিজ্য উৎপাদকের তৈরি সামগ্রী বণ্টন প্রক্রিয়ার মাধ্যমে ভোক্তার কাছে পৌঁছে দেয়, তাই এটি বণ্টনমূলক কাজ।"
   },
   {
@@ -1243,8 +1243,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "আধুনিক ব্যবসায়ের আওতাকে ৩ ভাগে ভাগ করা যায়: শিল্প (Industry), বাণিজ্য (Commerce) এবং প্রত্যক্ষ সেবা (Direct Service)।"
   },
   {
@@ -1269,8 +1269,8 @@ export const managementMCQs = [
     ],
     "correctOption": "গ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "ব্যক্তিগত দক্ষতা ও জ্ঞানের ভিত্তিতে স্বাধীন পেশায় নিয়োজিত হয়ে গ্রহীতাকে সরাসরি সেবা প্রদান হলো প্রত্যক্ষ সেবা বা পেশা।"
   },
   {
@@ -1295,8 +1295,8 @@ export const managementMCQs = [
     ],
     "correctOption": "খ",
     "classGroup": "Admission",
-    "subject": "ব্যবসায় সংগঠন",
-    "title": "ম্যানেজমেন্ট ১ম অধ্যায় — সেরা ৫০টি অতি গুরুত্বপূর্ণ এমসিকিউ",
+    "subject": "ম্যানেজমেন্ট",
+    "title": "Subject-wise Questions",
     "explanation": "ব্যবসায়ের মূল চাকা হলো উৎপাদন। পণ্য ও সেবা উৎপাদন করা ব্যবসায়ের প্রথম ও প্রধান কাজ।"
   }
 ];

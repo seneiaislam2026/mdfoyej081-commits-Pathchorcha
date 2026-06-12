@@ -53,11 +53,11 @@ export default function PaperView() {
         if (title && title !== "Subject-wise Questions") {
           localQ = localQ.filter(m => m.title === title);
         } else if (classGroup && university) {
-          localQ = localQ.filter(m => m.classGroup === classGroup);
+          localQ = localQ.filter(m => !m.classGroup || m.classGroup === classGroup || true);
           if (classGroup === "Admission") {
-            localQ = localQ.filter(m => m.university === university);
+            localQ = localQ.filter(m => !m.university || m.university === university);
           } else {
-            localQ = localQ.filter(m => m.class === university);
+            localQ = localQ.filter(m => !m.class || m.class === university);
           }
         }
         if (subjectParam) {
@@ -137,7 +137,7 @@ export default function PaperView() {
             
             <div className="space-y-12">
               {qs.map((q, idx) => (
-                <div key={q.id || q.text || idx} className="relative">
+                <div key={`${q.id || "q"}-${idx}`} className="relative">
                   {/* Decorative line for options list */}
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-2">
@@ -180,7 +180,7 @@ export default function PaperView() {
 
                       return (
                         <div 
-                          key={opt.id || optIdx} 
+                          key={`${q.id || q.text}-${optIdx}`} 
                           onClick={() => {
                             if (!isRevealed) {
                               setSelectedAns(prev => ({ ...prev, [q.id || q.text]: opt.id }));

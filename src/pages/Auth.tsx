@@ -255,7 +255,17 @@ export default function Auth() {
           className="w-full max-w-[400px] bg-white p-6 sm:p-8 rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/90 relative z-10 flex flex-col justify-between"
         >
           {/* Centered Artistic Brand Logo and Title */}
-          <div className="text-center mb-6">
+          {window.self !== window.top && (
+  <div className='bg-orange-50 border border-orange-200 p-4 rounded-[24px] mb-6 shadow-sm'>
+    <h4 className='text-orange-800 font-bold font-bengali text-sm flex items-center gap-2 mb-1'>
+       <span className='text-lg'>⚠️</span> প্রিভিউ মোড অ্যালার্ট
+    </h4>
+    <p className='text-orange-900 font-bengali text-xs leading-relaxed opacity-90'>
+      লগিন বারবার মুছে গেলে, দয়াকরে উপরের <b>নতুন ট্যাবে</b> আইকনে ক্লিক করে ওয়েবসাইটটি ওপেন করুন। (Open in a new tab)
+    </p>
+  </div>
+)}
+<div className='text-center mb-6'>
             <div className="flex flex-col items-center justify-center mb-4">
               <Link to="/" className="inline-flex flex-col items-center gap-1 group">
                 {/* Custom stylized "Shikkhangon" badge with correct brand colors */}

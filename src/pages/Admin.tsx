@@ -35,6 +35,7 @@ const menuItems = [
   { id: "students", bnLabel: "শিক্ষার্থী", enLabel: "Students", icon: <Users className="w-5 h-5" /> },
   { id: "payments", bnLabel: "পেমেন্ট ভেরিফাই", enLabel: "Payments", icon: <Crown className="w-5 h-5 text-amber-500" /> },
   { id: "questions", bnLabel: "প্রশ্ন ব্যাংক", enLabel: "Questions", icon: <FileQuestion className="w-5 h-5" /> },
+  { id: "subject_questions", bnLabel: "বিষয়ভিত্তিক প্রশ্ন", enLabel: "Subject Questions", icon: <BookOpen className="w-5 h-5 text-sky-500" /> },
   { id: "vocabulary", bnLabel: "শব্দকোষ", enLabel: "Vocabulary", icon: <BookOpen className="w-5 h-5 text-indigo-500" /> },
   { id: "notes_creator", bnLabel: "নোটস মেকার", enLabel: "Notes Creator", icon: <BookOpen className="w-5 h-5 text-emerald-500" />, isNew: true },
   { id: "subjects", bnLabel: "বিষয়", enLabel: "Subjects", icon: <BookOpen className="w-5 h-5" /> },
@@ -102,6 +103,7 @@ export default function Admin() {
   const [newExamScheduledDate, setNewExamScheduledDate] = useState("");
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [questionSearch, setQuestionSearch] = useState("");
+  const [subjectBankFilter, setSubjectBankFilter] = useState("Bangla 1st Paper");
   const [questionSubjectFilter, setQuestionSubjectFilter] = useState("All Subjects");
   const [studentSearch, setStudentSearch] = useState("");
   const [studentClassFilter, setStudentClassFilter] = useState("All Classes");
@@ -143,7 +145,7 @@ export default function Admin() {
       fetchReports();
     } else if (activeTab === "subjects") {
       fetchSubjects();
-    } else if (activeTab === "questions") {
+    } else if (activeTab === "questions" || activeTab === "subject_questions") {
       fetchQuestions();
     } else if (activeTab === "vocabulary") {
       fetchVocabulary();
@@ -596,7 +598,7 @@ export default function Admin() {
                       label: optLabel
                     }));
                  } else if (q.options[0].text && !q.options[0].label) {
-                    formattedOptions = q.options.map((opt: any) => ({
+                    formattedOptions = q.options.map((opt: any, optIdx: number) => ({
                       id: opt.id,
                       label: opt.text
                     }));
@@ -1214,7 +1216,7 @@ export default function Admin() {
         {/* Quick Logout Button */}
         <div className="pt-4 mt-4 border-t border-slate-50">
           <Button 
-            onClick={() => navigate("/")}
+onClick={async () => { const { auth } = await import('../lib/firebase'); await auth.signOut(); navigate('/'); }}
             variant="ghost" 
             className="w-full text-red-650 hover:text-red-700 hover:bg-red-50/50 rounded-2xl flex justify-start pl-4 cursor-pointer font-bold"
           >
@@ -1815,6 +1817,71 @@ export default function Admin() {
             </div>
           </div>
 
+        ) : activeTab === "subject_questions" ? (
+          <div className="space-y-6 overflow-hidden">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
+              <div>
+                <h3 className="text-2xl font-bold font-bengali">বিষয়ভিত্তিক প্রশ্ন</h3>
+                <p className="text-muted-foreground font-bengali text-sm mt-1">যেকোনো বিষয়ের ওপর সরাসরি প্রশ্ন যোগ করুন।</p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" className="bg-white text-primary font-bengali" onClick={() => {
+                  setBulkUploadSubject(subjectBankFilter);
+                  setShowBulkUpload(true);
+                }}>
+                  <Upload className="w-4 h-4 mr-2" /> Bulk Upload JSON
+                </Button>
+                <Button className="bg-primary hover:bg-primary/90 text-white font-bengali" onClick={() => setEditQuestion({
+                  id: 'new', text: '', university: '', subject: subjectBankFilter, title: '', options: [{id: 'A', label: ''}, {id: 'B', label: ''}, {id: 'C', label: ''}, {id: 'D', label: ''}], correctOption: 'A', explanation: '', isSubjectWiseOnly: true
+                })}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  নতুন প্রশ্ন
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+               <label className="font-bengali font-bold whitespace-nowrap">বিষয় নির্বাচন করুন:</label>
+               <select
+                 className="flex-1 max-w-xs border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10 bg-slate-50"
+                 value={subjectBankFilter}
+                 onChange={(e) => setSubjectBankFilter(e.target.value)}
+               >
+                 <option value="">সকল বিষয়</option>
+                 {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)])).map((sub: string) => (
+                   <option key={sub} value={sub}>{sub}</option>
+                 ))}
+               </select>
+            </div>
+
+            <div className="grid gap-4 mt-6">
+              {questions.filter(q => (!q.title || q.title === "Subject-wise Questions") && (subjectBankFilter ? q.subject === subjectBankFilter : true)).map((q: any) => (
+                   <div key={q.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between gap-4 group">
+                     <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                           <Badge variant="outline" className="bg-blue-50 text-blue-700 font-bengali border-blue-200">{q.subject}</Badge>
+                        </div>
+                        <h4 className="font-bengali font-medium text-slate-800 text-base mb-3 leading-relaxed whitespace-pre-wrap">{q.text}</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4 opacity-80">
+                            {Array.isArray(q.options) && q.options.map((opt: any, optIdx: number) => (
+                               <div key={optIdx} className={`flex items-center gap-2 p-2 rounded-lg text-sm font-bengali ${q.correctOption === opt.id ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-50 border border-slate-100'}`}>
+                                  <span className="font-bold">{opt.id}.</span> {opt.label}
+                               </div>
+                            ))}
+                        </div>
+                     </div>
+                     <div className="flex sm:flex-col gap-2 shrink-0">
+                        <Button variant="outline" size="sm" className="h-8 shadow-none" onClick={() => setEditQuestion({...q, isSubjectWiseOnly: true})}>
+                           <Edit className="w-3.5 h-3.5 mr-1.5" /> এডিট
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDeleteQuestion(q.id)}>
+                           <Trash2 className="w-3.5 h-3.5 mr-1.5" /> ডিলেট
+                        </Button>
+                     </div>
+                   </div>
+              ))}
+            </div>
+          </div>
         ) : activeTab === "questions" ? (
 <div className="space-y-6 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
@@ -1904,8 +1971,8 @@ export default function Admin() {
                   <div className="text-center p-10 font-bengali">লোড হচ্ছে...</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredQuestions.map((q) => (
-                      <div key={q.id} className="group bg-white border border-slate-200/80 rounded-[24px] p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative flex flex-col gap-4">
+                    {filteredQuestions.map((q, index) => (
+                      <div key={q.id || index} className="group bg-white border border-slate-200/80 rounded-[24px] p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative flex flex-col gap-4">
                         <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-blue-400 via-indigo-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="flex justify-between items-start gap-2">
                           <span className="font-mono text-[11px] text-slate-400 shrink-0 truncate max-w-[80px]" title={q.id}>#{q.id.slice(0, 6)}</span>
@@ -1921,8 +1988,8 @@ export default function Admin() {
                         
                         {q.options && q.options.length > 0 && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-                            {q.options.map((opt: any) => (
-                              <div key={opt.id} className={`flex items-center gap-3 p-2.5 rounded-xl border text-sm font-bengali transition-colors ${q.correctOption === opt.id ? 'bg-green-50/80 border-green-200 text-green-900 shadow-sm' : 'bg-slate-50 border-slate-200/60 text-slate-700 hover:bg-slate-100/80'}`}>
+                            {q.options.map((opt: any, optIdx: number) => (
+                              <div key={`${q.id || index}-${opt.id || optIdx}`} className={`flex items-center gap-3 p-2.5 rounded-xl border text-sm font-bengali transition-colors ${q.correctOption === opt.id ? 'bg-green-50/80 border-green-200 text-green-900 shadow-sm' : 'bg-slate-50 border-slate-200/60 text-slate-700 hover:bg-slate-100/80'}`}>
                                 <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[11px] shrink-0 font-bold ${q.correctOption === opt.id ? 'bg-green-200 text-green-800' : 'bg-white border shadow-sm text-slate-500'}`}>
                                   {opt.id}
                                 </span>
@@ -3521,6 +3588,7 @@ export default function Admin() {
                 </div>
               </div>
 
+{!editQuestion.isSubjectWiseOnly && (
               <div>
                 <label className="text-sm font-bold mb-1 block font-bengali">ব্যাংকের নাম / Title (ex: ঢাবি সি ২০২৫-২০২৬)</label>
                 <Input 
@@ -3529,12 +3597,13 @@ export default function Admin() {
                   className="font-bengali"
                 />
               </div>
+)}
 
               <div>
                 <label className="text-sm font-bold mb-2 block font-bengali">অপশনসমূহ (Options)</label>
                 <div className="space-y-3">
-                  {editQuestion.options?.map((opt: any, idx: number) => (
-                    <div key={opt.id} className="flex items-center gap-3">
+                  {editQuestion.options?.map((opt: any, optIdx: number) => (
+                    <div key={optIdx} className={`flex items-center gap-3`}>
                       <div className="w-8 h-8 rounded shrink-0 bg-slate-100 flex items-center justify-center font-bold text-sm">
                         {opt.id}
                       </div>
@@ -3542,7 +3611,7 @@ export default function Admin() {
                         value={opt.label || ""} 
                         onChange={(e) => {
                           const newOpts = editQuestion.options.map((o: any, i: number) => 
-                            i === idx ? { ...o, label: e.target.value } : o
+                            i === optIdx ? { ...o, label: e.target.value } : o
                           );
                           setEditQuestion({ ...editQuestion, options: newOpts });
                         }}

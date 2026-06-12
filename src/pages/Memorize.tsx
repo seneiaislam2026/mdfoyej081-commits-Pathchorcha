@@ -233,6 +233,7 @@ export default function Memorize() {
     window.speechSynthesis.cancel();
     const voiceTone = new SpeechSynthesisUtterance(wordText);
     voiceTone.lang = langType === "english" ? "en-US" : "bn-BD";
+    voiceTone.rate = 0.9; // Just slightly slower for clarity
     window.speechSynthesis.speak(voiceTone);
   };
 

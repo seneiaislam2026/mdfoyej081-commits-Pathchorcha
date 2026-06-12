@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
+  BarChart2,
+  Star,
+  Clock,
+  MessageCircleMore,
   Lightbulb,
   Brain,
   BrainCircuit,
@@ -73,7 +77,7 @@ export default function Dashboard() {
            <div className="flex overflow-x-auto snap-x snap-mandatory hide-scrollbar gap-4 pb-2 flex-nowrap" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
              {globalSettings.heroBanners.map((banner: any, index: number) => (
                 <div 
-                  key={banner.id || index} 
+                  key={banner.id ? banner.id + '-' + index : index} 
                   className={`shrink-0 w-full min-w-[full] snap-center bg-gradient-to-r ${banner.gradient || 'from-[#1e293b] to-[#0f172a]'} rounded-[24px] p-6 text-white relative overflow-hidden shadow-sm flex flex-col justify-center min-h-[180px]`}
                 >
                   <div className="absolute top-4 right-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
@@ -219,6 +223,7 @@ export default function Dashboard() {
               <div className="bg-white border border-orange-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-orange-200 hover:-translate-y-1 h-full shadow-xs">
                 <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
                   <div className="absolute inset-0 bg-[#F97316] rounded-[16px] shadow-[0_6px_12px_rgba(249,115,22,0.3)] border-b-[4px] border-[#C2410C]"></div>
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
                   
                   <div className="relative w-[30px] h-[32px] bg-white rounded-[8px] shadow-sm flex flex-col pt-[6px] pl-[6px] gap-[4px] -ml-[2px] -mt-[2px]">
                      <div className="flex items-center gap-[4px]">
@@ -409,7 +414,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Ongoing Exams ("চলমান পরীক্ষা") */}
+            {/* Ongoing Exams ("চলমান পরীক্ষা") */}
       <section className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <h3 className="font-bengali text-[16px] font-bold text-slate-800 tracking-tight">চলমান পরীক্ষা</h3>
@@ -421,7 +426,7 @@ export default function Dashboard() {
         <div className="flex flex-col gap-3">
           {liveExams.length > 0 ? (
             liveExams.slice(0, 3).map((exam, idx) => (
-              <Link to={`/public-exam/${exam.id}`} key={exam.id}>
+              <Link to={`/public-exam/${exam.id}`} key={exam.id || `exam-${idx}`}>
                 <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-3">
                      <div className={`w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 border ${
@@ -503,25 +508,70 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Quick Access: AI Tutor & Ask Teacher */}
-      <section className="grid grid-cols-2 gap-3 pt-2">
-         <Link to="/tutor" className="bg-white rounded-[20px] p-4 shadow-sm border border-blue-100 flex flex-col items-center justify-center gap-2 hover:border-blue-300 transition-colors group">
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-               <Brain className="w-6 h-6 text-blue-500" strokeWidth={2.5} />
+      {/* Stats Block */}
+      <section className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 mt-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between py-3 border-b border-slate-100 border-dashed">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                <ClipboardList className="w-5 h-5" strokeWidth={2.5}/>
+              </div>
+              <span className="font-bengali font-bold text-slate-700 text-[15px]">লিডারবোর্ডের র‍্যাংক</span>
             </div>
-            <span className="font-bengali font-bold text-slate-800 text-[14px]">এআই টিউটর</span>
-         </Link>
+            <span className="font-sans font-black text-slate-800 text-[16px]">-</span>
+          </div>
 
-         <Link to="/doubts" className="bg-white rounded-[20px] p-4 shadow-sm border border-orange-100 flex flex-col items-center justify-center gap-2 hover:border-orange-300 transition-colors group">
-            <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-               <MessageCircleQuestion className="w-6 h-6 text-orange-500" strokeWidth={2.5} />
+          <div className="flex items-center justify-between py-3 border-b border-slate-100 border-dashed">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
+                <BarChart2 className="w-5 h-5" strokeWidth={2.5}/>
+              </div>
+              <span className="font-bengali font-bold text-slate-700 text-[15px]">অর্জিত ব্যাজ</span>
             </div>
-            <span className="font-bengali font-bold text-slate-800 text-[14px] text-center leading-tight">শিক্ষককে<br/>প্রশ্ন করুন</span>
-         </Link>
+            <span className="font-sans font-black text-slate-800 text-[16px]">০</span>
+          </div>
+
+          <div className="flex items-center justify-between py-3 border-b border-slate-100 border-dashed">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
+                <Star className="w-5 h-5" strokeWidth={2.5}/>
+              </div>
+              <span className="font-bengali font-bold text-slate-700 text-[15px]">সঠিক উত্তর</span>
+            </div>
+            <div className="bg-emerald-100/60 text-emerald-600 px-3 py-1.5 rounded-full text-[13px] font-sans font-bold leading-none">০%</div>
+          </div>
+
+          <div className="flex items-center justify-between py-3">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-500">
+                <Clock className="w-5 h-5" strokeWidth={2.5}/>
+              </div>
+              <span className="font-bengali font-bold text-slate-700 text-[15px]">মোট সময়</span>
+            </div>
+            <div className="bg-fuchsia-100/60 text-fuchsia-700 px-3 py-1.5 rounded-full text-[13px] font-bengali font-bold leading-none">০ মিনিট</div>
+          </div>
+        </div>
       </section>
 
+      {/* Quick Access: AI Tutor & Ask Teacher */}
+      <section className="grid grid-cols-2 gap-3 pt-2 mb-8">
+         <Link to="/tutor" className="bg-white rounded-[24px] p-6 py-8 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-3 hover:border-blue-200 transition-colors group">
+            <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+               <Brain className="w-7 h-7 text-blue-500" strokeWidth={2.5} />
+            </div>
+            <span className="font-bengali font-bold text-slate-800 text-[16px]">এআই টিউটর</span>
+         </Link>
 
-      {/* End bottom spacer */}
+         <Link to="/doubts" className="bg-white rounded-[24px] p-6 py-8 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-3 hover:border-orange-200 transition-colors group relative">
+            <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform">
+               <MessageCircleQuestion className="w-7 h-7 text-orange-500" strokeWidth={2.5} />
+            </div>
+            <span className="font-bengali font-bold text-slate-800 text-[16px] text-center leading-tight">শিক্ষককে<br/>প্রশ্ন করুন</span>
+            <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center shadow-lg border-4 border-slate-50">
+               <MessageCircleMore className="w-6 h-6 text-white" strokeWidth={2.5} />
+            </div>
+         </Link>
+      </section>
     </div>
   );
 }
