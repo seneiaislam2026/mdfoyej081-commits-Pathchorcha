@@ -4,7 +4,6 @@ import {
   BarChart2,
   Star,
   Clock,
-  MessageCircleMore,
   Lightbulb,
   Brain,
   BrainCircuit,
@@ -567,9 +566,7 @@ export default function Dashboard() {
                <MessageCircleQuestion className="w-7 h-7 text-orange-500" strokeWidth={2.5} />
             </div>
             <span className="font-bengali font-bold text-slate-800 text-[16px] text-center leading-tight">শিক্ষককে<br/>প্রশ্ন করুন</span>
-            <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center shadow-lg border-4 border-slate-50">
-               <MessageCircleMore className="w-6 h-6 text-white" strokeWidth={2.5} />
-            </div>
+            
          </Link>
       </section>
     </div>

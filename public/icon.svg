@@ -7,9 +7,7 @@
       }
     </style>
   </defs>
-  <rect width="512" height="512" fill="white" />
-  <!-- Shikkhangon official logo design in a single horizontal line -->
-  <text x="256" y="290" class="bengali-text" font-size="90" font-weight="700" text-anchor="middle" letter-spacing="-0.5">
+  <text x="256" y="290" class="bengali-text" font-size="100" font-weight="700" text-anchor="middle" letter-spacing="-0.5">
     <tspan fill="#0F2744">শিক্ষা</tspan><tspan fill="#F4B400">ঙ্গন</tspan>
   </text>
 </svg>

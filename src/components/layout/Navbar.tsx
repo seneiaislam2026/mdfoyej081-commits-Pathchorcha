@@ -5,6 +5,59 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "../../lib/AuthContext";
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from "firebase/firestore";
 import { db } from "../../lib/firebase";
+import { formatBNTime } from "../../lib/utils";
+
+const NavAdminIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="#3B82F6" stroke="#0F172A" strokeWidth="2" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    <path d="M9 12l2 2 4-4" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+  </svg>
+);
+
+const NavBellIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="#FBBF24" stroke="#0F172A" strokeWidth="2" strokeLinejoin="round">
+    <path d="M18 16v-5c0-3.071-1.64-5.643-4.5-6.32V4a1.5 1.5 0 00-3 0v.68C7.64 5.357 6 7.929 6 11v5l-2 2v1h16v-1l-2-2z" />
+    <path d="M13.73 21a1.999 1.999 0 01-3.46 0" />
+  </svg>
+);
+
+const NavProfileIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 24v-1.5c0-2 1-3.5 3-4.5a14 14 0 018 0c2 1 3 2.5 3 4.5V24z" fill="#2563EB" stroke="#0F172A" strokeWidth="1.5" />
+    <circle cx="6.5" cy="11.5" r="1.5" fill="#FFC8A2" stroke="#0F172A" strokeWidth="1.5" />
+    <circle cx="17.5" cy="11.5" r="1.5" fill="#FFC8A2" stroke="#0F172A" strokeWidth="1.5" />
+    <rect x="7.5" y="7" width="9" height="10" rx="4.5" fill="#FFC8A2" stroke="#0F172A" strokeWidth="1.5" />
+    <path d="M7 9C7 5.5 9.5 3 12 3s5 2.5 5 6c0 1-1 1-1 1H8s-1 0-1-1z" fill="#1E293B" stroke="#0F172A" strokeWidth="1.5" strokeLinejoin="round" />
+    <circle cx="10" cy="11.5" r="1" fill="#0F172A" />
+    <circle cx="14" cy="11.5" r="1" fill="#0F172A" />
+    <path d="M10.5 14.5q1.5 1.5 3 0" stroke="#0F172A" strokeWidth="1" strokeLinecap="round" />
+  </svg>
+);
+
+const NavLogoutIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 21H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" stroke="#EF4444" strokeWidth="3" />
+    <line x1="21" y1="12" x2="10" y2="12" stroke="#EF4444" strokeWidth="3" />
+  </svg>
+);
+
+const IconButtonWrapper = ({ children, badge, onClick, title }: any) => (
+  <button 
+    onClick={onClick}
+    title={title}
+    className="relative w-[38px] h-[38px] sm:w-[42px] sm:h-[42px] flex items-center justify-center rounded-[12px] sm:rounded-[14px] border border-[#DEE5ED]/60 bg-white hover:bg-slate-50 transition-all duration-200 cursor-pointer group shadow-[0_2px_8px_rgba(0,0,0,0.02)] sm:ml-1 focus:outline-none"
+  >
+    <div className="group-hover:scale-110 transition-transform duration-200 ease-out flex items-center justify-center">
+      {children}
+    </div>
+    {badge !== undefined && badge > 0 && (
+      <span className="absolute -top-[6px] -right-[6px] min-w-[20px] h-[20px] bg-[#EF4444] border-[2.5px] border-white text-white rounded-full flex items-center justify-center text-[10px] sm:text-[11px] font-bold z-10 font-sans shadow-sm ring-1 ring-black/5">
+        {badge > 9 ? '9+' : badge}
+      </span>
+    )}
+  </button>
+);
 
 export default function Navbar() {
   const location = useLocation();
@@ -156,28 +209,23 @@ export default function Navbar() {
 
           {isAdmin && !isAdminPath && (
             <Link to="/admin">
-              <Button variant="outline" size="sm" className="bg-primary/5 text-primary border-primary/20 font-bengali px-2 md:px-4">
-                <ShieldCheck className="h-4 w-4 md:mr-2" />
-                <span className="hidden md:inline">এডমিন প্যানেল</span>
-              </Button>
+              <IconButtonWrapper title="এডমিন প্যানেল">
+                <NavAdminIcon />
+              </IconButtonWrapper>
             </Link>
           )}
           
           <div className="relative" ref={notificationRef}>
-            <div 
-              className="relative cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-colors ml-1"
+            <IconButtonWrapper 
               onClick={() => setShowNotifications(!showNotifications)}
+              badge={unreadCount}
+              title="নোটিফিকেশন"
             >
-              <Bell className="h-5 w-5 md:h-6 md:w-6 text-slate-700" strokeWidth={2} />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 min-w-[16px] h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-sans font-bold px-1 animate-pulse">
-                  {unreadCount}
-                </span>
-              )}
-            </div>
+              <NavBellIcon />
+            </IconButtonWrapper>
             
             {showNotifications && (
-              <div className="absolute right-[-10px] sm:right-0 origin-top-right mt-2 w-[300px] sm:w-[320px] max-w-[calc(100vw-32px)] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden font-bengali">
+              <div className="absolute right-[-10px] sm:right-0 origin-top-right mt-3 w-[280px] sm:w-[320px] max-w-[calc(100vw-16px)] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden font-bengali">
                 <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                   <h3 className="font-bold text-slate-800 text-sm">নোটিফিকেশন</h3>
                   {unreadCount > 0 && (
@@ -238,13 +286,14 @@ export default function Navbar() {
           </div>
 
           <Link to="/profile">
-            <div className="cursor-pointer hover:bg-slate-50 p-2 rounded-full transition-colors border border-gray-200 ml-1">
-              <User className="h-[22px] w-[22px] text-slate-600" />
-            </div>
+            <IconButtonWrapper title="প্রোফাইল">
+              {userData?.photoURL ? <img src={userData.photoURL} alt="Profile" className="w-7 h-7 rounded-full object-cover" referrerPolicy="no-referrer" /> : <User className="w-[22px] h-[22px] text-slate-700 stroke-[2px]" />}
+            </IconButtonWrapper>
           </Link>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-slate-600 hover:text-red-600 hover:bg-red-50" title="লগ আউট">
-            <LogOut className="h-5 w-5" />
-          </Button>
+          
+          <IconButtonWrapper onClick={handleSignOut} title="লগ আউট">
+            <NavLogoutIcon />
+          </IconButtonWrapper>
         </div>
       </div>
     </header>

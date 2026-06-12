@@ -23,7 +23,7 @@ export default function WhatsAppSupport() {
         </motion.div>
         <motion.a
           transition={{ scale: { repeat: Infinity, duration: 2, ease: 'easeInOut' } }}
-          href='https://wa.me/' 
+          href='https://wa.me/8801345425873' 
           target='_blank'
           rel='noopener noreferrer'
           initial={{ scale: 0.8, opacity: 0 }}
