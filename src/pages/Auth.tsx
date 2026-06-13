@@ -265,20 +265,17 @@ export default function Auth() {
     </p>
   </div>
 )}
-<div className='text-center mb-6'>
-            <div className="flex flex-col items-center justify-center mb-4">
-              <Link to="/" className="inline-flex flex-col items-center gap-1 group">
-                {/* Clean, borderless "Shikkhangon" logo */}
-                <div className="relative w-20 h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
-                  <img src="/icon.svg" alt="Logo" className="w-full h-full object-contain" />
+<div className='text-center mb-8'>
+            <div className="flex flex-col items-center justify-center mb-6">
+              <Link to="/" className="inline-flex flex-col items-center group">
+                {/* Large white circle with shadow, matching the previous design */}
+                <div className="relative w-[120px] h-[120px] sm:w-[130px] sm:h-[130px] bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] group-hover:scale-105 transition-transform duration-300">
+                  <img src="/icon.svg" alt="Logo" className="w-[75%] h-[75%] object-contain" />
                 </div>
-                <span className="font-bengali font-bold text-xl tracking-tight mt-1">
-                  <span className="text-[#0F2744]">শিক্ষা</span><span className="text-[#F4B400]">ঙ্গন</span>
-                </span>
               </Link>
             </div>
             
-            <h2 className="text-lg font-bengali font-bold text-slate-700 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bengali font-bold text-[#1e293b] tracking-tight">
               লগইন / রেজিস্টার
             </h2>
           </div>

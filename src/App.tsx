@@ -69,9 +69,6 @@ function NoteLayout() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-3">
-          <div className="w-20 h-20 flex items-center justify-center mb-1.5">
-            <img src="/icon.svg" alt="Logo" className="w-full h-full object-contain" />
-          </div>
           <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
             <span className="text-[#0F2744]">শিক্ষা</span>
             <span className="text-[#F4B400]">ঙ্গন</span>
@@ -133,9 +130,6 @@ function AppLayout() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-3">
-          <div className="w-20 h-20 flex items-center justify-center mb-1.5">
-            <img src="/icon.svg" alt="Logo" className="w-full h-full object-contain" />
-          </div>
           <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
             <span className="text-[#0F2744]">শিক্ষা</span>
             <span className="text-[#F4B400]">ঙ্গন</span>
