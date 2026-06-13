@@ -46,10 +46,6 @@ export default function ProApprovedCongrats() {
         return () => clearInterval(interval);
       }
     } else {
-      // Reset if they are custom downgraded/expired by admin so they can celebrate again when they pay next time
-      if (userData?.uid) {
-        localStorage.removeItem(`has_seen_pro_congrats_${userData.uid}`);
-      }
       setShow(false);
     }
   }, [userData?.isPro, userData?.uid]);

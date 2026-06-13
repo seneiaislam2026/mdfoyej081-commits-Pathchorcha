@@ -116,6 +116,9 @@ export default function Subscription() {
         proUntil: Timestamp.fromMillis(proUntilMillis)
       });
       
+      // Reset seen congrats so the overlay triggers once now
+      localStorage.removeItem(`has_seen_pro_congrats_${userData.uid}`);
+      
       // Delete coupon if it's one-time use (optional), here we assume it's one-time use for safety if they try to reuse,
       // but if the admin wants it multi-use, we shouldn't delete it.
       // We will keep it multi-use for this implementation unless explicitly stated.
@@ -156,6 +159,9 @@ export default function Subscription() {
         isPro: true,
         proUntil: Timestamp.fromMillis(proUntilMillis)
       });
+      
+      // Reset seen congrats so the overlay triggers once now
+      localStorage.removeItem(`has_seen_pro_congrats_${user.uid}`);
       
       // Usually need to update context too, assuming reload or it triggers onSnapshot, else we navigate home
       alert("অভিনন্দন! আপনার সাবস্ক্রিপশন সফলভাবে এক্টিভ হয়েছে।");

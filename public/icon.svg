@@ -1,9 +1,5 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.12"/>
-      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.06"/>
-    </filter>
     <style type="text/css">
       @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@800&amp;family=Hind+Siliguri:wght@700&amp;display=swap');
       .bengali-text {
@@ -13,11 +9,8 @@
     </style>
   </defs>
   
-  <!-- Squircle container mimicking the high-quality PWA app icon -->
-  <rect x="40" y="40" width="432" height="432" rx="116" fill="#FFFFFF" filter="url(#drop-shadow)" />
-  
-  <!-- Shikkhangon typographic branding centered perfectly -->
-  <text x="256" y="284" class="bengali-text" font-size="80" text-anchor="middle" letter-spacing="-1">
+  <!-- Transparent background table-less typography branding centered perfectly -->
+  <text x="256" y="295" class="bengali-text" font-size="105" text-anchor="middle" letter-spacing="-1">
     <tspan fill="#051D3B">শিক্ষা</tspan><tspan fill="#EC9D00">ঙ্গন</tspan>
   </text>
 </svg>

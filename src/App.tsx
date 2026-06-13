@@ -69,8 +69,8 @@ function NoteLayout() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200/60 flex items-center justify-center shadow-md overflow-hidden p-1.5 mb-1.5">
-            <img src="/icon.svg" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+          <div className="w-20 h-20 flex items-center justify-center mb-1.5">
+            <img src="/icon.svg" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
             <span className="text-[#0F2744]">শিক্ষা</span>
@@ -133,8 +133,8 @@ function AppLayout() {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200/60 flex items-center justify-center shadow-md overflow-hidden p-1.5 mb-1.5">
-            <img src="/icon.svg" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+          <div className="w-20 h-20 flex items-center justify-center mb-1.5">
+            <img src="/icon.svg" alt="Logo" className="w-full h-full object-contain" />
           </div>
           <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
             <span className="text-[#0F2744]">শিক্ষা</span>

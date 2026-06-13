@@ -268,11 +268,11 @@ export default function Auth() {
 <div className='text-center mb-6'>
             <div className="flex flex-col items-center justify-center mb-4">
               <Link to="/" className="inline-flex flex-col items-center gap-1 group">
-                {/* Custom stylized "Shikkhangon" badge with correct brand colors */}
-                <div className="relative w-[76px] h-[76px] bg-white border-2 border-[#0F2744]/12 rounded-full flex items-center justify-center shadow-lg shadow-slate-200/80 group-hover:scale-105 transition-transform duration-300 overflow-hidden p-1 bg-gradient-to-tr from-white to-slate-50">
-                  <img src="/icon.svg" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+                {/* Clean, borderless "Shikkhangon" logo */}
+                <div className="relative w-20 h-20 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                  <img src="/icon.svg" alt="Logo" className="w-full h-full object-contain" />
                 </div>
-                <span className="font-bengali font-bold text-xl tracking-tight mt-2.5">
+                <span className="font-bengali font-bold text-xl tracking-tight mt-1">
                   <span className="text-[#0F2744]">শিক্ষা</span><span className="text-[#F4B400]">ঙ্গন</span>
                 </span>
               </Link>

@@ -84,6 +84,9 @@ export default function PaymentSuccess() {
         isPro: true,
         proUntil: Timestamp.fromMillis(proUntilMillis)
       });
+      
+      // Reset seen congrats so they see it once
+      localStorage.removeItem(`has_seen_pro_congrats_${userData.uid}`);
   }
 
   return (
