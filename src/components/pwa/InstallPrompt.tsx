@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
   const [isInAppBrowser, setIsInAppBrowser] = useState(false);
 
   useEffect(() => {
@@ -22,12 +21,6 @@ export const InstallPrompt = () => {
     const isFb = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Instagram") > -1);
     setIsInAppBrowser(isFb);
 
-    // Always show the prompt after a delay for non-standalone users
-    const timer = setTimeout(() => {
-      console.log('Showing install prompt manually');
-      setShowPrompt(true);
-    }, 1500);
-
     const handler = (e: any) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
@@ -41,7 +34,6 @@ export const InstallPrompt = () => {
     window.addEventListener('beforeinstallprompt', handler);
 
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('beforeinstallprompt', handler);
     };
   }, []);
@@ -54,8 +46,6 @@ export const InstallPrompt = () => {
     }
 
     if (!deferredPrompt) {
-      // If we don't have the prompt (e.g. iOS, Safari, or beforebeforeinstallprompt fires), show instructions
-      setShowInstructions(true);
       return;
     }
 
@@ -74,7 +64,6 @@ export const InstallPrompt = () => {
       }
     } catch (err) {
       console.error('Error triggering PWA prompt:', err);
-      setShowInstructions(true);
     }
     
     // We've used the prompt, and can't use it again, throw it away
@@ -119,48 +108,38 @@ export const InstallPrompt = () => {
             
             {/* Description and layout content details */}
             <div className="flex-1">
-              {!showInstructions ? (
-                <>
-                  <p className="font-bengali text-sm text-slate-500 mb-4 leading-relaxed">
-                    এটি একটি প্রোগ্রেসিভ ওয়েব অ্যাপ (PWA)। ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই আইকন এবং সুবিধা পাবেন।
+              <p className="font-bengali text-sm text-slate-500 mb-4 leading-relaxed">
+                এটি একটি প্রোগ্রেসিভ ওয়েব অ্যাপ (PWA)। ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই আইকন এবং সুবিধা পাবেন।
+              </p>
+              
+              {window.self !== window.top ? (
+                <div className="bg-orange-50 border border-orange-200 p-3 rounded-xl mb-4">
+                  <p className="text-orange-800 text-xs font-bengali">
+                    ⚠️ আপনি এখন প্রিভিউ মোডে আছেন। সরাসরি ইনস্টল করতে, উপরের শেয়ার বাটন থেকে অথবা লিংক কপি করে নতুন ট্যাবে/ব্রাউজারে ওপেন করুন।
                   </p>
-                  
-                  {window.self !== window.top ? (
-                    <div className="bg-orange-50 border border-orange-200 p-3 rounded-xl mb-4">
-                      <p className="text-orange-800 text-xs font-bengali">
-                        ⚠️ আপনি এখন প্রিভিউ মোডে আছেন। সরাসরি ইনস্টল করতে, উপরের শেয়ার বাটন থেকে অথবা লিংক কপি করে নতুন ট্যাবে/ব্রাউজারে ওপেন করুন।
-                      </p>
-                    </div>
-                  ) : null}
-
-                  {isInAppBrowser ? (
-                    <div className="bg-red-50 border border-red-200 p-3 rounded-xl mb-4">
-                      <p className="text-red-800 text-[13px] font-bengali font-medium mb-1">
-                        ⚠️ মেসেঞ্জার থেকে সরাসরি অ্যাপ ইনস্টল করা যাবে না!
-                      </p>
-                      <p className="text-red-700 text-xs font-bengali">
-                        উপরে ডানদিকের মেনু <span className="font-bold whitespace-nowrap">( ⋮ )</span> থেকে <span className="font-bold">"Open in Chrome"</span> বা <span className="font-bold">"Open in system browser"</span> এ ক্লিক করুন। তারপর খুব সহজেই ইনস্টল করতে পারবেন।
-                      </p>
-                    </div>
-                  ) : null}
-
-                  <div className="flex gap-3">
-                    <Button 
-                      onClick={handleInstallClick}
-                      className={`flex-1 text-white rounded-xl shadow-sm font-bengali font-medium h-10 ${window.self !== window.top ? 'bg-blue-600 hover:bg-blue-700' : 'bg-primary hover:bg-primary/95'}`}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      {window.self !== window.top ? "নতুন ট্যাবে ওপেন করুন" : "ইনস্টল অ্যাপ"}
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <div className="text-sm text-slate-600 font-bengali leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
-                  <p><strong>Android/Chrome:</strong> ব্রাউজারের মেনু (⋮) থেকে "Install app" বা "Add to Home Screen" নির্বাচন করুন।</p>
-                  <p className="mt-2"><strong>iOS/Safari:</strong> Share <span className="inline-block border border-slate-300 rounded px-1 pb-1 mx-1">↑</span> আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।</p>
-                  <p className="mt-3 text-primary font-medium text-center">এটি আপনার ফোনে একটি রিয়েল অ্যাপ হিসেবে ইনস্টল হবে!</p>
                 </div>
-              )}
+              ) : null}
+
+              {isInAppBrowser ? (
+                <div className="bg-red-50 border border-red-200 p-3 rounded-xl mb-4">
+                  <p className="text-red-800 text-[13px] font-bengali font-medium mb-1">
+                    ⚠️ মেসেঞ্জার থেকে সরাসরি অ্যাপ ইনস্টল করা যাবে কাম্য নয়!
+                  </p>
+                  <p className="text-red-700 text-xs font-bengali">
+                    উপরে ডানদিকের মেনু <span className="font-bold whitespace-nowrap">( ⋮ )</span> থেকে <span className="font-bold">"Open in Chrome"</span> বা <span className="font-bold">"Open in system browser"</span> এ ক্লিক করুন। তারপর খুব সহজেই ইনস্টল করতে পারবেন।
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="flex gap-3">
+                <Button 
+                  onClick={handleInstallClick}
+                  className={`flex-1 text-white rounded-xl shadow-sm font-bengali font-medium h-10 ${window.self !== window.top ? 'bg-blue-600 hover:bg-blue-700' : 'bg-primary hover:bg-primary/95'}`}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  {window.self !== window.top ? "নতুন ট্যাবে ওপেন করুন" : "ইনস্টল অ্যাপ"}
+                </Button>
+              </div>
             </div>
           </div>
         </motion.div>
