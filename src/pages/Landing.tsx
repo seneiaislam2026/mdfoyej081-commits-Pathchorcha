@@ -115,30 +115,15 @@ export default function Landing() {
                 </div>
              </div>
 
-             {/* Bottom Left: Streak & Leaderboard */}
-             <div className="md:col-span-4 grid grid-rows-2 gap-4 md:gap-6">
-                <div className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center gap-5">
-                   <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center shrink-0">
-                     <span className="text-3xl">🔥</span>
-                   </div>
-                   <div>
-                     <p className="text-sm font-bengali text-slate-500 mb-1">টানা অনুশীলন</p>
-                     <h4 className="text-2xl font-bold text-slate-800">৭ দিন</h4>
-                   </div>
+             {/* Bottom Left: Streak */}
+             <div className="md:col-span-4 bg-white rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col justify-center gap-5">
+                <div className="w-16 h-16 rounded-2xl bg-orange-100 flex items-center justify-center shrink-0 w-fit">
+                  <span className="text-3xl p-3">🔥</span>
                 </div>
-                <div className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex items-center justify-between">
-                   <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-yellow-600 flex items-center justify-center p-0.5">
-                       <div className="w-full h-full bg-white rounded-full flex items-center justify-center border-2 border-white">
-                         <span className="font-bold text-primary text-sm">#10</span>
-                       </div>
-                     </div>
-                     <div>
-                       <p className="font-bengali font-bold text-slate-800">লিডারবোর্ড</p>
-                       <p className="text-xs text-slate-500 font-bengali">আপনার বর্তমান র‍্যাঙ্ক</p>
-                     </div>
-                   </div>
-                   <Trophy className="w-8 h-8 text-secondary/40" />
+                <div>
+                  <p className="text-sm font-bengali text-slate-500 mb-1">টানা অনুশীলন</p>
+                  <h4 className="text-3xl font-bold text-slate-800">৭ দিন</h4>
+                  <p className="text-xs text-slate-400 font-bengali mt-2">প্রতিদিন অনুশীলন সম্পন্ন করে সাফল্যের ধারা বজায় রাখুন।</p>
                 </div>
              </div>
 

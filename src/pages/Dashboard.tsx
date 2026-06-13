@@ -512,26 +512,6 @@ export default function Dashboard() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between py-3 border-b border-slate-100 border-dashed">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
-                <ClipboardList className="w-5 h-5" strokeWidth={2.5}/>
-              </div>
-              <span className="font-bengali font-bold text-slate-700 text-[15px]">লিডারবোর্ডের র‍্যাংক</span>
-            </div>
-            <span className="font-sans font-black text-slate-800 text-[16px]">-</span>
-          </div>
-
-          <div className="flex items-center justify-between py-3 border-b border-slate-100 border-dashed">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
-                <BarChart2 className="w-5 h-5" strokeWidth={2.5}/>
-              </div>
-              <span className="font-bengali font-bold text-slate-700 text-[15px]">অর্জিত ব্যাজ</span>
-            </div>
-            <span className="font-sans font-black text-slate-800 text-[16px]">০</span>
-          </div>
-
-          <div className="flex items-center justify-between py-3 border-b border-slate-100 border-dashed">
-            <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
                 <Star className="w-5 h-5" strokeWidth={2.5}/>
               </div>

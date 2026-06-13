@@ -47,27 +47,38 @@ export const InstallPrompt = () => {
   }, []);
 
   const handleInstallClick = async () => {
+    if (window.self !== window.top) {
+      // Inside an iframe, can't install, open in new tab instead
+      window.open(window.location.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     if (!deferredPrompt) {
-      // If we don't have the prompt (e.g. iOS, Safari, or inside iframe), show instructions
+      // If we don't have the prompt (e.g. iOS, Safari, or beforebeforeinstallprompt fires), show instructions
       setShowInstructions(true);
       return;
     }
 
-    // Show the install prompt
-    deferredPrompt.prompt();
+    try {
+      // Show the install prompt
+      deferredPrompt.prompt();
 
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
-    } else {
-      console.log('User dismissed the install prompt');
+      // Wait for the user to respond to the prompt
+      const { outcome } = await deferredPrompt.userChoice;
+      
+      if (outcome === 'accepted') {
+        console.log('User accepted the install prompt');
+        setShowPrompt(false);
+      } else {
+        console.log('User dismissed the install prompt');
+      }
+    } catch (err) {
+      console.error('Error triggering PWA prompt:', err);
+      setShowInstructions(true);
     }
     
     // We've used the prompt, and can't use it again, throw it away
     setDeferredPrompt(null);
-    setShowPrompt(false);
   };
 
   const handleClose = () => {
@@ -136,10 +147,10 @@ export const InstallPrompt = () => {
                   <div className="flex gap-3">
                     <Button 
                       onClick={handleInstallClick}
-                      className="flex-1 bg-primary hover:bg-primary/95 text-white rounded-xl shadow-sm font-bengali font-medium h-10"
+                      className={`flex-1 text-white rounded-xl shadow-sm font-bengali font-medium h-10 ${window.self !== window.top ? 'bg-blue-600 hover:bg-blue-700' : 'bg-primary hover:bg-primary/95'}`}
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      ইনস্টল অ্যাপ
+                      {window.self !== window.top ? "নতুন ট্যাবে ওপেন করুন" : "ইনস্টল অ্যাপ"}
                     </Button>
                   </div>
                 </>
