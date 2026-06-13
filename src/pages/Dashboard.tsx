@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart2,
   Star,
@@ -425,7 +425,7 @@ export default function Dashboard() {
         <div className="flex flex-col gap-3">
           {liveExams.length > 0 ? (
             liveExams.slice(0, 3).map((exam, idx) => (
-              <Link to={`/public-exam/${exam.id}`} key={exam.id || `exam-${idx}`}>
+              <Link to={`/public-exam/${exam.id}`} key={exam.id ? `${exam.id}-${idx}` : `exam-${idx}`}>
                 <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-3">
                      <div className={`w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 border ${
