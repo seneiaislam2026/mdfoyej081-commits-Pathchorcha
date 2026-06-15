@@ -118,7 +118,12 @@ export default function SubjectNotes() {
   // Filter notes based on class group AND current subject
   const filteredNotes = ALL_NOTES.filter(note => {
     if (note.classGroup !== userClassGroup) return false;
-    if (note.subject.toLowerCase() !== decodedSubject.toLowerCase()) return false;
+
+    let isSubjectMatch = note.subject.toLowerCase() === decodedSubject.toLowerCase();
+    if (decodedSubject.toLowerCase() === "ব্যবস্থাপনা") {
+      isSubjectMatch = (note.subject.toLowerCase() === "ব্যবস্থাপনা" || note.subject.toLowerCase() === "ব্যবসায় সংগঠন");
+    }
+    if (!isSubjectMatch) return false;
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase().trim();

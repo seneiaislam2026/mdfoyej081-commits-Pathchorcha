@@ -2,12 +2,15 @@ import { buildMasterBanglaWords } from "./banglaVocabData";
 import { ANALOGY_WORDS } from "./englishAnalogyData";
 import { PREPOSITION_WORDS } from "./englishPrepositionData";
 import { GROUP_VERB_WORDS } from "./englishGroupVerbData";
+import { SPELLING_WORDS } from "./englishSpellingData";
+import { CLASS6_WORDS } from "./class6VocabData";
+import { VERB_FORMS_WORDS } from "./verbFormsVocabData";
 
 export interface WordItem {
   id: string;
   word: string;
   language: "english" | "bangla";
-  category: "vocabulary" | "synonym" | "antonym" | "samarthok" | "ek_kothay" | "analogy" | "appropriate_preposition" | "group_verb";
+  category: "vocabulary" | "synonym" | "antonym" | "samarthok" | "ek_kothay" | "analogy" | "appropriate_preposition" | "group_verb" | "spelling" | "class_6_vocabulary" | "verb_forms" | "paragraph" | "idiom_phrase";
   pronunciation?: string;
   meaning: string;
   synonyms: string[];
@@ -486,10 +489,25 @@ function buildMasterEnglishWords(): WordItem[] {
   return master;
 }
 
+import { HSC_PARAGRAPHS } from "./hscParagraphs";
+import { ADMISSION_VOCAB_WORDS } from "./admissionVocabData";
+import { IDIOMS_AND_PHRASES } from "./idiomPhraseData";
+import { ADDITIONAL_EK_KOTHAY } from "./ekKothayProkashData";
+import { PARIBHASHIK_SHOBDO } from "./paribhashikShobdoData";
+import { BANGLA_SAMARTHOK } from "./banglaSamarthokData";
+import { BANGLA_ANTONYM } from "./banglaAntonymData";
+import { BANGLA_BAGDHARA } from "./banglaBagdharaData";
+
 export const ENGLISH_WORDS: WordItem[] = buildMasterEnglishWords()
   .concat(ANALOGY_WORDS)
   .concat(PREPOSITION_WORDS)
-  .concat(GROUP_VERB_WORDS);
+  .concat(GROUP_VERB_WORDS)
+  .concat(SPELLING_WORDS)
+  .concat(CLASS6_WORDS as WordItem[])
+  .concat(VERB_FORMS_WORDS as WordItem[])
+  .concat(HSC_PARAGRAPHS)
+  .concat(ADMISSION_VOCAB_WORDS)
+  .concat(IDIOMS_AND_PHRASES);
 
 export const BANGLA_WORDS: WordItem[] = [
   ...buildMasterBanglaWords(),
@@ -581,4 +599,8 @@ export const BANGLA_WORDS: WordItem[] = [
     antonyms: ["অপচিকীর্ষা", "অনিষ্টেচ্ছা"],
     example: "মহৎ প্রাণ ও সমাজসেবকদের মনে সর্বদা উপচিকীর্ষা বিরাজ করে।"
   }
-];
+].concat(ADDITIONAL_EK_KOTHAY as WordItem[])
+ .concat(PARIBHASHIK_SHOBDO as WordItem[])
+ .concat(BANGLA_SAMARTHOK as WordItem[])
+ .concat(BANGLA_ANTONYM as WordItem[])
+ .concat(BANGLA_BAGDHARA as WordItem[]);

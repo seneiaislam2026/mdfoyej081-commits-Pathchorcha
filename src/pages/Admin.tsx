@@ -59,7 +59,7 @@ export const formatEmail = (email: string) => {
 };
 
 export default function Admin() {
-  const { user, userData } = useAuth();
+  const { user, userData, previewClass, setPreviewClass } = useAuth();
   const [activeTab, setActiveTab ] = useState("dashboard");
   const [users, setUsers] = useState<any[]>([]);
   const [publicExams, setPublicExams] = useState<any[]>([]);
@@ -126,6 +126,8 @@ export default function Admin() {
   const [vocabulary, setVocabulary] = useState<any[]>([]);
   const [vocabularyLoading, setVocabularyLoading] = useState(false);
   const [newVocabJSON, setNewVocabJSON] = useState("");
+  const [editingVocab, setEditingVocab] = useState<any>(null);
+  const [isSavingVocab, setIsSavingVocab] = useState(false);
   const navigate = useNavigate();
 
   const allDynamicSubjects = ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত", "ICT", "হিসাববিজ্ঞান", "ফিন্যান্স", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", "অর্থনীতি", "পৌরনীতি", "ইতিহাস", "ভূগোল", "সাধারণ জ্ঞান"];
@@ -300,6 +302,51 @@ export default function Admin() {
       alert("JSON পার্সিং বা আপলোডে ত্রুটি হয়েছে: " + error.message);
     } finally {
       setVocabularyLoading(false);
+    }
+  };
+
+  const handleUpdateVocabulary = async () => {
+    if (!editingVocab || !editingVocab.word) {
+      alert("শব্দটি দিন!");
+      return;
+    }
+    try {
+      setIsSavingVocab(true);
+      const vocabRef = doc(db, "vocabulary", editingVocab.id);
+      
+      const payload: any = {
+        word: editingVocab.word,
+        meaning: editingVocab.meaning,
+        pronunciation: editingVocab.pronunciation || "",
+        language: editingVocab.language || "english",
+        category: editingVocab.category || "vocabulary",
+        example: editingVocab.example || "",
+      };
+
+      if (editingVocab.synonyms && Array.isArray(editingVocab.synonyms)) {
+          payload.synonyms = editingVocab.synonyms;
+      } else if (editingVocab.synonyms && typeof editingVocab.synonyms === 'string') {
+          payload.synonyms = editingVocab.synonyms.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+      } else {
+          payload.synonyms = [];
+      }
+
+      if (editingVocab.antonyms && Array.isArray(editingVocab.antonyms)) {
+          payload.antonyms = editingVocab.antonyms;
+      } else if (editingVocab.antonyms && typeof editingVocab.antonyms === 'string') {
+          payload.antonyms = editingVocab.antonyms.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+      } else {
+          payload.antonyms = [];
+      }
+
+      await updateDoc(vocabRef, payload);
+      alert("শব্দটি আপডেট করা হয়েছে!");
+      setEditingVocab(null);
+      fetchVocabulary();
+    } catch (error: any) {
+      alert("আপডেট করতে ত্রুটি হয়েছে: " + error.message);
+    } finally {
+      setIsSavingVocab(false);
     }
   };
 
@@ -1777,30 +1824,16 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                    <CardTitle className="text-lg font-bengali font-black">ড্যাশবোর্ড প্রিভিউ (Class-wise Preview)</CardTitle>
                  </CardHeader>
                  <CardContent className="p-6">
-                   <p className="text-sm text-slate-500 mb-4 font-bengali">আপনি কোন ক্লাসের ড্যাশবোর্ড দেখতে চান তা নির্বাচন করুন। এটি সাময়িক ভাবে আপনার নিজের প্রোফাইলের ক্লাস পরিবর্তন করবে, যার ফলে আপনি একজন সাধারণ শিক্ষার্থীর মতো সাইটটি দেখতে পাবেন।</p>
+                   <p className="text-sm text-slate-500 mb-4 font-bengali">আপনি কোন ক্লাসের ড্যাশবোর্ড দেখতে চান তা নির্বাচন করুন। এটি সাময়িক ভাবে আপনার প্রিভিউর ক্লাস পরিবর্তন করবে, যার ফলে আপনি একজন সাধারণ শিক্ষার্থীর মতো সাইটটি দেখতে পাবেন।</p>
                    <div className="flex flex-wrap gap-2 mb-6">
-                     {uniqueClasses.map((cls) => (
+                     {["৬ষ্ঠ শ্রেণী", "৭ম শ্রেণী", "৮ম শ্রেণী", "নবম শ্রেণী", "দশম শ্রেণী", "একাদশ শ্রেণী", "দ্বাদশ শ্রেণী", "এডমিশন"].map((cls) => (
                        <Button 
                          key={cls as string} 
-                         variant={userData?.class === cls ? "default" : "outline"} 
+                         variant={(previewClass || userData?.class) === cls ? "default" : "outline"} 
                          size="sm"
-                         className={userData?.class === cls ? "bg-primary font-bengali text-white" : "font-bengali"}
-                         onClick={async () => {
-                           if (!user) return;
-                           try {
-                             let group = "৯ম-১০ম";
-                             if (["৬ষ্ঠ শ্রেণী", "৭ম শ্রেণী", "৮ম শ্রেণী", "৬ষ্ঠ-৮ম"].includes(cls as string)) group = "৬ষ্ঠ-৮ম";
-                             else if (["নবম শ্রেণী", "দশম শ্রেণী", "৯ম-১০ম"].includes(cls as string)) group = "৯ম-১০ম";
-                             else if (["বিজ্ঞান", "মানবিক", "ব্যবসায় শিক্ষা", "একাদশ শ্রেণী", "দ্বাদশ শ্রেণী", "একাদশ-দ্বাদশ"].includes(cls as string)) group = "একাদশ-দ্বাদশ";
-                             else if (["এডমিশন"].includes(cls as string)) group = "এডমিশন";
-                             
-                             await updateDoc(doc(db, "users", user.uid), { class: cls, group });
-                             alert("ক্লাস পরিবর্তন করা হয়েছে: " + cls);
-                             window.location.reload();
-                           } catch (e) {
-                             console.error(e);
-                             alert("Failed to update class.");
-                           }
+                         className={(previewClass || userData?.class) === cls ? "bg-primary font-bengali text-white" : "font-bengali"}
+                         onClick={() => {
+                           if (setPreviewClass) setPreviewClass(cls as string);
                          }}
                        >
                          {cls as string}
@@ -3501,15 +3534,32 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                               {vocab.synonyms?.length > 0 && `Syn: ${vocab.synonyms.slice(0, 2).join(', ')}`}
                             </TableCell>
                             <TableCell className="text-right">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-red-550 hover:bg-red-50 border border-transparent hover:border-red-100 h-8 w-8 p-0 rounded-lg shrink-0"
-                                onClick={() => deleteVocabularyWord(vocab.id)}
-                                title="মুছে ফেলুন"
-                              >
-                                <Trash2 className="w-4 h-4 text-red-500" />
-                              </Button>
+                              <div className="flex justify-end gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-blue-550 hover:bg-blue-50 border border-transparent hover:border-blue-100 h-8 w-8 p-0 rounded-lg shrink-0"
+                                  onClick={() => {
+                                    const toEdit = { ...vocab };
+                                    // Convert array to comma-separated string for editing
+                                    if (Array.isArray(toEdit.synonyms)) toEdit.synonyms = toEdit.synonyms.join(', ');
+                                    if (Array.isArray(toEdit.antonyms)) toEdit.antonyms = toEdit.antonyms.join(', ');
+                                    setEditingVocab(toEdit);
+                                  }}
+                                  title="এডিট করুন"
+                                >
+                                  <Edit className="w-4 h-4 text-blue-500" />
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="text-red-550 hover:bg-red-50 border border-transparent hover:border-red-100 h-8 w-8 p-0 rounded-lg shrink-0"
+                                  onClick={() => deleteVocabularyWord(vocab.id)}
+                                  title="মুছে ফেলুন"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-500" />
+                                </Button>
+                              </div>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -4108,6 +4158,117 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 className="bg-blue-600 text-white hover:bg-blue-700 font-bengali rounded-xl py-4.5 font-bold border-0"
               >
                 সংরক্ষণ করুন (Save)
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Vocabulary Modal */}
+      {editingVocab && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-5 sm:p-6 pb-4 border-b border-slate-50 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+                  <BookOpen className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg sm:text-xl font-bold text-slate-800 font-bengali tracking-tight">শব্দ পরিমার্জন</h2>
+                  <p className="text-xs text-slate-500 font-bengali">কাস্টম শব্দকোষ এডিট করুন</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setEditingVocab(null)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <div className="p-5 sm:p-6 overflow-y-auto space-y-4 custom-scrollbar">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">শব্দ (Word)</label>
+                <Input 
+                  value={editingVocab.word}
+                  onChange={(e) => setEditingVocab({...editingVocab, word: e.target.value})}
+                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">উচ্চারণ (Pronunciation - ঐচ্ছিক)</label>
+                <Input 
+                  value={editingVocab.pronunciation || ""}
+                  onChange={(e) => setEditingVocab({...editingVocab, pronunciation: e.target.value})}
+                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">ভাষা (Language)</label>
+                  <select className="w-full h-12 bg-slate-50 border border-slate-200 text-sm font-semibold rounded-xl px-3 outline-none focus:ring-2 focus:ring-blue-500/20" value={editingVocab.language || "english"} onChange={(e) => setEditingVocab({...editingVocab, language: e.target.value})}>
+                    <option value="english">English</option>
+                    <option value="bangla">Bangla</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">ক্যাটাগরি</label>
+                  <Input 
+                    value={editingVocab.category || ""}
+                    onChange={(e) => setEditingVocab({...editingVocab, category: e.target.value})}
+                    placeholder="vocabulary"
+                    className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">অর্থ (Meaning)</label>
+                <Input 
+                  value={editingVocab.meaning || ""}
+                  onChange={(e) => setEditingVocab({...editingVocab, meaning: e.target.value})}
+                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">সমার্থক শব্দ (কমা দিয়ে আলাদা করুন)</label>
+                <Input 
+                  value={editingVocab.synonyms || ""}
+                  onChange={(e) => setEditingVocab({...editingVocab, synonyms: e.target.value})}
+                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">বিপরীত শব্দ (কমা দিয়ে আলাদা করুন)</label>
+                <Input 
+                  value={editingVocab.antonyms || ""}
+                  onChange={(e) => setEditingVocab({...editingVocab, antonyms: e.target.value})}
+                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">উদাহরণ (Example)</label>
+                <textarea 
+                  value={editingVocab.example || ""}
+                  onChange={(e) => setEditingVocab({...editingVocab, example: e.target.value})}
+                  className="w-full p-3 min-h-[80px] bg-slate-50 border border-slate-200 text-sm font-medium rounded-xl resize-none outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                />
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50 shrink-0">
+              <Button 
+                variant="ghost"
+                onClick={() => setEditingVocab(null)} 
+                className="text-slate-500 hover:text-slate-700 hover:bg-slate-200 font-bengali rounded-xl h-11 px-6"
+              >
+                বাতিল
+              </Button>
+              <Button 
+                onClick={handleUpdateVocabulary} 
+                disabled={isSavingVocab}
+                className="bg-blue-600 text-white hover:bg-blue-700 font-bengali rounded-xl h-11 px-8 font-bold shadow-md shadow-blue-600/20"
+              >
+                {isSavingVocab ? "সেভ হচ্ছে..." : "সেভ করুন"}
               </Button>
             </div>
           </div>

@@ -20,6 +20,7 @@ export default function ProApprovedCongrats() {
       
       if (hasSeen !== 'true') {
         setShow(true);
+        localStorage.setItem(storageKey, 'true');
         
         // Fire initial confetti blast!
         const duration = 4 * 1000;

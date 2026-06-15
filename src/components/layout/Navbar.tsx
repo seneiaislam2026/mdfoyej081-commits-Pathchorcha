@@ -61,7 +61,7 @@ const IconButtonWrapper = ({ children, badge, onClick, title }: any) => (
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userData, signOut } = useAuth();
+  const { userData, signOut, previewClass, setPreviewClass } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const notificationRef = useRef<HTMLDivElement>(null);
@@ -204,6 +204,28 @@ export default function Navbar() {
                 👑 আপগ্রেড করুন
               </Button>
             </Link>
+          )}
+
+          {isAdmin && !isAdminPath && (
+            <div className="hidden lg:flex bg-amber-50 border border-amber-200 rounded-full items-center px-3 py-1 gap-2 shadow-sm mr-2">
+              <span className="text-amber-700 text-xs font-semibold whitespace-nowrap">View As:</span>
+              <select 
+                className="bg-transparent border-0 text-xs font-bengali text-amber-900 outline-none appearance-none cursor-pointer pr-4 bg-no-repeat"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23b45309'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundPosition: 'right center', backgroundSize: '0.8em 0.8em' }}
+                value={previewClass || userData?.class || "Admin"}
+                onChange={(e) => setPreviewClass(e.target.value === "Admin" ? null : e.target.value)}
+              >
+                <option value="Admin">Admin (All)</option>
+                <option value="৬ষ্ঠ শ্রেণী">৬ষ্ঠ শ্রেণী</option>
+                <option value="৭ম শ্রেণী">৭ম শ্রেণী</option>
+                <option value="৮ম শ্রেণী">৮ম শ্রেণী</option>
+                <option value="নবম শ্রেণী">নবম শ্রেণী</option>
+                <option value="দশম শ্রেণী">দশম শ্রেণী</option>
+                <option value="একাদশ শ্রেণী">একাদশ শ্রেণী</option>
+                <option value="দ্বাদশ শ্রেণী">দ্বাদশ শ্রেণী</option>
+                <option value="এডমিশন">এডমিশন</option>
+              </select>
+            </div>
           )}
 
           {isAdmin && !isAdminPath && (

@@ -2,7 +2,7 @@ import { WordItem } from "./vocabularyData";
 
 const basePrepositions: Partial<WordItem>[] = [
   { word: "Abide by", meaning: "মেনে চলা", example: "We must abide by the rules. (BCS 38th)" },
-  { word: "Absound in", meaning: "প্রচুর পরিমাণে থাকা", example: "Fish abounds in this pond. (BCS 35th)" },
+  { word: "Abound in", meaning: "প্রচুর পরিমাণে থাকা", example: "Fish abounds in this pond. (BCS 35th)" },
   { word: "Absorb in", meaning: "মগ্ন থাকা", example: "He is absorbed in deep thought. (DU Admission)" },
   { word: "Accede to", meaning: "সম্মত হওয়া", example: "The authority acceded to our request. (BCS 40th)" },
   { word: "Account for", meaning: "কৈফিয়ত দেওয়া, ব্যাখ্যা করা", example: "You have to account for your absence. (Bank Exam)" },

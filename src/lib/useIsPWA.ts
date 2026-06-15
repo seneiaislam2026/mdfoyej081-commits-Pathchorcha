@@ -1,9 +1,9 @@
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 export function useIsPWA() {
-  const [isPWA, setIsPWA] = React.useState(false);
+  const [isPWA, setIsPWA] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const checkIsPWA = () => {
       const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
         || ('standalone' in navigator && (navigator as any).standalone)

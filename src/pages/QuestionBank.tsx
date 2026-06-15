@@ -1,5 +1,4 @@
-import * as React from "react";
-const { useState, useEffect } = React;
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Filter, Briefcase, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Map as MapIcon } from "lucide-react";
@@ -169,13 +168,28 @@ const TOPICS_METADATA: Record<string, any> = {
 import { managementMCQs } from "../data/managementMcqs";
 
 export default function QuestionBank() {
-  const { userData } = useAuth();
+  const { userData, previewClass, setPreviewClass } = useAuth();
   const isPWA = useIsPWA();
   const navigate = useNavigate();
-  const initialClassGroup = mapUserClassToGroup(userData?.class);
+
+  const [isContentRendered, setIsContentRendered] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setIsContentRendered(true), 10);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const effectiveClass = previewClass || userData?.class;
+  const initialClassGroup = mapUserClassToGroup(effectiveClass);
   const [activeClassGroup, setActiveClassGroup] = useState(initialClassGroup);
   const [activeClass, setActiveClass] = useState(initialClassGroup === "Admission" ? "ঢাকা বিশ্ববিদ্যালয়" : (initialClassGroup === "Class 6-8" ? "Class 6" : initialClassGroup));
   const [questionFormat, setQuestionFormat] = useState<"MCQ" | "CQ" | null>(initialClassGroup === "Admission" ? "MCQ" : null);
+
+  useEffect(() => {
+    const newGroup = mapUserClassToGroup(effectiveClass);
+    setActiveClassGroup(newGroup);
+    setActiveClass(newGroup === "Admission" ? "ঢাকা বিশ্ববিদ্যালয়" : (newGroup === "Class 6-8" ? "Class 6" : newGroup));
+    setQuestionFormat(newGroup === "Admission" ? "MCQ" : null);
+  }, [effectiveClass]);
   const [selectedUniversity, setSelectedUniversity] = useState<string | null>(null);
   const [questionsList, setQuestionsList] = useState<any[]>([]);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
@@ -359,6 +373,15 @@ export default function QuestionBank() {
       </button>
     </div>
   );
+
+  if (!isContentRendered) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 opacity-50 min-h-screen">
+        <div className="w-8 h-8 rounded-full border-4 border-[#0F2744]/20 border-t-[#0F2744] animate-spin mb-4" />
+        <p className="font-bengali font-bold text-slate-500">লোড হচ্ছে...</p>
+      </div>
+    );
+  }
 
   if (!questionFormat) {
     return (

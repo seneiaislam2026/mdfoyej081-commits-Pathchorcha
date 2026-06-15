@@ -28,6 +28,8 @@ interface AuthContextType {
   user: User | null;
   userData: UserData | null;
   loading: boolean;
+  previewClass: string | null;
+  setPreviewClass: (cls: string | null) => void;
   signInWithGoogle: () => Promise<UserData|null>;
   signInWithFacebook: () => Promise<UserData|null>;
   signInOrSignUpWithEmail: (email: string, password: string) => Promise<UserData|null>;
@@ -41,6 +43,8 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   userData: null,
   loading: true,
+  previewClass: null,
+  setPreviewClass: () => {},
   signInWithGoogle: async () => null,
   signInWithFacebook: async () => null,
   signInOrSignUpWithEmail: async () => null,
@@ -56,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [previewClass, setPreviewClass] = useState<string | null>(null);
 
   useEffect(() => {
     let unsubscribeUserDoc: (() => void) | null = null;
@@ -192,12 +197,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signInOrSignUpWithEmail = async (email: string, password: string): Promise<UserData | null> => {
     let result;
+    let isNewUser = false;
     try {
       result = await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
         try {
           result = await createUserWithEmailAndPassword(auth, email, password);
+          isNewUser = true;
         } catch (signupError: any) {
           if (signupError.code === 'auth/email-already-in-use') {
             throw new Error("ভুল পাসওয়ার্ড দেওয়া হয়েছে। দয়া করে সঠিক পাসওয়ার্ড দিন।");
@@ -220,6 +227,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     
     const userRef = doc(db, 'users', result.user.uid);
+
+    if (isNewUser) {
+      const newUserData: UserData = {
+        uid: result.user.uid,
+        email: result.user.email || email,
+        fullName: '',
+        points: 0,
+        progress: { totalSolved: 0, accuracy: 0, streak: 0 },
+        isPro: false,
+      };
+
+      setDoc(userRef, {
+        ...newUserData,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }, { merge: true }).catch(e => console.error(e));
+
+      setUserData(newUserData);
+      return newUserData;
+    }
+    
     try {
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
@@ -231,7 +259,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.warn("Could not fetch user document, proceeding with basic data", e);
     }
     
-    // For new users
+    // For new users fallback
     const newUserData: UserData = {
       uid: result.user.uid,
       email: result.user.email || email,
@@ -241,7 +269,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isPro: false,
     };
 
-    await setDoc(userRef, {
+    setDoc(userRef, {
       ...newUserData,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -299,7 +327,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, signInWithGoogle, signInWithFacebook, signInOrSignUpWithEmail, setupRecaptcha, signInWithPhone, verifyPhoneCode, signOut }}>
+    <AuthContext.Provider value={{ user, userData, loading, previewClass, setPreviewClass, signInWithGoogle, signInWithFacebook, signInOrSignUpWithEmail, setupRecaptcha, signInWithPhone, verifyPhoneCode, signOut }}>
       {children}
     </AuthContext.Provider>
   );

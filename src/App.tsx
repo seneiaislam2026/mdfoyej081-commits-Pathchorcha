@@ -8,26 +8,26 @@ import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
-const Dashboard = React.lazy(() => import("./pages/Dashboard"));
-const QuestionBank = React.lazy(() => import("./pages/QuestionBank"));
-const PaperView = React.lazy(() => import("./pages/PaperView"));
-const Notes = React.lazy(() => import("./pages/Notes"));
-const SubjectNotes = React.lazy(() => import("./pages/SubjectNotes"));
-const Exam = React.lazy(() => import("./pages/Exam"));
-const Leaderboard = React.lazy(() => import("./pages/Leaderboard"));
-const Profile = React.lazy(() => import("./pages/Profile"));
-const Admin = React.lazy(() => import("./pages/Admin"));
-const AITutor = React.lazy(() => import("./pages/AITutor"));
-const Memorize = React.lazy(() => import("./pages/Memorize"));
-const NoteDetails = React.lazy(() => import("./pages/NoteDetails"));
-const NoteHonesty = React.lazy(() => import("./pages/NoteHonesty"));
-const Doubts = React.lazy(() => import("./pages/Doubts"));
-const Subscription = React.lazy(() => import("./pages/Subscription"));
-const PaymentSuccess = React.lazy(() => import("./pages/PaymentSuccess"));
-const PaymentFail = React.lazy(() => import("./pages/PaymentFail"));
+import Dashboard from "./pages/Dashboard";
+import QuestionBank from "./pages/QuestionBank";
+import PaperView from "./pages/PaperView";
+import Notes from "./pages/Notes";
+import SubjectNotes from "./pages/SubjectNotes";
+import Exam from "./pages/Exam";
+import Leaderboard from "./pages/Leaderboard";
+import Profile from "./pages/Profile";
+import Admin from "./pages/Admin";
+import AITutor from "./pages/AITutor";
+import Memorize from "./pages/Memorize";
+import NoteDetails from "./pages/NoteDetails";
+import NoteHonesty from "./pages/NoteHonesty";
+import Doubts from "./pages/Doubts";
+import Subscription from "./pages/Subscription";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFail from "./pages/PaymentFail";
 import PaymentCancel from './pages/PaymentCancel';
 import MockPaymentPortal from './pages/MockPaymentPortal';
-const PublicExam = React.lazy(() => import("./pages/PublicExam"));
+import PublicExam from "./pages/PublicExam";
 import { ArrowLeft } from "lucide-react";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
@@ -190,8 +190,7 @@ export default function App() {
       <AuthProvider>
         <InstallPrompt />
         <Router>
-        <React.Suspense fallback={<div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-10"><div className="animate-pulse flex items-center justify-center font-bold text-slate-400">Loading Application...</div></div>}>
-          <Routes>
+            <Routes>
           {/* Public Routes without Navbar */}
           <Route path="/" element={<Landing />} />
           <Route path="/public-exam/:id" element={<PublicExam />} />
@@ -224,9 +223,7 @@ export default function App() {
         </Route>
         {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      
-        </React.Suspense>
+            </Routes>
         </Router>
     </AuthProvider>
     </ErrorBoundary>

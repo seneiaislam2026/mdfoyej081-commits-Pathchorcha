@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shikkhangon-cache-v6';
+const CACHE_NAME = 'shikkhangon-cache-v8';
 const PRE_CACHE_RESOURCES = [
   '/',
   '/index.html',
@@ -50,7 +50,13 @@ self.addEventListener('fetch', (event) => {
     url.href.includes('securetoken.googleapis.com') ||
     url.href.includes('accounts.google.com') ||
     url.pathname.startsWith('/api/') || 
-    url.pathname.includes('hot_reload')
+    url.pathname.includes('hot_reload') ||
+    url.pathname.includes('/src/') ||
+    url.pathname.includes('/node_modules/') ||
+    url.pathname.endsWith('.ts') ||
+    url.pathname.endsWith('.tsx') ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css')
   ) {
     return;
   }
