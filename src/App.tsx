@@ -28,6 +28,7 @@ import PaymentFail from "./pages/PaymentFail";
 import PaymentCancel from './pages/PaymentCancel';
 import MockPaymentPortal from './pages/MockPaymentPortal';
 import PublicExam from "./pages/PublicExam";
+import PublicExamsList from "./pages/PublicExamsList";
 import { ArrowLeft } from "lucide-react";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
@@ -124,7 +125,7 @@ function AppLayout() {
   const { user, loading, userData } = useAuth();
   
   // Do not show back button on dashboard, exam, paper, and question-bank pages
-  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize";
+  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams";
 
   if (loading) {
     return (
@@ -194,6 +195,7 @@ export default function App() {
           {/* Public Routes without Navbar */}
           <Route path="/" element={<Landing />} />
           <Route path="/public-exam/:id" element={<PublicExam />} />
+          <Route path="/public-exams" element={<PublicExamsList />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/login" element={<Login />} />

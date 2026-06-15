@@ -140,7 +140,7 @@ export default function Memorize() {
       if (isClass6Vocab && !isClass6Target) return false;
       if (!isClass6Vocab && isClass6Target) return false;
 
-      const isHSCTarget = effectiveClass === "একাদশ শ্রেণী" || effectiveClass === "দ্বাদশ শ্রেণী";
+      const isHSCTarget = effectiveClass === "এইচএসসি" || effectiveClass === "একাদশ শ্রেণী" || effectiveClass === "দ্বাদশ শ্রেণী";
       const isHSCVocab = w.category === "paragraph";
       if (isHSCVocab && !isHSCTarget) return false;
       

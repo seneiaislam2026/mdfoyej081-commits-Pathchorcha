@@ -1826,7 +1826,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                  <CardContent className="p-6">
                    <p className="text-sm text-slate-500 mb-4 font-bengali">আপনি কোন ক্লাসের ড্যাশবোর্ড দেখতে চান তা নির্বাচন করুন। এটি সাময়িক ভাবে আপনার প্রিভিউর ক্লাস পরিবর্তন করবে, যার ফলে আপনি একজন সাধারণ শিক্ষার্থীর মতো সাইটটি দেখতে পাবেন।</p>
                    <div className="flex flex-wrap gap-2 mb-6">
-                     {["৬ষ্ঠ শ্রেণী", "৭ম শ্রেণী", "৮ম শ্রেণী", "নবম শ্রেণী", "দশম শ্রেণী", "একাদশ শ্রেণী", "দ্বাদশ শ্রেণী", "এডমিশন"].map((cls) => (
+                     {["৬ষ্ঠ শ্রেণী", "৭ম শ্রেণী", "৮ম শ্রেণী", "নবম শ্রেণী", "দশম শ্রেণী", "এইচএসসি", "এডমিশন"].map((cls) => (
                        <Button 
                          key={cls as string} 
                          variant={(previewClass || userData?.class) === cls ? "default" : "outline"} 
@@ -2240,9 +2240,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                             {exam.targetClass || "সকল ক্লাস"}
                           </Badge>
                           <Badge variant="outline" className={`text-[10px] font-bengali font-semibold ${
+                            exam.type === "model_test" ? "bg-purple-50 border-purple-100/60 text-purple-700" :
                             exam.type === "live_model_test" ? "bg-amber-50 border-amber-100/60 text-amber-700" : "bg-teal-50 border-teal-100/60 text-teal-700"
                           }`}>
-                            {exam.type === "live_model_test" ? "লাইভ মডেল টেস্ট" : "পাবলিক এক্সাম"}
+                            {exam.type === "model_test" ? "মডেল টেস্ট" : exam.type === "live_model_test" ? "লাইভ মডেল টেস্ট" : "পাবলিক এক্সাম"}
                           </Badge>
                         </div>
                       </div>
@@ -3778,8 +3779,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     <option value="৮ম শ্রেণী">৮ম শ্রেণী</option>
                     <option value="নবম শ্রেণী">নবম শ্রেণী</option>
                     <option value="দশম শ্রেণী">দশম শ্রেণী</option>
-                    <option value="একাদশ শ্রেণী">একাদশ শ্রেণী</option>
-                    <option value="দ্বাদশ শ্রেণী">দ্বাদশ শ্রেণী</option>
+                    <option value="এইচএসসি">এইচএসসি</option>
                     <option value="এডমিশন">এডমিশন</option>
                   </select>
                 </div>
@@ -3792,6 +3792,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   >
                     <option value="public">পাবলিক এক্সাম (Live Exam)</option>
                     <option value="live_model_test">লাইভ মডেল টেস্ট (Live Model Test)</option>
+                    <option value="model_test">মডেল টেস্ট (Regular Model Test)</option>
                   </select>
                 </div>
                 <div>

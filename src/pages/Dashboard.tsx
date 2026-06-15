@@ -25,7 +25,7 @@ import {
 import { useAuth } from "../lib/AuthContext";
 
 export default function Dashboard() {
-  const { userData } = useAuth();
+  const { userData, previewClass } = useAuth();
   const [publicExams, setPublicExams] = useState<any[]>([]);
   const [globalSettings, setGlobalSettings] = useState<any>(null);
 
@@ -57,7 +57,7 @@ export default function Dashboard() {
     fetchPublicExams();
   }, []);
 
-  const userClass = userData?.class || "";
+  const userClass = previewClass || userData?.class || "";
   const eligibleExams = publicExams.filter((exam) => {
     if (!exam.targetClass || exam.targetClass === "সকল ক্লাস") {
       return true;
@@ -65,7 +65,7 @@ export default function Dashboard() {
     return exam.targetClass === userClass;
   });
 
-  const liveExams = eligibleExams.filter((exam) => exam.type === "live_model_test" || !exam.type);
+  const liveExams = eligibleExams.filter((exam) => exam.type === "live_model_test" || exam.type === "model_test" || exam.type === "public" || !exam.type);
 
   return (
     <div className="w-full flex flex-col gap-6 pb-32 font-sans md:px-0">
@@ -417,16 +417,16 @@ export default function Dashboard() {
       <section className="space-y-4">
         <div className="flex justify-between items-center px-1">
           <h3 className="font-bengali text-[16px] font-bold text-slate-800 tracking-tight">চলমান পরীক্ষা</h3>
-          <Link to="/exam" className="text-blue-500 font-bengali text-xs font-bold flex items-center hover:underline bg-blue-50 px-3 py-1 rounded-full">
+          <Link to="/public-exams" className="text-blue-500 font-bengali text-xs font-bold flex items-center hover:underline bg-blue-50 px-3 py-1 rounded-full">
             সব দেখুন <ChevronRight className="w-3.5 h-3.5 ml-0.5"/>
           </Link>
         </div>
 
         <div className="flex flex-col gap-3">
           {liveExams.length > 0 ? (
-            liveExams.slice(0, 3).map((exam, idx) => (
+            liveExams.slice(0, 4).map((exam, idx) => (
               <Link to={`/public-exam/${exam.id}`} key={exam.id ? `${exam.id}-${idx}` : `exam-${idx}`}>
-                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-3">
                      <div className={`w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 border ${
                        idx === 0 ? "bg-rose-50 text-rose-500 border-rose-100" : idx === 1 ? "bg-violet-50 text-violet-500 border-violet-100" : "bg-orange-50 text-orange-500 border-orange-100"
@@ -434,17 +434,11 @@ export default function Dashboard() {
                         {idx === 0 ? <RefreshCw className="w-[22px] h-[22px]" strokeWidth={2.5}/> : idx === 1 ? <BrainCircuit className="w-[22px] h-[22px]" strokeWidth={2.5}/> : <SearchCheck className="w-[22px] h-[22px]" strokeWidth={2.5}/>}
                      </div>
                      <div>
-                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">{exam.title}</div>
+                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors pr-2">{exam.title}</div>
                         <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">
                           {exam.subject || "সাধারণ"} • {exam.questions?.length || 0}টি প্রশ্ন
                         </div>
                      </div>
-                  </div>
-                  
-                  <div className={`font-bengali text-[11px] font-bold px-3 py-1.5 rounded-full ${
-                    idx === 0 ? "bg-emerald-50 text-emerald-600 border border-emerald-100/50" : idx === 1 ? "bg-emerald-50 text-emerald-600 border border-emerald-100/50" : "bg-orange-50 text-orange-600 border border-orange-100/50"
-                  }`}>
-                     {idx === 0 ? "৮০%" : idx === 1 ? "সম্পন্ন" : "৬৫%"}
                   </div>
                 </div>
               </Link>

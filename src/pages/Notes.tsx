@@ -45,7 +45,7 @@ import { generatePrintableHtml } from "../components/NotesCreator";
 export const mapUserClassToGroup = (cls?: string) => {
   if (cls === "এডমিশন" || cls === "Admission") return "Admission";
   if (cls === "দশম শ্রেণী" || cls === "SSC") return "SSC";
-  if (cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী" || cls === "HSC")
+  if (cls === "এইচএসসি" || cls === "HSC" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী")
     return "HSC";
   if (cls === "নবম শ্রেণী" || cls === "Class 9") return "SSC";
   if (
@@ -1519,7 +1519,7 @@ const COMMERCE_SUBJECTS = [
 
 export default function Notes() {
   const { userData } = useAuth();
-  const userClass = userData?.class || "দ্বাদশ শ্রেণী";
+  const userClass = userData?.class || "এইচএসসি";
 
   const [isContentRendered, setIsContentRendered] = useState(false);
   useEffect(() => {

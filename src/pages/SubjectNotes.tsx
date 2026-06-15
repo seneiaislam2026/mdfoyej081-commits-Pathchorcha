@@ -16,7 +16,7 @@ export default function SubjectNotes() {
   const { subjectName } = useParams();
   const { userData } = useAuth();
   const decodedSubject = decodeURIComponent(subjectName || "");
-  const userClass = userData?.class || "দ্বাদশ শ্রেণী";
+  const userClass = userData?.class || "এইচএসসি";
   const userClassGroup = mapUserClassToGroup(userClass);
 
   // States

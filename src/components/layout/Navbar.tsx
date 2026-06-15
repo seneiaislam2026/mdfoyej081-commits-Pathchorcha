@@ -221,8 +221,7 @@ export default function Navbar() {
                 <option value="৮ম শ্রেণী">৮ম শ্রেণী</option>
                 <option value="নবম শ্রেণী">নবম শ্রেণী</option>
                 <option value="দশম শ্রেণী">দশম শ্রেণী</option>
-                <option value="একাদশ শ্রেণী">একাদশ শ্রেণী</option>
-                <option value="দ্বাদশ শ্রেণী">দ্বাদশ শ্রেণী</option>
+                <option value="এইচএসসি">এইচএসসি</option>
                 <option value="এডমিশন">এডমিশন</option>
               </select>
             </div>

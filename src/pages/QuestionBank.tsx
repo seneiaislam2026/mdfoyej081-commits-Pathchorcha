@@ -119,7 +119,7 @@ const getSubjectsByGroup = (group?: string, classGroup?: string) => {
 const mapUserClassToGroup = (cls?: string) => {
   if (cls === "এডমিশন") return "Admission";
   if (cls === "দশম শ্রেণী") return "SSC";
-  if (cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী") return "HSC";
+  if (cls === "এইচএসসি" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী") return "HSC";
   if (cls === "নবম শ্রেণী") return "Class 9";
   if (cls === "৬ষ্ঠ শ্রেণী" || cls === "৭ম শ্রেণী" || cls === "৮ম শ্রেণী" || cls === "৬ষ্ঠ থেকে ৮ম শ্রেণী") return "Class 6-8";
   return "HSC";

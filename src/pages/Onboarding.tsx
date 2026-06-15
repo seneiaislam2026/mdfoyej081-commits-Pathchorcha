@@ -17,8 +17,7 @@ const classes = [
   { id: "c68", label: "৬ষ্ঠ থেকে ৮ম শ্রেণী", icon: <Book className="w-8 h-8 text-indigo-500" /> },
   { id: "c9", label: "নবম শ্রেণী", icon: <Book className="w-8 h-8 text-blue-500" /> },
   { id: "c10", label: "দশম শ্রেণী", icon: <GraduationCap className="w-8 h-8 text-green-500" /> },
-  { id: "c11", label: "একাদশ শ্রেণী", icon: <Trophy className="w-8 h-8 text-orange-500" /> },
-  { id: "c12", label: "দ্বাদশ শ্রেণী", icon: <GraduationCap className="w-8 h-8 text-secondary" /> },
+  { id: "hsc", label: "এইচএসসি", icon: <Trophy className="w-8 h-8 text-orange-500" /> },
   { id: "admission", label: "এডমিশন", icon: <AdmissionIcon className="w-8 h-8 text-red-500" /> },
 ];
 
@@ -95,8 +94,8 @@ export default function Onboarding() {
       setStep("subclass");
     } else {
       setSelectedClass(clsId);
-      // Move to group selection if class 11, 12, or admission
-      if (["c11", "c12", "admission"].includes(clsId)) {
+      // Move to group selection if HSC or admission
+      if (["hsc", "admission"].includes(clsId)) {
         setStep("group");
       } else {
         setStep("welcome");

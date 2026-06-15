@@ -1,13 +1,29 @@
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Brain, Trophy, Activity, Target, MessageSquare, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Brain, Trophy, Activity, Target, MessageSquare, CheckCircle2, PlayCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../lib/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { collection, getDocs, query, limit, orderBy, where } from "firebase/firestore";
+import { db } from "../lib/firebase";
 
 export default function Landing() {
   const { user, userData, loading } = useAuth();
   const navigate = useNavigate();
+  const [publicExams, setPublicExams] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchExams() {
+      try {
+        const q = query(collection(db, "public_exams"), where("active", "==", true), orderBy("createdAt", "desc"), limit(4));
+        const snap = await getDocs(q);
+        setPublicExams(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (err) {
+        console.error("Failed to load public exams", err);
+      }
+    }
+    fetchExams();
+  }, []);
 
   useEffect(() => {
     if (!loading && user) {
@@ -167,6 +183,43 @@ export default function Landing() {
              </div>
            </motion.div>
         </section>
+
+        {publicExams.length > 0 && (
+          <section className="mt-16 mb-8 max-w-5xl mx-auto px-4">
+            <h2 className="text-2xl font-bengali font-bold text-slate-800 mb-6 text-center">চলমান পাবলিক পরীক্ষা</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {publicExams.map(exam => (
+                 <div key={exam.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all text-left">
+                  <div className="flex justify-between items-start mb-3">
+                    <h3 className="font-bold text-lg text-slate-800 leading-tight pr-2">{exam.title}</h3>
+                    <span className={`px-2 py-1 rounded-md text-[10px] whitespace-nowrap font-bold shrink-0 ${exam.type === 'live_model_test' ? 'bg-amber-50 text-amber-600' : exam.type === 'model_test' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>
+                      {exam.type === 'live_model_test' ? 'লাইভ টেস্ট' : exam.type === 'model_test' ? 'মডেল টেস্ট' : 'পাবলিক এক্সাম'}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-3 mb-5 text-sm text-slate-500">
+                    <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md text-xs font-bengali">
+                      <Target className="w-3.5 h-3.5" />
+                      {exam.targetClass || "সকল ক্লাস"}
+                    </span>
+                    <span className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md text-xs font-bengali">
+                      <Clock className="w-3.5 h-3.5" />
+                      {exam.duration} মিনিট
+                    </span>
+                  </div>
+
+                  <Link 
+                    to="/auth"
+                    className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bengali font-bold py-2.5 rounded-xl transition-colors"
+                  >
+                    <PlayCircle className="w-4 h-4" />
+                    অংশগ্রহন করতে লগইন করুন
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mt-16 text-center">
           <motion.div
