@@ -10,11 +10,11 @@ export interface WordItem {
   id: string;
   word: string;
   language: "english" | "bangla";
-  category: "vocabulary" | "synonym" | "antonym" | "samarthok" | "ek_kothay" | "analogy" | "appropriate_preposition" | "group_verb" | "spelling" | "class_6_vocabulary" | "verb_forms" | "paragraph" | "idiom_phrase";
+  category: "vocabulary" | "synonym" | "antonym" | "samarthok" | "ek_kothay" | "analogy" | "appropriate_preposition" | "group_verb" | "spelling" | "class_6_vocabulary" | "verb_forms" | "paragraph" | "idiom_phrase" | "paribhashik" | "translation";
   pronunciation?: string;
   meaning: string;
-  synonyms: string[];
-  antonyms: string[];
+  synonyms?: string[];
+  antonyms?: string[];
   example?: string;
 }
 
@@ -497,6 +497,7 @@ import { PARIBHASHIK_SHOBDO } from "./paribhashikShobdoData";
 import { BANGLA_SAMARTHOK } from "./banglaSamarthokData";
 import { BANGLA_ANTONYM } from "./banglaAntonymData";
 import { BANGLA_BAGDHARA } from "./banglaBagdharaData";
+import { TRANSLATION_WORDS } from "./englishTranslationData";
 
 export const ENGLISH_WORDS: WordItem[] = buildMasterEnglishWords()
   .concat(ANALOGY_WORDS)
@@ -507,9 +508,10 @@ export const ENGLISH_WORDS: WordItem[] = buildMasterEnglishWords()
   .concat(VERB_FORMS_WORDS as WordItem[])
   .concat(HSC_PARAGRAPHS)
   .concat(ADMISSION_VOCAB_WORDS)
-  .concat(IDIOMS_AND_PHRASES);
+  .concat(IDIOMS_AND_PHRASES)
+  .concat(TRANSLATION_WORDS);
 
-export const BANGLA_WORDS: WordItem[] = [
+export const BANGLA_WORDS: WordItem[] = ([
   ...buildMasterBanglaWords(),
   {
     id: "bng_1",
@@ -599,7 +601,7 @@ export const BANGLA_WORDS: WordItem[] = [
     antonyms: ["অপচিকীর্ষা", "অনিষ্টেচ্ছা"],
     example: "মহৎ প্রাণ ও সমাজসেবকদের মনে সর্বদা উপচিকীর্ষা বিরাজ করে।"
   }
-].concat(ADDITIONAL_EK_KOTHAY as WordItem[])
+] as WordItem[]).concat(ADDITIONAL_EK_KOTHAY as WordItem[])
  .concat(PARIBHASHIK_SHOBDO as WordItem[])
  .concat(BANGLA_SAMARTHOK as WordItem[])
  .concat(BANGLA_ANTONYM as WordItem[])

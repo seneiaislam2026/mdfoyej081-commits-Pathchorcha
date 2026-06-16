@@ -20,7 +20,8 @@ import {
   HelpCircle,
   Sparkles,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Info
 } from "lucide-react";
 
 interface Doubt {
@@ -37,30 +38,21 @@ interface Doubt {
   subject?: string;
 }
 
-const DYNAMIC_SUBJECTS = [
-  "সাধারণ ডাউট",
-  "পদার্থবিজ্ঞান",
-  "রসায়ন",
-  "উচ্চতর গণিত",
-  "জীববিজ্ঞান",
-  "গণিত",
-  "ইংরেজি",
-  "বাংলা",
-  "আইসিটি",
-  "বাংলাদেশ ও বিশ্বপরিচয়"
-];
+import { getSubjectsForUser } from "../utils/subjects";
 
 export default function Doubts() {
   const { userData } = useAuth();
   const navigate = useNavigate();
   
+  const subjects = userData ? getSubjectsForUser(userData.class, userData.group) : [];
+
   const [doubts, setDoubts] = useState<Doubt[]>([]);
   const [loading, setLoading] = useState(false);
   const [posting, setPosting] = useState(false);
   
   const [newQuestion, setNewQuestion] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedSubject, setSelectedSubject] = useState("সাধারণ ডাউট");
+  const [selectedSubject, setSelectedSubject] = useState("");
   
   // High fidelity light box zoom image state
   const [zoomImage, setZoomImage] = useState<string | null>(null);
@@ -141,6 +133,10 @@ export default function Doubts() {
     if (e) e.preventDefault();
     if (!newQuestion.trim() && !selectedImage) return;
     if (!userData) return;
+    if (!selectedSubject) {
+      alert("দয়া করে একটি বিষয় নির্বাচন করুন!");
+      return;
+    }
 
     setPosting(true);
     try {
@@ -181,95 +177,79 @@ export default function Doubts() {
   };
 
   return (
-    <div className="flex flex-col bg-[#F3F4F6] h-[calc(100vh-65px)] overflow-hidden">
+    <div className="flex flex-col bg-slate-50 w-full h-screen h-[100dvh] overflow-hidden">
       
       {/* Messenger Inspired Header */}
-      <div className="bg-white border-b border-slate-200/80 px-4 py-3 sm:py-3.5 flex items-center justify-between shrink-0 shadow-xs relative z-10 w-full">
-        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+      <div className="bg-white px-4 py-4 shrink-0 shadow-sm relative z-20 w-full flex flex-col justify-center">
+        <div className="flex items-center justify-between w-full max-w-4xl mx-auto">
           {/* Back button */}
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
             onClick={() => navigate("/dashboard")}
-            className="h-10 w-10 sm:h-11 sm:w-11 rounded-full hover:bg-slate-50 text-slate-700 hover:text-[#0F2744] flex items-center justify-center transition-all shrink-0"
-            title="ড্যাশবোর্ডে ফিরে যান"
+            className="w-10 h-10 flex items-center justify-center text-[#1e293b]"
           >
-            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-          </Button>
+            <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
+          </button>
 
-          {/* Active Teacher support status */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative shrink-0 hidden xs:block">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 shadow-xs text-emerald-600">
-                <span className="font-semibold text-lg sm:text-xl font-sans">T</span>
-              </div>
-              <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
-            </div>
-            <div className="min-w-0 flex flex-col">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="font-bengali font-bold text-slate-800 text-sm sm:text-base leading-tight truncate">
-                  সরাসরি শিক্ষক প্যানেল
-                </h2>
-                <span className="bg-emerald-50 text-emerald-700 text-[9px] sm:text-[10px] font-extrabold px-2 py-0.5 rounded-full border border-emerald-150 inline-flex items-center gap-1 shrink-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  HSC & SSC Live
-                </span>
-              </div>
-              <p className="font-bengali text-[10px] sm:text-xs text-slate-500 mt-0.5 truncate">
-                তাত্ক্ষণিক উত্তর সাপোর্ট (১০ মিনিটের মধ্যে সমাধান)
-              </p>
+          {/* Title and Badge */}
+          <div className="flex flex-col items-center">
+            <h2 className="font-bengali font-extrabold text-[#0B1E42] text-xl">
+              সরাসরি শিক্ষক প্যানেল
+            </h2>
+            <div className="bg-[#EAFBF3] text-[#059669] text-xs font-semibold px-3 py-1.5 mt-2 rounded-full border border-[#D1F4E0] flex items-center gap-1.5 shadow-sm font-sans">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+              HSC & SSC Live
             </div>
           </div>
-        </div>
 
-        {/* User Info Right Badge */}
-        <div className="hidden sm:flex items-center gap-2 shrink-0">
-          {userData?.class && (
-            <div className="text-xs font-sans text-[#0F2744] bg-[#0F2744]/5 border border-[#0F2744]/10 px-3 py-1 rounded-full font-semibold">
-              Class: {userData.class}
-            </div>
-          )}
-          <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 font-sans text-xs font-bold flex items-center justify-center border border-slate-200 uppercase">
-            {userData?.fullName?.charAt(0) || "S"}
-          </div>
+          {/* Info Icon */}
+          <button className="w-10 h-10 flex items-center justify-center text-[#10B981]">
+            <Info className="w-6 h-6" />
+          </button>
         </div>
       </div>
 
       {/* Main Messages View Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 md:p-8 space-y-6 flex flex-col relative bg-emerald-50/10">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-6 md:p-8 space-y-6 flex flex-col relative">
+        <div className="relative z-10 w-full flex-1 flex flex-col max-w-4xl mx-auto">
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center">
-            <Loader2 className="w-10 h-10 animate-spin text-primary" />
-            <p className="font-bengali text-slate-500 text-sm mt-3">সহকারী শিক্ষকের সাথে সংযোগ করা হচ্ছে...</p>
+            <Loader2 className="w-8 h-8 animate-spin text-slate-400 mb-4" />
+            <p className="font-bengali text-slate-500 text-sm">শিক্ষকের প্যানেল লোড হচ্ছে...</p>
           </div>
         ) : doubts.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto text-center space-y-6 pb-12">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center text-primary/80 border-2 border-dashed border-primary/20">
-                <Bot className="w-10 h-10 animate-pulse text-primary" />
-              </div>
-              <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs shadow-md">
-                ✨
-              </span>
+          <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto text-center space-y-8 pb-12 w-full">
+            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-slate-600 border border-slate-100 shadow-sm relative">
+              <Bot className="w-10 h-10" strokeWidth={1.5} />
+              <Sparkles className="absolute -top-1 -right-1 text-slate-300 w-6 h-6" />
             </div>
             
             <div className="space-y-2">
-              <h3 className="font-bengali font-bold text-slate-800 text-lg md:text-xl">
-                কোনো প্রশ্ন বা গণিতের সমস্যা আটকে গেছে?
+              <h3 className="font-bengali font-bold text-slate-900 text-xl md:text-2xl tracking-tight">
+                পড়াশোনায় আটকে গেছেন?
               </h3>
-              <p className="font-bengali text-slate-500 text-sm leading-relaxed">
-                উচ্চতর গণিত, রসায়ন কিংবা পদার্থবিজ্ঞানের যেকোনো জটিল সমস্যার ছবি তুলে আমাদের ডাউট সলভিং শিক্ষকের কাছে পাঠিয়ে দিন। সরাসরি অভিজ্ঞ শিক্ষকরা সমাধান বুঝিয়ে দিবেন!
+              <p className="font-bengali text-slate-500 text-[15px] leading-relaxed max-w-[340px] mx-auto">
+                গণিত, পদার্থবিজ্ঞান, রসায়ন বা যেকোনো বিষয়ের জটিল সমস্যা আমাদের শিক্ষকের কাছে পাঠান। আমরা দ্রুত সমাধান বুঝিয়ে দিবো!
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3.5 w-full bg-white p-4 rounded-3xl border border-slate-200/60 shadow-xs">
-              <div className="p-3.5 text-center rounded-2xl bg-amber-50/50 border border-amber-100/70">
-                <MessageCircle className="w-5 h-5 text-amber-600 mx-auto mb-1.5" />
-                <span className="block font-bengali font-bold text-slate-700 text-[11px] sm:text-xs">সরাসরি প্রশ্ন লিখুন</span>
+            <div className="grid grid-cols-2 gap-3 w-full">
+              <div 
+                className="p-5 text-center flex flex-col items-center rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-slate-200 transition-colors cursor-pointer"
+                onClick={() => document.getElementById('doubt-input')?.focus()}
+              >
+                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mb-2.5">
+                  <MessageCircle className="w-5 h-5 text-slate-600" />
+                </div>
+                <span className="block font-bengali font-semibold text-slate-800 text-xs text-center">টাইপ করে প্রশ্ন করুন</span>
               </div>
-              <div className="p-3.5 text-center rounded-2xl bg-indigo-50/50 border border-indigo-100/70">
-                <ImagePlus className="w-5 h-5 text-indigo-600 mx-auto mb-1.5" />
-                <span className="block font-bengali font-bold text-slate-700 text-[11px] sm:text-xs">খাতা বা প্রশ্নের ছবি দিন</span>
+              <div 
+                className="p-5 text-center flex flex-col items-center rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-slate-200 transition-colors cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mb-2.5">
+                  <ImagePlus className="w-5 h-5 text-slate-600" />
+                </div>
+                <span className="block font-bengali font-semibold text-slate-800 text-xs text-center">ছবি তুলে প্রশ্ন দিন</span>
               </div>
             </div>
           </div>
@@ -282,124 +262,94 @@ export default function Doubts() {
                 : "Just now";
 
               return (
-                <div key={doubt.id} className="space-y-3">
+                <div key={doubt.id} className="space-y-4">
                   
                   {/* Participant 1: Student's Message (On the Right) */}
-                  <div className="flex justify-end items-end gap-2.5 pl-12">
-                    <div className="flex flex-col items-end max-w-[85%]">
-                      
-                      {/* Name and Subject metadata */}
-                      <div className="flex items-center gap-1.5 mb-1 text-[11px] text-slate-500 font-sans">
-                        <span className="bg-slate-200/80 text-xs font-bengali px-2 py-0.5 rounded-full text-slate-700">
-                          {doubt.subject || "সাধারণ"}
-                        </span>
-                        <span>• You, {dateStr}</span>
-                      </div>
+                  <div className="flex flex-col items-end gap-1.5 pl-12 lg:pl-24">
+                    <div className="flex items-center justify-end gap-2 text-[11px] font-sans px-1 text-gray-400">
+                      <span className="font-bengali bg-[#D1F4E0] text-[#059669] px-2.5 py-0.5 rounded-md font-semibold">
+                        {doubt.subject || "সাধারণ ডাউট"}
+                      </span>
+                      <span>তুমি • {dateStr}</span>
+                    </div>
 
-                      {/* Msg bubble container */}
-                      <div className="bg-[#0F2744] text-white rounded-[20px] rounded-br-sm px-4 py-3 shadow-[0_2px_8px_rgba(15,39,68,0.12)] border border-[#0F2744]/20 relative group">
-                        
-                        {/* If uploaded image context */}
-                        {doubt.image && (
-                          <div className="mb-2.5 rounded-xl overflow-hidden border border-white/10 shadow-xs relative group-hover:opacity-95 transition-opacity max-w-sm">
-                            <img 
-                              src={doubt.image} 
-                              alt="Question context" 
-                              className="max-h-72 w-auto object-contain bg-slate-950/20 cursor-zoom-in"
-                              onClick={() => setZoomImage(doubt.image || null)}
-                            />
-                            {/* Click to Zoom premium button inside message */}
-                            <button 
-                              onClick={() => setZoomImage(doubt.image || null)}
-                              className="absolute bottom-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/90 transition-all opacity-0 group-hover:opacity-100 shadow-sm"
-                              title="বৃহৎ আকারে দেখুন"
-                            >
-                              <Maximize2 className="w-3.5 h-3.5" />
-                            </button>
+                    <div className="bg-[#0B1E42] text-white rounded-[24px] px-5 py-3.5 shadow-sm relative max-w-[85%] inline-block">
+                      {doubt.image && (
+                        <div className="mb-2.5 rounded-xl bg-black/20 overflow-hidden relative group-hover:opacity-95 transition-opacity max-w-[260px] sm:max-w-sm cursor-zoom-in group/img" onClick={() => setZoomImage(doubt.image || null)}>
+                          <img 
+                            src={doubt.image} 
+                            alt="Question context" 
+                            className="max-h-64 rounded-xl w-auto object-contain bg-slate-900/50"
+                          />
+                          <button 
+                            className="absolute bottom-2 right-2 bg-black/60 text-white rounded-full p-2 hover:bg-black/90 transition-all opacity-0 group-hover/img:opacity-100 shadow-sm"
+                            title="বৃহৎ আকারে দেখুন"
+                          >
+                            <Maximize2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                      <p className="font-bengali text-[15px] leading-relaxed whitespace-pre-wrap">
+                        {doubt.question}
+                      </p>
+                    </div>
+
+                    {/* Delivery Status */}
+                    <div className="flex justify-end pr-2 text-xs text-gray-400 mt-1">
+                       {isPending ? (
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1 text-[#10B981]">
+                            <span>{dateStr}</span>
+                            <CheckCheck className="w-4 h-4 ml-1" strokeWidth={2.5} />
                           </div>
                         )}
-
-                        <p className="font-bengali text-[15px] leading-relaxed whitespace-pre-wrap select-text">
-                          {doubt.question}
-                        </p>
-                      </div>
-
-                      {/* Delivery Status Indicator underneath user's bubble */}
-                      <div className="flex items-center gap-1 mt-1 font-bengali text-[10px] text-slate-400">
-                        {isPending ? (
-                          <>
-                            <Clock className="w-3 h-3 text-amber-500 animate-spin" />
-                            <span className="text-amber-600 font-medium">শিক্ষকের উত্তরের অপেক্ষায়...</span>
-                          </>
-                        ) : (
-                          <>
-                            <CheckCheck className="w-3 h-3 text-emerald-500" />
-                            <span className="text-slate-500">সমাধান সম্পন্ন</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {/* User initial avatar */}
-                    <div className="w-7 h-7 rounded-full bg-[#0F2744] text-white font-sans text-[11px] font-bold flex-shrink-0 flex items-center justify-center uppercase">
-                      {userData?.fullName?.charAt(0) || "S"}
                     </div>
                   </div>
 
                   {/* Participant 2: Assistant Teacher Answer (On the Left, if answered) */}
                   {!isPending && doubt.answer && (
-                    <div className="flex justify-start items-start gap-2.5 pr-12 mt-2">
-                      <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex-shrink-0 flex items-center justify-center font-bold font-sans shadow-sm">
-                        T
+                    <div className="flex items-start gap-4 pr-12 lg:pr-24">
+                      <div className="w-10 h-10 rounded-full bg-[#EAFBF3] text-[#059669] flex items-center justify-center border border-[#D1F4E0] shrink-0 mt-2">
+                        <span className="font-bold text-lg">T</span>
                       </div>
                       
-                      <div className="flex flex-col items-start max-w-[85%]">
-                        {/* Sender info */}
-                        <span className="text-[11px] text-slate-400 font-bengali mb-1">
-                          {doubt.answeredBy || "শিক্ষাঅঙ্গন সলভার শিক্ষক"} (Teacher Support)
+                      <div className="flex flex-col items-start min-w-0 max-w-[90%] sm:max-w-[85%]">
+                        <span className="text-[12px] font-sans mb-1.5 ml-1">
+                          <span className="font-bengali font-bold text-[#059669]">শিক্ষক সমাধান</span> <span className="text-gray-400">• {dateStr}</span>
                         </span>
 
-                        {/* Teacher's Response Bubble */}
-                        <div className="bg-white text-slate-800 border border-slate-200/90 rounded-[20px] rounded-bl-sm p-4 shadow-sm relative">
-                          <div className="prose prose-sm max-w-none text-[15px] font-bengali leading-relaxed select-text text-slate-800">
+                        <div className="bg-[#F0FDF4] text-[#1e293b] border-none rounded-[24px] rounded-tl-sm px-6 py-4 shadow-sm relative w-full overflow-hidden">
+                          <div className="prose prose-sm prose-slate max-w-none text-[15px] font-bengali leading-relaxed">
                             <ReactMarkdown>{doubt.answer}</ReactMarkdown>
                           </div>
                           
-                          {/* Interactivity: Helpful High five / like */}
-                          <div className="border-t border-slate-100 mt-3 pt-2.5 flex items-center justify-between">
-                            <span className="text-[10px] text-slate-400 font-bengali">
-                              সমাধানটি কি আপনার উপকারে এসেছে?
-                            </span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => toggleHelpful(doubt.id)}
-                              className={`h-7 px-3 rounded-full text-xs font-bengali flex items-center gap-1.5 transition-all ${
-                                helpfulRatings[doubt.id] 
-                                  ? "bg-amber-100 text-amber-700 hover:bg-amber-100 font-bold"
-                                  : "text-slate-500 hover:bg-slate-100"
-                              }`}
-                            >
-                              👍 {helpfulRatings[doubt.id] ? "ধন্যবাদ শিক্ষককে!" : "উপকারী সমাধান"}
-                            </Button>
+                          <div className="flex justify-end pt-3 text-[#94a3b8] text-xs font-sans">
+                             {dateStr}
                           </div>
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Live typing feedback placeholder (animated 3 bouncing dots) */}
+                  {/* Live typing feedback placeholder */}
                   {isPending && index === doubts.length - 1 && (
-                    <div className="flex justify-start items-start gap-2.5 pr-12 mt-3 animate-pulse">
-                      <div className="w-8 h-8 rounded-full bg-slate-300 text-white flex-shrink-0 flex items-center justify-center font-sans font-bold shadow-xs">
-                        T
+                    <div className="flex items-start gap-3 pr-12 lg:pr-24 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <div className="w-10 h-10 rounded-full bg-[#EAFBF3] text-[#059669] flex items-center justify-center border border-[#D1F4E0] shrink-0 mt-2">
+                        <span className="font-bold text-lg">T</span>
                       </div>
-                      <div className="bg-white/80 border border-slate-200 rounded-[18px] rounded-bl-sm px-4 py-3 flex items-center gap-2 shadow-xs">
-                        <span className="font-bengali text-xs text-slate-500">শিক্ষক সমাধান প্রস্তুত করছেন</span>
-                        <div className="flex gap-1 items-center">
-                          <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                          <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                          <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" />
+                      
+                      <div className="flex flex-col items-start min-w-0">
+                        <span className="text-[12px] font-sans mb-1.5 ml-1">
+                          <span className="font-bengali font-bold text-[#059669]">শিক্ষক</span> <span className="text-gray-400">সমাধান প্রস্তুত করছেন...</span>
+                        </span>
+
+                        <div className="bg-[#F0FDF4] border-none rounded-[24px] rounded-tl-sm px-5 py-4 shadow-sm flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 bg-[#059669]/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <span className="w-1.5 h-1.5 bg-[#059669]/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <span className="w-1.5 h-1.5 bg-[#059669]/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                         </div>
                       </div>
                     </div>
@@ -410,9 +360,10 @@ export default function Doubts() {
             })}
           </div>
         )}
+        </div>
         
         {/* Invisible target to automatically anchors the chat layout */}
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="h-6 shrink-0" />
       </div>
 
       {/* Floating high fidelity light box backdrop */}
@@ -442,94 +393,110 @@ export default function Doubts() {
       )}
 
       {/* Sticky Bottom Messenger Input & Toolbar Composer Area */}
-      <div className="bg-white border-t border-slate-200 px-4 py-3 shrink-0 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] relative z-10">
-        
-        {/* Small thumbnail image attached context toolbar */}
-        {selectedImage && (
-          <div className="mx-auto max-w-3xl w-full flex items-center mb-2 animate-in slide-in-from-bottom-2 duration-150">
-            <div className="relative inline-flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
-              <img 
-                src={selectedImage} 
-                alt="Selected math problem" 
-                className="w-14 h-14 object-cover rounded-xl border border-white shadow-xs" 
-              />
-              <div className="pr-4 py-1">
-                <span className="block font-bengali text-xs font-bold text-slate-700 leading-tight">ছবি যুক্ত করা হয়েছে</span>
-                <span className="block font-bengali text-[10px] text-slate-500">বার্তা পাঠালে এটি শিক্ষকের কাছে পৌঁছাবে</span>
+      <div className="bg-[#F8FAFC] p-4 shrink-0 flex-none pb-4 md:pb-6 w-full z-20">
+        <div className="max-w-4xl mx-auto w-full">
+        {/* Form composer input wrapping structure */}
+        <form onSubmit={submitDoubt} className="w-full flex justify-center">
+
+          <div className="w-full flex flex-col gap-3">
+          {/* Subject Selector */}
+          <div className="w-full">
+            <select
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(e.target.value)}
+              required
+              className="bg-white border border-slate-200 text-slate-800 text-[15px] sm:text-base rounded-2xl px-5 py-3.5 font-bengali focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-sm cursor-pointer appearance-none w-full outline-none"
+              style={{ paddingRight: '2.5rem', backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
+            >
+              <option value="" disabled>বিষয় নির্বাচন করুন...</option>
+              <option value="সাধারণ ডাউট">সাধারণ ডাউট</option>
+              {subjects.map((subject) => (
+                <option key={subject} value={subject}>{subject}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Small thumbnail image attached context toolbar */}
+          {selectedImage && (
+            <div className="flex items-center animate-in slide-in-from-bottom-2 duration-150">
+              <div className="relative inline-flex items-center gap-3 p-2 bg-white rounded-[16px] border border-slate-200 shadow-sm">
+                <img 
+                  src={selectedImage} 
+                  alt="Selected problem" 
+                  className="w-14 h-14 object-cover rounded-lg border border-slate-100" 
+                />
+                <div className="pr-4 py-1">
+                  <span className="block font-bengali text-xs font-bold text-slate-800">ছবিটি সিলেক্ট করা হয়েছে</span>
+                </div>
+                <button 
+                  onClick={clearImage}
+                  type="button"
+                  className="absolute -top-2 -right-2 bg-white text-slate-600 hover:text-red-500 border border-slate-200 hover:border-red-200 rounded-full p-1.5 shadow-sm transition-colors"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
-              <button 
-                onClick={clearImage}
-                className="absolute -top-1.5 -right-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md transition-all hover:scale-110"
-                title="ছবিটি মুছুন"
+            </div>
+          )}
+
+          {/* Input controls row */}
+          <div className="flex items-center gap-3 w-full bg-white border border-[#E2E8F0] p-3 rounded-[28px] shadow-sm">
+            {/* File Upload Hidden Input Trigger */}
+            <div className="shrink-0">
+              {/* hidden file selector */}
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                ref={fileInputRef} 
+                onChange={handleImageSelect}
+              />
+  
+              {/* trigger button block */}
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-12 h-12 rounded-full bg-[#EAFBF3] text-[#059669] flex items-center justify-center border border-[#D1F4E0] transition-colors shadow-sm"
+                title="খাতা বা প্রশ্নের ছবি যুক্ত করুন"
               >
-                <X className="w-3 h-3" />
+                <ImagePlus className="w-6 h-6" strokeWidth={2.5} />
               </button>
             </div>
-          </div>
-        )}
-
-        {/* Form composer input wrapping structure */}
-        <form onSubmit={submitDoubt} className="mx-auto max-w-3xl w-full flex items-center gap-2">
-          
-          {/* File Upload Hidden Input Trigger */}
-          <div className="shrink-0">
-            {/* hidden file selector */}
-            <input 
-              type="file" 
-              accept="image/*" 
-              className="hidden" 
-              ref={fileInputRef} 
-              onChange={handleImageSelect}
-            />
-
-            {/* trigger button block */}
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              className="h-11 w-11 rounded-full shrink-0 border-slate-200 text-slate-600 hover:text-[#0F2744] hover:bg-slate-50 transition-colors flex items-center justify-center shadow-xs"
-              title="খাতা বা প্রশ্নের ছবি যুক্ত করুন"
-            >
-              <ImagePlus className="w-[20px] h-[20px]" />
-            </Button>
-          </div>
-
-          {/* Core message text box input */}
-          <div className="flex-1 min-w-0 relative">
-            <textarea
-              value={newQuestion}
-              onChange={(e) => setNewQuestion(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="শিক্ষককে আপনার প্রশ্নটি বলুন..."
-              className="w-full h-11 max-h-24 min-h-[44px] py-3 pl-4 pr-11 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200/80 focus:border-[#0F2744] focus:ring-1 focus:ring-[#0F2744]/20 rounded-2xl sm:rounded-full font-bengali text-xs sm:text-sm text-slate-850 placeholder-slate-400 outline-none resize-none scroll-smooth transition-all font-medium"
-              disabled={posting}
-              rows={1}
-            />
-            {/* Helper visual indicator icon inside chat input */}
-            <div className="absolute right-3.5 top-3.5 text-slate-300 pointer-events-none">
-              <HelpCircle className="w-4 h-4 opacity-40 hidden xs:block" />
+  
+            {/* Core message text box input */}
+            <div className="flex-1 min-w-0 bg-transparent px-2">
+              <input
+                id="doubt-input"
+                value={newQuestion}
+                onChange={(e) => setNewQuestion(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                     e.preventDefault();
+                     submitDoubt();
+                  }
+                }}
+                placeholder="শিক্ষককে আপনার প্রশ্নটি বলুন..."
+                className="w-full h-12 bg-transparent font-bengali text-[15px] sm:text-base text-slate-800 placeholder-slate-400 outline-none truncate"
+                disabled={posting}
+              />
             </div>
+  
+            {/* Ask Button */}
+            <button
+              type="submit"
+              disabled={posting || (!newQuestion.trim() && !selectedImage) || !selectedSubject}
+              className="w-12 h-12 rounded-full bg-[#86EFAC] text-white shrink-0 flex items-center justify-center shadow-sm active:scale-95 transition-all cursor-pointer disabled:opacity-45 disabled:active:scale-100"
+            >
+              {posting ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <Send className="w-[22px] h-[22px] ml-0.5" strokeWidth={2.5} />
+              )}
+            </button>
           </div>
-
-          {/* Ask Button */}
-          <Button
-            type="submit"
-            disabled={posting || (!newQuestion.trim() && !selectedImage)}
-            className="h-11 px-4 sm:px-6 rounded-full bg-[#0F2744] hover:bg-[#16345a] text-white shrink-0 font-bengali font-bold flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all text-xs sm:text-sm cursor-pointer disabled:opacity-45"
-          >
-            {posting ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <Send className="w-4 h-4 text-emerald-400" />
-                <span className="hidden xs:inline">জিজ্ঞেস করুন</span>
-                <span className="xs:hidden">জিজ্ঞেস</span>
-              </>
-            )}
-          </Button>
-
+          </div>
         </form>
+        </div>
       </div>
 
     </div>

@@ -219,6 +219,72 @@ export default function PublicExam() {
         submittedAt: serverTimestamp()
       });
       fetchLeaderboard();
+
+      if (userData?.uid) {
+        const { doc, writeBatch, updateDoc, increment } = await import("firebase/firestore");
+        
+        const today = new Date();
+        const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+        let newStreak = userData?.progress?.streak || 0;
+        let lastDate = userData?.lastExamDate;
+        
+        if (lastDate !== todayStr) {
+           const yesterday = new Date(today);
+           yesterday.setDate(yesterday.getDate() - 1);
+           const yesterdayStr = yesterday.getFullYear() + '-' + String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + String(yesterday.getDate()).padStart(2, '0');
+           if (lastDate === yesterdayStr) {
+               newStreak += 1;
+           } else {
+               newStreak = 1; // start new streak
+           }
+        }
+
+        const prevSolved = userData?.progress?.totalSolved || 0;
+        const newTotalSolved = prevSolved + (c + w);
+        const currentAccuracy = userData?.progress?.accuracy || 0;
+        const totalCorrectHistoric = (currentAccuracy / 100) * prevSolved;
+        const newAccuracy = newTotalSolved > 0 ? Math.round(((totalCorrectHistoric + c) / newTotalSolved) * 100) : 0;
+        
+        const totalDurationSecs = exam ? exam.duration * 60 : 0;
+        const timeSpentSecs = totalDurationSecs > 0 ? Math.max(0, totalDurationSecs - timeLeft) : 0;
+        const timeSpentMins = Math.round(timeSpentSecs / 60);
+
+        const userRef = doc(db, "users", userData.uid);
+        await updateDoc(userRef, {
+          points: increment(s),
+          totalExams: increment(1),
+          lastExamDate: todayStr,
+          "progress.streak": newStreak,
+          "progress.totalSolved": newTotalSolved,
+          "progress.accuracy": newAccuracy,
+          "progress.totalCorrect": increment(c),
+          "progress.totalTimeSpent": increment(timeSpentMins)
+        });
+
+        const batch = writeBatch(db);
+        let batchCount = 0;
+        
+        questions.forEach((q, idx) => {
+          if (batchCount > 450) return;
+          const selected = selectedAnswers[idx];
+          const correct = q.correctId || q.correctOption;
+          
+          const mistakeQId = q.id || `${id}_q_${idx}`;
+          const mistakeRef = doc(db, "users", userData.uid, "mistakes", mistakeQId);
+          
+          if (selected && selected !== correct) {
+            batch.set(mistakeRef, {
+              ...q,
+              id: mistakeQId,
+              failedAt: Date.now()
+            });
+            batchCount++;
+          } else if (selected === correct) {
+            batch.delete(mistakeRef);
+          }
+        });
+        await batch.commit();
+      }
     } catch (e) {
       console.error("Failed to save result", e);
     }

@@ -17,7 +17,22 @@ export const generatePrintableHtml = (note: any) => {
         if (item.type === "table") {
           const headersHtml = (item.headers || []).map((h: string) => `<th>${h}</th>`).join("");
           const rowsHtml = (item.rows || []).map((row: any[]) => {
-            const cellsHtml = (row || []).map((cell: any) => `<td>${cell}</td>`).join("");
+            const cellsHtml = (row || []).map((cell: any) => {
+              if (typeof cell === "object" && cell !== null) {
+                if (Array.isArray(cell)) {
+                  const arrHtml = cell.map((c: any) => {
+                    if (typeof c === "object" && c !== null) {
+                      if (c.q && c.a) return `<div style="margin-bottom:8px;padding:8px;background:#f8fafc;border-radius:6px;border:1px solid #f1f5f9;"><b>প্র:</b> ${c.q} <br/> <span style="color:#475569"><b>উ:</b> ${c.a}</span></div>`;
+                      return typeof c === "string" ? c : JSON.stringify(c);
+                    }
+                    return c;
+                  }).join("");
+                  return `<td>${arrHtml}</td>`;
+                }
+                return `<td>${JSON.stringify(cell)}</td>`;
+              }
+              return `<td>${cell}</td>`;
+            }).join("");
             return `<tr>${cellsHtml}</tr>`;
           }).join("");
           return `
@@ -460,6 +475,45 @@ export default function NotesCreator() {
   const [successMsg, setSuccessMsg] = useState("");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
 
+  const [creatorMode, setCreatorMode] = useState<"json" | "external">("json");
+  const [extTitle, setExtTitle] = useState("");
+  const [extSubject, setExtSubject] = useState("বাংলা");
+  const [extClassGroup, setExtClassGroup] = useState("HSC");
+  const [extDescription, setExtDescription] = useState("");
+  const [extLink, setExtLink] = useState("");
+  const [extBadge, setExtBadge] = useState("PDF নোট,রিভিশন");
+
+  const handleExternalPublish = async () => {
+    if (!extTitle || !extSubject || !extClassGroup || !extLink) {
+      alert("দয়াকরে টাইটেল, বিষয়, ক্লাস এবং লিংক প্রদান করুন।");
+      return;
+    }
+    setLoading(true);
+    setSuccessMsg("");
+    try {
+      const payload = {
+        title: extTitle,
+        subject: extSubject,
+        classGroup: extClassGroup,
+        description: extDescription,
+        badges: extBadge.split(",").map(b => b.trim()).filter(b => b),
+        link: extLink,
+        isExternal: true,
+        createdAt: new Date().toISOString(),
+        content: null
+      };
+      await addDoc(collection(db, "notes"), payload);
+      setSuccessMsg("🎉 এক্সটার্নাল নোটটি সফলভাবে পাবলিশ করা হয়েছে!");
+      setExtTitle(""); setExtDescription(""); setExtLink("");
+      loadSavedNotesFromDb();
+      setTimeout(() => setSuccessMsg(""), 6000);
+    } catch (err: any) {
+      alert("পাবলিশ ব্যর্থ হয়েছে: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadTemplate = (type: "accounting" | "chemistry") => {
     const tmpl = type === "accounting" ? accountingTemplate : defaultTemplate;
     const str = JSON.stringify(tmpl, null, 2);
@@ -613,190 +667,74 @@ export default function NotesCreator() {
     if (downloadingPdf) return;
     setDownloadingPdf(true);
 
-    const runHtml2Pdf = () => {
-      // Create a highly elegant full-screen progress modal overlay using Tailwind CSS
-      const modal = document.createElement("div");
-      modal.id = "pdf-download-modal";
-      modal.className = "fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
-      
-      modal.innerHTML = `
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6 transform transition-all duration-300 scale-100">
-          <div class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 animate-bounce">
-            <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-slate-900 font-bengali">পিডিএফ ডাউনলোড হচ্ছে...</h3>
-            <p class="text-sm text-slate-500 mt-2 font-bengali leading-relaxed font-semibold">
-              আপনার লেকচার নোটটি প্রসেস ও কম্পাইল করা হচ্ছে। অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন।
-            </p>
-          </div>
-          
-          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-            <div class="bg-indigo-600 h-full w-1/3 rounded-full animate-infinite-loader"></div>
-          </div>
-          
-          <div class="text-[11px] text-indigo-600 font-bold font-bengali">স্টাইলিশ পিডিএফ প্রিন্ট সংস্করণ জেনারেট হচ্ছে...</div>
-        </div>
-      `;
+    document.body.classList.add("printing-allowed");
 
-      // Define CSS rules for infinite loader animation
-      const animStyle = document.createElement("style");
-      animStyle.id = "loader-animation-style";
-      animStyle.innerHTML = `
-        @keyframes infinite-loader {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(300%); }
+    const styleEl = document.createElement("style");
+    styleEl.id = "print-style-override";
+    styleEl.innerHTML = `
+      @media print {
+        html, body {
+          display: block !important;
+          height: auto !important;
+          overflow: visible !important;
+          position: static !important;
+          margin: 0 !important;
+          padding: 0 !important;
         }
-        .animate-infinite-loader {
-          animation: infinite-loader 1.4s infinite linear;
-        }
-      `;
-      document.head.appendChild(animStyle);
-
-      // Create high performance visible top-level print target
-      const renderContainer = document.createElement("div");
-      renderContainer.id = "pdf-real-render-container";
-      renderContainer.style.position = "absolute";
-      renderContainer.style.top = "0";
-      renderContainer.style.left = "0";
-      renderContainer.style.width = "800px";
-      renderContainer.style.background = "#ffffff";
-      renderContainer.style.zIndex = "50"; // rendered safely under the higher z-index modal
-      renderContainer.style.overflow = "visible";
-      renderContainer.style.display = "block";
-      
-      renderContainer.innerHTML = generatePrintableHtml(noteToPrint);
-
-      document.body.appendChild(modal);
-      document.body.appendChild(renderContainer);
-
-      const opt = {
-        margin: [12, 12, 12, 12],
-        filename: `${noteToPrint.title || 'Lecture_Note'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2, 
-          useCORS: true, 
-          letterRendering: true,
-          logging: false
-        },
-        jsPDF: { 
-          unit: 'mm', 
-          format: 'a4', 
-          orientation: 'portrait' 
-        }
-      };
-
-      const win = window as any;
-      if (win.html2pdf) {
-        win.html2pdf()
-          .set(opt)
-          .from(renderContainer)
-          .save()
-          .then(() => {
-            cleanup();
-          })
-          .catch((err: any) => {
-            console.error("html2pdf processing failed: ", err);
-            cleanup();
-            fallbackPrint(noteToPrint);
-          });
-      } else {
-        cleanup();
-        fallbackPrint(noteToPrint);
-      }
-
-      function cleanup() {
-        if (modal.parentNode) modal.parentNode.removeChild(modal);
-        if (animStyle.parentNode) animStyle.parentNode.removeChild(animStyle);
-        if (renderContainer.parentNode) renderContainer.parentNode.removeChild(renderContainer);
-        setDownloadingPdf(false);
-      }
-    };
-
-    const fallbackPrint = (note: any) => {
-      document.body.classList.add("printing-allowed");
-
-      const styleEl = document.createElement("style");
-      styleEl.id = "print-style-override";
-      styleEl.innerHTML = `
-        @media print {
-          body {
-            display: block !important;
-          }
-          body > :not(#print-temporary-container) {
-            display: none !important;
-          }
-          #print-temporary-container {
-            display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            background: #fff;
-          }
+        body > :not(#print-temporary-container) {
+          display: none !important;
         }
         #print-temporary-container {
-          display: none;
+          display: block !important;
+          position: relative !important;
+          width: 100%;
+          background: #fff;
+          height: auto !important;
+          overflow: visible !important;
         }
-      `;
-      document.head.appendChild(styleEl);
-
-      let container = document.getElementById("print-temporary-container");
-      if (!container) {
-        container = document.createElement("div");
-        container.id = "print-temporary-container";
-        document.body.appendChild(container);
       }
-      container.innerHTML = generatePrintableHtml(note);
+      #print-temporary-container {
+        display: none;
+      }
+    `;
+    document.head.appendChild(styleEl);
 
-      let cleanedUp = false;
-      const cleanup = () => {
-        if (cleanedUp) return;
-        cleanedUp = true;
-        
-        setTimeout(() => {
-          styleEl.remove();
-          if (container) {
-            container.innerHTML = "";
-          }
-          document.body.classList.remove("printing-allowed");
-          setDownloadingPdf(false);
-        }, 1000);
-      };
+    let container = document.getElementById("print-temporary-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "print-temporary-container";
+      document.body.appendChild(container);
+    }
+    container.innerHTML = generatePrintableHtml(noteToPrint);
 
-      window.addEventListener("afterprint", cleanup, { once: true });
-
+    let cleanedUp = false;
+    const cleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      
       setTimeout(() => {
-        try {
-          window.print();
-        } catch (err) {
-          console.error("Print execution failed:", err);
-          cleanup();
+        styleEl.remove();
+        if (container) {
+          container.innerHTML = "";
         }
-      }, 500);
-
-      // Fallback cleanup after 35 seconds to allow PDF/Print loading on slow mobile devices
-      setTimeout(cleanup, 35000);
+        document.body.classList.remove("printing-allowed");
+        setDownloadingPdf(false);
+      }, 1000);
     };
 
-    // Load html2pdf from cdn dynamically if not loaded
-    const win = window as any;
-    if (win.html2pdf) {
-      runHtml2Pdf();
-    } else {
-      const script = document.createElement("script");
-      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-      script.onload = () => {
-        runHtml2Pdf();
-      };
-      script.onerror = () => {
-        fallbackPrint(noteToPrint);
-      };
-      document.head.appendChild(script);
-    }
+    window.addEventListener("afterprint", cleanup, { once: true });
+
+    setTimeout(() => {
+      try {
+        window.print();
+      } catch (err) {
+        console.error("Print execution failed:", err);
+        cleanup();
+      }
+    }, 500);
+
+    // Fallback cleanup
+    setTimeout(cleanup, 35000);
   };
 
   return (
@@ -839,7 +777,81 @@ export default function NotesCreator() {
         </div>
       </div>
 
-      {/* Main Work Grid Area: Code Editor Left vs realistic sheet view Right */}
+      {/* Mode Switcher */}
+      <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-slate-100 max-w-[400px]">
+        <button 
+          onClick={() => setCreatorMode("external")}
+          className={`flex-1 py-3 text-sm font-bold font-bengali rounded-xl transition-all ${creatorMode === "external" ? "bg-emerald-500 text-white shadow-md" : "text-slate-600 hover:bg-slate-50"}`}
+        >
+          সিঙ্গেল লিংক নোট (PDF/Drive)
+        </button>
+        <button 
+          onClick={() => setCreatorMode("json")}
+          className={`flex-1 py-3 text-sm font-bold font-bengali rounded-xl transition-all ${creatorMode === "json" ? "bg-[#0f172a] text-white shadow-md" : "text-slate-600 hover:bg-slate-50"}`}
+        >
+          কাস্টম স্মার্ট নোট (JSON)
+        </button>
+      </div>
+
+      {creatorMode === "external" ? (
+        <div className="bg-white rounded-[24px] p-6 sm:p-8 border border-slate-100 shadow-sm max-w-3xl space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+             <h3 className="text-xl font-bold font-bengali text-slate-800">এক্সটার্নাল লিংক নোট যুক্ত করুন</h3>
+             <p className="text-slate-500 text-sm mt-1 font-bengali">পিডিএফ, গুগল ড্রাইভ বা অন্য যেকোনো লিংকের মাধ্যমে নোট শেয়ার করুন।</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">নোটের টাইটেল</label>
+              <input type="text" value={extTitle} onChange={e => setExtTitle(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 font-bengali" placeholder="যেমন: এইচএসসি রসায়ন ১ম পত্র ফুল রিভিশন" />
+            </div>
+            
+            <div className="space-y-1.5 col-span-2 sm:col-span-1">
+               <label className="text-sm font-bold font-bengali text-slate-700">বিষয়</label>
+               <input type="text" value={extSubject} onChange={e => setExtSubject(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 font-bengali" placeholder="যেমন: রসায়ন" />
+            </div>
+            
+            <div className="space-y-1.5 col-span-2 sm:col-span-1">
+               <label className="text-sm font-bold font-bengali text-slate-700">ক্লাস গ্রুপ</label>
+               <select value={extClassGroup} onChange={e => setExtClassGroup(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 font-bengali">
+                  <option value="HSC">HSC (একাদশ-দ্বাদশ)</option>
+                  <option value="SSC">SSC (নবম-দশম)</option>
+                  <option value="Class 6-8">Class 6-8 (৬ষ্ঠ-৮ম)</option>
+                  <option value="Admission">Admission (ভর্তি পরীক্ষা)</option>
+               </select>
+            </div>
+            
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">লিংক (URL)</label>
+              <input type="url" value={extLink} onChange={e => setExtLink(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 font-mono text-sm" placeholder="https://drive.google.com/..." />
+            </div>
+            
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">বর্ণনা (ঐচ্ছিক)</label>
+              <textarea value={extDescription} onChange={e => setExtDescription(e.target.value)} className="w-full h-24 p-4 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 font-bengali" placeholder="নোট সম্পর্কে কিছু বিস্তারিত লিখুন..." />
+            </div>
+
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">ট্যাগ বা ব্যাজ (কমা দিয়ে লিখুন)</label>
+              <input type="text" value={extBadge} onChange={e => setExtBadge(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 font-bengali" placeholder="PDF নোট, রিভিশন, শর্টকাট" />
+            </div>
+          </div>
+          
+          <button 
+            onClick={handleExternalPublish}
+            disabled={loading}
+            className="w-full h-12 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white font-bold font-bengali rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+          >
+             <Save className="w-4.5 h-4.5" /> {loading ? "সেভ হচ্ছে..." : "পাবলিশ করুন"}
+          </button>
+          
+          {successMsg && creatorMode === "external" && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-600 rounded-xl text-sm font-bold font-bengali text-center animate-pulse">
+              {successMsg}
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* Left Input Section (Aesthetic Dark IDE Code Card) */}
@@ -1036,7 +1048,22 @@ export default function NotesCreator() {
                                         <tr key={rIdx} className="hover:bg-slate-50 odd:bg-stone-50/50 text-xs text-left">
                                           {row?.map((cell: any, dIdx: number) => (
                                             <td key={dIdx} className="py-2.5 px-3.5 border-r border-slate-100 font-bengali font-semibold">
-                                              {cell}
+                                              {typeof cell === "object" && cell !== null ? (
+                                                <div className="space-y-2">
+                                                  {Array.isArray(cell) ? cell.map((c: any, i: number) => (
+                                                    <div key={i} className="whitespace-pre-wrap">
+                                                      {typeof c === "object" && c !== null ? (
+                                                        c.q && c.a ? (
+                                                          <div className="bg-white p-2 rounded-lg border border-slate-200">
+                                                            <div className="font-bold text-[#0c4a6e]">প্র: {c.q}</div>
+                                                            <div className="text-slate-600 mt-1">উ: {c.a}</div>
+                                                          </div>
+                                                        ) : JSON.stringify(c)
+                                                      ) : c}
+                                                    </div>
+                                                  )) : JSON.stringify(cell)}
+                                                </div>
+                                              ) : cell}
                                             </td>
                                           ))}
                                         </tr>
@@ -1107,6 +1134,7 @@ export default function NotesCreator() {
           </div>
         </div>
       </div>
+      )}
 
       {/* Published Library Notes Catalog Shelves */}
       <div className="bg-white border border-slate-100 rounded-[28px] overflow-hidden p-6 shadow-sm space-y-5">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, Briefcase, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Map as MapIcon } from "lucide-react";
+import { Search, Filter, Briefcase, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Users, TrendingUp, Map as MapIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -103,16 +103,16 @@ const filters = {
 
 const getSubjectsByGroup = (group?: string, classGroup?: string) => {
   const common = ["বাংলা", "English", "ICT"];
-  if (classGroup === "Class 6-8" || classGroup === "Class 9") {
+  if (classGroup === "Class 6-8") {
      return ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম"];
   }
   
   if (group === "মানবিক" || group === "Arts") {
-    return [...common, "ইতিহাস", "পৌরনীতি", "ভূগোল", "অর্থনীতি", "যুক্তিবিদ্যা", "সমাজবিজ্ঞান"];
+    return [...common, "ইতিহাস", "পৌরনীতি", "ভূগোল", "অর্থনীতি", "যুক্তিবিদ্যা", "সমাজবিজ্ঞান", "ইসলামের ইতিহাস"];
   } else if (group === "বাণিজ্য" || group?.includes("ব্যবসায়") || group?.includes("ব্যবসায়") || group?.includes("Commerce") || group?.includes("Business")) {
-    return [...common, "হিসাববিজ্ঞান", "ম্যানেজমেন্ট", "ফিন্যান্স", "উৎপাদন ব্যবস্থাপনা"];
+    return [...common, "হিসাববিজ্ঞান", "ম্যানেজমেন্ট", "ফিন্যান্স", "উৎপাদন ব্যবস্থাপনা", "মার্কেটিং", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা"];
   }
-  // Default to science
+  // Default to science if somehow missed
   return [...common, "উচ্চতর গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "রসায়ন", "জীববিজ্ঞান", "Math", "Physics", "Chemistry", "Biology"];
 };
 
@@ -162,7 +162,17 @@ const TOPICS_METADATA: Record<string, any> = {
   "রসায়ন": { name: "রসায়ন", icon: FlaskConical, count: "৬৪", desc: "জৈব রসায়ন, অজৈব রসায়ন, গাণিতিক রসায়ন", bg: "bg-rose-50", iconColor: "text-rose-500" },
   "জীববিজ্ঞান": { name: "জীববিজ্ঞান", icon: Dna, count: "৫৮", desc: "উদ্ভিদবিজ্ঞান, প্রাণিবিজ্ঞান, জেনেটিক্স", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
   "ইতিহাস": { name: "ইতিহাস", icon: Globe, count: "৫৫", desc: "প্রাচীন, মধ্যযুগ, আধুনিক ইতিহাস", bg: "bg-orange-50", iconColor: "text-orange-500" },
-  "ভূগোল": { name: "ভূগোল", icon: MapIcon, count: "৪২", desc: "ভূ-প্রাকৃতিক, মানচিত্র, বাংলাদেশ ও বিশ্ব ভূগোল", bg: "bg-cyan-50", iconColor: "text-cyan-500" }
+  "ভূগোল": { name: "ভূগোল", icon: MapIcon, count: "৪২", desc: "ভূ-প্রাকৃতিক, মানচিত্র, বাংলাদেশ ও বিশ্ব ভূগোল", bg: "bg-cyan-50", iconColor: "text-cyan-500" },
+  "পৌরনীতি": { name: "পৌরনীতি", icon: BookOpen, count: "৩৫", desc: "নাগরিক অধিকার, রাষ্ট্রবিজ্ঞান", bg: "bg-sky-50", iconColor: "text-sky-500" },
+  "অর্থনীতি": { name: "অর্থনীতি", icon: Briefcase, count: "৩০", desc: "ব্যষ্টিক, সামষ্টিক অর্থনীতি", bg: "bg-fuchsia-50", iconColor: "text-fuchsia-500" },
+  "যুক্তিবিদ্যা": { name: "যুক্তিবিদ্যা", icon: Library, count: "২০", desc: "যুক্তি ও সমাধান", bg: "bg-indigo-50", iconColor: "text-indigo-500" },
+  "সমাজবিজ্ঞান": { name: "সমাজবিজ্ঞান", icon: Users, count: "২৫", desc: "সমাজ ও সম্প্রদায়", bg: "bg-teal-50", iconColor: "text-teal-500" },
+  "ইসলামের ইতিহাস": { name: "ইসলামের ইতিহাস", icon: Globe, count: "১৫", desc: "খিলাফত ও শাসনকাল", bg: "bg-green-50", iconColor: "text-green-500" },
+  "ফিন্যান্স": { name: "ফিন্যান্স", icon: TrendingUp, count: "৪০", desc: "অর্থায়ন ও ব্যাংকিং", bg: "bg-rose-50", iconColor: "text-rose-500" },
+  "উৎপাদন ব্যবস্থাপনা": { name: "উৎপাদন ব্যবস্থাপনা", icon: Briefcase, count: "২০", desc: "শিল্প ও বাণিজ্য", bg: "bg-amber-50", iconColor: "text-amber-500" },
+  "মার্কেটিং": { name: "মার্কেটিং", icon: Monitor, count: "১৮", desc: "বিপণন ও বাজার", bg: "bg-blue-50", iconColor: "text-blue-500" },
+  "ব্যবসায় উদ্যোগ": { name: "ব্যবসায় উদ্যোগ", icon: Briefcase, count: "২৫", desc: "উদ্যোক্তা ও প্রতিষ্ঠান", bg: "bg-purple-50", iconColor: "text-purple-500" },
+  "ব্যবসায় সংগঠন ও ব্যবস্থাপনা": { name: "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", icon: Library, count: "৩০", desc: "ব্যবসা সংগঠন", bg: "bg-cyan-50", iconColor: "text-cyan-500" }
 };
 
 import { managementMCQs } from "../data/managementMcqs";

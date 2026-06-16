@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Check, Star, Zap, Crown, Lock, Tag } from "lucide-react";
+import { Check, Star, Zap, Crown, Lock, Tag, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import PaymentButton from "../components/payment/PaymentButton";
@@ -176,9 +176,22 @@ export default function Subscription() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-12 px-4">
+    <div className="max-w-6xl mx-auto py-12 px-4 relative z-0">
+      <button 
+        onClick={() => {
+           if (window.history.length > 2) {
+              navigate(-1);
+           } else {
+              navigate("/dashboard");
+           }
+        }} 
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center text-slate-600 font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-lg"
+      >
+        <ArrowLeft className="w-5 h-5 mr-2" /> ফিরে যান
+      </button>
+
       {userData?.isPro ? (
-        <div className="max-w-3xl mx-auto py-16 px-4 text-center">
+        <div className="max-w-3xl mx-auto py-16 px-4 text-center mt-8">
           <motion.div 
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

@@ -35,7 +35,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { db } from "../lib/firebase";
-import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, doc, getDoc, updateDoc } from "firebase/firestore";
 import { ENGLISH_WORDS, BANGLA_WORDS, WordItem } from "../data/vocabularyData";
 import { useAuth } from "../lib/AuthContext";
 
@@ -61,23 +61,34 @@ export default function Memorize() {
   const [quizFinished, setQuizFinished] = useState(false);
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
 
-  const [masteredIds, setMasteredIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("mastered_words");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [masteredIds, setMasteredIds] = useState<string[]>([]);
+  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
 
-  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem("bookmarked_words");
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Fetch from Firebase (or localStorage for guests) when user loads
+  useEffect(() => {
+    const fetchSavedData = async () => {
+      if (userData?.uid) {
+        try {
+          const snap = await getDoc(doc(db, "users", userData.uid));
+          if (snap.exists()) {
+            const data = snap.data();
+            if (data.masteredWords) setMasteredIds(data.masteredWords);
+            if (data.bookmarkedWords) setBookmarkedIds(data.bookmarkedWords);
+          }
+        } catch (err) {
+          console.error("Failed to fetch saved words from profile: ", err);
+        }
+      } else {
+        try {
+          const mSaved = localStorage.getItem("mastered_words_guest");
+          if (mSaved) setMasteredIds(JSON.parse(mSaved));
+          const bSaved = localStorage.getItem("bookmarked_words_guest");
+          if (bSaved) setBookmarkedIds(JSON.parse(bSaved));
+        } catch {}
+      }
+    };
+    fetchSavedData();
+  }, [userData?.uid]);
 
   // Fetch words in real-time from Firestore
   useEffect(() => {
@@ -106,12 +117,16 @@ export default function Memorize() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("mastered_words", JSON.stringify(masteredIds));
-  }, [masteredIds]);
+    if (!userData?.uid) {
+      localStorage.setItem("mastered_words_guest", JSON.stringify(masteredIds));
+    }
+  }, [masteredIds, userData?.uid]);
 
   useEffect(() => {
-    localStorage.setItem("bookmarked_words", JSON.stringify(bookmarkedIds));
-  }, [bookmarkedIds]);
+    if (!userData?.uid) {
+      localStorage.setItem("bookmarked_words_guest", JSON.stringify(bookmarkedIds));
+    }
+  }, [bookmarkedIds, userData?.uid]);
 
   useEffect(() => {
     setVisibleCount(initialCount);
@@ -306,16 +321,28 @@ export default function Memorize() {
     }
   }, [practiceMode, searchQuery]);
 
-  const toggleMastered = (id: string) => {
-    setMasteredIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
+  const toggleMastered = async (id: string) => {
+    const newIds = masteredIds.includes(id) ? masteredIds.filter(x => x !== id) : [...masteredIds, id];
+    setMasteredIds(newIds);
+    if (userData?.uid) {
+      try {
+        await updateDoc(doc(db, "users", userData.uid), { masteredWords: newIds });
+      } catch (e) {
+        console.error("Error updating mastered words", e);
+      }
+    }
   };
 
-  const toggleBookmark = (id: string) => {
-    setBookmarkedIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
+  const toggleBookmark = async (id: string) => {
+    const newIds = bookmarkedIds.includes(id) ? bookmarkedIds.filter(x => x !== id) : [...bookmarkedIds, id];
+    setBookmarkedIds(newIds);
+    if (userData?.uid) {
+      try {
+        await updateDoc(doc(db, "users", userData.uid), { bookmarkedWords: newIds });
+      } catch (e) {
+        console.error("Error updating bookmarked words", e);
+      }
+    }
   };
 
   const getCategoryTitle = (cat: string) => {
@@ -335,6 +362,7 @@ export default function Memorize() {
       case "verb_forms": return "Verb (3 Forms)";
       case "paragraph": return "HSC Paragraphs";
       case "idiom_phrase": return "Idiom & Phrase";
+      case "translation": return "Translation";
       default: return "Vocabulary";
     }
   };
@@ -417,6 +445,7 @@ export default function Memorize() {
       case "verb_forms": return <Shuffle className={className} />;
       case "paragraph": return <Quote className={className} />;
       case "idiom_phrase": return <Quote className={className} />;
+      case "translation": return <BookOpen className={className} />;
       default: return <BookOpen className={className} />;
     }
   };
@@ -425,6 +454,7 @@ export default function Memorize() {
     switch(cat) {
       case "vocabulary": return { bg: "bg-purple-100", text: "text-purple-600", light: "bg-purple-50", border: "hover:border-purple-200" };
       case "spelling": return { bg: "bg-indigo-100", text: "text-indigo-600", light: "bg-indigo-50", border: "hover:border-indigo-200" };
+      case "translation": return { bg: "bg-sky-100", text: "text-sky-600", light: "bg-sky-50", border: "hover:border-sky-200" };
       case "analogy": return { bg: "bg-blue-100", text: "text-blue-600", light: "bg-blue-50", border: "hover:border-blue-200" };
       case "appropriate_preposition": return { bg: "bg-green-100", text: "text-green-600", light: "bg-green-50", border: "hover:border-green-200" };
       case "group_verb": return { bg: "bg-orange-100", text: "text-orange-600", light: "bg-orange-50", border: "hover:border-orange-200" };
@@ -843,7 +873,7 @@ export default function Memorize() {
                       )}
 
                       {/* SYNONYMS & ANTONYMS COLUMN LAYOUT */}
-                      {((wordItem.language === "english" && !["analogy", "appropriate_preposition", "group_verb", "spelling", "class_6_vocabulary", "paragraph", "idiom_phrase"].includes(wordItem.category)) || (wordItem.language === "bangla" && !["ek_kothay", "spelling", "paribhashik", "bagdhara"].includes(wordItem.category))) && (
+                      {((wordItem.language === "english" && !["analogy", "appropriate_preposition", "group_verb", "spelling", "class_6_vocabulary", "paragraph", "idiom_phrase", "translation"].includes(wordItem.category)) || (wordItem.language === "bangla" && !["ek_kothay", "spelling", "paribhashik", "bagdhara"].includes(wordItem.category))) && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                           {/* Synonyms / V2 with check indicator */}
                           <div className={`bg-[#F0FDF4] border border-[#DCFCE7] rounded-[22px] p-4 flex flex-col gap-1.5 ${wordItem.language === 'bangla' && wordItem.category !== 'samarthok' ? 'opacity-50 grayscale' : ''}`}>

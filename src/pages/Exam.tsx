@@ -1,10 +1,14 @@
 import { useState, useEffect } from "react";
-import { useSearchParams, Link } from "react-router-dom";
-import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2 } from "lucide-react";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { db } from "../lib/firebase";
+import { collection, query, where, getDocs, doc, updateDoc, increment, writeBatch, addDoc, serverTimestamp } from "firebase/firestore";
+import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2, Trash2, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
+import { getSubjectsForUser } from "../utils/subjects";
 import { useIsPWA } from "../lib/useIsPWA";
+import { ENGLISH_WORDS } from "../data/vocabularyData";
 
 const mockSets = [
   { id: "mock-10", title: "ছোট মক টেস্ট", totalQuestions: 10, timeMinutes: 10 },
@@ -23,6 +27,7 @@ const subjectsByGroup: Record<string, {name: string, icon: any, color: string}[]
     { name: "বাংলা", icon: <BookOpen className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-red-50 hover:border-red-200" },
     { name: "English", icon: <span className="font-bold text-[18px]">Aa</span>, color: "bg-indigo-50 hover:border-indigo-200" },
     { name: "তথ্য ও যোগাযোগ প্রযুক্তি", icon: <Laptop className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-blue-50 hover:border-blue-200" },
+    { name: "মেমোরাইজিং পার্ট", icon: <Lightbulb className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-violet-50 hover:border-violet-200" },
   ],
   "বিজ্ঞান": [
     { name: "পদার্থবিজ্ঞান", icon: <Atom className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-purple-50 hover:border-purple-200" },
@@ -32,15 +37,19 @@ const subjectsByGroup: Record<string, {name: string, icon: any, color: string}[]
   ],
   "ব্যবসায় শিক্ষা": [
     { name: "হিসাববিজ্ঞান", icon: <Calculator className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-blue-50 hover:border-blue-200" },
-    { name: "ব্যবসায় সংগঠন", icon: <Users className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-emerald-50 hover:border-emerald-200" },
-    { name: "ফিন্যান্স", icon: <TrendingUp className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-rose-50 hover:border-rose-200" },
-    { name: "উৎপাদন ব্যবস্থাপনা", icon: <Factory className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-yellow-50 hover:border-yellow-200" },
+    { name: "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", icon: <Users className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-emerald-50 hover:border-emerald-200" },
+    { name: "ফিন্যান্স ও ব্যাংকিং", icon: <TrendingUp className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-rose-50 hover:border-rose-200" },
+    { name: "উৎপাদন ব্যবস্থাপনা ও বিপণন", icon: <Factory className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-yellow-50 hover:border-yellow-200" },
+    { name: "ব্যবসায় উদ্যোগ", icon: <Briefcase className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-purple-50 hover:border-purple-200" },
   ],
   "মানবিক": [
     { name: "ইতিহাস", icon: <Landmark className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-amber-50 hover:border-amber-200" },
     { name: "ভূগোল", icon: <Globe className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-cyan-50 hover:border-cyan-200" },
     { name: "অর্থনীতি", icon: <TrendingUp className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-fuchsia-50 hover:border-fuchsia-200" },
     { name: "পৌরনীতি", icon: <Building2 className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-slate-50 hover:border-slate-300" },
+    { name: "যুক্তিবিদ্যা", icon: <Lightbulb className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-indigo-50 hover:border-indigo-200" },
+    { name: "সমাজবিজ্ঞান", icon: <Users className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-teal-50 hover:border-teal-200" },
+    { name: "ইসলামের ইতিহাস", icon: <BookOpen className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-green-50 hover:border-green-200" },
   ]
 };
 
@@ -87,11 +96,42 @@ const mockQuestions = [
 ];
 
 export default function Exam() {
+  const navigate = useNavigate();
   const { userData } = useAuth();
   const isPWA = useIsPWA();
   const [searchParams] = useSearchParams();
   const type = searchParams.get('type') || 'model';
-  const sets = type === 'mock' ? mockSets : modelSets;
+  const [dynamicModelSets, setDynamicModelSets] = useState<any[]>(type === 'mock' ? mockSets : modelSets);
+
+  useEffect(() => {
+    if (type !== 'model') {
+      setDynamicModelSets(mockSets);
+      return;
+    }
+    const fetchAdminSets = async () => {
+      try {
+        const examsRef = collection(db, "public_exams");
+        const q = query(examsRef, where("type", "in", ["model_test", "live_model_test"]));
+        const snap = await getDocs(q);
+        const adminSets = snap.docs.map(d => {
+           const data = d.data();
+           return {
+             id: d.id,
+             title: data.title || "মডেল টেস্ট",
+             totalQuestions: Array.isArray(data.questions) ? data.questions.length : 50,
+             timeMinutes: data.duration || 45,
+             isAdminExam: true,
+           };
+        });
+        setDynamicModelSets([...adminSets, ...modelSets]);
+      } catch (err) {
+        console.error("Failed to fetch admin model sets:", err);
+        setDynamicModelSets(modelSets);
+      }
+    };
+    fetchAdminSets();
+  }, [type]);
+
   const pageTitle = type === 'mock' ? 'মক টেস্ট অনুশীলন' : type === 'mistakes' ? 'ভুলগুলোর প্র্যাকটিস' : 'মডেল টেস্ট অনুশীলন';
   const pageDesc = type === 'mock' 
     ? 'অধ্যায়ভিত্তিক মক টেস্ট দিয়ে তোমার প্রস্তুতি যাচাই করো।' 
@@ -99,6 +139,12 @@ export default function Exam() {
 
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [activeSet, setActiveSet] = useState<string | null>(null);
+  const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
+  
+  const [mockCustomSubjects, setMockCustomSubjects] = useState<string[]>([]);
+  const [mockCustomChapters, setMockCustomChapters] = useState<Record<string, string[]>>({});
+  const [mockCustomQCount, setMockCustomQCount] = useState<number>(25);
+  const [mockCustomTime, setMockCustomTime] = useState<number>(25);
   
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -109,60 +155,205 @@ export default function Exam() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  useEffect(() => {
-    const checkOffline = () => setIsOffline(!navigator.onLine);
-    window.addEventListener('online', checkOffline);
-    window.addEventListener('offline', checkOffline);
-    return () => {
-      window.removeEventListener('online', checkOffline);
-      window.removeEventListener('offline', checkOffline);
-    };
-  }, []);
-
   const handleOfflineSync = async () => {
-    setIsSyncing(true);
-    try {
-      const { collection, getDocs } = await import("firebase/firestore");
-      const { db } = await import("../lib/firebase");
-      // Fetch all questions to cache them for offline use
-      await getDocs(collection(db, "questions"));
-      alert("অফলাইন ব্যবহারের জন্য সকল প্রশ্ন ডাউনলোড করা হয়েছে! এখন ইন্টারনেট ছাড়াও মডেল টেস্ট দিতে পারবেন।");
-    } catch(e) {
-      console.error("Offline sync failed", e);
-      alert("ডাউনলোড করতে সমস্যা হয়েছে। ইন্টারনেট সংযোগ চেক করুন।");
-    } finally {
-      setIsSyncing(false);
-    }
+     setIsSyncing(true);
+     setTimeout(() => setIsSyncing(false), 1000);
+  };
+
+  const [mockStep, setMockStep] = useState<number>(1);
+  const [showAddSubject, setShowAddSubject] = useState(false);
+  const [mockQuestionCounts, setMockQuestionCounts] = useState<Record<string, number>>({});
+  const [showChaptersAccordion, setShowChaptersAccordion] = useState(false);
+  const [topicError, setTopicError] = useState("");
+
+  const [expandedChaps, setExpandedChaps] = useState<Record<string, boolean>>({});
+  const [dynamicChaptersMap, setDynamicChaptersMap] = useState<Record<string, string[]>>({});
+  const [cachedQs, setCachedQs] = useState<{hash: string, qs: any[]}>({hash: '', qs: []});
+
+  const defaultChaptersMap: Record<string, string[]> = {
+    "বাংলা": ["গদ্য", "পদ্য", "উপন্যাস ও নাটক", "ব্যাকরণ অংশ", "উচ্চারণের নিয়ম", "বানানের নিয়ম", "বাক্যতত্ত্ব", "সমার্থক শব্দ", "বিপরীত শব্দ", "এক কথায় প্রকাশ"],
+    "English": ["Reading Comprehension", "Grammar (Admissions)", "Category: Vocabulary", "Category: Translation", "Category: Analogy", "Category: Appro. Prep.", "Category: Group Verb", "Category: Spelling", "Category: Class 6 English", "Category: Verb (3 Forms)", "Category: Idiom & Phrase", "Category: Synonym", "Category: Antonym"],
+    "মেমোরাইজিং পার্ট": ["English Vocabulary", "Translation", "Analogy", "Appropriate Preposition", "Group Verb", "Spelling", "Idiom & Phrase", "Synonym", "Antonym", "সমার্থক শব্দ", "বিপরীত শব্দ", "এক কথায় প্রকাশ"],
+    "সাধারণ জ্ঞান": ["বাংলাদেশ বিষয়াবলি", "আন্তর্জাতিক বিষয়াবলি", "সাম্প্রতিক বিষয়াবলি"],
+    "পদার্থবিজ্ঞান": ["অধ্যায় ১: ভৌত জগৎ", "অধ্যায় ২: ভেক্টর", "অধ্যায় ৩: গতিবিদ্যা", "অধ্যায় ৪: নিউটনিয়ান বলবিদ্যা", "অধ্যায় ৫: কাজ, ক্ষমতা ও শক্তি", "অধ্যায় ৬: মহাকর্ষ ও অভিকর্ষ", "অধ্যায় ৭: পদার্থের গাঠনিক ধর্ম", "অধ্যায় ৮: পর্যাবৃত্ত গতি", "অধ্যায় ৯: আদর্শ গ্যাস ও গ্যাসের গতিতত্ত্ব"],
+    "রসায়ন": ["অধ্যায় ১: ল্যাবরেটরির নিরাপদ ব্যবহার", "অধ্যায় ২: গুণগত রসায়ন", "অধ্যায় ৩: মৌলের পর্যাবৃত্ত ধর্ম ও রাসায়নিক বন্ধন", "অধ্যায় ৪: রাসায়নিক পরিবর্তন", "অধ্যায় ৫: কর্মমুখী রসায়ন"],
+    "উচ্চতর গণিত": ["ম্যাট্রিক্স ও নির্ণায়ক", "ভেক্টর", "সরলরেখা", "বৃত্ত", "বিন্যাস ও সমাবেশ", "ত্রিকোণমিতি", "অন্তরীকরণ", "যোগজীকরণ"],
+    "জীববিজ্ঞান": ["কোষ ও এর গঠন", "কোষ বিভাজন", "কোষ রসায়ন", "অণুজীব", "শৈবাল ও ছত্রাক", "ব্রায়োফাইটা ও টেরিডোফাইটা", "নগ্নবীজী ও আবৃতবীজী উদ্ভিদ", "টিস্যু ও টিস্যুতন্ত্র", "উদ্ভিদ শারীরতত্ত্ব", "উদ্ভিদ প্রজনন", "জীবপ্রযুক্তি", "জীবের পরিবেশ, বিস্তার ও সংরক্ষণ"]
   };
 
   useEffect(() => {
     const loadQuestions = async () => {
-      if ((type === 'mock' && activeSet && selectedSubject) || (type === 'model' && activeSet) || (type === 'mistakes' && activeSet)) {
-        setIsLoading(true);
+      setIsLoading(true);
+      if (activeSet || selectedSubject || type === 'mistakes') {
         try {
-          const { collection, getDocs, query, where } = await import("firebase/firestore");
-          const { db } = await import("../lib/firebase");
-          
           let allQs: any[] = [];
-          
-          if (type === 'mistakes' && userData?.uid) {
-             const mistakeSnap = await getDocs(collection(db, "users", userData.uid, "mistakes"));
-             allQs = mistakeSnap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+
+          const fetchHash = `${type}_${activeSet}_${selectedSubject}_${mockCustomSubjects.join(',')}`;
+          if (cachedQs.hash === fetchHash) {
+              allQs = [...cachedQs.qs];
           } else {
-             let qBase = collection(db, "questions");
-             let qQuery: any = qBase;
-             if (type === 'mock' && selectedSubject !== "সকল বিষয়") {
-               qQuery = query(qBase, where("subject", "==", selectedSubject));
+              if (type === 'mistakes') {
+                 const userWrong = JSON.parse(localStorage.getItem(`pathcharcha_wrong_${userData?.uid}`) || "{}");
+                 const wrongIds = Object.keys(userWrong);
+                 if (wrongIds.length > 0) {
+                     try {
+                         const qBase = collection(db, "questions");
+                         const qQuery = query(qBase, where("__name__", "in", wrongIds.slice(0, 10)));
+                         const snap = await getDocs(qQuery);
+                         allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+                     } catch {
+                         // ignore
+                     }
+                 }
+              } else {
+                 let qBase = collection(db, "questions");
+                 let qQuery: any = qBase;
+                 
+                 if (type === 'mock' && mockCustomSubjects.length > 0) {
+                     // Note: Firebase 'in' max array size is 10
+                     const subSet = mockCustomSubjects.slice(0, 10);
+                     qQuery = query(qBase, where("subject", "in", subSet));
+                 } else if (selectedSubject && selectedSubject !== "সকল বিষয়") {
+                     qQuery = query(qBase, where("subject", "==", selectedSubject));
+                 }
+    
+                 try {
+                    const snap = await getDocs(qQuery);
+                    allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+                 } catch(err) {
+                    console.warn("Failed to fetch questions from DB, continuing with local data", err);
+                 }
+              }
+              setCachedQs({hash: fetchHash, qs: [...allQs]});
+          }
+
+          if (type !== 'mistakes') {
+             // Inject Dynamic Questions for English, Bangla, Memorizing Part
+             if (type === 'mock' && mockCustomSubjects.some(s => s === 'English' || s === 'বাংলা' || s === 'মেমোরাইজিং পার্ট')) {
+                const englishChapters = mockCustomChapters['English'] || [];
+                const banglaChapters = mockCustomChapters['বাংলা'] || [];
+                const memChapters = mockCustomChapters['মেমোরাইজিং পার্ট'] || [];
+                
+                const isAllEnglish = mockCustomSubjects.includes('English') && mockCustomChapters['English'] === undefined;
+                const isAllBangla = mockCustomSubjects.includes('বাংলা') && mockCustomChapters['বাংলা'] === undefined;
+                const isAllMem = mockCustomSubjects.includes('মেমোরাইজিং পার্ট') && mockCustomChapters['মেমোরাইজিং পার্ট'] === undefined;
+                
+                const engCatMapping: Record<string, string> = {
+                  "Category: Vocabulary": "vocabulary", "English Vocabulary": "vocabulary",
+                  "Category: Translation": "translation", "Translation": "translation",
+                  "Category: Analogy": "analogy", "Analogy": "analogy",
+                  "Category: Appro. Prep.": "appropriate_preposition", "Appropriate Preposition": "appropriate_preposition",
+                  "Category: Group Verb": "group_verb", "Group Verb": "group_verb",
+                  "Category: Spelling": "spelling", "Spelling": "spelling",
+                  "Category: Class 6 English": "class_6_vocabulary",
+                  "Category: Verb (3 Forms)": "verb_forms",
+                  "Category: Idiom & Phrase": "idiom_phrase", "Idiom & Phrase": "idiom_phrase",
+                  "Category: Synonym": "synonym", "Synonym": "synonym",
+                  "Category: Antonym": "antonym", "Antonym": "antonym"
+                };
+
+                const banCatMapping: Record<string, string> = {
+                  "সমার্থক শব্দ": "samarthok",
+                  "বিপরীত শব্দ": "antonym", // some bangla antonyms are coded as antonym but language bangla
+                  "এক কথায় প্রকাশ": "ek_kothay"
+                };
+
+                const catsToInject: {cat: string, lang: string, chapter: string, originalSub: string}[] = [];
+                
+                Object.keys(engCatMapping).forEach(uiCat => {
+                   if (isAllEnglish || englishChapters.includes(uiCat)) catsToInject.push({cat: engCatMapping[uiCat], lang: 'english', chapter: uiCat, originalSub: 'English'});
+                   if (isAllMem || memChapters.includes(uiCat)) catsToInject.push({cat: engCatMapping[uiCat], lang: 'english', chapter: uiCat, originalSub: 'মেমোরাইজিং পার্ট'});
+                });
+
+                Object.keys(banCatMapping).forEach(uiCat => {
+                   if (isAllBangla || banglaChapters.includes(uiCat)) catsToInject.push({cat: banCatMapping[uiCat], lang: 'bangla', chapter: uiCat, originalSub: 'বাংলা'});
+                   if (isAllMem || memChapters.includes(uiCat)) catsToInject.push({cat: banCatMapping[uiCat], lang: 'bangla', chapter: uiCat, originalSub: 'মেমোরাইজিং পার্ট'});
+                });
+
+                if (catsToInject.length > 0) {
+                   catsToInject.forEach(({cat, lang, chapter, originalSub}) => {
+                      const filteredWords = ENGLISH_WORDS.filter(w => w.category === cat && w.language === lang);
+                      filteredWords.forEach(word => {
+                         let qText = `What is the meaning of "${word.word}"?`;
+                         if (lang === 'bangla') {
+                            if (cat === 'samarthok') qText = `"${word.word}" এর সমার্থক শব্দ কোনটি?`;
+                            else if (cat === 'antonym') qText = `"${word.word}" এর বিপরীত শব্দ কোনটি?`;
+                            else if (cat === 'ek_kothay') qText = `"${word.word}" এর এক কথায় প্রকাশ কোনটি?`;
+                            else qText = `"${word.word}" এর অর্থ কী?`;
+                         } else {
+                            if (cat === 'translation') qText = `Choose the correct translation: "${word.word}"`;
+                            else if (cat === 'analogy') qText = `Complete the analogy: ${word.word}`;
+                            else if (cat === 'appropriate_preposition') qText = `Fill in the blank: ${word.word}`;
+                            else if (cat === 'idiom_phrase') qText = `What is the meaning of the idiom "${word.word}"?`;
+                            else if (cat === 'spelling') qText = `Find the correct spelling related to meaning: ${word.meaning}`;
+                            else if (cat === 'synonym') qText = `What is the synonym of "${word.word}"?`;
+                            else if (cat === 'antonym') qText = `What is the antonym of "${word.word}"?`;
+                         }
+                         
+                         const optionsSet = new Set<string>();
+                         const meaning = word.meaning || "Unknown";
+                         optionsSet.add(meaning);
+                         
+                         const allMeanings = ENGLISH_WORDS.filter(w => w.category === cat && w.language === lang).map(w => w.meaning).filter(Boolean);
+                         
+                         let attempts = 0;
+                         while (optionsSet.size < 4 && allMeanings.length >= 4 && attempts < 50) {
+                            const randomMeaning = allMeanings[Math.floor(Math.random() * allMeanings.length)] || "None";
+                            optionsSet.add(randomMeaning);
+                            attempts++;
+                         }
+                         if (optionsSet.size < 4) {
+                             optionsSet.add("Unknown"); optionsSet.add("None of the above"); optionsSet.add("Both A and B");
+                         }
+                         
+                         const optionsArray = Array.from(optionsSet).slice(0, 4).sort(() => Math.random() - 0.5);
+                         const correctIdx = optionsArray.indexOf(meaning);
+                         const correctOptStr = ["ক", "খ", "গ", "ঘ"][correctIdx >= 0 ? correctIdx : 0];
+
+                         allQs.push({
+                            id: `dyn_${originalSub}_${chapter}_${lang}_${word.id || Math.random().toString().slice(2)}`,
+                            subject: originalSub,
+                            chapter: chapter,
+                            text: qText,
+                            options: optionsArray.map((opt, i) => ({ id: ["ক", "খ", "গ", "ঘ"][i], label: opt })),
+                            correctOption: correctOptStr,
+                            explanation: word.example ? String(word.example) : (lang === 'bangla' ? `সঠিক উত্তর: ${meaning}` : `Correct answer is: ${meaning}`)
+                         });
+                      });
+                   });
+                }
              }
-             const snap = await getDocs(qQuery);
-             allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
           }
           
+          const topicsMap: Record<string, Set<string>> = {};
+          allQs.forEach(q => {
+             const sub = q.subject;
+             if (!sub) return;
+             const qChap = q.chapter || q.chapter_name || q.topic || q.chapterName || q.chapter_no || q.title;
+             const finalChap = (qChap && typeof qChap === 'string' && qChap.trim() !== '') ? qChap : "সাধারণ প্রশ্ন";
+             q._computedChapter = finalChap;
+             if (!topicsMap[sub]) topicsMap[sub] = new Set();
+             topicsMap[sub].add(finalChap);
+          });
+          const topicsObj: Record<string, string[]> = {};
+          Object.keys(topicsMap).forEach(k => {
+             topicsObj[k] = Array.from(topicsMap[k]);
+          });
+          if (type === 'mock') {
+              setDynamicChaptersMap(topicsObj);
+          }
+
           let finalQs = allQs;
+          
+          if (type === 'mock' && mockCustomSubjects.length > 0) {
+             // Chapter filtering is now moved to the subject distribution loop above/below
+             finalQs = finalQs;
+          }
+
           if (type !== 'mistakes') {
-            finalQs = allQs.sort(() => Math.random() - 0.5);
+            finalQs = finalQs.sort(() => Math.random() - 0.5);
           } else {
-            finalQs = allQs.sort((a, b) => {
+            finalQs = finalQs.sort((a, b) => {
                const idA = a.id || "";
                const idB = b.id || "";
                return idA.localeCompare(idB, undefined, {numeric: true, sensitivity: 'base'});
@@ -172,7 +363,7 @@ export default function Exam() {
           let numQuestions = 10;
           if (type === 'mock' || type === 'mistakes') {
              const counts = activeSet.split('-');
-             if (counts.length === 2 && !isNaN(parseInt(counts[1]))) {
+             if (counts.length >= 2 && !isNaN(parseInt(counts[1]))) {
                 numQuestions = parseInt(counts[1]);
              }
           } else {
@@ -181,14 +372,41 @@ export default function Exam() {
              numQuestions = setInfo ? setInfo.totalQuestions : 50;
           }
           
-          const selectedQs = finalQs.slice(0, numQuestions);
+          let selectedQs: any[] = [];
+          if (type === 'mock' && mockCustomSubjects.length > 0) {
+             mockCustomSubjects.forEach(sub => {
+                let subQs = finalQs.filter((q:any) => q.subject === sub);
+                
+                subQs = subQs.filter((q: any) => {
+                    const defaultChapsForSub = topicsObj[sub] && topicsObj[sub].length > 0 ? topicsObj[sub] : (defaultChaptersMap[sub] || ["সাধারণ প্রশ্ন"]);
+                    const subjectChapters = mockCustomChapters[sub] || [];
+                    if (subjectChapters.length === 0) return false;
+                    
+                    const hasNoDefaultChapters = !defaultChaptersMap[sub] || defaultChaptersMap[sub].length === 0;
+                    if (hasNoDefaultChapters && subjectChapters.includes("সাধারণ প্রশ্ন")) return true;
+
+                    const qChapter = q._computedChapter || "সাধারণ প্রশ্ন";
+                    return subjectChapters.some((c: string) => qChapter.includes(String(c)) || String(c).includes(qChapter));
+                });
+                
+                const count = mockQuestionCounts[sub] || Math.floor(numQuestions / mockCustomSubjects.length) || 25;
+                selectedQs.push(...subQs.slice(0, count));
+             });
+             selectedQs = selectedQs.sort(() => Math.random() - 0.5);
+          } else {
+             selectedQs = finalQs.slice(0, numQuestions);
+          }
           
-          setDbQuestions(selectedQs.map((q: any, idx) => ({
-             id: q.id,
+          if (!selectedQs || selectedQs.length === 0) {
+             console.warn("No questions resulted from slice/filters.");
+          }
+
+          setDbQuestions((selectedQs || []).map((q: any, idx) => ({
+             id: q.id || `q_${Math.random()}`,
              questionNumber: (idx + 1).toString(),
-             text: q.text,
-             options: q.options || [],
-             correctOption: q.correctOption,
+             text: q.text || "Untitled Question",
+             options: Array.isArray(q.options) ? q.options : [],
+             correctOption: q.correctOption || "ক",
              explanation: q.explanation || ""
           })));
 
@@ -199,16 +417,59 @@ export default function Exam() {
         }
       }
     };
-    if (activeSet) {
+    if (activeSet || selectedSubject) {
        loadQuestions();
     }
-  }, [type, activeSet, selectedSubject]);
+  }, [type, activeSet, selectedSubject, mockCustomSubjects, mockCustomChapters, mockQuestionCounts]);
 
-  const userGroup = userData?.group || "বিজ্ঞান";
-  const displaySubjects = [
+  const [dbSubjects, setDbSubjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Fetch dynamic subjects from DB so all uploaded subjects appear in Mock test
+    const fetchDbSubjects = async () => {
+      try {
+        const snap = await getDocs(collection(db, "subjects"));
+        const data: any[] = [];
+        snap.forEach(doc => data.push(doc.data()));
+        setDbSubjects(data);
+      } catch (err) {
+        console.warn("Could not fetch DB subjects", err);
+      }
+    };
+    fetchDbSubjects();
+  }, []);
+
+  const allowedSubjects = getSubjectsForUser(userData?.class, userData?.group);
+
+  const defaultSubjects = [
     ...subjectsByGroup["common"], 
-    ...(subjectsByGroup[userGroup] || subjectsByGroup["বিজ্ঞান"])
-  ];
+    ...(subjectsByGroup[userData?.group] || subjectsByGroup["মানবিক"])
+  ].filter(sub => {
+    // English mapping handling
+    const normalizedName = sub.name === "English" || sub.name === "English Grammar" ? "ইংরেজি" : sub.name;
+    const isAllowed = allowedSubjects.includes(normalizedName) || allowedSubjects.includes(sub.name);
+    // Let's also include "মেমোরাইজিং পার্ট", "তথ্য ও যোগাযোগ প্রযুক্তি" mapping to "ICT" etc.
+    const isAllowedCustom = sub.name === "মেমোরাইজিং পার্ট" || sub.name === "তথ্য ও যোগাযোগ প্রযুক্তি";
+    return isAllowed || isAllowedCustom;
+  });
+
+  const dbSubjectExtracted = dbSubjects.map(s => ({
+    name: s.name,
+    icon: <BookOpen className="w-[22px] h-[22px]" strokeWidth={2} />,
+    color: "bg-slate-50 hover:border-slate-200"
+  })).filter(sub => {
+      const normalizedName = sub.name === "English" || sub.name === "English Grammar" ? "ইংরেজি" : sub.name;
+      return allowedSubjects.includes(normalizedName) || allowedSubjects.includes(sub.name);
+  });
+
+  const mergedSubjects = [...defaultSubjects];
+  dbSubjectExtracted.forEach(dbSub => {
+    if (!mergedSubjects.some(s => s.name === dbSub.name)) {
+      mergedSubjects.push(dbSub);
+    }
+  });
+
+  const displaySubjects = mergedSubjects;
   
   const handleSelect = (questionId: string, optionId: string) => {
     if (isSubmitted) return;
@@ -217,9 +478,19 @@ export default function Exam() {
 
   const handleSubmit = async () => {
     let currentScore = 0;
+    let correctQs = 0;
+    let attemptedQs = 0;
+
     dbQuestions.forEach(q => {
-      if (selectedOptions[q.id] === q.correctOption) {
-        currentScore += 10; // 10 points per correct answer
+      const selectedOpt = selectedOptions[q.id];
+      if (selectedOpt) {
+        attemptedQs++;
+        if (selectedOpt === q.correctOption) {
+          currentScore += 10;
+          correctQs++;
+        } else if (userData?.group === "এডমিশন" || userData?.group === "admission") {
+          currentScore -= 2.5; // Negative marking 0.25 of total marks
+        }
       }
     });
     setScore(currentScore);
@@ -227,14 +498,44 @@ export default function Exam() {
 
     if (userData?.uid) {
       try {
-        const { doc, updateDoc, increment, writeBatch } = await import("firebase/firestore");
-        const { db } = await import("../lib/firebase");
-        
         // Update user stats
+        const today = new Date();
+        const todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+        let newStreak = userData?.progress?.streak || 0;
+        let lastDate = userData?.lastExamDate;
+        
+        if (lastDate !== todayStr) {
+           const yesterday = new Date(today);
+           yesterday.setDate(yesterday.getDate() - 1);
+           const yesterdayStr = yesterday.getFullYear() + '-' + String(yesterday.getMonth() + 1).padStart(2, '0') + '-' + String(yesterday.getDate()).padStart(2, '0');
+           
+           if (lastDate === yesterdayStr) {
+               newStreak += 1;
+           } else {
+               newStreak = 1; // start new streak
+           }
+        }
+
+        const totalQs = dbQuestions.length;
+        const prevSolved = userData?.progress?.totalSolved || 0;
+        const newTotalSolved = prevSolved + attemptedQs;
+        const currentAccuracy = userData?.progress?.accuracy || 0;
+        const totalCorrectHistoric = (currentAccuracy / 100) * prevSolved;
+        const newAccuracy = newTotalSolved > 0 ? Math.round(((totalCorrectHistoric + correctQs) / newTotalSolved) * 100) : 0;
+
+        const timeSpentSecs = (initialTime !== null && remainingTime !== null && initialTime >= remainingTime) ? (initialTime - remainingTime) : 0;
+        const timeSpentMins = Math.round(timeSpentSecs / 60);
+
         const userRef = doc(db, "users", userData.uid);
         await updateDoc(userRef, {
           points: increment(currentScore),
-          totalExams: increment(1)
+          totalExams: increment(1),
+          lastExamDate: todayStr,
+          "progress.streak": newStreak,
+          "progress.totalSolved": newTotalSolved,
+          "progress.accuracy": newAccuracy,
+          "progress.totalCorrect": increment(correctQs),
+          "progress.totalTimeSpent": increment(timeSpentMins)
         });
         
         // Manage mistakes subcollection
@@ -265,7 +566,6 @@ export default function Exam() {
         }
         
         // Save test score history for trends
-        const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
         await addDoc(collection(db, "users", userData.uid, "exam_results"), {
           type: type || "unknown",
           subject: selectedSubject || "Mixed",
@@ -291,6 +591,7 @@ export default function Exam() {
   };
   
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [initialTime, setInitialTime] = useState<number | null>(null);
 
   // Timer effect
   useEffect(() => {
@@ -300,7 +601,7 @@ export default function Exam() {
       }, 1000);
       return () => clearInterval(timerId);
     } else if (remainingTime === 0 && !isSubmitted) {
-       setIsSubmitted(true);
+       handleSubmit();
     }
   }, [activeSet, remainingTime, isSubmitted]);
 
@@ -309,20 +610,29 @@ export default function Exam() {
       if(activeSet) {
           if (type === 'mock') {
               const counts = activeSet.split('-');
-              if (counts.length === 2 && !isNaN(parseInt(counts[1]))) {
+              if (counts.length >= 3 && !isNaN(parseInt(counts[2]))) {
+                  const t = parseInt(counts[2]) * 60;
+                  setRemainingTime(t);
+                  setInitialTime(t);
+              } else if (counts.length >= 2 && !isNaN(parseInt(counts[1]))) {
                   const numQ = parseInt(counts[1]);
-                  setRemainingTime(numQ * 60); // 1 minute per question
+                  const t = numQ * 60;
+                  setRemainingTime(t); // 1 minute per question fallback
+                  setInitialTime(t);
               }
-          } else {
-              const setInfo = sets.find(s => s.id === activeSet);
+          } else if (type === 'model') {
+              const setInfo = dynamicModelSets.find(s => s.id === activeSet);
               if(setInfo) {
-                  setRemainingTime(setInfo.timeMinutes * 60);
+                  const t = setInfo.timeMinutes * 60;
+                  setRemainingTime(t);
+                  setInitialTime(t);
               }
           }
       } else {
           setRemainingTime(null);
+          setInitialTime(null);
       }
-  }, [activeSet, sets, type]);
+  }, [activeSet, dynamicModelSets, type]);
 
   const formatTime = (timeInSeconds: number | null) => {
       if(timeInSeconds === null) return "00:00";
@@ -333,145 +643,265 @@ export default function Exam() {
 
   const timeLeft = formatTime(remainingTime);
 
-  // Screen 1: Subject Selection (for Mock Test only)
-  if (type === 'mock' && !selectedSubject && !activeSet) {
-    return (
-      <div className="w-full max-w-[500px] mx-auto pb-32 sm:max-w-2xl lg:max-w-4xl px-4 sm:px-6 pt-6 font-bengali">
-         
-         {/* Hero Banner Section */}
-         <div className="bg-[#F4F7FB] rounded-[20px] py-4 px-5 sm:px-6 sm:py-5 relative overflow-hidden mb-6 min-h-[110px] flex items-center">
-            <div className="relative z-10 w-[65%] sm:w-[70%]">
-              <h1 className="text-[22px] sm:text-[28px] font-bold text-[#0F2744] leading-normal mb-1">
-                মক টেস্ট<span className="hidden sm:inline"><br/></span> <span className="sm:inline">অনুশীলন</span>
-              </h1>
-              <p className="text-[#64748B] text-[12px] sm:text-[14px] leading-snug mt-1">
-                নিজেকে যাচাই করো অধ্যায়ভিত্তিক মক টেস্ট দিয়ে
-              </p>
-            </div>
-            
-            {/* SVG Illustration */}
-            <div className="absolute -right-4 -top-2 sm:top-1 w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] sm:right-2 opacity-90 sm:opacity-100 pointer-events-none">
-              <svg width="100%" height="100%" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="70" cy="75" r="45" fill="#E8F0FE"/>
-                
-                {/* Decorative sparks */}
-                <path d="M 35 45 L 30 35" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M 45 30 L 35 25" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M 55 20 L 50 10" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"/>
+  const toggleChapExpand = (sub: string) => {
+    setExpandedChaps(p => ({...p, [sub]: !p[sub]}));
+  };
 
-                <rect x="50" y="40" width="40" height="55" rx="4" fill="white" stroke="#0F2744" strokeWidth="2.5"/>
-                <rect x="58" y="35" width="24" height="10" rx="3" fill="#0F2744"/>
-                <rect x="62" y="33" width="16" height="3" rx="1.5" fill="white"/>
-                
-                <text x="70" y="55" fill="#0F2744" fontSize="9" fontWeight="bold" fontFamily="sans-serif" textAnchor="middle">EXAM</text>
-                
-                <rect x="56" y="63" width="4" height="4" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
-                <line x1="64" y1="65" x2="76" y2="65" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
-                
-                <rect x="56" y="73" width="4" height="4" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
-                <line x1="64" y1="75" x2="76" y2="75" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
-                
-                <rect x="56" y="83" width="4" height="4" rx="1" stroke="#0F2744" strokeWidth="1.5"/>
-                <line x1="64" y1="85" x2="72" y2="85" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round"/>
+  if (type === 'mock' && !activeSet) {
+    if (mockStep === 1) {
+      return (
+        <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-6 font-bengali relative z-0 min-h-screen bg-[#f8fafc]">
+          {/* Top bar */}
+          <div className="flex items-center justify-between mb-6">
+            <button onClick={() => navigate("/dashboard")} className="flex items-center text-slate-800 font-bold transition-colors p-2 bg-transparent rounded-lg">
+              <ArrowLeft className="w-5 h-5 mr-3" />
+              <span className="text-lg">টপিক সিলেক্ট করো</span>
+            </button>
+            <div className="bg-[#e4efe9] text-[#008060] px-4 py-1.5 rounded-full text-[14px] font-extrabold tracking-wide">১/২ স্টেপস</div>
+          </div>
 
-                <path d="M 55.5 64.5 L 57.5 66.5 L 61 62" stroke="#0F2744" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                
-                {/* Pencil */}
-                <g transform="translate(80, 56) rotate(-35) scale(0.9)">
-                  <path d="M 12 0 L 24 0 L 18 -18 Z" fill="#FACC15" stroke="#0F2744" strokeWidth="2" strokeLinejoin="round"/>
-                  <path d="M 18 -18 L 16 -12 L 20 -12 Z" fill="#0F2744"/>
-                  <rect x="12" y="0" width="12" height="28" fill="#FACC15" stroke="#0F2744" strokeWidth="2"/>
-                  <rect x="12" y="28" width="12" height="6" fill="#F97316" stroke="#0F2744" strokeWidth="2"/>
-                </g>
-              </svg>
-            </div>
-         </div>
+          {/* Progress Bar */}
+          <div className="flex gap-2 mb-8 items-center px-1">
+              <div className="h-2 flex-1 bg-[#008060] rounded-full"></div>
+              <div className="h-2 flex-1 bg-[#c5dfd6] rounded-full"></div>
+          </div>
 
-         {/* Heading */}
-         <div className="flex justify-between items-center mb-6">
-            <h2 className="text-[20px] font-bold text-[#0F2744] flex flex-col relative">
-               বিষয়ভিত্তিক
-               <div className="w-10 h-[3px] bg-amber-400 mt-1 rounded-full"></div>
-            </h2>
-            <Button variant="ghost" className="text-slate-500 text-sm hover:text-slate-800 bg-white border border-slate-100 px-3 py-1.5 h-auto rounded-full font-medium">
-               সব দেখুন &gt;
-            </Button>
-         </div>
+          {!showChaptersAccordion ? (
+             <>
+               <div className="flex flex-wrap gap-x-3 gap-y-4 mb-10 px-1">
+                  {displaySubjects.map(sub => (
+                     <button 
+                       key={sub.name}
+                       onClick={() => {
+                          if (!mockCustomSubjects.includes(sub.name)) {
+                             setMockCustomSubjects(prev => [...prev, sub.name]);
+                          } else {
+                             setMockCustomSubjects(prev => prev.filter(s => s !== sub.name));
+                             setMockCustomChapters(prev => { const n = {...prev}; delete n[sub.name]; return n; });
+                          }
+                       }}
+                       className={`flex items-center gap-3 px-5 py-3.5 bg-white border rounded-[16px] font-bold transition-all ${mockCustomSubjects.includes(sub.name) ? 'border-[#008060] shadow-sm' : 'border-slate-100 hover:border-slate-300'}`}
+                     >
+                        <div className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center transition-colors ${mockCustomSubjects.includes(sub.name) ? 'bg-[#008060] border-[#008060]' : 'border-slate-300 bg-white'}`}>
+                          {mockCustomSubjects.includes(sub.name) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
+                        </div>
+                        <span className="text-[16px] text-slate-800">{sub.name}</span>
+                     </button>
+                  ))}
+               </div>
 
-         {/* Subjects Grid */}
-         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-20">
-            {displaySubjects.slice(0, 8).map((subject, idx) => {
-              // Extract colors from typical tailwind classes
-              let iconBg = subject.color.split(' ')[0] || "bg-slate-50"; 
-              let iconColor = subject.color.split(' ')[1] || "text-slate-500";
-              
-              // For custom styling resembling the design
-              if (subject.name.includes("বাংলা")) { iconBg = "bg-rose-50"; iconColor = "text-rose-500"; }
-              if (subject.name.includes("English") || subject.name.includes("ইংরেজি")) { iconBg = "bg-violet-50"; iconColor = "text-violet-500"; }
-              if (subject.name.includes("তথ্য")) { iconBg = "bg-blue-50"; iconColor = "text-blue-500"; }
-              if (subject.name.includes("হিসাববিজ্ঞান")) { iconBg = "bg-blue-50"; iconColor = "text-blue-500"; }
-              if (subject.name.includes("ব্যবসায়")) { iconBg = "bg-emerald-50"; iconColor = "text-emerald-500"; }
-              if (subject.name.includes("ফিন্যান্স")) { iconBg = "bg-emerald-50"; iconColor = "text-emerald-500"; }
-              if (subject.name.includes("পৌরনীতি")) { iconBg = "bg-amber-50"; iconColor = "text-amber-500"; }
-              
-              // Map test counts to subjects visually (dummy numbers for UI copy matching if db varies)
-              let testCount = "১০ টেস্ট";
-              if(idx===0) testCount = "২০ টেস্ট";
-              else if(idx===1) testCount = "১৮ টেস্ট";
-              else if(idx===2) testCount = "১২ টেস্ট";
-              else if(idx===3) testCount = "১৫ টেস্ট";
-              else if(idx===4) testCount = "১০ টেস্ট";
-              else if(idx===5) testCount = "৮ টেস্ট";
-              else if(idx===6) testCount = "৯ টেস্ট";
-
-              return (
-                <div
-                  key={idx}
-                  onClick={() => setSelectedSubject(subject.name)}
-                  className="bg-white border border-slate-100 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] hover:shadow-md py-3 px-3 sm:px-4 rounded-[20px] transition-all flex items-center gap-2.5 sm:gap-3 cursor-pointer group"
-                >
-                  <div className={`w-[40px] h-[40px] sm:w-[46px] sm:h-[46px] rounded-full ${iconBg} ${iconColor} flex items-center justify-center shrink-0`}>
-                    {subject.icon}
+               {mockCustomSubjects.length > 0 && (
+                  <div 
+                     onClick={() => setShowChaptersAccordion(true)}
+                     className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors animate-in fade-in slide-in-from-bottom-2"
+                  >
+                     <span className="font-bold text-slate-800 text-[16px]">সিলেক্টেড টপিকস দেখতে এখানে ট্যাপ করো</span>
+                     <ChevronRight className="w-6 h-6 text-slate-600" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                     <h4 className="font-bold text-[#0F2744] text-[13px] sm:text-[14px] leading-tight mb-0.5 whitespace-normal break-words pr-1">{subject.name}</h4>
-                     <p className="text-[11px] sm:text-[12px] text-slate-500 font-medium">{testCount}</p>
-                  </div>
-                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors shrink-0">
-                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-                  </div>
+               )}
+             </>
+          ) : (
+             <div className="animate-in fade-in slide-in-from-bottom-2 space-y-4 mb-40">
+                {mockCustomSubjects.map(subject => {
+                   const availableChapters = dynamicChaptersMap[subject] && dynamicChaptersMap[subject].length > 0 ? dynamicChaptersMap[subject] : (defaultChaptersMap[subject] || ["সাধারণ প্রশ্ন"]);
+                   const subjectChapters = mockCustomChapters[subject] || [];
+                   const isExpanded = expandedChaps[subject];
+                   const isAllSelected = availableChapters.length > 0 && subjectChapters.length === availableChapters.length;
+                   
+                   return (
+                     <div key={subject} className="bg-white rounded-[16px] border-b-2 border-slate-100 border-b-[#008060] shadow-sm overflow-hidden mb-4">
+                        {/* Subject Header */}
+                        <div className="p-4 flex items-center transition-colors">
+                           <button 
+                             onClick={() => {
+                               setTopicError("");
+                               if (isAllSelected) {
+                                  setMockCustomChapters(prev => ({...prev, [subject]: []}));
+                               } else {
+                                  setMockCustomChapters(prev => ({...prev, [subject]: [...availableChapters]}));
+                               }
+                             }}
+                             className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${isAllSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
+                           >
+                              {isAllSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
+                           </button>
+                           <span className="font-bold text-slate-800 text-[16px] ml-3 flex-1">{subject}</span>
+                           <span className="text-[13px] font-bold text-slate-500 mr-2">{subjectChapters.length}/{availableChapters.length} চ্যাপ্টার</span>
+                           <button onClick={() => toggleChapExpand(subject)} className="p-1">
+                              <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                           </button>
+                        </div>
+                        
+                        {/* Chapters Accordion Content */}
+                        {isExpanded && (
+                           <div className="px-4 pb-4 bg-white space-y-2 border-t border-slate-50 pt-2">
+                              {availableChapters.map(chap => {
+                                 const chapSelected = subjectChapters.includes(chap);
+                                 return (
+                                   <div key={chap} className="flex items-center bg-slate-50/50 p-3 rounded-[12px]">
+                                      <button
+                                        onClick={() => {
+                                            setTopicError("");
+                                            setMockCustomChapters(prev => {
+                                                const current = prev[subject] || [];
+                                                const updated = current.includes(chap) ? current.filter(c => c !== chap) : [...current, chap];
+                                                return {...prev, [subject]: updated};
+                                            });
+                                        }}
+                                        className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${chapSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
+                                      >
+                                         {chapSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
+                                      </button>
+                                      <span className={`text-[15px] font-bold leading-snug ml-3 flex-1 ${chapSelected ? 'text-slate-800' : 'text-slate-600'}`}>{chap}</span>
+                                   </div>
+                                 )
+                              })}
+                           </div>
+                        )}
+                     </div>
+                   )
+                })}
+             </div>
+          )}
+
+          {/* Sticky Bottom Bar when in accordion mode */}
+          {showChaptersAccordion && (
+             <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 p-4 sm:p-6 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10">
+                <div className="max-w-7xl mx-auto">
+                   <div className="flex items-center gap-3 bg-slate-100/50 rounded-[16px] p-3 mb-4">
+                      <span className="font-bold text-slate-500 ml-2">প্রশ্নের সংখ্যা</span>
+                      <input 
+                         type="number" 
+                         value={mockCustomQCount} 
+                         onChange={(e) => setMockCustomQCount(parseInt(e.target.value) || 25)} 
+                         className="bg-transparent border-none outline-none font-bold text-slate-800 flex-1 px-2"
+                      />
+                   </div>
+                   {topicError && (
+                      <div className="text-red-500 font-bold text-sm mb-3 mt-2 text-center animate-in fade-in">
+                         {topicError}
+                      </div>
+                   )}
+                   <div className="flex gap-4">
+                      <button 
+                         onClick={() => { setShowChaptersAccordion(false); setTopicError(""); }}
+                         className="flex-1 py-4 bg-white border-2 border-slate-200 text-slate-700 font-extrabold rounded-[16px] hover:bg-slate-50 transition-colors"
+                      >
+                         + আরেকটি বিষয়
+                      </button>
+                      <button 
+                         onClick={() => {
+                            setTopicError("");
+                            const canProceed = mockCustomSubjects.length > 0 && mockCustomSubjects.every(s => (mockCustomChapters[s] || []).length > 0);
+                            if (!canProceed) {
+                               setTopicError("অনুগ্রহ করে প্রতিটি বিষয়ের জন্য অন্তত একটি টপিক নির্বাচন করুন।");
+                               return;
+                            }
+                            if (mockCustomSubjects.length > 0) {
+                              const newCounts = { ...mockQuestionCounts };
+                              mockCustomSubjects.forEach(s => {
+                                 if (!newCounts[s]) newCounts[s] = Math.ceil(mockCustomQCount / mockCustomSubjects.length);
+                              });
+                              setMockQuestionCounts(newCounts);
+                              setMockStep(2);
+                            }
+                         }}
+                         className="flex-1 py-4 bg-[#008060] text-white font-extrabold rounded-[16px] hover:bg-[#006e52] transition-all shadow-md active:scale-95"
+                      >
+                         এগিয়ে যাও
+                      </button>
+                   </div>
                 </div>
-              );
-            })}
-         </div>
+             </div>
+          )}
+        </div>
+      )
+    } else if (mockStep === 2) {
+      return (
+        <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-6 font-bengali relative z-0 min-h-screen bg-[#f8fafc] animate-in fade-in slide-in-from-right-4">
+          <div className="flex items-center justify-between mb-8">
+            <button onClick={() => setMockStep(1)} className="flex items-center text-slate-800 font-bold transition-colors p-2 bg-transparent rounded-lg">
+              <ArrowLeft className="w-5 h-5 mr-3" />
+              <span className="text-lg">নিশ্চিত করো</span>
+            </button>
+            <div className="bg-[#e4efe9] text-[#008060] px-4 py-1.5 rounded-full text-[14px] font-extrabold tracking-wide">২/২ স্টেপস</div>
+          </div>
 
-         {/* Fixed Bottom Button */}
-         <div className="fixed bottom-0 left-0 w-full p-4 sm:px-6 bg-gradient-to-t from-white via-white to-transparent pb-6 sm:pb-8 z-40 max-w-[500px] sm:max-w-2xl lg:max-w-4xl mx-auto md:left-1/2 md:-translate-x-1/2 md:pb-6">
-            <Button 
-               onClick={() => { setSelectedSubject("সকল বিষয়"); setActiveSet("mock-10"); }} 
-               className="w-full h-[64px] rounded-[32px] bg-gradient-to-r from-[#17316E] to-[#2563EB] shadow-[0_8px_24px_rgba(37,99,235,0.25)] flex items-center justify-between px-3 hover:scale-[1.02] transition-transform"
-            >
-               <div className="flex items-center gap-3 pl-3">
-                 <span className="text-[24px]">🚀</span>
-                 <span className="text-white font-bold text-[18px]">দ্রুত মক টেস্ট শুরু করুন</span>
-               </div>
-               <div className="w-[48px] h-[48px] rounded-full bg-white flex items-center justify-center text-[#2563EB] shrink-0 font-bold shadow-sm">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-               </div>
-            </Button>
-         </div>
+          <div className="flex gap-2 mb-8 items-center px-1">
+              <div className="h-2 flex-1 bg-[#008060] rounded-full"></div>
+              <div className="h-2 flex-1 bg-[#008060] rounded-full"></div>
+          </div>
 
-      </div>
-    );
+          {/* Configuration Area */}
+          <div className="space-y-6">
+             <div className="font-bold text-slate-800 text-[18px] mb-4">সিলেক্টেড বিষয় ({mockCustomSubjects.length})</div>
+             
+             <div className="grid grid-cols-2 gap-4">
+                {mockCustomSubjects.map(sub => (
+                   <div key={sub} className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-3">
+                      <div className="font-bold text-slate-800 text-[16px]">{sub}</div>
+                      <div className="bg-slate-100 flex items-center justify-between rounded-[12px] p-2 border border-slate-200">
+                         <input 
+                           type="number" 
+                           value={mockQuestionCounts[sub] || 25} 
+                           onChange={(e) => setMockQuestionCounts(p => ({...p, [sub]: parseInt(e.target.value) || 0}))} 
+                           className="bg-transparent border-none outline-none font-bold text-slate-800 w-full px-2"
+                         />
+                         <span className="text-slate-500 font-bold px-2">টি</span>
+                      </div>
+                   </div>
+                ))}
+             </div>
+
+             <div className="bg-white rounded-[20px] border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 mt-6" onClick={() => {
+                setMockStep(1);
+                setShowChaptersAccordion(true);
+             }}>
+                <span className="font-bold text-slate-800 text-[15px]">সিলেক্টেড টপিকস দেখতে এখানে ট্যাপ করো</span>
+                <ChevronRight className="w-5 h-5 text-slate-400" />
+             </div>
+
+          </div>
+          
+          <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 p-4 sm:p-6 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10">
+             <div className="max-w-7xl mx-auto">
+               <div className="bg-slate-100 rounded-[16px] p-4 flex items-center justify-between mb-4 border border-slate-200">
+                  <span className="font-bold text-slate-800 text-[16px]">মোট সময়</span>
+                  <div className="flex items-center w-24 justify-end">
+                     <span className="font-bold text-slate-800 text-lg">২৫</span>
+                     <span className="text-slate-500 font-bold px-2">মিনিট</span>
+                  </div>
+               </div>
+
+               <button 
+                  onClick={() => {
+                     const totalQ = Object.values(mockQuestionCounts).reduce((a,b) => a+b, 0);
+                     setActiveSet(`mock-${totalQ}-25`);
+                  }}
+                  className="w-full py-4.5 bg-[#008060] text-white font-extrabold rounded-[16px] hover:bg-[#006e52] transition-all shadow-md active:scale-95 text-[18px]"
+               >
+                  পরীক্ষা শুরু করো
+               </button>
+             </div>
+          </div>
+        </div>
+      )
+    }
   }
 
   // Screen 2: Test Sets Selection
   if (!activeSet) {
     if (type === 'model') {
        return (
-         <div className="max-w-2xl mx-auto py-12 px-4">
+         <div className="max-w-2xl mx-auto py-12 px-4 relative z-0">
+           <button 
+             onClick={() => navigate("/dashboard")}  
+             className="absolute top-4 left-4 sm:top-6 sm:left-4 flex items-center text-slate-600 font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-lg"
+           >
+             <ArrowLeft className="w-5 h-5 mr-1.5" /> ফিরে যান
+           </button>
            {/* Header */}
-           <div className="text-center mb-10 relative">
+           <div className="text-center mb-10 relative mt-8">
               <div className="flex justify-center mb-6">
                  {/* Circle with clipboard icon */}
                  <div className="w-[100px] h-[100px] rounded-full bg-slate-50 flex items-center justify-center relative shadow-sm border border-slate-100">
@@ -541,12 +971,18 @@ export default function Exam() {
 
            {/* Cards List */}
            <div className="flex flex-col gap-4 mb-6">
-             {sets.map((set, idx) => (
+             {dynamicModelSets.map((set, idx) => (
                 <motion.div
                    key={set.id}
                    whileHover={{ scale: 1.02 }}
                    whileTap={{ scale: 0.98 }}
-                   onClick={() => setActiveSet(set.id)}
+                   onClick={() => {
+                      if (set.isAdminExam) {
+                         navigate(`/public-exam/${set.id}`);
+                      } else {
+                         setActiveSet(set.id);
+                      }
+                   }}
                    className="cursor-pointer bg-white border border-slate-200 hover:border-slate-300 shadow-sm rounded-3xl p-4 sm:p-5 flex items-center justify-between group transition-all"
                 >
                    <div className="flex items-center gap-5 sm:gap-6">
@@ -643,24 +1079,14 @@ export default function Exam() {
     }
 
     return (
-      <div className="max-w-4xl mx-auto py-12 px-4">
-        {type === 'mock' && (
-           <div className="mb-6">
-              <button 
-                onClick={() => setSelectedSubject(null)}
-                className="flex items-center text-primary font-bengali font-medium hover:underline px-4 py-2 bg-primary/10 rounded-full text-sm w-fit"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" /> পুনরায় বিষয় নির্বাচন করুন
-              </button>
-           </div>
-        )}
-
-        <div className="text-center mb-12">
-          {type === 'mock' && selectedSubject && (
-             <div className="inline-block bg-primary/10 text-primary font-bold px-4 py-1.5 rounded-full mb-4 font-bengali text-sm border border-primary/20">
-               {selectedSubject}
-             </div>
-          )}
+      <div className="max-w-4xl mx-auto py-12 px-4 relative z-0">
+        <button 
+          onClick={() => navigate("/dashboard")} 
+          className="absolute top-4 left-4 sm:top-6 sm:left-4 flex items-center text-slate-600 font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-lg"
+        >
+          <ArrowLeft className="w-5 h-5 mr-1.5" /> ফিরে যান
+        </button>
+        <div className="text-center mb-12 mt-8">
           <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">{pageTitle}</h2>
 
           <div className="flex items-center justify-center gap-3 mb-6">
@@ -685,122 +1111,81 @@ export default function Exam() {
           </div>
 
           <p className="text-slate-500 font-bengali text-lg max-w-xl mx-auto">
-            {type === 'mock' ? `নিচের সেটগুলো থেকে যে কোনো একটি বেছে নিয়ে প্রস্তুতি যাচাই করো।` : pageDesc}
+            {pageDesc}
           </p>
         </div>
 
-        {type === 'mistakes' ? (
+        {type === 'mistakes' && (
           <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden text-center">
              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 to-rose-400"></div>
              <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6">ভুলগুলোর প্র্যাকটিস</h3>
              <p className="font-bengali text-slate-500 mb-8">যে প্রশ্নগুলো আগে পরীক্ষা দিতে গিয়ে ভুল হয়েছে, সেগুলো পুনরায় অনুশীলন করো। সর্বোচ্চ ২০টি প্রশ্ন দেয়া হবে।</p>
              <button 
                 onClick={() => setActiveSet(`mistakes-20`)}
-                className="bg-red-500 text-white font-bengali font-bold px-8 py-4 rounded-2xl hover:bg-red-600 transition-colors shadow-md"
+                className="bg-red-500 text-white font-bengali font-bold px-8 py-4 rounded-2xl hover:bg-red-600 transition-colors shadow-md cursor-pointer"
              >
                 শুরু করুন
              </button>
-          </div>
-        ) : (
-          <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden">
-             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-primary to-secondary"></div>
-             <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6 text-center">কয়টি প্রশ্নের পরীক্ষা দিতে চাও?</h3>
-             
-             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-                {[10, 20, 25, 30, 40, 50].map(num => (
-                   <button
-                      key={num}
-                      onClick={() => setActiveSet(`mock-${num}`)}
-                      className="py-4 px-4 rounded-2xl font-bengali font-bold border border-slate-200 bg-slate-50 text-slate-600 hover:bg-primary/5 hover:border-primary/50 transition-all flex flex-col items-center justify-center gap-1 group"
-                   >
-                      <span className="text-2xl text-slate-800 group-hover:text-primary transition-colors">{num}</span>
-                      <span className="text-sm text-slate-500 font-medium tracking-wide">টি প্রশ্ন</span>
-                   </button>
-                ))}
-             </div>
-
-             <div className="flex items-center gap-3">
-                 <input 
-                   type="number" 
-                   min="5" 
-                   max="200" 
-                   placeholder="অন্যান্য (যেমন: ১৫)" 
-                   className="flex-1 border border-slate-300 rounded-xl px-4 py-3 font-bengali outline-none focus:border-primary/50"
-                   id="custom-q-count"
-                   onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                         const val = (e.target as HTMLInputElement).value;
-                         if(val && parseInt(val) > 0) setActiveSet(`mock-${val}`);
-                      }
-                   }}
-                 />
-                 <button 
-                   onClick={() => {
-                      const val = (document.getElementById('custom-q-count') as HTMLInputElement)?.value;
-                      if(val && parseInt(val) > 0) setActiveSet(`mock-${val}`);
-                   }}
-                   className="bg-primary text-white font-bengali font-bold px-6 py-3 rounded-xl hover:bg-primary/90 flex-shrink-0 whitespace-nowrap"
-                 >
-                   শুরু করুন
-                 </button>
-             </div>
           </div>
         )}
       </div>
     );
   }
 
+  // Determine initial time text
+  let initialTimeText = "২৫ মিনিট";
+  if (type === 'mock') {
+      const counts = activeSet?.split('-') || [];
+      if (counts.length >= 3 && !isNaN(parseInt(counts[2]))) {
+          initialTimeText = parseInt(counts[2]).toLocaleString('bn-BD') + " মিনিট";
+      } else if (counts.length >= 2 && !isNaN(parseInt(counts[1]))) {
+          initialTimeText = parseInt(counts[1]).toLocaleString('bn-BD') + " মিনিট";
+      }
+  } else if (type === 'model') {
+      const setInfo = dynamicModelSets.find(s => s.id === activeSet);
+      if (setInfo) {
+          initialTimeText = setInfo.timeMinutes.toLocaleString('bn-BD') + " মিনিট";
+      }
+  } else if (type === 'mistakes') {
+      initialTimeText = "আনলিমিটেড";
+  }
+
+  const cleanOptionText = (text: any) => {
+    if (typeof text !== 'string') return text;
+    let cleaned = text.replace(/\s*-\s*বিগত পাবলিক পরীক্ষার আসা প্রশ্ন ভিত্তিক/g, '');
+    cleaned = cleaned.replace(/\s*\([^)]*(BCS|GRE|Level|Job|Bank|DU|JU|RU|Unit|Medical|বিগত)[^)]*\)/gi, '');
+    return cleaned.trim();
+  };
+
   // Screen 3: Exam Player
   return (
-    <div className="w-full max-w-4xl mx-auto pb-20 px-0 sm:px-4 pt-0 sm:pt-4">
+    <div className={`w-full flex flex-col font-bengali ${!isSubmitted ? 'pb-24' : 'pb-20'}`}>
       {/* Top Section */}
-      <div className="sticky top-[88px] z-40 bg-white sm:bg-transparent py-2 sm:py-4 px-1 sm:px-0 mb-0 sm:mb-4 sm:border-0 shadow-sm sm:shadow-none">
-        <div className="max-w-[800px] mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 sm:gap-4 flex-1 min-w-0">
+      <div className="w-full bg-white py-3.5 sm:py-5 px-4 sm:px-8 mb-6 sm:mb-10 text-center relative border-b border-slate-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] sticky top-0 z-40">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
             <button 
-             onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
-             className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0"
+               onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
+               className="w-10 h-10 -ml-2 rounded-full hover:bg-slate-50 flex items-center justify-center transition-colors relative z-10"
             >
-             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+               <ArrowLeft className="w-6 h-6 text-slate-800" />
             </button>
-            <div className="flex items-center gap-1 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 font-semibold rounded-full text-xs sm:text-sm border border-blue-100/50 shadow-xs shrink-0">
-               <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
-               <span className="font-bengali font-bold hidden xs:inline">বাকি:</span>
-               <span className="font-mono text-xs sm:text-[15px] font-bold">{Math.max(0, dbQuestions.length - Object.keys(selectedOptions).length)}</span>
+            <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full px-12">
+              <h2 className="text-[19px] sm:text-[22px] font-bold text-slate-900 leading-tight">
+                {type === 'mock' ? 'মক পরীক্ষা' : type === 'mistakes' ? 'ভুলগুলোর প্র্যাকটিস' : 'মডেল টেস্ট'}
+              </h2>
+              {remainingTime !== null && (
+                <p className="text-slate-500 font-medium text-[13.5px] sm:text-[14px] mt-0.5">
+                  সময়: <span className="font-mono font-bold text-slate-700">{initialTimeText}</span>
+                </p>
+              )}
             </div>
-          </div>
-          
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            {isSubmitted ? (
-              <div className="flex items-center gap-1 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-emerald-50 text-emerald-800 font-bold rounded-full text-xs sm:text-sm border border-emerald-150 shadow-xs whitespace-nowrap">
-                <span className="font-bengali">পরীক্ষা সম্পন্ন</span>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center gap-1 px-2.5 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 font-bold rounded-full text-xs sm:text-sm border border-orange-100/50 shadow-xs font-mono shrink-0">
-                   <Timer className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] text-orange-500 animate-pulse" />
-                  <span>{timeLeft}</span>
-                </div>
-                
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  className="font-bengali font-bold px-3 sm:px-6 h-[34px] sm:h-[38px] shrink-0 text-xs sm:text-sm rounded-full whitespace-nowrap transition-all bg-red-100/60 hover:bg-red-100 text-red-700 border border-red-200 shadow-none"
-                  onClick={() => {
-                     setIsSubmitted(true);
-                     window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                >
-                  <span className="hidden sm:inline">পরীক্ষা </span>শেষ করুন
-                </Button>
-              </>
-            )}
-          </div>
+            <div className="w-10 h-10"></div>
         </div>
       </div>
 
-      {/* Main Question Area */}
-      <main className="bg-white sm:rounded-[32px] sm:shadow-sm sm:border sm:border-slate-100 overflow-hidden mb-8 flex-1 flex flex-col p-4 pt-6 sm:p-6 md:p-8">
+      <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
+        {/* Main Question Area */}
+        <main className="bg-transparent overflow-visible mb-8 flex-1 flex flex-col pt-2 sm:pt-4 md:pt-6">
         
         {isSubmitted && (
           <motion.div 
@@ -855,73 +1240,88 @@ export default function Exam() {
              </div>
           ) : (
          <>
-        <div className="bg-white sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
+        <div className="space-y-6 sm:space-y-8">
           {dbQuestions.map((q, idx) => (
-            <div key={q.id || idx} className="question-block p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
+            <div key={q.id ? `q_${q.id}_${idx}` : `q_fallback_${idx}`} className="question-block bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
                {/* Question Header */}
-               <div className="mb-4">
-                 <div className="flex items-center gap-2 mb-2">
-                   <span className="bg-primary text-white px-2.5 py-0.5 rounded-full text-xs font-bold">
+               <div className="mb-6">
+                 <div className="flex items-center gap-3 mb-3">
+                   <div className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs md:text-sm font-bold tracking-wide">
                      প্রশ্ন {q.questionNumber}
-                   </span>
+                   </div>
                  </div>
-                 <h2 className="text-base font-bengali font-bold text-slate-800 leading-snug">
-                   {q.text}
+                 <h2 className="text-[17px] md:text-xl font-bengali font-bold text-slate-800 leading-relaxed md:leading-snug">
+                   {cleanOptionText(q.text)}
                  </h2>
                </div>
 
                {/* Options */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                 {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any, optIdx: number) => {
-                   const selected = selectedOptions[q.id] === option.id;
-                   const correct = isCorrect(q.id, option.id);
-                   const wrong = isIncorrect(q.id, option.id);
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mt-2">
+                 {(() => {
+                    let formattedOptions: any[] = [];
+                    if (Array.isArray(q.options)) {
+                       formattedOptions = q.options.map((opt, i) => {
+                          if (typeof opt === 'string') return { id: ["ক", "খ", "গ", "ঘ"][i] || i.toString(), label: cleanOptionText(opt) };
+                          return { ...opt, id: opt.id || ["ক", "খ", "গ", "ঘ"][i] || i.toString(), label: cleanOptionText(opt.label || opt.text) };
+                       });
+                    } else if (q.options && typeof q.options === 'object') {
+                       formattedOptions = Object.keys(q.options).map(k => ({ id: k, text: q.options[k], label: cleanOptionText(q.options[k]) }));
+                    }
+                    return formattedOptions;
+                 })().map((option: any, optIdx: number) => {
+                   const optionId = option.id !== undefined && option.id !== null ? option.id.toString() : optIdx.toString();
+                   const selected = selectedOptions[q.id] === optionId;
+                   const correct = isCorrect(q.id, optionId);
+                   const wrong = isIncorrect(q.id, optionId);
                    
-                   let containerClass = "bg-white border-slate-200 hover:border-primary border-[1.5px] text-slate-800 shadow-sm";
-                   let labelBg = "bg-slate-100 text-slate-700";
+                   let containerClass = "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50 border-[1.5px] text-slate-700 shadow-sm";
+                   let labelBg = "bg-slate-100 text-slate-600 border border-slate-200";
                    
                    if (selected && !isSubmitted) {
-                     containerClass = "bg-primary/5 border-primary border-[1.5px] text-slate-900";
-                     labelBg = "bg-primary text-white";
+                     containerClass = "bg-blue-50/50 border-blue-500 border-[1.5px] text-blue-900 shadow-md ring-4 ring-blue-500/10";
+                     labelBg = "bg-blue-500 text-white border border-blue-600 shadow-inner";
                    } else if (correct) {
-                     containerClass = "bg-[#f2fbf5] border-[#4bb063] border-[1.5px] text-[#2c7a3f] shadow-sm";
-                     labelBg = "bg-[#4bb063] text-white";
+                     containerClass = "bg-[#f2fbf5] border-[#4bb063] border-[1.5px] text-[#2c7a3f] shadow-md ring-4 ring-[#4bb063]/10";
+                     labelBg = "bg-[#4bb063] text-white border border-[#3e9552] shadow-inner";
                    } else if (wrong) {
-                     containerClass = "bg-red-50 border-red-500 border-[1.5px] text-red-800 shadow-sm";
-                     labelBg = "bg-red-500 text-white";
+                     containerClass = "bg-red-50 border-red-500 border-[1.5px] text-red-900 shadow-sm ring-4 ring-red-500/10";
+                     labelBg = "bg-red-500 text-white border border-red-600 shadow-inner";
                    }
 
                    return (
                      <motion.div 
-                       key={`${q.id || idx}-${option.id || optIdx}`}
+                       key={`${q.id || 'q'}_${idx}_opt_${optionId}_${optIdx}`}
                        whileHover={!isSubmitted ? { scale: 1.01 } : {}}
+                       whileTap={!isSubmitted ? { scale: 0.98 } : {}}
                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
-                       onClick={() => handleSelect(q.id, option.id)}
+                       onClick={() => handleSelect(q.id, optionId)}
                        className={`
-                         flex flex-row items-center rounded-[14px] cursor-pointer transition-all min-h-[44px] md:min-h-[48px] relative
+                         flex flex-row items-center rounded-2xl cursor-pointer transition-all p-3 md:p-3.5 relative
                          ${containerClass}
                        `}
                      >
                        <div className={`
-                         w-10 md:w-11 h-full self-stretch flex-shrink-0 flex items-center justify-center font-bold text-sm transition-colors border-r border-[rgba(0,0,0,0.05)] rounded-l-[12.5px]
+                         w-9 h-9 md:w-10 md:h-10 flex-shrink-0 flex items-center justify-center font-bold text-sm md:text-base transition-colors rounded-xl
                          ${labelBg}
                        `}>
                          {correct ? (
-                           <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5 fill-white text-[#4bb063]" />
+                           <CheckCircle2 className="w-5 h-5 text-white drop-shadow-sm" />
                          ) : (
                            option.id
                          )}
                        </div>
                        
-                       <span className="font-bengali font-medium text-[15px] px-3 py-2 flex-1">{option.label}</span>
+                       <span className={`font-bengali font-medium text-[15px] md:text-base px-3 md:px-4 flex-1 ${correct ? 'font-bold' : ''}`}>
+                         {option.label}
+                       </span>
 
                        {wrong && (
                          <motion.div 
                            initial={{ scale: 0 }}
                            animate={{ scale: 1 }}
-                           className="absolute right-3 text-red-500"
+                           className="absolute right-4 text-red-500 bg-white rounded-full shadow-sm"
                          >
-                           <AlertCircle className="w-4 h-4 fill-red-50 text-red-500" />
+                           <AlertCircle className="w-5 h-5 text-red-500" />
                          </motion.div>
                        )}
                      </motion.div>
@@ -976,20 +1376,38 @@ export default function Exam() {
         </div>
 
         {!isSubmitted && (
-          <div className="mt-8 flex justify-center border-t border-slate-100 pt-8">
-            <Button 
-              onClick={handleSubmit} 
-              disabled={Object.keys(selectedOptions).length === 0}
-              className="bg-primary hover:bg-primary/90 text-white px-10 font-bengali text-lg h-14 rounded-full shadow-lg shadow-primary/20 font-bold"
-            >
-              উত্তর চেক করুন
-            </Button>
-          </div>
+         <div className="fixed bottom-0 left-0 w-full z-50 bg-[#005B4F] shadow-[0_-4px_10px_rgba(0,0,0,0.1)] text-white">
+           <div className="w-full max-w-7xl mx-auto flex items-center justify-between h-[60px] px-2 pb-1">
+              <div 
+                className="flex flex-col items-center justify-center min-w-[70px] cursor-pointer" 
+                onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
+              >
+                 <div className="w-5 h-5 text-white flex items-center justify-center mb-1">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                 </div>
+                 <span className="font-mono text-[11px] font-bold leading-none">{timeLeft}</span>
+              </div>
+              
+              <div className="flex-1 flex justify-center border-l border-r border-[#1a6d63] h-[40px] items-center">
+                 <button 
+                   onClick={() => { handleSubmit(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                   className="w-full h-full font-bengali font-bold text-[16px] text-white tracking-wide active:scale-95 transition-transform"
+                 >
+                    সাবমিট করো
+                 </button>
+              </div>
+
+              <div className="font-mono text-[14px] font-bold min-w-[70px] text-center flex items-center justify-center">
+                 {Object.keys(selectedOptions).length}/{dbQuestions.length}
+              </div>
+           </div>
+         </div>
         )}
          </>
         )}
         </div>
       </main>
+      </div>
 
     </div>
   );

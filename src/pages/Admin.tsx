@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X, Search, Moon, Menu } from "lucide-react";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X, Search, Moon, Menu, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc, writeBatch } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import NotesCreator from "../components/NotesCreator";
 import { 
@@ -33,10 +33,12 @@ import {
 const menuItems = [
   { id: "dashboard", bnLabel: "ড্যাশবোর্ড", enLabel: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
   { id: "students", bnLabel: "শিক্ষার্থী", enLabel: "Students", icon: <Users className="w-5 h-5" /> },
+  { id: "class_requests", bnLabel: "ক্লাস রিকুয়েস্ট", enLabel: "Class Requests", icon: <Users className="w-5 h-5 text-orange-500" /> },
   { id: "payments", bnLabel: "পেমেন্ট ভেরিফাই", enLabel: "Payments", icon: <Crown className="w-5 h-5 text-amber-500" /> },
   { id: "questions", bnLabel: "প্রশ্ন ব্যাংক", enLabel: "Questions", icon: <FileQuestion className="w-5 h-5" /> },
   { id: "subject_questions", bnLabel: "বিষয়ভিত্তিক প্রশ্ন", enLabel: "Subject Questions", icon: <BookOpen className="w-5 h-5 text-sky-500" /> },
   { id: "vocabulary", bnLabel: "শব্দকোষ", enLabel: "Vocabulary", icon: <BookOpen className="w-5 h-5 text-indigo-500" /> },
+  { id: "note_publisher", bnLabel: "নোট পাবলিশার", enLabel: "Note Publisher", icon: <BookOpen className="w-5 h-5 text-cyan-500" />, isNew: true },
   { id: "notes_creator", bnLabel: "নোটস মেকার", enLabel: "Notes Creator", icon: <BookOpen className="w-5 h-5 text-emerald-500" />, isNew: true },
   { id: "subjects", bnLabel: "বিষয়", enLabel: "Subjects", icon: <BookOpen className="w-5 h-5" /> },
   { id: "chapters", bnLabel: "অধ্যায়", enLabel: "Chapters", icon: <Layers className="w-5 h-5" /> },
@@ -56,6 +58,217 @@ export const formatEmail = (email: string) => {
      return email.split("@")[0];
   }
   return email;
+};
+
+const ClassRequestsTab = () => {
+  const [requests, setRequests] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    setLoading(true);
+    try {
+      const q = query(collection(db, "class_change_requests"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      const res: any[] = [];
+      snap.forEach(doc => res.push({ id: doc.id, ...doc.data() }));
+      setRequests(res);
+    } catch(e) {
+      console.error(e);
+    }
+    setLoading(false);
+  };
+
+  const handleAction = async (id: string, userId: string, approvedClass: string, status: "approved" | "declined") => {
+    if (!window.confirm(`Are you sure you want to ${status} this request?`)) return;
+    try {
+      await updateDoc(doc(db, "class_change_requests", id), { status });
+      if (status === "approved") {
+        await updateDoc(doc(db, "users", userId), { class: approvedClass });
+      }
+      setRequests(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+      alert(`Request has been ${status}`);
+    } catch(e) {
+      console.error(e);
+      alert("Failed to perform action");
+    }
+  };
+
+  return (
+    <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden mt-4">
+      <CardHeader className="bg-slate-50 border-b pb-4 p-6">
+        <CardTitle className="font-bengali">অপেক্ষমান ক্লাস রিকুয়েস্ট সমূহ</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50 hover:bg-slate-50">
+              <TableHead className="font-bold text-slate-800 font-bengali">শিক্ষার্থী</TableHead>
+              <TableHead className="font-bold text-slate-800 font-bengali">বর্তমান ক্লাস</TableHead>
+              <TableHead className="font-bold text-slate-800 font-bengali">অনুরোধকৃত ক্লাস</TableHead>
+              <TableHead className="font-bold text-slate-800 font-bengali">কারন</TableHead>
+              <TableHead className="font-bold text-slate-800 font-bengali">স্ট্যাটাস</TableHead>
+              <TableHead className="font-bold text-slate-800 text-right font-bengali">অ্যাকশন</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {requests.map(req => (
+               <TableRow key={req.id}>
+                 <TableCell>
+                    <div className="font-bold">{req.userName}</div>
+                    <div className="text-xs text-slate-500">{req.email}</div>
+                 </TableCell>
+                 <TableCell>{req.currentClass}</TableCell>
+                 <TableCell className="font-bold text-indigo-600">{req.requestedClass}</TableCell>
+                 <TableCell className="max-w-[150px] truncate" title={req.reason}>{req.reason || "N/A"}</TableCell>
+                 <TableCell>
+                    <Badge variant={req.status === "pending" ? "default" : req.status === "approved" ? "outline" : "destructive"} 
+                           className={req.status === "pending" ? "bg-amber-100 text-amber-700" : req.status === "approved" ? "bg-green-100 text-green-700" : ""}>
+                      {req.status}
+                    </Badge>
+                 </TableCell>
+                 <TableCell className="text-right flex items-center justify-end gap-2">
+                    {req.status === "pending" && (
+                       <>
+                         <Button size="sm" variant="outline" className="border-green-200 text-green-600 hover:bg-green-50" onClick={() => handleAction(req.id, req.userId, req.requestedClass, "approved")}><Check className="w-4 h-4 mr-1"/> Approve</Button>
+                         <Button size="sm" variant="outline" className="border-red-200 text-red-600 hover:bg-red-50" onClick={() => handleAction(req.id, req.userId, req.requestedClass, "declined")}><X className="w-4 h-4 mr-1"/> Decline</Button>
+                       </>
+                    )}
+                 </TableCell>
+               </TableRow>
+            ))}
+            {requests.length === 0 && !loading && (
+              <TableRow><TableCell colSpan={6} className="text-center py-6">কোনো রিকুয়েস্ট নেই</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
+
+const NotePublisherTab = () => {
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    classInfo: "১০ম শ্রেনী",
+    subject: "Bangla",
+    type: "pdf", // type of note
+    contentLink: "", 
+    jsonContent: "" // for json_array
+  });
+
+  const publishNote = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (formData.type === "json_array") {
+        const notes = JSON.parse(formData.jsonContent);
+        if (!Array.isArray(notes)) throw new Error("JSON must be an array");
+        const batch = writeBatch(db);
+        notes.forEach((note: any) => {
+          const docRef = doc(collection(db, "subject_notes"));
+          batch.set(docRef, {
+            ...note,
+            classInfo: note.classInfo || formData.classInfo,
+            subject: note.subject || formData.subject,
+            type: note.type || "pdf",
+            createdAt: serverTimestamp(),
+            active: true
+          });
+        });
+        await batch.commit();
+        alert(`${notes.length} টি নোট সফলভাবে যুক্ত হয়েছে!`);
+      } else {
+        await addDoc(collection(db, "subject_notes"), {
+          title: formData.title,
+          classInfo: formData.classInfo,
+          subject: formData.subject,
+          type: formData.type,
+          contentLink: formData.contentLink,
+          createdAt: serverTimestamp(),
+          active: true
+        });
+        alert("নোট সফলভাবে তৈরি হয়েছে!");
+      }
+      setFormData({ ...formData, title: "", contentLink: "", jsonContent: "" });
+    } catch(err: any) {
+      console.error(err);
+      alert("নোট তৈরি করতে সমস্যা হয়েছে: " + err.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden mt-4 max-w-2xl">
+       <CardHeader className="bg-slate-50 border-b pb-4 p-6">
+         <CardTitle className="font-bengali">সহজ নোট পাবলিশার</CardTitle>
+         <CardDescription className="font-bengali text-xs">পিডিএফ ড্রাইভ লিংক বা অন্যান্য এক্সটার্নাল লিংক সরাসরি যুক্ত করুন</CardDescription>
+       </CardHeader>
+       <CardContent className="p-6">
+         <form onSubmit={publishNote} className="space-y-4">
+           
+           <div className="grid grid-cols-2 gap-4">
+             <div>
+               <label className="block text-sm font-bold font-bengali mb-1">ক্লাস</label>
+               <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" value={formData.classInfo} onChange={e => setFormData({...formData, classInfo: e.target.value})}>
+                  {["১ম শ্রেনী","২য় শ্রেনী","৩য় শ্রেনী","৪র্থ শ্রেনী","৫ম শ্রেনী","৬ষ্ঠ শ্রেনী","৭ম শ্রেনী","৮ম শ্রেনী","৯ম শ্রেনী","১০ম শ্রেনী","এসএসসি","একাদশ","দ্বাদশ","এইচএসসি","ভার্সিটি এডমিশন","মেডিকেল এডমিশন","ইঞ্জিনিয়ারিং এডমিশন"].map(c => <option key={c} value={c}>{c}</option>)}
+               </select>
+             </div>
+             <div>
+               <label className="block text-sm font-bold font-bengali mb-1">বিষয়</label>
+               <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})}>
+                  {["Bangla","English","General Knowledge","Physics","Chemistry","Biology","Higher Math","ICT","Accounting","Management"].map(s => <option key={s} value={s}>{s}</option>)}
+               </select>
+             </div>
+           </div>
+           <div>
+             <label className="block text-sm font-bold font-bengali mb-1">নোটের ধরন</label>
+             <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
+                <option value="pdf">গুগল ড্রাইভ পিডিএফ লিংক</option>
+                <option value="video">ইউটিউব ভিডিও ক্লাস লিংক</option>
+                <option value="external">অন্যান্য লিংক</option>
+                <option value="json_array">JSON Array (Bulk Upload)</option>
+             </select>
+           </div>
+           
+           {formData.type === "json_array" ? (
+             <div>
+               <label className="block text-sm font-bold font-bengali mb-1">JSON কন্টেন্ট</label>
+               <textarea 
+                 required 
+                 className="min-h-[200px] font-mono text-xs w-full p-2 border border-slate-300 rounded" 
+                 placeholder={`[
+  { "title": "অধ্যায় ১", "contentLink": "...", "type": "pdf" },
+  { "title": "অধ্যায় ২", "contentLink": "...", "type": "video" }
+]`} 
+                 value={formData.jsonContent} 
+                 onChange={e => setFormData({...formData, jsonContent: e.target.value})} 
+               />
+             </div>
+           ) : (
+             <>
+               <div>
+                 <label className="block text-sm font-bold font-bengali mb-1">নোটের টাইটেল</label>
+                 <Input required placeholder="উদাঃ বাংলা ব্যাকরণ - সমাস" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
+               </div>
+               <div>
+                 <label className="block text-sm font-bold font-bengali mb-1">লিংক</label>
+                 <Input required placeholder="https://drive.google.com/..." value={formData.contentLink} onChange={e => setFormData({...formData, contentLink: e.target.value})} />
+               </div>
+             </>
+           )}
+
+           <Button disabled={loading} type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold font-bengali">
+             {loading ? "পাবলিশ হচ্ছে..." : "নতুন নোট পাবলিশ করুন"}
+           </Button>
+         </form>
+       </CardContent>
+    </Card>
+  );
 };
 
 export default function Admin() {
@@ -993,6 +1206,102 @@ export default function Admin() {
       console.error(e);
       alert("Failed to toggle status.");
     }
+  };
+
+  const printExam = (exam: any, showAnswers: boolean) => {
+    document.body.classList.add("printing-allowed");
+    const styleEl = document.createElement("style");
+    styleEl.id = "print-style-override-exam";
+    styleEl.innerHTML = `
+      @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+      @media print {
+        html, body {
+            display: block !important;
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background-color: #ffffff !important;
+        }
+        body > :not(#print-temporary-container-exam) {
+          display: none !important;
+        }
+        #print-temporary-container-exam {
+          display: block !important;
+          position: relative !important;
+          width: 100%;
+          background: #fff;
+          height: auto !important;
+          overflow: visible !important;
+        }
+        .page-break { page-break-inside: avoid; margin-bottom: 24px; }
+      }
+      #print-temporary-container-exam { display: none; }
+      .print-box-exam { font-family: 'Hind Siliguri', sans-serif; color: #1e293b; padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.6; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+      .q-grid div { font-size: 15px; color: #334155; }
+      .ans-box { background-color: #f0fdf4; padding: 12px; margin-top: 16px; border-radius: 4px; font-size: 14px; border-left: 3px solid #22c55e; }
+      .header-title-exam { font-family: 'Hind Siliguri', sans-serif; text-align: center; font-size: 32px; font-weight: 700; color: #0f172a; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px;}
+      .header-title-sub { text-align: center; font-size: 22px; font-weight: 600; margin-bottom: 12px; color: #1e293b; }
+      .header-meta-exam { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 30px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;}
+    `;
+    document.head.appendChild(styleEl);
+
+    let container = document.getElementById("print-temporary-container-exam");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "print-temporary-container-exam";
+      document.body.appendChild(container);
+    }
+    
+    let html = `<div class="print-box-exam">
+      <div class="header-title-exam">শিক্ষাঙ্গন</div>
+      <div class="header-title-sub">${exam.title || 'Question Paper'}</div>
+      <div class="header-meta-exam">
+        <span>প্রিন্ট তারিখ: ${new Date().toLocaleDateString('en-GB')}</span>
+        <span>মোট প্রশ্ন: ${exam.questions?.length || 0} টি</span>
+      </div>
+      <div>
+    `;
+    
+    if (exam.questions) {
+        exam.questions.forEach((q: any, i: number) => {
+            html += `
+            <div class="page-break">
+                <div style="font-weight: 600; font-size: 17px; color: #0f172a;">${i+1}. ${q.question}</div>
+                <div class="q-grid">
+                    ${q.options.map((opt: string, optIdx: number) => 
+                      `<div><span style="color: #2563eb; font-weight: 600; margin-right: 4px;">${['A', 'B', 'C', 'D'][optIdx] || '-'})</span> ${opt}</div>`
+                    ).join('')}
+                </div>
+                ${showAnswers ? `<div class="ans-box">
+                    <div style="margin-bottom: 4px;"><span style="font-weight: 700; color: #166534; font-size: 13px; background: #dcfce7; padding: 2px 6px; border-radius: 4px; margin-right: 8px;">ANS: ${['A','B','C','D'][q.options.indexOf(q.correctOption)] || ''}</span> <span style="font-weight: 700; color: #15803d;">সঠিক উত্তর: ${q.correctOption}</span></div>
+                    ${q.explanation ? `<div style="margin-top: 6px; font-size: 13px; color: #3f6212;"><span style="font-weight: 600; color: #4d7c0f">ব্যাখ্যা:</span> ${q.explanation}</div>` : ''}
+                </div>` : ''}
+            </div>`;
+        });
+    }
+    
+    html += `</div></div>`;
+    container.innerHTML = html;
+
+    let cleanedUp = false;
+    const cleanup = () => {
+      if (cleanedUp) return;
+      cleanedUp = true;
+      setTimeout(() => {
+        styleEl.remove();
+        if (container) container.innerHTML = "";
+        document.body.classList.remove("printing-allowed");
+      }, 1000);
+    };
+
+    window.addEventListener("afterprint", cleanup, { once: true });
+    setTimeout(() => {
+      try { window.print(); } catch(e) { console.error(e); cleanup(); }
+    }, 500);
+    setTimeout(cleanup, 35000);
   };
 
   const openEditPublicExam = (exam: any) => {
@@ -2260,6 +2569,12 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                         </Button>
                         <Button variant="outline" size="sm" className="w-full text-red-600 border-red-200 hover:bg-red-50" onClick={() => deletePublicExam(exam.id)}>
                           <Trash2 className="w-3.5 h-3.5 mr-1.5" /> ডিলিট
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full text-teal-600 border-teal-200 hover:bg-teal-50" onClick={() => printExam(exam, false)}>
+                          <Printer className="w-3.5 h-3.5 mr-1.5" /> প্রিন্ট (প্রশ্ন)
+                        </Button>
+                        <Button variant="outline" size="sm" className="w-full text-emerald-600 border-emerald-200 hover:bg-emerald-50" onClick={() => printExam(exam, true)}>
+                          <Printer className="w-3.5 h-3.5 mr-1.5" /> প্রিন্ট (উত্তরসহ)
                         </Button>
                         <Button variant="outline" size="sm" className="w-full text-orange-600 border-orange-200 hover:bg-orange-50 col-span-2" onClick={() => resetPublicExamLeaderboard(exam.id)}>
                           <RotateCcw className="w-3.5 h-3.5 mr-1.5" /> লিডারবোর্ড রিসেট করুন
@@ -3572,6 +3887,30 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             </Card>
           </div>
 
+        ) : activeTab === "class_requests" ? (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl font-bold font-bengali">ক্লাস পরিবর্তন রিকুয়েস্ট</h3>
+                <p className="text-muted-foreground">শিক্ষার্থীদের ক্লাস পরিবর্তনের অনুরোধসমূহ অনুমোদন করুন</p>
+              </div>
+            </div>
+            {/* Displaying class requests component */}
+            <ClassRequestsTab />
+          </div>
+
+        ) : activeTab === "note_publisher" ? (
+          <div className="space-y-6">
+             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h3 className="text-2xl font-bold font-bengali">নোট পাবলিশার</h3>
+                 <p className="text-muted-foreground">বিকল্প পদ্ধতিতে সাধারণ নোট পাবলিশ করুন (পিডিএফ বা লিঙ্ক)</p>
+              </div>
+            </div>
+            {/* Dedicated Note Publisher Note Form */}
+            <NotePublisherTab />
+          </div>
+
         ) : activeTab === "notes_creator" ? (
           <NotesCreator />
 
@@ -4031,7 +4370,28 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   </Button>
                 )}
 
-                <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="pt-2">
+                   <h4 className="font-bold text-sm text-slate-800 font-bengali mb-3">লগড ইন ডিভাইসেস</h4>
+                   {selectedUserModal.devices && Object.keys(selectedUserModal.devices).length > 0 ? (
+                      <div className="space-y-2">
+                         {Object.entries(selectedUserModal.devices).map(([deviceId, dev]: [string, any]) => (
+                            <div key={deviceId} className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                               <div className="flex justify-between items-center mb-1">
+                                  <span className="text-xs font-bold text-slate-700">{dev.type || 'অজানা ডিভাইস'}</span>
+                                  <span className="text-[10px] text-slate-400 font-sans">
+                                     {new Date(dev.lastActive).toLocaleString()}
+                                  </span>
+                               </div>
+                               <p className="text-[10px] text-slate-500 truncate" title={dev.userAgent}>{dev.userAgent}</p>
+                            </div>
+                         ))}
+                      </div>
+                   ) : (
+                      <p className="text-xs text-slate-400 font-bengali">কোনো ডিভাইসের তথ্য নেই।</p>
+                   )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-100">
                   <Button 
                     variant={selectedUserModal.isAdmin ? "outline" : "secondary"} 
                      className={`font-semibold rounded-xl text-xs py-5 transition-all shadow-sm ${selectedUserModal.isAdmin ? "text-purple-650 border-purple-200 hover:bg-purple-100" : "bg-purple-50 text-purple-650 border border-purple-100 hover:bg-[#F3E8FF]"}`}

@@ -28,7 +28,6 @@ const subClasses68 = [
 ];
 
 const groups = [
-  { id: "science", label: "বিজ্ঞান", icon: <TestTube2 className="w-10 h-10 mb-3 text-blue-500" /> },
   { id: "arts", label: "মানবিক", icon: <Users className="w-10 h-10 mb-3 text-green-500" /> },
   { id: "commerce", label: "ব্যবসায় শিক্ষা", icon: <Calculator className="w-10 h-10 mb-3 text-secondary" /> },
 ];
@@ -94,8 +93,8 @@ export default function Onboarding() {
       setStep("subclass");
     } else {
       setSelectedClass(clsId);
-      // Move to group selection if HSC or admission
-      if (["hsc", "admission"].includes(clsId)) {
+      // Move to group selection if Class 9, 10, HSC, or admission
+      if (["c9", "c10", "hsc", "admission"].includes(clsId)) {
         setStep("group");
       } else {
         setStep("welcome");

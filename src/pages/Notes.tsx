@@ -80,6 +80,207 @@ export const getSubjectsByGroup = (group?: string, classGroup?: string) => {
 // Lecture Notes Database
 export const ALL_NOTES = [
   {
+    id: "bn-oporichita-hsc",
+    title: "অপরিচিতা — সম্পূর্ণ লেকচার শিট",
+    subject: "বাংলা",
+    classGroup: "HSC",
+    badges: ["মাস্টার নোট", "এইচএসসি", "এডমিশন স্পেশাল"],
+    description: "রবীন্দ্রনাথ ঠাকুরের 'অপরিচিতা' গল্পের লেখক পরিচিতি, গল্পের উৎস, চরিত্র ও ১৫টি গুরুত্বপূর্ণ প্রশ্নোত্তর।",
+    link: "",
+    isExternal: false,
+    content: {
+      intro: "এইচএসসি এবং বিশ্ববিদ্যালয় ভর্তি পরীক্ষার জন্য 'অপরিচিতা' গল্পটি অত্যন্ত গুরুত্বপূর্ণ। এখানে গল্পের যাবতীয় তথ্য ও প্রশ্নোত্তর সহজভাবে সাজানো হয়েছে।",
+      chapters: [
+        {
+          title: "১. লেখক পরিচিতি ও গুরুত্বপূর্ণ তথ্য",
+          items: [
+            "👉 নাম ও ছদ্মনাম: রবীন্দ্রনাথ ঠাকুর; ছদ্মনাম: ভানুসিংহ",
+            "👉 প্রথম প্রকাশিত গল্প: ভিখারিণী (১২৮৪ বঙ্গাব্দে মাত্র ১৬ বছর বয়সে প্রকাশিত)",
+            "👉 প্রথম মনস্তাত্ত্বিক উপন্যাস: চোখের বালি",
+            "👉 নোবেল পুরস্কার: ১৯১৩ সালের নভেম্বর মাসে গীতাঞ্জলি (Song Offerings) কাব্যের জন্য"
+          ]
+        },
+        {
+          title: "২. গল্পের উৎস ও মূলভাব",
+          items: [
+            "👉 উৎস: ১৯১৪ সালে (১৩২১ বঙ্গাব্দ) প্রমথ চৌধুরী সম্পাদিত মাসিক 'সবুজপত্র' পত্রিকায় প্রথম প্রকাশিত হয়",
+            "👉 মূলবাণী/উপজীব্য: যৌতুক প্রথার বিরুদ্ধে নারী-পুরুষের সম্মিলিত প্রতিরোধ",
+            "👉 কথনশৈলী: উত্তম পুরুষের জবানিতে (অনুপমের জবানিতে) লেখা"
+          ]
+        },
+        {
+          title: "৩. চরিত্র ও গুরুত্বপূর্ণ অনুষঙ্গ",
+          items: [
+            "👉 অনুপম: ব্যক্তিত্বহীন ও পরিবারতন্ত্রের পুতুল; বর্তমান বয়স ২৭ বছর",
+            "👉 কল্যাণী: দেশচেতনায় ঋদ্ধ ব্যক্তিত্বসম্পন্ন নারী; 'মাতৃ-আজ্ঞা' পালনে ব্রতী",
+            "👉 মামা: অনুপমের চেয়ে ৬ বছরের বড়; ভাগ্যের প্রধান এজেন্ট এবং টাকার প্রতি আসক্ত",
+            "👉 ফল্গু নদী: গয়ার নদী যার ওপর বালি কিন্তু নিচে জলস্রোত; যা মামার চরিত্রের সাথে তুলনীয়"
+          ]
+        },
+        {
+          title: "৪. ১৫টি গুরুত্বপূর্ণ প্রশ্নোত্তর (Admission & HSC Special)",
+          items: [
+            { type: "qa", q: "অনুপমের পিতা পেশায় কী ছিলেন?", a: "তিনি ওকালতি করে প্রচুর টাকা রোজগার করেছিলেন" },
+            { type: "qa", q: "অনুপমকে পণ্ডিতমশায় কিসের সাথে তুলনা করতেন?", a: "শিমুল ফুল ও মাকাল ফলের সাথে" },
+            { type: "qa", q: "অনুপমের বন্ধু হরিশ কোথায় কাজ করত?", a: "কানপুরে" },
+            { type: "qa", q: "কল্যাণীকে আশীর্বাদ করতে কাকে পাঠানো হয়েছিল?", a: "অনুপমের পিসতুতো ভাই বিনুদাদাকে" },
+            { type: "qa", q: "বিনুদাদার ভাষার বিশেষত্ব কী ছিল?", a: "তার ভাষা ছিল অত্যন্ত 'আঁট'; যেখানে সবাই বলে 'চমৎকার', তিনি সেখানে বলেন 'চলনসই'" },
+            { type: "qa", q: "বিনুদাদা কল্যাণী সম্পর্কে কী মন্তব্য করেছিলেন?", a: "তিনি বলেছিলেন, 'মন্দ নয় হে! খাঁটি সোনা বটে'" },
+            { type: "qa", q: "শম্ভুনাথ সেন পেশায় কী ছিলেন?", a: "তিনি পেশায় একজন ডাক্তার" },
+            { type: "qa", q: "মামার মতে কলকাতার বাইরের পৃথিবীটা কিসের অন্তর্ভুক্ত?", a: "আন্দামান দ্বীপপুঞ্জের" },
+            { type: "qa", q: "অনুপম নিজের জীবনকে কিসের সাথে তুলনা করেছে?", a: "ফলের মতো গুটি-র সাথে" },
+            { type: "qa", q: "শম্ভুনাথ সেন কেন পশ্চিমে গিয়ে বাস করছিলেন?", a: "বংশ মর্যাদা রক্ষা করার জন্য" },
+            { type: "qa", q: "বিয়ের সময় কল্যাণীর বয়স কত ছিল?", a: "পনেরো বছর" },
+            { type: "qa", q: "সেকরা বিয়ের আসরের গয়না সম্পর্কে কী বলেছিল?", a: "বলেছিল, 'ইহা বিলাতি মাল, ইহাতে সোনার ভাগ সামান্যই আছে'" },
+            { type: "qa", q: "'ঠাট্টার সম্পর্কটাকে স্থায়ী করিবার ইচ্ছা আমার নাই'— উক্তিটি কার?", a: "শম্ভুনাথ সেনের" },
+            { type: "qa", q: "ট্রেনে কল্যাণীর কণ্ঠে উচ্চারিত একমাত্র ধুয়া কোনটি ছিল?", a: "'গাড়িতে জায়গা আছে'" },
+            { type: "qa", q: "রবীন্দ্রনাথ ঠাকুরকে বাংলা ছোটগল্পের কী বলা হয়?", a: "বাংলা ছোটগল্পের জনক এবং শ্রেষ্ঠ শিল্পী" }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    id: "bn-oporichita-admission",
+    title: "অপরিচিতা — সম্পূর্ণ লেকচার শিট",
+    subject: "বাংলা",
+    classGroup: "Admission",
+    badges: ["মাস্টার নোট", "এইচএসসি", "এডমিশন স্পেশাল"],
+    description: "রবীন্দ্রনাথ ঠাকুরের 'অপরিচিতা' গল্পের লেখক পরিচিতি, গল্পের উৎস, চরিত্র ও ১৫টি গুরুত্বপূর্ণ প্রশ্নোত্তর।",
+    link: "",
+    isExternal: false,
+    content: {
+      intro: "এইচএসসি এবং বিশ্ববিদ্যালয় ভর্তি পরীক্ষার জন্য 'অপরিচিতা' গল্পটি অত্যন্ত গুরুত্বপূর্ণ। এখানে গল্পের যাবতীয় তথ্য ও প্রশ্নোত্তর সহজভাবে সাজানো হয়েছে।",
+      chapters: [
+        {
+          title: "১. লেখক পরিচিতি ও গুরুত্বপূর্ণ তথ্য",
+          items: [
+            "👉 নাম ও ছদ্মনাম: রবীন্দ্রনাথ ঠাকুর; ছদ্মনাম: ভানুসিংহ",
+            "👉 প্রথম প্রকাশিত গল্প: ভিখারিণী (১২৮৪ বঙ্গাব্দে মাত্র ১৬ বছর বয়সে প্রকাশিত)",
+            "👉 প্রথম মনস্তাত্ত্বিক উপন্যাস: চোখের বালি",
+            "👉 নোবেল পুরস্কার: ১৯১৩ সালের নভেম্বর মাসে গীতাঞ্জলি (Song Offerings) কাব্যের জন্য"
+          ]
+        },
+        {
+          title: "২. গল্পের উৎস ও মূলভাব",
+          items: [
+            "👉 উৎস: ১৯১৪ সালে (১৩২১ বঙ্গাব্দ) প্রমথ চৌধুরী সম্পাদিত মাসিক 'সবুজপত্র' পত্রিকায় প্রথম প্রকাশিত হয়",
+            "👉 মূলবাণী/উপজীব্য: যৌতুক প্রথার বিরুদ্ধে নারী-পুরুষের সম্মিলিত প্রতিরোধ",
+            "👉 কথনশৈলী: উত্তম পুরুষের জবানিতে (অনুপমের জবানিতে) লেখা"
+          ]
+        },
+        {
+          title: "৩. চরিত্র ও গুরুত্বপূর্ণ অনুষঙ্গ",
+          items: [
+            "👉 অনুপম: ব্যক্তিত্বহীন ও পরিবারতন্ত্রের পুতুল; বর্তমান বয়স ২৭ বছর",
+            "👉 কল্যাণী: দেশচেতনায় ঋদ্ধ ব্যক্তিত্বসম্পন্ন নারী; 'মাতৃ-আজ্ঞা' পালনে ব্রতী",
+            "👉 মামা: অনুপমের চেয়ে ৬ বছরের বড়; ভাগ্যের প্রধান এজেন্ট এবং টাকার প্রতি আসক্ত",
+            "👉 ফল্গু নদী: গয়ার নদী যার ওপর বালি কিন্তু নিচে জলস্রোত; যা মামার চরিত্রের সাথে তুলনীয়"
+          ]
+        },
+        {
+          title: "৪. ১৫টি গুরুত্বপূর্ণ প্রশ্নোত্তর (Admission & HSC Special)",
+          items: [
+            { type: "qa", q: "অনুপমের পিতা পেশায় কী ছিলেন?", a: "তিনি ওকালতি করে প্রচুর টাকা রোজগার করেছিলেন" },
+            { type: "qa", q: "অনুপমকে পণ্ডিতমশায় কিসের সাথে তুলনা করতেন?", a: "শিমুল ফুল ও মাকাল ফলের সাথে" },
+            { type: "qa", q: "অনুপমের বন্ধু হরিশ কোথায় কাজ করত?", a: "কানপুরে" },
+            { type: "qa", q: "কল্যাণীকে আশীর্বাদ করতে কাকে পাঠানো হয়েছিল?", a: "অনুপমের পিসতুতো ভাই বিনুদাদাকে" },
+            { type: "qa", q: "বিনুদাদার ভাষার বিশেষত্ব কী ছিল?", a: "তার ভাষা ছিল অত্যন্ত 'আঁট'; যেখানে সবাই বলে 'চমৎকার', তিনি সেখানে বলেন 'চলনসই'" },
+            { type: "qa", q: "বিনুদাদা কল্যাণী সম্পর্কে কী মন্তব্য করেছিলেন?", a: "তিনি বলেছিলেন, 'মন্দ নয় হে! খাঁটি সোনা বটে'" },
+            { type: "qa", q: "শম্ভুনাথ সেন পেশায় কী ছিলেন?", a: "তিনি পেশায় একজন ডাক্তার" },
+            { type: "qa", q: "মামার মতে কলকাতার বাইরের পৃথিবীটা কিসের অন্তর্ভুক্ত?", a: "আন্দামান দ্বীপপুঞ্জের" },
+            { type: "qa", q: "অনুপম নিজের জীবনকে কিসের সাথে তুলনা করেছে?", a: "ফলের মতো গুটি-র সাথে" },
+            { type: "qa", q: "শম্ভুনাথ সেন কেন পশ্চিমে গিয়ে বাস করছিলেন?", a: "বংশ মর্যাদা রক্ষা করার জন্য" },
+            { type: "qa", q: "বিয়ের সময় কল্যাণীর বয়স কত ছিল?", a: "পনেরো বছর" },
+            { type: "qa", q: "সেকরা বিয়ের আসরের গয়না সম্পর্কে কী বলেছিল?", a: "বলেছিল, 'ইহা বিলাতি মাল, ইহাতে সোনার ভাগ সামান্যই আছে'" },
+            { type: "qa", q: "'ঠাট্টার সম্পর্কটাকে স্থায়ী করিবার ইচ্ছা আমার নাই'— উক্তিটি কার?", a: "শম্ভুনাথ সেনের" },
+            { type: "qa", q: "ট্রেনে কল্যাণীর কণ্ঠে উচ্চারিত একমাত্র ধুয়া কোনটি ছিল?", a: "'গাড়িতে জায়গা আছে'" },
+            { type: "qa", q: "রবীন্দ্রনাথ ঠাকুরকে বাংলা ছোটগল্পের কী বলা হয়?", a: "বাংলা ছোটগল্পের জনক এবং শ্রেষ্ঠ শিল্পী" }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    id: "bn-oporichita-admission",
+    title: "অপরিচিতা — সম্পূর্ণ লেকচার শিট",
+    subject: "বাংলা",
+    classGroup: "Admission",
+    badges: ["মাস্টার নোট", "এইচএসসি", "এডমিশন স্পেশাল"],
+    description: "রবীন্দ্রনাথ ঠাকুরের 'অপরিচিতা' গল্পের লেখক পরিচিতি, গল্পের উৎস, চরিত্র ও ১৫টি গুরুত্বপূর্ণ প্রশ্নোত্তর।",
+    link: "",
+    isExternal: false,
+    content: {
+      intro: "এইচএসসি এবং বিশ্ববিদ্যালয় ভর্তি পরীক্ষার জন্য 'অপরিচিতা' গল্পটি অত্যন্ত গুরুত্বপূর্ণ। এখানে গল্পের যাবতীয় তথ্য ছক ও প্রশ্নোত্তরের মাধ্যমে সাজানো হয়েছে।",
+      chapters: [
+        {
+          title: "১. লেখক পরিচিতি ও গুরুত্বপূর্ণ তথ্য",
+          items: [
+            {
+              type: "table",
+              headers: ["তথ্য", "বিস্তারিত"],
+              rows: [
+                ["নাম ও ছদ্মনাম", "রবীন্দ্রনাথ ঠাকুর; ছদ্মনাম: ভানুসিংহ"],
+                ["প্রথম প্রকাশিত গল্প", "ভিখারিণী (১২৮৪ বঙ্গাব্দে মাত্র ১৬ বছর বয়সে প্রকাশিত)"],
+                ["প্রথম মনস্তাত্ত্বিক উপন্যাস", "চোখের বালি"],
+                ["নোবেল পুরস্কার", "১৯১৩ সালের নভেম্বর মাসে গীতাঞ্জলি (Song Offerings) কাব্যের জন্য"]
+              ]
+            }
+          ]
+        },
+        {
+          title: "২. গল্পের উৎস ও মূলভাব",
+          items: [
+            {
+              type: "table",
+              headers: ["তথ্য", "বিস্তারিত"],
+              rows: [
+                ["উৎস", "১৯১৪ সালে (১৩২১ বঙ্গাব্দ) প্রমথ চৌধুরী সম্পাদিত মাসিক 'সবুজপত্র' পত্রিকায় প্রথম প্রকাশিত হয়"],
+                ["মূলবাণী/উপজীব্য", "যৌতুক প্রথার বিরুদ্ধে নারী-পুরুষের সম্মিলিত প্রতিরোধ"],
+                ["কথনশৈলী", "উত্তম পুরুষের জবানিতে (অনুপমের জবানিতে) লেখা"]
+              ]
+            }
+          ]
+        },
+        {
+          title: "৩. চরিত্র ও গুরুত্বপূর্ণ অনুষঙ্গ",
+          items: [
+            {
+              type: "table",
+              headers: ["চরিত্র/অনুষঙ্গ", "তথ্য"],
+              rows: [
+                ["অনুপম", "ব্যক্তিত্বহীন ও পরিবারতন্ত্রের পুতুল; বর্তমান বয়স ২৭ বছর"],
+                ["কল্যাণী", "দেশচেতনায় ঋদ্ধ ব্যক্তিত্বসম্পন্ন নারী; 'মাতৃ-আজ্ঞা' পালনে ব্রতী"],
+                ["মামা", "অনুপমের চেয়ে ৬ বছরের বড়; ভাগ্যের প্রধান এজেন্ট এবং টাকার প্রতি আসক্ত"],
+                ["ফল্গু নদী", "গয়ার নদী যার ওপর বালি কিন্তু নিচে জলস্রোত; যা মামার চরিত্রের সাথে তুলনীয়"]
+              ]
+            }
+          ]
+        },
+        {
+          title: "৪. ১৫টি গুরুত্বপূর্ণ প্রশ্নোত্তর (Admission & HSC Special)",
+          items: [
+            { type: "qa", q: "অনুপমের পিতা পেশায় কী ছিলেন?", a: "তিনি ওকালতি করে প্রচুর টাকা রোজগার করেছিলেন" },
+            { type: "qa", q: "অনুপমকে পণ্ডিতমশায় কিসের সাথে তুলনা করতেন?", a: "শিমুল ফুল ও মাকাল ফলের সাথে" },
+            { type: "qa", q: "অনুপমের বন্ধু হরিশ কোথায় কাজ করত?", a: "কানপুরে" },
+            { type: "qa", q: "কল্যাণীকে আশীর্বাদ করতে কাকে পাঠানো হয়েছিল?", a: "অনুপমের পিসতুতো ভাই বিনুদাদাকে" },
+            { type: "qa", q: "বিনুদাদার ভাষার বিশেষত্ব কী ছিল?", a: "তার ভাষা ছিল অত্যন্ত 'আঁট'; যেখানে সবাই বলে 'চমৎকার', তিনি সেখানে বলেন 'চলনসই'" },
+            { type: "qa", q: "বিনুদাদা কল্যাণী সম্পর্কে কী মন্তব্য করেছিলেন?", a: "তিনি বলেছিলেন, 'মন্দ নয় হে! খাঁটি সোনা বটে'" },
+            { type: "qa", q: "শম্ভুনাথ সেন পেশায় কী ছিলেন?", a: "তিনি পেশায় একজন ডাক্তার" },
+            { type: "qa", q: "মামার মতে কলকাতার বাইরের পৃথিবীটা কিসের অন্তর্ভুক্ত?", a: "আন্দামান দ্বীপপুঞ্জের" },
+            { type: "qa", q: "অনুপম নিজের জীবনকে কিসের সাথে তুলনা করেছে?", a: "ফলের মতো গুটি-র সাথে" },
+            { type: "qa", q: "শম্ভুনাথ সেন কেন পশ্চিমে গিয়ে বাস করছিলেন?", a: "বংশ মর্যাদা রক্ষা করার জন্য" },
+            { type: "qa", q: "বিয়ের সময় কল্যাণীর বয়স কত ছিল?", a: "পনেরো বছর" },
+            { type: "qa", q: "সেকরা বিয়ের আসরের গয়না সম্পর্কে কী বলেছিল?", a: "বলেছিল, 'ইহা বিলাতি মাল, ইহাতে সোনার ভাগ সামান্যই আছে'" },
+            { type: "qa", q: "ঠাট্টার সম্পর্কটাকে স্থায়ী করিবার ইচ্ছা আমার নাই'— উক্তিটি কার?", a: "শম্ভুনাথ সেনের" },
+            { type: "qa", q: "ট্রেনে কল্যাণীর কণ্ঠে উচ্চারিত একমাত্র ধুয়া কোনটি ছিল?", a: "'গাড়িতে জায়গা আছে'" },
+            { type: "qa", q: "রবীন্দ্রনাথ ঠাকুরকে বাংলা ছোটগল্পের কী বলা হয়?", a: "বাংলা ছোটগল্প জনক এবং শ্রেষ্ঠ শিল্পী" }
+          ]
+        }
+      ]
+    }
+  },
+  {
     id: "m-1-c-1",
     title: "ব্যবসায়ের মৌলিক ধারণা — ম্যানেজমেন্ট ১ম পত্র (১ম অধ্যায়)",
     subject: "ব্যবসায় সংগঠন",
@@ -1541,6 +1742,7 @@ export default function Notes() {
   const [readerFontSize, setReaderFontSize] = useState<"base" | "lg" | "xl">(
     "lg",
   );
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [isBlurred, setIsBlurred] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSubject, setSelectedSubject] = useState<string>("All");
@@ -1655,69 +1857,199 @@ export default function Notes() {
     }
   };
 
-  const handlePrintNote = (note: any) => {
-    document.body.classList.add("printing-allowed");
+  const handlePrintNote = (noteToPrint: any) => {
+    if (downloadingPdf) return;
+    setDownloadingPdf(true);
 
-    const styleEl = document.createElement("style");
-    styleEl.id = "print-style-override";
-    styleEl.innerHTML = `
-      @media print {
-        body {
-          display: block !important;
+    const runHtml2Pdf = () => {
+      // Create a highly elegant full-screen progress modal overlay using Tailwind CSS
+      const modal = document.createElement("div");
+      modal.id = "pdf-download-modal";
+      modal.className = "fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
+      
+      modal.innerHTML = `
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6 transform transition-all duration-300 scale-100">
+          <div class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 animate-bounce">
+            <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-slate-900 font-bengali">পিডিএফ ডাউনলোড হচ্ছে...</h3>
+            <p class="text-sm text-slate-500 mt-2 font-bengali leading-relaxed font-semibold">
+              আপনার লেকচার নোটটি প্রসেস ও কম্পাইল করা হচ্ছে। অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন।
+            </p>
+          </div>
+          
+          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+            <div class="bg-indigo-600 h-full w-1/3 rounded-full animate-infinite-loader"></div>
+          </div>
+          
+          <div class="text-[11px] text-indigo-600 font-bold font-bengali">স্টাইলিশ পিডিএফ প্রিন্ট সংস্করণ জেনারেট হচ্ছে...</div>
+        </div>
+      `;
+
+      // Define CSS rules for infinite loader animation
+      const animStyle = document.createElement("style");
+      animStyle.id = "loader-animation-style";
+      animStyle.innerHTML = `
+        @keyframes infinite-loader {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(300%); }
         }
-        body > :not(#print-temporary-container) {
-          display: none !important;
+        .animate-infinite-loader {
+          animation: infinite-loader 1.4s infinite linear;
         }
-        #print-temporary-container {
-          display: block !important;
-          position: absolute;
-          left: 0;
-          top: 0;
-          width: 100%;
-          background: #fff;
+      `;
+      document.head.appendChild(animStyle);
+
+      // Create high performance visible top-level print target
+      const renderContainer = document.createElement("div");
+      renderContainer.id = "pdf-real-render-container";
+      renderContainer.style.position = "absolute";
+      renderContainer.style.top = "0";
+      renderContainer.style.left = "0";
+      renderContainer.style.width = "800px";
+      renderContainer.style.background = "#ffffff";
+      renderContainer.style.zIndex = "50"; // rendered safely under the higher z-index modal
+      renderContainer.style.overflow = "visible";
+      renderContainer.style.display = "block";
+      
+      renderContainer.innerHTML = generatePrintableHtml(noteToPrint);
+
+      document.body.appendChild(modal);
+      document.body.appendChild(renderContainer);
+
+      const opt = {
+        margin: [12, 12, 12, 12],
+        filename: `${noteToPrint.title || 'Lecture_Note'}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true, 
+          letterRendering: true,
+          logging: false
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait' 
         }
+      };
+
+      const win = window as any;
+      if (win.html2pdf) {
+        win.html2pdf()
+          .set(opt)
+          .from(renderContainer)
+          .save()
+          .then(() => {
+            cleanup();
+          })
+          .catch((err: any) => {
+            console.error("html2pdf processing failed: ", err);
+            cleanup();
+            fallbackPrint(noteToPrint);
+          });
+      } else {
+        cleanup();
+        fallbackPrint(noteToPrint);
       }
-      #print-temporary-container {
-        display: none;
+
+      function cleanup() {
+        if (modal.parentNode) modal.parentNode.removeChild(modal);
+        if (animStyle.parentNode) animStyle.parentNode.removeChild(animStyle);
+        if (renderContainer.parentNode) renderContainer.parentNode.removeChild(renderContainer);
+        setDownloadingPdf(false);
       }
-    `;
-    document.head.appendChild(styleEl);
-
-    let container = document.getElementById("print-temporary-container");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "print-temporary-container";
-      document.body.appendChild(container);
-    }
-    container.innerHTML = generatePrintableHtml(note);
-
-    let cleanedUp = false;
-    const cleanup = () => {
-      if (cleanedUp) return;
-      cleanedUp = true;
-
-      setTimeout(() => {
-        styleEl.remove();
-        if (container) {
-          container.innerHTML = "";
-        }
-        document.body.classList.remove("printing-allowed");
-      }, 1000);
     };
 
-    window.addEventListener("afterprint", cleanup, { once: true });
+    const fallbackPrint = (note: any) => {
+      document.body.classList.add("printing-allowed");
 
-    setTimeout(() => {
-      try {
-        window.print();
-      } catch (err) {
-        console.error("Print execution failed:", err);
-        cleanup();
+      const styleEl = document.createElement("style");
+      styleEl.id = "print-style-override";
+      styleEl.innerHTML = `
+        @media print {
+          html, body {
+            display: block !important;
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          body > :not(#print-temporary-container) {
+            display: none !important;
+          }
+          #print-temporary-container {
+            display: block !important;
+            position: relative !important;
+            width: 100%;
+            background: #fff;
+            height: auto !important;
+            overflow: visible !important;
+          }
+        }
+        #print-temporary-container {
+          display: none;
+        }
+      `;
+      document.head.appendChild(styleEl);
+
+      let container = document.getElementById("print-temporary-container");
+      if (!container) {
+        container = document.createElement("div");
+        container.id = "print-temporary-container";
+        document.body.appendChild(container);
       }
-    }, 500);
+      container.innerHTML = generatePrintableHtml(note);
 
-    // Fallback cleanup after 35 seconds to allow PDF/Print loading on slow mobile devices
-    setTimeout(cleanup, 35000);
+      let cleanedUp = false;
+      const cleanup = () => {
+        if (cleanedUp) return;
+        cleanedUp = true;
+        
+        setTimeout(() => {
+          styleEl.remove();
+          if (container) {
+            container.innerHTML = "";
+          }
+          document.body.classList.remove("printing-allowed");
+          setDownloadingPdf(false);
+        }, 1000);
+      };
+
+      window.addEventListener("afterprint", cleanup, { once: true });
+
+      setTimeout(() => {
+        try {
+          window.print();
+        } catch (err) {
+          console.error("Print execution failed:", err);
+          cleanup();
+        }
+      }, 500);
+
+      // Fallback cleanup after 35 seconds to allow PDF/Print loading on slow mobile devices
+      setTimeout(cleanup, 35000);
+    };
+
+    // Load html2pdf from cdn dynamically if not loaded
+    const win = window as any;
+    if (win.html2pdf) {
+      runHtml2Pdf();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+      script.onload = () => {
+        runHtml2Pdf();
+      };
+      script.onerror = () => {
+        fallbackPrint(noteToPrint);
+      };
+      document.head.appendChild(script);
+    }
   };
 
   // Filter notes by the user's specific class group and search query/category
@@ -2379,10 +2711,22 @@ export default function Notes() {
                       </div>
                     </div>
 
-                    {/* Settings Controls (Themes & Font Sizes) */}
+                    {/* Settings Controls (Themes & Font Sizes & Print) */}
                     <div
                       className={`flex items-center gap-2.5 shrink-0 self-end sm:self-center bg-black/5 dark:bg-white/5 rounded-2xl p-1 border ${tc.border}`}
                     >
+                      {/* Print button */}
+                      <button
+                        onClick={() => handlePrintNote(readingNote)}
+                        disabled={downloadingPdf}
+                        className={`h-7 w-7 flex items-center justify-center rounded-xl transition-all ${downloadingPdf ? 'opacity-50 cursor-wait' : 'text-slate-550 hover:text-slate-800 hover:bg-black/5 dark:hover:bg-white/10'}`}
+                        title="Print Note / Save as PDF"
+                      >
+                        <Printer className={`w-3.5 h-3.5 ${downloadingPdf ? 'animate-spin' : ''}`} />
+                      </button>
+
+                      <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
+
                       {/* Theme buttons */}
                       <div className="flex items-center gap-0.5">
                         <button
@@ -2454,26 +2798,110 @@ export default function Notes() {
 
                             <div className="space-y-5 w-full">
                               {chapter.items?.map(
-                                (item: string, iIdx: number) => {
-                                  const cleanItem = item
-                                    .replace(/👉/g, "")
-                                    .trim();
-                                  return (
-                                    <div
-                                      key={iIdx}
-                                      className="flex items-start gap-3 w-full"
-                                    >
+                                (item: any, iIdx: number) => {
+                                  if (typeof item === "string") {
+                                    const cleanItem = item
+                                      .replace(/👉/g, "")
+                                      .trim();
+                                    return (
                                       <div
-                                        className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${tc.textTitle} opacity-40`}
-                                      />
-                                      <p
-                                        className={`font-bengali ${fontSizeClass} tracking-wide select-none break-words flex-1 transition-all duration-300 ${tc.textBody}`}
+                                        key={iIdx}
+                                        className="flex items-start gap-3 w-full"
                                       >
-                                        {cleanItem}
-                                      </p>
-                                    </div>
-                                  );
-                                },
+                                        <div
+                                          className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${tc.textTitle} opacity-40`}
+                                        />
+                                        <p
+                                          className={`font-bengali ${fontSizeClass} tracking-wide select-none break-words flex-1 transition-all duration-300 ${tc.textBody}`}
+                                        >
+                                          {cleanItem}
+                                        </p>
+                                      </div>
+                                    );
+                                  }
+
+                                  if (item && typeof item === "object") {
+                                    if (item.type === "table") {
+                                      return (
+                                        <div key={iIdx} className="overflow-x-auto border border-slate-200 rounded-xl my-4 bg-white/40 shadow-xs backdrop-blur-sm w-full">
+                                          <table className="w-full border-collapse min-w-[500px]">
+                                            <thead>
+                                              <tr className={`${tc.textTitle} border-b border-slate-200/50`}>
+                                                {item.headers?.map((head: string, hIdx: number) => (
+                                                  <th key={hIdx} className="text-left font-bold py-3 px-4 text-sm border-r border-slate-200/30 font-bengali uppercase tracking-wide">
+                                                    {head}
+                                                  </th>
+                                                ))}
+                                              </tr>
+                                            </thead>
+                                            <tbody className={`divide-y divide-slate-200/40 ${tc.textBody}`}>
+                                              {item.rows?.map((row: any[], rIdx: number) => (
+                                                <tr key={rIdx} className="hover:bg-slate-50/20 transition-colors text-sm text-left">
+                                                  {row?.map((cell: any, dIdx: number) => (
+                                                    <td key={dIdx} className="py-3.5 px-4 border-r border-slate-200/20 font-bengali leading-relaxed align-top">
+                                                      {typeof cell === "object" ? (
+                                                        <div className="space-y-2">
+                                                          {Array.isArray(cell) ? cell.map((c: any, i: number) => (
+                                                            <div key={i} className="whitespace-pre-wrap">
+                                                              {typeof c === "object" ? (
+                                                                c.q && c.a ? (
+                                                                  <div className="bg-slate-50/50 p-2 rounded-lg border border-slate-100">
+                                                                    <div className="font-bold text-slate-800">প্র: {c.q}</div>
+                                                                    <div className="text-slate-600 mt-1">উ: {c.a}</div>
+                                                                  </div>
+                                                                ) : JSON.stringify(c)
+                                                              ) : c}
+                                                            </div>
+                                                          )) : JSON.stringify(cell)}
+                                                        </div>
+                                                      ) : cell}
+                                                    </td>
+                                                  ))}
+                                                </tr>
+                                              ))}
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      );
+                                    }
+
+                                    if (item.type === "tip") {
+                                      return (
+                                        <div key={iIdx} className="bg-amber-50/60 border border-amber-200/80 p-5 rounded-xl space-y-2 text-slate-800 shadow-sm border-l-4 border-l-amber-500 w-full">
+                                          <div className="font-bold flex items-center gap-2 select-none text-amber-900 font-bengali text-lg">
+                                            ⚡ {item.title || "এক্সক্লুসিভ শিক্ষক টিপস"}
+                                          </div>
+                                          <div className="font-bengali whitespace-pre-line text-[#1e293b] leading-relaxed text-sm sm:text-base">
+                                            {item.content}
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+
+                                    if (item.type === "qa") {
+                                      return (
+                                        <div key={iIdx} className="bg-emerald-50/40 border border-emerald-100/80 p-5 rounded-xl space-y-2 shadow-sm border-l-4 border-l-emerald-500 w-full">
+                                          <div className="font-black text-emerald-900 font-bengali text-base sm:text-lg">
+                                            {item.q}
+                                          </div>
+                                          <div className="text-slate-800 font-bengali font-medium leading-relaxed text-sm sm:text-base">
+                                            {item.a}
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+
+                                    if (item.type === "text") {
+                                      return (
+                                        <p key={iIdx} className={`font-bengali ${fontSizeClass} tracking-wide select-none break-words w-full transition-all duration-300 ${tc.textBody}`}>
+                                          {item.content}
+                                        </p>
+                                      );
+                                    }
+                                  }
+
+                                  return null;
+                                }
                               )}
                             </div>
                           </section>

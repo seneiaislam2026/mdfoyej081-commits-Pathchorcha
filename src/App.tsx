@@ -113,7 +113,6 @@ function NoteLayout() {
       </div>
 
         <Outlet />
-        <WhatsAppSupport />
       </main>
     </div>
   );
@@ -125,7 +124,7 @@ function AppLayout() {
   const { user, loading, userData } = useAuth();
   
   // Do not show back button on dashboard, exam, paper, and question-bank pages
-  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams";
+  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams" || location.pathname === "/subscription";
 
   if (loading) {
     return (
@@ -161,11 +160,12 @@ function AppLayout() {
     }
   };
 
-  const isFullScreenPage = location.pathname.startsWith("/notes");
+  const isFullScreenPage = location.pathname.startsWith("/notes") || location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize");
+  const hideNavbar = location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/notes") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize");
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans mb-8">
-      <Navbar />
+      {!hideNavbar && <Navbar />}
       <LocalNotificationSystem />
       <ProApprovedCongrats />
       <main className={isFullScreenPage ? "flex-1 w-full" : "flex-1 w-full max-w-[1240px] mx-auto p-4 sm:p-6 lg:p-8"}>
@@ -179,7 +179,7 @@ function AppLayout() {
           </button>
         )}
         <Outlet />
-        <WhatsAppSupport />
+        {!hideNavbar && <WhatsAppSupport />}
       </main>
     </div>
   );

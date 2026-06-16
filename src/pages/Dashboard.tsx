@@ -21,6 +21,7 @@ import {
   SearchCheck,
   TrendingUp,
   Sparkles,
+  Crown,
 } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
 
@@ -386,7 +387,7 @@ export default function Dashboard() {
                <CheckCircle2 className="w-5 h-5 text-blue-500" strokeWidth={2.5}/>
             </div>
             <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">08</div>
+               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.totalSolved || 0}</div>
                <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">স্টাডি সম্পন্ন</div>
             </div>
           </div>
@@ -396,7 +397,7 @@ export default function Dashboard() {
                <Target className="w-5 h-5 text-emerald-500" strokeWidth={2.5}/>
             </div>
             <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">85%</div>
+               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.accuracy || 0}%</div>
                <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">নির্ভুলতা</div>
             </div>
           </div>
@@ -406,8 +407,8 @@ export default function Dashboard() {
                <span className="text-orange-500 text-lg leading-none mt-0.5">🔥</span>
             </div>
             <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">12</div>
-               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">দিনের স্ট্রাইক</div>
+               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.streak || 0}</div>
+               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">দিনের স্ট্রিক</div>
             </div>
           </div>
         </div>
@@ -511,7 +512,9 @@ export default function Dashboard() {
               </div>
               <span className="font-bengali font-bold text-slate-700 text-[15px]">সঠিক উত্তর</span>
             </div>
-            <div className="bg-emerald-100/60 text-emerald-600 px-3 py-1.5 rounded-full text-[13px] font-sans font-bold leading-none">০%</div>
+            <div className="bg-emerald-100/60 text-emerald-600 px-3 py-1.5 rounded-full text-[13px] font-sans font-bold leading-none">
+              {userData?.progress?.totalCorrect ?? Math.round((userData?.progress?.accuracy || 0) / 100 * (userData?.progress?.totalSolved || 0))}
+            </div>
           </div>
 
           <div className="flex items-center justify-between py-3">
@@ -521,10 +524,32 @@ export default function Dashboard() {
               </div>
               <span className="font-bengali font-bold text-slate-700 text-[15px]">মোট সময়</span>
             </div>
-            <div className="bg-fuchsia-100/60 text-fuchsia-700 px-3 py-1.5 rounded-full text-[13px] font-bengali font-bold leading-none">০ মিনিট</div>
+            <div className="bg-fuchsia-100/60 text-fuchsia-700 px-3 py-1.5 rounded-full text-[13px] font-bengali font-bold leading-none">{userData?.progress?.totalTimeSpent || 0} মিনিট</div>
           </div>
         </div>
       </section>
+
+      {/* Pro Upgrade Banner for Free Users */}
+      {!userData?.isPro && (
+        <section className="mb-2 mt-4 px-1">
+           <Link to="/subscription" className="block w-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-[24px] p-5 relative overflow-hidden shadow-[0_8px_20px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-transform group">
+             <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3"></div>
+             <div className="absolute left-0 bottom-0 w-24 h-24 bg-black/10 rounded-full blur-xl translate-y-1/3 -translate-x-1/2"></div>
+             
+             <div className="flex items-center gap-4 relative z-10">
+                <div className="w-[52px] h-[52px] bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-sm border border-white/30 text-white">
+                   <Crown className="w-7 h-7 drop-shadow-md" strokeWidth={2.5} />
+                </div>
+                <div>
+                   <h3 className="text-white font-bengali font-bold text-[18px] mb-1 drop-shadow-sm leading-tight flex items-center gap-2">
+                     প্রো-তে আপগ্রেড করুন
+                   </h3>
+                   <p className="text-amber-50 font-bengali text-[13px] leading-snug drop-shadow-sm font-medium">সকল প্রিমিয়াম ফিচার এবং আনলিমিটেড মক টেস্ট আনলক করতে এখনই প্রো মেম্বার হোন!</p>
+                </div>
+             </div>
+           </Link>
+        </section>
+      )}
 
       {/* Quick Access: AI Tutor & Ask Teacher */}
       <section className="grid grid-cols-2 gap-3 pt-2 mb-8">

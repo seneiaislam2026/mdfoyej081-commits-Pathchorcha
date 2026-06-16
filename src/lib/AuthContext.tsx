@@ -15,6 +15,8 @@ interface UserData {
     totalSolved: number;
     accuracy: number;
     streak: number;
+    totalCorrect?: number;
+    totalTimeSpent?: number;
   };
   isPro?: boolean;
   proUntil?: any;
@@ -22,6 +24,7 @@ interface UserData {
   isAdmin?: boolean;
   tutorSubjects?: string[];
   photoURL?: string;
+  lastExamDate?: string;
 }
 
 interface AuthContextType {
@@ -76,6 +79,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentUser) {
         const userRef = doc(db, 'users', currentUser.uid);
         
+        // Track Device Information
+        try {
+          let deviceId = localStorage.getItem("shikkha_device_id");
+          if (!deviceId) {
+            deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
+            localStorage.setItem("shikkha_device_id", deviceId);
+          }
+          
+          const ua = navigator.userAgent;
+          const isMobile = /Mobile|Android|iP(hone|od|ad)/i.test(ua);
+          const deviceName = isMobile ? "Mobile Device" : "Desktop Browser";
+
+          await setDoc(userRef, {
+            devices: {
+              [deviceId]: {
+                lastActive: Date.now(),
+                userAgent: ua.substring(0, 150),
+                type: deviceName
+              }
+            }
+          }, { merge: true });
+        } catch(e) {
+          console.error("Device tracking failed", e);
+        }
+
         // Listen to changes in user doc in real-time
         unsubscribeUserDoc = onSnapshot(userRef, (docSnap) => {
           if (docSnap.exists()) {

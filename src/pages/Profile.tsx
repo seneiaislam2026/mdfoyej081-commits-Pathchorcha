@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { UserCircle, Target, BookOpen, Clock, LogOut, ChevronRight, ClipboardList, BarChart2, Star, Database, Brain, MessageCircle } from "lucide-react";
+import { UserCircle, Target, BookOpen, Clock, LogOut, ChevronRight, ClipboardList, BarChart2, Star, Database, Brain, MessageCircle, Crown, Settings, X } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { db } from "../lib/firebase";
-import { collection, query, getDocs } from "firebase/firestore";
+import { collection, query, getDocs, addDoc, serverTimestamp } from "firebase/firestore";
 
 export default function Profile() {
   const { userData, signOut } = useAuth();
   const navigate = useNavigate();
   const [examResults, setExamResults] = useState<any[]>([]);
   const [badgesCount, setBadgesCount] = useState(0); // placeholder for badges if we add them logic
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showClassChangeModal, setShowClassChangeModal] = useState(false);
+  const [classChangeGroup, setClassChangeGroup] = useState("বিজ্ঞান");
+  const [classChangeLoading, setClassChangeLoading] = useState(false);
 
   useEffect(() => {
     if (userData?.uid) {
@@ -43,10 +47,35 @@ export default function Profile() {
     navigate("/auth");
   };
 
+  const handleClassChangeRequest = async () => {
+    if (!userData?.uid) return;
+    setClassChangeLoading(true);
+    try {
+      await addDoc(collection(db, "class_change_requests"), {
+        userId: userData.uid,
+        userName: userData.fullName || userData.email,
+        currentClass: userData.class || "Unknown",
+        requestedClass: classChangeGroup,
+        status: "pending",
+        timestamp: serverTimestamp()
+      });
+      alert("ক্লাস পরিবর্তনের রিকুয়েস্ট পাঠানো হয়েছে। অ্যাডমিন অ্যাপ্রুভ করলে আপনার ক্লাস আপডেট হবে।");
+      setShowClassChangeModal(false);
+    } catch (e) {
+      console.error(e);
+      alert("রিকুয়েস্ট পাঠাতে সমস্যা হয়েছে।");
+    } finally {
+      setClassChangeLoading(false);
+    }
+  };
+
   return (
     <div className="max-w-md mx-auto space-y-6 pb-10 px-4 pt-6">
-      {/* Top Card Navigation - Optional log out top right */}
-      <div className="flex justify-end mb-2">
+      {/* Top Card Navigation */}
+      <div className="flex justify-between mb-2">
+         <button onClick={() => setShowSettingsModal(true)} className="text-slate-400 hover:text-slate-600 flex items-center gap-1.5 text-sm font-bengali bg-white px-3 py-1.5 rounded-full shadow-sm">
+            <Settings className="w-4 h-4" /> সেটিংস
+         </button>
          <button onClick={handleSignOut} className="text-slate-400 hover:text-slate-600 flex items-center gap-1.5 text-sm font-bengali">
             <LogOut className="w-4 h-4" /> লগ আউট
          </button>
@@ -127,13 +156,13 @@ export default function Profile() {
 
         {/* Name & Title */}
         <div className="text-center mt-5 px-4">
-           <h1 className="text-[28px] font-bengali font-extrabold text-[#0F172A] leading-tight">
+           <h1 className="text-[28px] font-bengali font-extrabold text-[#0F172A] leading-tight truncate px-2 text-center w-full max-w-[300px] mx-auto">
              {userData?.fullName || (userData?.email ? (userData.email.includes("@pathchorcha") || userData.email.includes("@shikkhangon") || userData.email.includes("@pathchola") ? userData.email.split("@")[0] : userData.email) : "নাম জানা যায়নি")}
            </h1>
-           <div className="flex items-center justify-center gap-3 mt-1.5">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              <p className="text-slate-600 font-bengali text-[17px] font-medium">{userData?.institution || "শিক্ষাপ্রতিষ্ঠান যুক্ত করা হয়নি"}</p>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+           <div className="flex items-center justify-center gap-2 mt-1.5 w-full max-w-[280px] mx-auto">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <p className="text-slate-600 font-bengali text-[17px] font-medium truncate">{userData?.institution || "শিক্ষাপ্রতিষ্ঠান যুক্ত করা হয়নি"}</p>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
            </div>
            
            <div className="flex justify-center mt-4 mb-2">
@@ -276,22 +305,155 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-4">
-         <Link to="/tutor" className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col items-center justify-center gap-3 hover:border-amber-400 transition-colors group">
-            <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-               <Brain className="w-7 h-7 text-blue-500" strokeWidth={2} />
-            </div>
-            <span className="font-bengali font-bold text-slate-800 text-[17px]">এআই টিউটর</span>
-         </Link>
+      {/* Pro Upgrade Banner for Free Users */}
+      {!userData?.isPro && (
+        <div className="mb-2">
+           <Link to="/subscription" className="block w-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-[32px] p-6 relative overflow-hidden shadow-[0_8px_30px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-transform group">
+             <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3"></div>
+             <div className="absolute left-0 bottom-0 w-24 h-24 bg-black/10 rounded-full blur-xl translate-y-1/3 -translate-x-1/2"></div>
+             
+             <div className="flex items-center gap-5 relative z-10">
+                <div className="w-[56px] h-[56px] bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-sm border border-white/30 text-white">
+                   <Crown className="w-8 h-8 drop-shadow-md" strokeWidth={2.5} />
+                </div>
+                <div>
+                   <h3 className="text-white font-bengali font-bold text-[20px] mb-1.5 drop-shadow-sm leading-tight flex items-center gap-2">
+                     প্রো-তে আপগ্রেড করুন
+                   </h3>
+                   <p className="text-amber-50 font-bengali text-[14px] leading-snug drop-shadow-sm font-medium">সকল প্রিমিয়াম ফিচার এবং আনলিমিটেড মক টেস্ট আনলক করতে এখনই প্রো মেম্বার হোন!</p>
+                </div>
+             </div>
+           </Link>
+        </div>
+      )}
 
-         <Link to="/doubts" className="bg-white rounded-[32px] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 flex flex-col items-center justify-center gap-3 hover:border-amber-400 transition-colors group">
-            <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-               <MessageCircle className="w-7 h-7 text-orange-500" strokeWidth={2} />
-            </div>
-            <span className="font-bengali font-bold text-slate-800 text-[17px] text-center leading-tight">শিক্ষককে <br/> প্রশ্ন করুন</span>
-         </Link>
+      {/* Progress Graph */}
+      <div className="bg-white rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-6 sm:p-7 relative overflow-hidden">
+         <div className="flex items-center gap-2.5 mb-6">
+            <BarChart2 className="w-6 h-6 text-[#0A1930]" strokeWidth={2.5} />
+            <h2 className="text-xl font-bengali font-bold text-[#0F172A] leading-none">অগ্রগতি গ্রাফ</h2>
+         </div>
+         <div className="relative h-40 w-full flex items-end justify-between gap-2.5 mt-4">
+            {/* simple bar graph based on recent exam results */}
+            {[...examResults].slice(-7).map((res, idx) => {
+               const percentage = (res.score / Math.max(res.total, 1)) * 100;
+               return (
+                 <div key={idx} className="flex flex-col items-center flex-1 gap-2 group relative">
+                    <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-[#0A1930] text-amber-400 text-[10px] font-bold px-2 py-1 rounded-md whitespace-nowrap z-10 font-bengali">
+                       {toBn(Math.round(percentage))}%
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-t-xl rounded-b-sm overflow-hidden h-full flex items-end relative">
+                       <div 
+                         className="w-full bg-gradient-to-t from-amber-500 to-amber-300 rounded-t-xl rounded-b-sm transition-all duration-700 ease-out" 
+                         style={{ height: `${Math.max(percentage, 5)}%` }}
+                       ></div>
+                    </div>
+                    <span className="text-[10px] text-slate-400 font-bold font-bengali uppercase">টেস্ট {toBn(idx+1)}</span>
+                 </div>
+               )
+            })}
+            {examResults.length === 0 && (
+               <div className="absolute inset-0 flex items-center justify-center text-slate-400 font-bengali text-sm bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                  কোনো টেস্টের ডাটা নেই
+               </div>
+            )}
+         </div>
       </div>
+
+      {/* Settings Modal */}
+      {showSettingsModal && (
+         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-sm sm:p-4">
+            <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full max-w-sm overflow-hidden shadow-xl animate-in slide-in-from-bottom sm:slide-in-from-bottom-0 sm:zoom-in-95">
+               <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                     <h3 className="text-xl font-bold font-bengali text-slate-900">সেটিংস</h3>
+                     <button onClick={() => setShowSettingsModal(false)} className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200">
+                        <X className="w-4 h-4" />
+                     </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                     {/* Menu items inside settings */}
+                     <button 
+                       onClick={() => {
+                          setShowSettingsModal(false);
+                          setShowClassChangeModal(true);
+                       }} 
+                       className="w-full flex items-center justify-between bg-slate-50 hover:bg-slate-100 border border-slate-200 p-4 rounded-2xl transition-colors"
+                     >
+                        <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                              <Target className="w-5 h-5 text-indigo-600" />
+                           </div>
+                           <div className="text-left py-1">
+                              <div className="font-bold text-slate-800 font-bengali">ক্লাস পরিবর্তন</div>
+                              <div className="text-xs text-slate-500 font-bengali mt-0.5">আপনার বর্তমান ক্লাস বা গ্রুপ পরিবর্তন করুন</div>
+                           </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-400" />
+                     </button>
+                     
+                     {/* Example of another settings option */}
+                     <button 
+                       onClick={handleSignOut} 
+                       className="w-full flex items-center justify-between hover:bg-red-50 p-4 rounded-2xl transition-colors group"
+                     >
+                        <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 rounded-full bg-red-50 group-hover:bg-red-100 flex items-center justify-center shrink-0">
+                              <LogOut className="w-5 h-5 text-red-500" />
+                           </div>
+                           <div className="text-left py-1">
+                              <div className="font-bold text-red-600 font-bengali">লগ আউট</div>
+                           </div>
+                        </div>
+                     </button>
+                  </div>
+               </div>
+            </div>
+         </div>
+      )}
+
+      {/* Class Change Modal */}
+      {showClassChangeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-xl border border-slate-100">
+            <h3 className="text-xl font-bold font-bengali text-slate-900 mb-2">গ্রুপ পরিবর্তন রিকুয়েস্ট</h3>
+            <p className="text-sm font-bengali text-slate-500 mb-5">
+              আপনি কোন ক্লাসে বা গ্রুপে যেতে চান? অ্যাডমিন অ্যাপ্রুভ করলে আপনার রিকুয়েস্ট কার্যকর হবে।
+            </p>
+            <div className="space-y-3 mb-6">
+              {['বিজ্ঞান', 'মানবিক', 'বাণিজ্য', 'এইচএসসি বিজ্ঞান', 'এইচএসসি মানবিক', 'এইচএসসি বাণিজ্য', 'এডমিশন'].map(grp => (
+                <label key={grp} className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${classChangeGroup === grp ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-200 hover:bg-slate-50'}`}>
+                  <input 
+                    type="radio" 
+                    name="group" 
+                    value={grp} 
+                    checked={classChangeGroup === grp} 
+                    onChange={(e) => setClassChangeGroup(e.target.value)} 
+                    className="w-4 h-4 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  <span className={`font-bengali font-bold ${classChangeGroup === grp ? 'text-indigo-800' : 'text-slate-700'}`}>{grp}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowClassChangeModal(false)}
+                className="flex-1 py-3 bg-slate-100 text-slate-700 rounded-xl font-bold font-bengali"
+              >
+                বাতিল
+              </button>
+              <button 
+                onClick={handleClassChangeRequest}
+                disabled={classChangeLoading}
+                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold font-bengali disabled:opacity-50"
+              >
+                {classChangeLoading ? 'পাঠানো হচ্ছে...' : 'রিকুয়েস্ট দিন'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
