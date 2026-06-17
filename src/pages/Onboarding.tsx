@@ -35,9 +35,10 @@ const groups = [
 export default function Onboarding() {
   const navigate = useNavigate();
   const [step, setStep] = useState<OnboardingStep>("name");
-  const { user, userData } = useAuth();
+  const { user, userData, loading } = useAuth();
   
   useEffect(() => {
+    if (loading) return;
     // If user already has a class, they shouldn't be here.
     if (userData?.class) {
       navigate("/dashboard", { replace: true });
@@ -47,7 +48,7 @@ export default function Onboarding() {
       if (userData.institution) setInstitution(userData.institution);
       setStep("class");
     }
-  }, [userData, navigate]);
+  }, [userData, navigate, loading]);
 
   const [name, setName] = useState(() => {
     const val = userData?.fullName || "";
@@ -57,6 +58,19 @@ export default function Onboarding() {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center gap-3">
+          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
+            <span className="text-[#0F2744]">শিক্ষা</span>
+            <span className="text-[#F4B400]">ঙ্গন</span>
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   const handleComplete = async () => {
     if (user) {

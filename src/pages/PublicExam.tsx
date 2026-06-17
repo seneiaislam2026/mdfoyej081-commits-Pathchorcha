@@ -459,7 +459,7 @@ export default function PublicExam() {
       </div>
 
       {/* Sticky Action Bar */}
-      <header className="bg-white border-y sticky top-0 z-20">
+      <header className="bg-white border-y sticky top-0 z-50">
         <div className="max-w-[800px] mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between overflow-x-auto no-scrollbar">
           
           <button onClick={() => navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0 mr-2">

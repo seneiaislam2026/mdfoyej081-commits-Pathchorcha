@@ -95,6 +95,262 @@ const mockQuestions = [
   }
 ];
 
+function generateIncorrectSpellings(correctWord: string, count: number): string[] {
+   const mutations = new Set<string>();
+   const lower = correctWord.toLowerCase();
+
+   // 1. Double common characters
+   const doubleCandidates = ['c', 'm', 't', 's', 'l', 'p', 'r', 'n', 'd', 'e', 'a', 'o'];
+   for (let char of doubleCandidates) {
+      if (lower.includes(char) && !lower.includes(char + char)) {
+         mutations.add(correctWord.replace(new RegExp(char, 'i'), char + char));
+      }
+   }
+
+   // 2. Single common double characters
+   const doubleChars = ['cc', 'mm', 'tt', 'ss', 'll', 'pp', 'rr', 'nn', 'dd', 'ee', 'oo'];
+   for (let dbl of doubleChars) {
+      if (lower.includes(dbl)) {
+         mutations.add(correctWord.replace(new RegExp(dbl, 'i'), dbl[0]));
+      }
+   }
+
+   // 3. Vowel shifts
+   const vowels = ['a', 'e', 'i', 'o', 'u'];
+   for (let i = 0; i < correctWord.length; i++) {
+      const char = correctWord[i].toLowerCase();
+      if (vowels.includes(char)) {
+         for (let v of vowels) {
+            if (v !== char) {
+               const mutated = correctWord.slice(0, i) + (correctWord[i] === char ? v : v.toUpperCase()) + correctWord.slice(i + 1);
+               mutations.add(mutated);
+            }
+         }
+      }
+   }
+
+   // 4. Suffix typos
+   mutations.add(correctWord + "n");
+   mutations.add(correctWord + "e");
+   if (correctWord.length > 4) {
+      mutations.add(correctWord.slice(0, -1));
+   }
+
+   const list = Array.from(mutations).filter(w => w.toLowerCase() !== lower);
+   return list.slice(0, count);
+}
+
+export const isSubjectMatch = (dbSubject: string | undefined, selectedSubject: string): boolean => {
+  if (!dbSubject) return false;
+  const dbSub = dbSubject.trim().toLowerCase();
+  const selSub = selectedSubject.trim().toLowerCase();
+  
+  if (dbSub === selSub) return true;
+  
+  // Bangla
+  if (selSub === "বাংলা") {
+    return dbSub === "bangla" || dbSub === "বাংলা" || dbSub === "bengali";
+  }
+  if (selSub === "bangla") {
+    return dbSub === "bangla" || dbSub === "বাংলা" || dbSub === "bengali";
+  }
+  
+  // English
+  if (selSub === "english" || selSub === "ইংরেজি" || selSub === "english grammar") {
+    return dbSub === "english" || dbSub === "english grammar" || dbSub === "ইংরেজি" || dbSub === "ইংরেজি ব্যাকরণ";
+  }
+  
+  // ICT
+  if (selSub === "তথ্য ও যোগাযোগ প্রযুক্তি" || selSub === "ict" || selSub === "information and communication technology") {
+    return dbSub === "তথ্য ও যোগাযোগ প্রযুক্তি" || dbSub === "ict" || dbSub === "information and communication technology" || dbSub === "information technology" || dbSub === "it";
+  }
+  
+  // Memorizing Part
+  if (selSub === "মেমোরাইজিং পার্ট" || selSub === "memorizing" || selSub === "memorizing part") {
+    return dbSub === "মেমোরাইজিং পার্ট" || dbSub === "memorizing" || dbSub === "memorizing part" || dbSub === "vocab" || dbSub === "vocabulary";
+  }
+  
+  // Science
+  if (selSub === "পদার্থবিজ্ঞান" || selSub === "physics") return dbSub === "physics" || dbSub === "পদার্থবিজ্ঞান" || dbSub === "পদার্থ";
+  if (selSub === "রসায়ন" || selSub === "রসায়ন" || selSub === "chemistry") return dbSub === "chemistry" || dbSub === "রসায়ন" || dbSub === "রসায়ন";
+  if (selSub === "উচ্চতর গণিত" || selSub === "math" || selSub === "higher math") return dbSub === "math" || dbSub === "mathematics" || dbSub === "higher math" || dbSub === "উচ্চতর গণিত" || dbSub === "গণিত";
+  if (selSub === "জীববিজ্ঞান" || selSub === "biology") return dbSub === "biology" || dbSub === "জীববিজ্ঞান";
+
+  // Commerce
+  if (selSub === "হিসাববিজ্ঞান") return dbSub === "accounting" || dbSub === "হিসাববিজ্ঞান";
+  if (selSub === "ব্যবসায় সংগঠন ও ব্যবস্থাপনা" || selSub === "ব্যবস্থাপনা" || selSub === "ম্যানেজমেন্ট") return dbSub === "management" || dbSub === "ব্যবস্থাপনা" || dbSub === "ব্যবসায় সংগঠন ও ব্যবস্থাপনা" || dbSub === "ম্যানেজমেন্ট";
+  if (selSub === "ফিন্যান্স" || selSub === "finance" || selSub === "ফিন্যান্স ও ব্যাংকিং") return dbSub === "finance" || dbSub === "ফিন্যান্স" || dbSub === "ফিন্যান্স ও ব্যাংকিং";
+  
+  // Arts/Humanities
+  if (selSub === "ইতিহাস") return dbSub === "history" || dbSub === "ইতিহাস";
+  if (selSub === "ভূগোল") return dbSub === "geography" || dbSub === "ভূগোল";
+  if (selSub === "অর্থনীতি") return dbSub === "economics" || dbSub === "অর্থনীতি";
+  if (selSub === "পৌরনীতি") return dbSub === "civics" || dbSub === "পৌরনীতি";
+  if (selSub === "যুক্তিবিদ্যা") return dbSub === "logic" || dbSub === "যুক্তিবিদ্যা";
+  if (selSub === "সমাজবিজ্ঞান") return dbSub === "sociology" || dbSub === "সমাজবিজ্ঞান";
+  if (selSub === "ইসলামের ইতিহাস") return dbSub === "islamic history" || dbSub === "ইসলামের ইতিহাস" || dbSub === "history of islam";
+
+  return dbSub.includes(selSub) || selSub.includes(dbSub);
+};
+
+export const getDbSubjectVariants = (subjectNames: string[]): string[] => {
+  const variants = new Set<string>();
+  subjectNames.forEach(sub => {
+    variants.add(sub);
+    const lower = sub.toLowerCase();
+    if (lower === "বাংলা" || lower === "bangla") {
+      variants.add("বাংলা");
+      variants.add("Bangla");
+      variants.add("bangla");
+    } else if (lower === "english" || lower === "ইংরেজি" || lower === "english grammar") {
+      variants.add("english");
+      variants.add("English");
+      variants.add("ইংরেজি");
+      variants.add("English Grammar");
+    } else if (lower === "তথ্য ও যোগাযোগ প্রযুক্তি" || lower === "ict") {
+      variants.add("তথ্য ও যোগাযোগ প্রযুক্তি");
+      variants.add("ICT");
+      variants.add("ict");
+    } else if (lower === "মেমোরাইজিং পার্ট" || lower === 'memorizing part') {
+      variants.add("মেমোরাইজিং পার্ট");
+      variants.add("Memorizing");
+      variants.add("memorizing");
+      variants.add("Memorizing Part");
+    } else if (lower === "পদার্থবিজ্ঞান") {
+      variants.add("Physics");
+      variants.add("physics");
+      variants.add("পদার্থবিজ্ঞান");
+    } else if (lower === "রসায়ন" || lower === "রসায়ন") {
+      variants.add("Chemistry");
+      variants.add("chemistry");
+      variants.add("রসায়ন");
+      variants.add("রসায়ন");
+    } else if (lower === "উচ্চতর গণিত") {
+      variants.add("উচ্চতর গণিত");
+      variants.add("Math");
+      variants.add("math");
+      variants.add("Higher Math");
+    } else if (lower === "জীববিজ্ঞান") {
+      variants.add("Biology");
+      variants.add("biology");
+      variants.add("জীববিজ্ঞান");
+    } else if (lower === "হিসাববিজ্ঞান") {
+      variants.add("Accounting");
+      variants.add("accounting");
+      variants.add("হিসাববিজ্ঞান");
+    } else if (lower === "ব্যবসায় সংগঠন ও ব্যবস্থাপনা") {
+      variants.add("ব্যবসায় সংগঠন ও ব্যবস্থাপনা");
+      variants.add("Business Organization");
+      variants.add("management");
+      variants.add("Management");
+    }
+  });
+  return Array.from(variants);
+};
+
+export const getSubjectDecoration = (name: string) => {
+  const lower = name.toLowerCase();
+  if (lower === "বাংলা" || lower === "bangla") {
+    return {
+      leftBg: "bg-[#eef6f2]",
+      leftText: "text-[#008060]",
+      leftIn: "অ",
+      rightIllustration: (
+        <svg className="w-16 h-12" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M40 45C35 44 26 42 16 45V18C26 15 35 17 40 18C45 17 54 15 64 18V45C54 42 45 44 40 45Z" fill="#aee0cc" stroke="#008060" strokeWidth="1.5" strokeLinejoin="round"/>
+          <path d="M40 18V45" stroke="#008060" strokeWidth="1.5"/>
+          <path d="M20 24C26 22 32 23 36 24" stroke="#008060" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M20 30C26 28 32 29 36 30" stroke="#008060" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M20 36C26 34 32 35 36 36" stroke="#008060" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M60 24C54 22 48 23 44 24" stroke="#008060" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M60 30C54 28 48 29 44 30" stroke="#008060" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M60 36C54 34 48 35 44 36" stroke="#008060" strokeWidth="1.2" strokeLinecap="round"/>
+          <path d="M38 38C44 32 50 20 62 10C54 18 48 28 44 38L42 43L38 38Z" fill="#008060" fillOpacity="0.8" stroke="#008060" strokeWidth="1" strokeLinejoin="round"/>
+          <line x1="42" y1="43" x2="40" y2="48" stroke="#008060" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      )
+    };
+  }
+  if (lower === "english" || lower === "ইংরেজি" || lower === "english grammar") {
+    return {
+      leftBg: "bg-[#eef4fc]",
+      leftText: "text-[#1e539c]",
+      leftIn: "En",
+      rightIllustration: (
+        <svg className="w-16 h-12" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="22" y="12" width="36" height="38" rx="4" fill="#adcbf7" stroke="#1e539c" strokeWidth="1.5"/>
+          <path d="M26 12V50" stroke="#1e539c" strokeWidth="1.5"/>
+          <line x1="58" y1="16" x2="58" y2="46" stroke="#1e539c" strokeWidth="2" strokeLinecap="round"/>
+          <text x="35" y="28" fill="#1e539c" fontSize="11" fontWeight="bold" fontFamily="sans-serif">A</text>
+          <text x="44" y="42" fill="#1e539c" fontSize="11" fontWeight="bold" fontFamily="sans-serif">Z</text>
+          <line x1="39" y1="31" x2="43" y2="35" stroke="#1e539c" strokeWidth="1" strokeLinecap="round"/>
+        </svg>
+      )
+    };
+  }
+  if (lower === "তথ্য ও যোগাযোগ প্রযুক্তি" || lower === "ict") {
+    return {
+      leftBg: "bg-[#fff5ea]",
+      leftText: "text-[#d97706]",
+      leftIn: (
+        <svg className="w-5 h-5 text-[#d97706]" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9s2.015-9 4.5-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m0 18c1.657 0 3-4.03 3-9s-1.343-9-3-9M3 9h18M3 15h18" />
+        </svg>
+      ),
+      rightIllustration: (
+        <svg className="w-16 h-12" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="18" y="15" width="34" height="23" rx="3" fill="#ffe3c4" stroke="#d97706" strokeWidth="1.5"/>
+          <line x1="22" y1="23" x2="48" y2="23" stroke="#d97706" strokeWidth="1"/>
+          <path d="M31 38H39L41 43H29L31 38Z" fill="#ffd19a" stroke="#d97706" strokeWidth="1.5"/>
+          <rect x="48" y="24" width="14" height="23" rx="2" fill="#fffbeb" stroke="#d97706" strokeWidth="1.5"/>
+          <circle cx="55" cy="43" r="1.5" fill="#d97706"/>
+          <line x1="52" y1="27" x2="58" y2="27" stroke="#d97706" strokeWidth="1"/>
+        </svg>
+      )
+    };
+  }
+  if (lower === "মেমোরাইজিং পার্ট" || lower.includes("memorizing")) {
+    return {
+      leftBg: "bg-[#f5f0fa]",
+      leftText: "text-[#7c3aed]",
+      leftIn: (
+        <svg className="w-5 h-5 text-[#7c3aed]" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      rightIllustration: (
+        <svg className="w-16 h-12" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="22" y="12" width="28" height="34" rx="3" fill="#ebdcfc" stroke="#7c3aed" strokeWidth="1.5"/>
+          <path d="M31 12V9H39V12" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="28" cy="20" r="1.5" fill="#7c3aed"/>
+          <line x1="33" y1="20" x2="44" y2="20" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="28" cy="27" r="1.5" fill="#7c3aed"/>
+          <line x1="33" y1="27" x2="44" y2="27" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="28" cy="34" r="1.5" fill="#7c3aed"/>
+          <line x1="33" y1="34" x2="44" y2="34" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"/>
+          <circle cx="50" cy="38" r="10" fill="#fff" stroke="#7c3aed" strokeWidth="1.5"/>
+          <path d="M50 32V38H55" stroke="#7c3aed" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      )
+    };
+  }
+  
+  return {
+    leftBg: "bg-slate-50",
+    leftText: "text-slate-700",
+    leftIn: "?",
+    rightIllustration: (
+      <svg className="w-16 h-12" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="24" y="15" width="32" height="30" rx="3" fill="#f1f5f9" stroke="#64748b" strokeWidth="1.5"/>
+        <path d="M28 15V45" stroke="#64748b" strokeWidth="1.5"/>
+        <line x1="34" y1="22" x2="48" y2="22" stroke="#cbd5e1" strokeWidth="1.5"/>
+        <line x1="34" y1="28" x2="48" y2="28" stroke="#cbd5e1" strokeWidth="1.5"/>
+        <line x1="34" y1="34" x2="44" y2="34" stroke="#cbd5e1" strokeWidth="1.5"/>
+      </svg>
+    )
+  };
+};
+
 export default function Exam() {
   const navigate = useNavigate();
   const { userData } = useAuth();
@@ -211,7 +467,8 @@ export default function Exam() {
                  
                  if (type === 'mock' && mockCustomSubjects.length > 0) {
                      // Note: Firebase 'in' max array size is 10
-                     const subSet = mockCustomSubjects.slice(0, 10);
+                     const expandedSubjects = getDbSubjectVariants(mockCustomSubjects);
+                     const subSet = expandedSubjects.slice(0, 10);
                      qQuery = query(qBase, where("subject", "in", subSet));
                  } else if (selectedSubject && selectedSubject !== "সকল বিষয়") {
                      qQuery = query(qBase, where("subject", "==", selectedSubject));
@@ -275,53 +532,201 @@ export default function Exam() {
                       const filteredWords = ENGLISH_WORDS.filter(w => w.category === cat && w.language === lang);
                       filteredWords.forEach(word => {
                          let qText = `What is the meaning of "${word.word}"?`;
-                         if (lang === 'bangla') {
-                            if (cat === 'samarthok') qText = `"${word.word}" এর সমার্থক শব্দ কোনটি?`;
-                            else if (cat === 'antonym') qText = `"${word.word}" এর বিপরীত শব্দ কোনটি?`;
-                            else if (cat === 'ek_kothay') qText = `"${word.word}" এর এক কথায় প্রকাশ কোনটি?`;
-                            else qText = `"${word.word}" এর অর্থ কী?`;
-                         } else {
-                            if (cat === 'translation') qText = `Choose the correct translation: "${word.word}"`;
-                            else if (cat === 'analogy') qText = `Complete the analogy: ${word.word}`;
-                            else if (cat === 'appropriate_preposition') qText = `Fill in the blank: ${word.word}`;
-                            else if (cat === 'idiom_phrase') qText = `What is the meaning of the idiom "${word.word}"?`;
-                            else if (cat === 'spelling') qText = `Find the correct spelling related to meaning: ${word.meaning}`;
-                            else if (cat === 'synonym') qText = `What is the synonym of "${word.word}"?`;
-                            else if (cat === 'antonym') qText = `What is the antonym of "${word.word}"?`;
-                         }
-                         
-                         const optionsSet = new Set<string>();
-                         const meaning = word.meaning || "Unknown";
-                         optionsSet.add(meaning);
-                         
-                         const allMeanings = ENGLISH_WORDS.filter(w => w.category === cat && w.language === lang).map(w => w.meaning).filter(Boolean);
-                         
-                         let attempts = 0;
-                         while (optionsSet.size < 4 && allMeanings.length >= 4 && attempts < 50) {
-                            const randomMeaning = allMeanings[Math.floor(Math.random() * allMeanings.length)] || "None";
-                            optionsSet.add(randomMeaning);
-                            attempts++;
-                         }
-                         if (optionsSet.size < 4) {
-                             optionsSet.add("Unknown"); optionsSet.add("None of the above"); optionsSet.add("Both A and B");
-                         }
-                         
-                         const optionsArray = Array.from(optionsSet).slice(0, 4).sort(() => Math.random() - 0.5);
-                         const correctIdx = optionsArray.indexOf(meaning);
-                         const correctOptStr = ["ক", "খ", "গ", "ঘ"][correctIdx >= 0 ? correctIdx : 0];
+                         let correctAnswer = word.meaning || "Unknown";
+                         let wrongAnswers: string[] = [];
 
-                         allQs.push({
-                            id: `dyn_${originalSub}_${chapter}_${lang}_${word.id || Math.random().toString().slice(2)}`,
-                            subject: originalSub,
-                            chapter: chapter,
-                            text: qText,
-                            options: optionsArray.map((opt, i) => ({ id: ["ক", "খ", "গ", "ঘ"][i], label: opt })),
-                            correctOption: correctOptStr,
-                            explanation: word.example ? String(word.example) : (lang === 'bangla' ? `সঠিক উত্তর: ${meaning}` : `Correct answer is: ${meaning}`)
-                         });
-                      });
-                   });
-                }
+                         if (lang === 'bangla') {
+                            if (cat === 'samarthok') {
+                               qText = `"${word.word}" এর সমার্থক শব্দ কোনটি?`;
+                            } else if (cat === 'antonym') {
+                               qText = `"${word.word}" এর বিপরীত শব্দ কোনটি?`;
+                            } else if (cat === 'ek_kothay') {
+                               qText = `"${word.word}" এর এক কথায় প্রকাশ কোনটি?`;
+                            } else {
+                               qText = `"${word.word}" এর অর্থ কী?`;
+                            }
+                            
+                            correctAnswer = word.meaning || "Unknown";
+                            const allMeanings = ENGLISH_WORDS.filter(w => w.category === cat && w.language === lang).map(w => w.meaning).filter(Boolean);
+                            const optionsSet = new Set<string>();
+                            optionsSet.add(correctAnswer);
+                            
+                            let attempts = 0;
+                            while (optionsSet.size < 4 && allMeanings.length >= 4 && attempts < 100) {
+                               const randomMeaning = allMeanings[Math.floor(Math.random() * allMeanings.length)] || "None";
+                               optionsSet.add(randomMeaning);
+                               attempts++;
+                            }
+                            if (optionsSet.size < 4) {
+                                optionsSet.add("কোনটিই নয়"); optionsSet.add("ক ও খ উভয়ই"); optionsSet.add("অন্যান্য");
+                            }
+                            wrongAnswers = Array.from(optionsSet).filter(o => o !== correctAnswer).slice(0, 3);
+
+                         } else {
+                            // LANGUAGE IS ENGLISH
+                            if (cat === 'spelling') {
+                               qText = `Choose the correct spelling:`;
+                               correctAnswer = word.word;
+                               
+                               let parsedWrongs: string[] = [];
+                               if (word.example && word.example.includes("Incorrect:")) {
+                                  const parts = word.example.split("Incorrect:");
+                                  if (parts.length > 1) {
+                                     const incorrectStr = parts[1].trim();
+                                     parsedWrongs = incorrectStr.split(/[,/;\s]+/).map(s => s.trim().replace(/[|.*?"'()]/g, "")).filter(s => s && s.toLowerCase() !== word.word.toLowerCase());
+                                  }
+                               }
+                               
+                               const generatorWrongs = generateIncorrectSpellings(word.word, 4);
+                               const mergedWrongs = Array.from(new Set([...parsedWrongs, ...generatorWrongs])).filter(w => w && w.toLowerCase() !== word.word.toLowerCase());
+                               wrongAnswers = mergedWrongs.slice(0, 3);
+
+                            } else if (cat === 'synonym' || cat === 'vocabulary') {
+                               qText = `What is the synonym of "${word.word}"?`;
+                               
+                               const maybeSyn = (word.synonyms && word.synonyms.length > 0) ? word.synonyms[0].trim() : "";
+                               if (maybeSyn && !/[অ-য়]/.test(maybeSyn)) {
+                                  correctAnswer = maybeSyn;
+                               } else {
+                                  correctAnswer = word.word + " (Synonym)";
+                                }
+                               
+                               const allSynonyms = ENGLISH_WORDS.filter(w => w.language === 'english' && w.synonyms && w.synonyms.length > 0)
+                                  .map(w => w.synonyms![0].trim())
+                                  .filter(s => s && !/[অ-য়]/.test(s) && s.toLowerCase() !== word.word.toLowerCase() && s.toLowerCase() !== correctAnswer.toLowerCase());
+                               
+                               const uniqueWrongs = Array.from(new Set(allSynonyms));
+                               wrongAnswers = uniqueWrongs.sort(() => Math.random() - 0.5).slice(0, 3);
+                               if (wrongAnswers.length < 3) {
+                                 wrongAnswers = ["Increase", "Suppress", "Prolong"].filter(w => w.toLowerCase() !== correctAnswer.toLowerCase()).slice(0, 3);
+                               }
+
+                            } else if (cat === 'antonym') {
+                               qText = `What is the antonym of "${word.word}"?`;
+                               
+                               const maybeAnt = (word.antonyms && word.antonyms.length > 0) ? word.antonyms[0].trim() : "";
+                               if (maybeAnt && !/[অ-য়]/.test(maybeAnt)) {
+                                  correctAnswer = maybeAnt;
+                               } else {
+                                  correctAnswer = word.word + " (Antonym)";
+                               }
+                               
+                               const allAntonyms = ENGLISH_WORDS.filter(w => w.language === 'english' && w.antonyms && w.antonyms.length > 0)
+                                  .map(w => w.antonyms![0].trim())
+                                  .filter(s => s && !/[অ-য়]/.test(s) && s.toLowerCase() !== word.word.toLowerCase() && s.toLowerCase() !== correctAnswer.toLowerCase());
+                               
+                               const uniqueWrongs = Array.from(new Set(allAntonyms));
+                               wrongAnswers = uniqueWrongs.sort(() => Math.random() - 0.5).slice(0, 3);
+                               if (wrongAnswers.length < 3) {
+                                 wrongAnswers = ["Mitigate", "Diminish", "Enhance"].filter(w => w.toLowerCase() !== correctAnswer.toLowerCase()).slice(0, 3);
+                               }
+
+                            } else if (cat === 'appropriate_preposition') {
+                               const parts = word.word.split(' ');
+                               const prep = parts[parts.length - 1] || "by";
+                               correctAnswer = prep.toLowerCase();
+                               
+                               let sentence = word.example ? word.example.split('(')[0].trim() : `We must ${word.word} the rules.`;
+                               const regex = new RegExp(`\\b${prep}\\b`, 'i');
+                               sentence = sentence.replace(regex, "___");
+                               qText = `Fill in the blank with the appropriate preposition: ${sentence}`;
+                               
+                               const prepCandidates = ["to", "by", "for", "with", "at", "in", "of", "from", "on", "into", "upon"];
+                               wrongAnswers = prepCandidates.filter(p => p !== correctAnswer).sort(() => Math.random() - 0.5).slice(0, 3);
+
+                            } else if (cat === 'group_verb') {
+                               const parts = word.word.split(' ');
+                               const prep = parts[parts.length - 1] || "out";
+                               correctAnswer = prep.toLowerCase();
+                               
+                               let sentence = word.example ? word.example.split('(')[0].trim() : `Please ${word.word} a doctor.`;
+                               const regex = new RegExp(`\\b${prep}\\b`, 'i');
+                               sentence = sentence.replace(regex, "___");
+                               qText = `Fill in the blank with the correct word for phrasal verb: ${sentence}`;
+                               
+                               const particleCandidates = ["in", "off", "out", "up", "down", "with", "to", "by", "over", "away"];
+                               wrongAnswers = particleCandidates.filter(p => p !== correctAnswer).sort(() => Math.random() - 0.5).slice(0, 3);
+
+                             } else if (cat === 'idiom_phrase') {
+                                qText = `What is the meaning of the idiom/phrase "${word.word}"?`;
+                                
+                                let englishMeaning = "";
+                                if (word.example && word.example.trim() !== "") {
+                                   englishMeaning = word.example.trim();
+                                } else if (word.meaning && word.meaning.includes("(")) {
+                                   const m = word.meaning.match(/\(([^)]+)\)/);
+                                   if (m) englishMeaning = m[1].trim();
+                                }
+                                
+                                if (englishMeaning && englishMeaning.length > 2 && !/[অ-য়]/.test(englishMeaning)) {
+                                   correctAnswer = englishMeaning;
+                                } else {
+                                   correctAnswer = word.word + " (Meaning)";
+                                }
+                                
+                                const allIdiomMeanings = ENGLISH_WORDS.filter(w => w.category === 'idiom_phrase').map(w => {
+                                   if (w.example && w.example.trim() !== "") return w.example.trim();
+                                   if (w.meaning && w.meaning.includes("(")) {
+                                      const m = word.meaning.match(/\(([^)]+)\)/);
+                                      if (m) return m[1].trim();
+                                   }
+                                   return "";
+                                }).filter(m => m && !/[অ-য়]/.test(m) && m.toLowerCase() !== correctAnswer.toLowerCase());
+                                
+                                const uniqueWrongs = Array.from(new Set(allIdiomMeanings));
+                                wrongAnswers = uniqueWrongs.sort(() => Math.random() - 0.5).slice(0, 3);
+                                if (wrongAnswers.length < 3) {
+                                  wrongAnswers = ["A difficult situation", "An easy choice", "To fail completely"].filter(w => w.toLowerCase() !== correctAnswer.toLowerCase()).slice(0, 3);
+                                }
+
+                             } else if (cat === 'translation') {
+                                qText = `Choose the correct translation: "${word.word}"`;
+                                correctAnswer = word.meaning;
+                                
+                                const allTranslations = ENGLISH_WORDS.filter(w => w.category === 'translation').map(w => w.meaning).filter(Boolean);
+                                wrongAnswers = Array.from(new Set(allTranslations)).filter(t => t !== correctAnswer).sort(() => Math.random() - 0.5).slice(0, 3);
+
+                             } else if (cat === 'analogy') {
+                                qText = `Complete the analogy: ${word.word}`;
+                                correctAnswer = word.meaning;
+                                
+                                const allAnalogies = ENGLISH_WORDS.filter(w => w.category === 'analogy').map(w => w.meaning).filter(Boolean);
+                                wrongAnswers = Array.from(new Set(allAnalogies)).filter(a => a !== correctAnswer).sort(() => Math.random() - 0.5).slice(0, 3);
+
+                             } else {
+                                qText = `Choose the correct meaning for "${word.word}":`;
+                                correctAnswer = word.meaning;
+                                const allMeanings = ENGLISH_WORDS.filter(w => w.category === cat && w.language === lang).map(w => w.meaning).filter(Boolean);
+                                wrongAnswers = Array.from(new Set(allMeanings)).filter(m => m !== correctAnswer).sort(() => Math.random() - 0.5).slice(0, 3);
+                             }
+                          }
+
+                          const optionsSet = new Set<string>();
+                          optionsSet.add(correctAnswer);
+                          wrongAnswers.forEach(o => optionsSet.add(o));
+                          
+                          const extraDistractors = ["None of the above", "All of the above", "Both A and B"];
+                          let extraIdx = 0;
+                          while (optionsSet.size < 4 && extraIdx < extraDistractors.length) {
+                             optionsSet.add(extraDistractors[extraIdx++]);
+                          }
+                          
+                          const optionsArray = Array.from(optionsSet).slice(0, 4).sort(() => Math.random() - 0.5);
+                          const correctIdx = optionsArray.indexOf(correctAnswer);
+                          const correctOptStr = ["ক", "খ", "গ", "ঘ"][correctIdx >= 0 ? correctIdx : 0];
+
+                          allQs.push({
+                             id: `dyn_${originalSub}_${chapter}_${lang}_${word.id || Math.random().toString().slice(2)}`,
+                             subject: originalSub,
+                             chapter: chapter,
+                             text: qText,
+                             options: optionsArray.map((opt, i) => ({ id: ["ক", "খ", "গ", "ঘ"][i], label: opt })),
+                             correctOption: correctOptStr,
+                             explanation: word.example ? String(word.example) : (lang === 'bangla' ? `সঠিক উত্তর: ${correctAnswer}` : `Correct answer is: ${correctAnswer}`)
+                          });
+                       });
+                    });
+                 }
              }
           }
           
@@ -375,7 +780,7 @@ export default function Exam() {
           let selectedQs: any[] = [];
           if (type === 'mock' && mockCustomSubjects.length > 0) {
              mockCustomSubjects.forEach(sub => {
-                let subQs = finalQs.filter((q:any) => q.subject === sub);
+                let subQs = finalQs.filter((q:any) => isSubjectMatch(q.subject, sub));
                 
                 subQs = subQs.filter((q: any) => {
                     const defaultChapsForSub = topicsObj[sub] && topicsObj[sub].length > 0 ? topicsObj[sub] : (defaultChaptersMap[sub] || ["সাধারণ প্রশ্ন"]);
@@ -650,172 +1055,218 @@ export default function Exam() {
   if (type === 'mock' && !activeSet) {
     if (mockStep === 1) {
       return (
-        <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-6 font-bengali relative z-0 min-h-screen bg-[#f8fafc]">
-          {/* Top bar */}
-          <div className="flex items-center justify-between mb-6">
-            <button onClick={() => navigate("/dashboard")} className="flex items-center text-slate-800 font-bold transition-colors p-2 bg-transparent rounded-lg">
-              <ArrowLeft className="w-5 h-5 mr-3" />
-              <span className="text-lg">টপিক সিলেক্ট করো</span>
-            </button>
-            <div className="bg-[#e4efe9] text-[#008060] px-4 py-1.5 rounded-full text-[14px] font-extrabold tracking-wide">১/২ স্টেপস</div>
-          </div>
+        <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-8 font-bengali min-h-screen bg-[#F8FAFC]">
+          {/* Centered High Fidelity Card */}
+          <div className="max-w-xl mx-auto bg-white p-6 sm:p-8 rounded-[32px] border border-slate-100 shadow-[0_4px_30px_rgba(0,0,0,0.015)] space-y-6">
+            
+            {/* Top Back bar */}
+            <div className="flex items-center justify-between relative">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => navigate("/dashboard")} 
+                  className="h-10 w-10 bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200/50 rounded-full flex items-center justify-center text-slate-700 transition-all shrink-0 cursor-pointer"
+                >
+                  <ArrowLeft className="w-5 h-5 animate-in fade-in" />
+                </button>
+                <span className="text-[19px] sm:text-xl font-extrabold text-slate-800 font-bengali">টপিক সিলেক্ট করো</span>
+              </div>
+              <div className="bg-[#e4efe9] text-[#008060] px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide">১/২ স্টেপস</div>
+            </div>
 
-          {/* Progress Bar */}
-          <div className="flex gap-2 mb-8 items-center px-1">
-              <div className="h-2 flex-1 bg-[#008060] rounded-full"></div>
-              <div className="h-2 flex-1 bg-[#c5dfd6] rounded-full"></div>
-          </div>
+            {/* Progress Bar */}
+            <div className="flex gap-2">
+              <div className="h-1.5 flex-1 bg-[#008060] rounded-full"></div>
+              <div className="h-1.5 flex-1 bg-slate-100 rounded-full"></div>
+            </div>
 
-          {!showChaptersAccordion ? (
-             <>
-               <div className="flex flex-wrap gap-x-3 gap-y-4 mb-10 px-1">
-                  {displaySubjects.map(sub => (
-                     <button 
-                       key={sub.name}
-                       onClick={() => {
-                          if (!mockCustomSubjects.includes(sub.name)) {
-                             setMockCustomSubjects(prev => [...prev, sub.name]);
-                          } else {
-                             setMockCustomSubjects(prev => prev.filter(s => s !== sub.name));
-                             setMockCustomChapters(prev => { const n = {...prev}; delete n[sub.name]; return n; });
-                          }
-                       }}
-                       className={`flex items-center gap-3 px-5 py-3.5 bg-white border rounded-[16px] font-bold transition-all ${mockCustomSubjects.includes(sub.name) ? 'border-[#008060] shadow-sm' : 'border-slate-100 hover:border-slate-300'}`}
-                     >
-                        <div className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center transition-colors ${mockCustomSubjects.includes(sub.name) ? 'bg-[#008060] border-[#008060]' : 'border-slate-300 bg-white'}`}>
-                          {mockCustomSubjects.includes(sub.name) && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
-                        </div>
-                        <span className="text-[16px] text-slate-800">{sub.name}</span>
-                     </button>
-                  ))}
-               </div>
+            {/* Sub-header instruction */}
+            <div className="font-bengali">
+              <h2 className="text-[18px] sm:text-xl font-extrabold text-slate-900 leading-snug">যে বিষয়গুলো পড়তে চাও,</h2>
+              <p className="text-sm font-bold text-slate-400 mt-1">সেগুলো ট্যাপ করে টিক চিহ্নে সিলেক্ট করো</p>
+            </div>
 
-               {mockCustomSubjects.length > 0 && (
-                  <div 
-                     onClick={() => setShowChaptersAccordion(true)}
-                     className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 transition-colors animate-in fade-in slide-in-from-bottom-2"
-                  >
-                     <span className="font-bold text-slate-800 text-[16px]">সিলেক্টেড টপিকস দেখতে এখানে ট্যাপ করো</span>
-                     <ChevronRight className="w-6 h-6 text-slate-600" />
-                  </div>
-               )}
-             </>
-          ) : (
-             <div className="animate-in fade-in slide-in-from-bottom-2 space-y-4 mb-40">
-                {mockCustomSubjects.map(subject => {
-                   const availableChapters = dynamicChaptersMap[subject] && dynamicChaptersMap[subject].length > 0 ? dynamicChaptersMap[subject] : (defaultChaptersMap[subject] || ["সাধারণ প্রশ্ন"]);
-                   const subjectChapters = mockCustomChapters[subject] || [];
-                   const isExpanded = expandedChaps[subject];
-                   const isAllSelected = availableChapters.length > 0 && subjectChapters.length === availableChapters.length;
-                   
-                   return (
-                     <div key={subject} className="bg-white rounded-[16px] border-b-2 border-slate-100 border-b-[#008060] shadow-sm overflow-hidden mb-4">
-                        {/* Subject Header */}
-                        <div className="p-4 flex items-center transition-colors">
-                           <button 
-                             onClick={() => {
-                               setTopicError("");
-                               if (isAllSelected) {
-                                  setMockCustomChapters(prev => ({...prev, [subject]: []}));
-                               } else {
-                                  setMockCustomChapters(prev => ({...prev, [subject]: [...availableChapters]}));
-                               }
-                             }}
-                             className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${isAllSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
-                           >
-                              {isAllSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
-                           </button>
-                           <span className="font-bold text-slate-800 text-[16px] ml-3 flex-1">{subject}</span>
-                           <span className="text-[13px] font-bold text-slate-500 mr-2">{subjectChapters.length}/{availableChapters.length} চ্যাপ্টার</span>
-                           <button onClick={() => toggleChapExpand(subject)} className="p-1">
-                              <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
-                           </button>
+            {/* Subject List displaying */}
+            <div className="space-y-3.5">
+               {displaySubjects.map(sub => {
+                  const isSelected = mockCustomSubjects.includes(sub.name);
+                  const deco = getSubjectDecoration(sub.name);
+                  return (
+                    <div 
+                      key={sub.name}
+                      onClick={() => {
+                         if (!isSelected) {
+                            setMockCustomSubjects(prev => [...prev, sub.name]);
+                            setMockCustomChapters(prev => ({...prev, [sub.name]: []}));
+                            setExpandedChaps(prev => ({...prev, [sub.name]: true}));
+                         } else {
+                            setMockCustomSubjects(prev => prev.filter(s => s !== sub.name));
+                            setMockCustomChapters(prev => { const n = {...prev}; delete n[sub.name]; return n; });
+                         }
+                      }}
+                      className={`group relative flex items-center justify-between p-4 bg-white border rounded-2xl cursor-pointer select-none transition-all duration-300 ${isSelected ? 'border-[#008060] ring-1 ring-[#008060] shadow-sm bg-emerald-50/5' : 'border-slate-150 hover:border-slate-300 hover:bg-slate-50/40'}`}
+                    >
+                      {/* Left: Checkmark box and name */}
+                      <div className="flex items-center gap-3.5">
+                        <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isSelected ? 'bg-[#008060] border-[#008060] scale-105 shadow-sm' : 'border-slate-300 bg-white group-hover:border-slate-400'}`}>
+                          {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
                         </div>
                         
-                        {/* Chapters Accordion Content */}
-                        {isExpanded && (
-                           <div className="px-4 pb-4 bg-white space-y-2 border-t border-slate-50 pt-2">
-                              {availableChapters.map(chap => {
-                                 const chapSelected = subjectChapters.includes(chap);
-                                 return (
-                                   <div key={chap} className="flex items-center bg-slate-50/50 p-3 rounded-[12px]">
-                                      <button
-                                        onClick={() => {
-                                            setTopicError("");
-                                            setMockCustomChapters(prev => {
-                                                const current = prev[subject] || [];
-                                                const updated = current.includes(chap) ? current.filter(c => c !== chap) : [...current, chap];
-                                                return {...prev, [subject]: updated};
-                                            });
-                                        }}
-                                        className={`w-5 h-5 rounded-[4px] border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${chapSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
-                                      >
-                                         {chapSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
-                                      </button>
-                                      <span className={`text-[15px] font-bold leading-snug ml-3 flex-1 ${chapSelected ? 'text-slate-800' : 'text-slate-600'}`}>{chap}</span>
-                                   </div>
-                                 )
-                              })}
-                           </div>
-                        )}
-                     </div>
-                   )
-                })}
-             </div>
-          )}
+                        <div className={`flex items-center justify-center h-10 w-10 rounded-xl font-bold ${deco.leftBg} ${deco.leftText}`}>
+                          {deco.leftIn}
+                        </div>
+                        
+                        <div>
+                          <span className={`text-[16px] font-extrabold text-slate-800 transition-colors ${isSelected ? 'text-slate-900 font-extrabold' : 'text-slate-700'}`}>{sub.name}</span>
+                          <p className="text-[11px] text-slate-400 font-medium">পরীক্ষামুখী বিশেষ অধ্যায়সমূহ</p>
+                        </div>
+                      </div>
+                      
+                      {/* Right: Tiny dynamic illustration */}
+                      <div className="opacity-85 group-hover:opacity-100 transition-opacity shrink-0">
+                        {deco.rightIllustration}
+                      </div>
+                    </div>
+                  );
+               })}
+            </div>
 
-          {/* Sticky Bottom Bar when in accordion mode */}
-          {showChaptersAccordion && (
-             <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 p-4 sm:p-6 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10">
-                <div className="max-w-7xl mx-auto">
-                   <div className="flex items-center gap-3 bg-slate-100/50 rounded-[16px] p-3 mb-4">
-                      <span className="font-bold text-slate-500 ml-2">প্রশ্নের সংখ্যা</span>
+            {/* Expandable Chapters section */}
+            {mockCustomSubjects.length > 0 && (
+               <div className="animate-in fade-in slide-in-from-bottom-2 space-y-4 pt-4 border-t border-slate-100">
+                  <div className="font-extrabold text-slate-800 text-[16px]">সিলেক্টেড বিষয়ের অধ্যায়সমূহ:</div>
+                  {mockCustomSubjects.map(subject => {
+                     const availableChapters = dynamicChaptersMap[subject] && dynamicChaptersMap[subject].length > 0 ? dynamicChaptersMap[subject] : (defaultChaptersMap[subject] || ["সাধারণ প্রশ্ন"]);
+                     const subjectChapters = mockCustomChapters[subject] || [];
+                     const isExpanded = expandedChaps[subject] !== false; // default to true
+                     const isAllSelected = availableChapters.length > 0 && subjectChapters.length === availableChapters.length;
+                     
+                     return (
+                       <div key={subject} className="bg-slate-50/50 rounded-2xl border border-slate-150 overflow-hidden">
+                          {/* Subject Header */}
+                          <div className="p-3.5 flex items-center gap-3 justify-between bg-slate-50">
+                             <div className="flex items-center gap-2.5">
+                               <button 
+                                 onClick={() => {
+                                   setTopicError("");
+                                   if (isAllSelected) {
+                                      setMockCustomChapters(prev => ({...prev, [subject]: []}));
+                                   } else {
+                                      setMockCustomChapters(prev => ({...prev, [subject]: [...availableChapters]}));
+                                   }
+                                 }}
+                                 className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${isAllSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
+                               >
+                                  {isAllSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
+                               </button>
+                               <span className="font-extrabold text-slate-800 text-sm">{subject}</span>
+                             </div>
+                             
+                             <div className="flex items-center gap-2">
+                               <span className="text-xs font-bold text-slate-500 bg-slate-200/50 px-2 py-1 rounded-md">{subjectChapters.length}/{availableChapters.length} চ্যাপ্টার</span>
+                               <button onClick={() => toggleChapExpand(subject)} className="p-1 hover:bg-slate-200/50 rounded-full transition-colors">
+                                  <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                               </button>
+                             </div>
+                          </div>
+                          
+                          {/* Chapters Accordion Content */}
+                          {isExpanded && (
+                             <div className="px-3 pb-3.5 bg-white space-y-1.5 border-t border-slate-150/40 pt-3 max-h-48 overflow-y-auto">
+                                {availableChapters.map(chap => {
+                                   const chapSelected = subjectChapters.includes(chap);
+                                   return (
+                                     <div 
+                                       key={chap} 
+                                       onClick={() => {
+                                           setTopicError("");
+                                           setMockCustomChapters(prev => {
+                                               const current = prev[subject] || [];
+                                               const updated = current.includes(chap) ? current.filter(c => c !== chap) : [...current, chap];
+                                               return {...prev, [subject]: updated};
+                                           });
+                                       }}
+                                       className="flex items-center bg-slate-50/30 border border-slate-100 hover:border-slate-200 p-2.5 rounded-xl hover:bg-slate-50/80 transition-colors cursor-pointer select-none"
+                                     >
+                                        <div
+                                          className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 transition-all ${chapSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
+                                        >
+                                           {chapSelected && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
+                                        </div>
+                                        <span className={`text-[13.5px] font-bold leading-snug ml-2.5 flex-1 ${chapSelected ? 'text-slate-800' : 'text-slate-500'}`}>{chap}</span>
+                                     </div>
+                                   )
+                                })}
+                             </div>
+                          )}
+                       </div>
+                     );
+                  })}
+               </div>
+            )}
+
+            {/* Custom Questions count selectors */}
+            {mockCustomSubjects.length > 0 && (
+              <div className="space-y-3 pt-2">
+                 <div className="flex items-center justify-between gap-3 bg-slate-50 border border-slate-150 rounded-2xl p-4.5">
+                    <div className="space-y-0.5">
+                      <span className="font-extrabold text-slate-800 text-sm">প্রশ্ন সংখ্যা নির্ধারণ করো</span>
+                      <p className="text-[11px] text-slate-400 font-bold">মোট কয়টি প্রশ্নের উত্তর দিবে</p>
+                    </div>
+                    <div className="flex items-center border border-slate-200 bg-white rounded-xl overflow-hidden shadow-xs h-10 px-1">
+                      <button 
+                        onClick={() => setMockCustomQCount(prev => Math.max(5, prev - 5))}
+                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-lg active:scale-90 font-extrabold transition-all"
+                      >
+                        -
+                      </button>
                       <input 
                          type="number" 
                          value={mockCustomQCount} 
                          onChange={(e) => setMockCustomQCount(parseInt(e.target.value) || 25)} 
-                         className="bg-transparent border-none outline-none font-bold text-slate-800 flex-1 px-2"
+                         className="w-12 text-center bg-transparent border-none outline-none font-extrabold text-slate-800 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
-                   </div>
-                   {topicError && (
-                      <div className="text-red-500 font-bold text-sm mb-3 mt-2 text-center animate-in fade-in">
-                         {topicError}
-                      </div>
-                   )}
-                   <div className="flex gap-4">
                       <button 
-                         onClick={() => { setShowChaptersAccordion(false); setTopicError(""); }}
-                         className="flex-1 py-4 bg-white border-2 border-slate-200 text-slate-700 font-extrabold rounded-[16px] hover:bg-slate-50 transition-colors"
+                        onClick={() => setMockCustomQCount(prev => Math.min(100, prev + 5))}
+                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-lg active:scale-90 font-extrabold transition-all"
                       >
-                         + আরেকটি বিষয়
+                        +
                       </button>
-                      <button 
-                         onClick={() => {
-                            setTopicError("");
-                            const canProceed = mockCustomSubjects.length > 0 && mockCustomSubjects.every(s => (mockCustomChapters[s] || []).length > 0);
-                            if (!canProceed) {
-                               setTopicError("অনুগ্রহ করে প্রতিটি বিষয়ের জন্য অন্তত একটি টপিক নির্বাচন করুন।");
-                               return;
-                            }
-                            if (mockCustomSubjects.length > 0) {
-                              const newCounts = { ...mockQuestionCounts };
-                              mockCustomSubjects.forEach(s => {
-                                 if (!newCounts[s]) newCounts[s] = Math.ceil(mockCustomQCount / mockCustomSubjects.length);
-                              });
-                              setMockQuestionCounts(newCounts);
-                              setMockStep(2);
-                            }
-                         }}
-                         className="flex-1 py-4 bg-[#008060] text-white font-extrabold rounded-[16px] hover:bg-[#006e52] transition-all shadow-md active:scale-95"
-                      >
-                         এগিয়ে যাও
-                      </button>
-                   </div>
-                </div>
-             </div>
-          )}
+                    </div>
+                 </div>
+
+                 {topicError && (
+                    <div className="text-[#008060] bg-emerald-50 border border-emerald-200/50 p-3 rounded-xl font-bold text-xs text-center animate-in fade-in">
+                       {topicError}
+                    </div>
+                 )}
+
+                 {/* Premium next button */}
+                 <button 
+                    onClick={() => {
+                       setTopicError("");
+                       const canProceed = mockCustomSubjects.length > 0 && mockCustomSubjects.every(s => (mockCustomChapters[s] || []).length > 0);
+                       if (!canProceed) {
+                          setTopicError("অনুগ্রহ করে প্রতিটি বিষয়ের জন্য অন্তত একটি অধ্যায় সিলেক্ট করো।");
+                          return;
+                       }
+                       if (mockCustomSubjects.length > 0) {
+                         const newCounts = { ...mockQuestionCounts };
+                         mockCustomSubjects.forEach(s => {
+                            if (!newCounts[s]) newCounts[s] = Math.ceil(mockCustomQCount / mockCustomSubjects.length);
+                         });
+                         setMockQuestionCounts(newCounts);
+                         setMockStep(2);
+                       }
+                    }}
+                    className="w-full py-4 bg-[#008060] cursor-pointer text-white font-extrabold rounded-2xl hover:bg-[#006e52] hover:shadow-md transition-all active:scale-98 text-center text-[16px] tracking-wide"
+                 >
+                    পরবর্তী →
+                 </button>
+              </div>
+            )}
+          </div>
         </div>
-      )
+      );
     } else if (mockStep === 2) {
       return (
         <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-6 font-bengali relative z-0 min-h-screen bg-[#f8fafc] animate-in fade-in slide-in-from-right-4">
@@ -1161,7 +1612,7 @@ export default function Exam() {
   return (
     <div className={`w-full flex flex-col font-bengali ${!isSubmitted ? 'pb-24' : 'pb-20'}`}>
       {/* Top Section */}
-      <div className="w-full bg-white py-3.5 sm:py-5 px-4 sm:px-8 mb-6 sm:mb-10 text-center relative border-b border-slate-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] sticky top-0 z-40">
+      <div className="w-full bg-white py-3.5 sm:py-5 px-4 sm:px-8 mb-6 sm:mb-10 text-center relative border-b border-slate-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
             <button 
                onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}

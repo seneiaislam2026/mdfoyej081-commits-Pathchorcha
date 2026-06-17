@@ -147,7 +147,7 @@ export default function SubjectNotes() {
     <div className="min-h-screen bg-[#F8FAFC] pb-28 font-sans antialiased text-slate-800">
       
       {/* Clean Topbar */}
-      <header className="bg-white/90 backdrop-blur-xl border-b border-slate-150 sticky top-0 z-40 px-4 sm:px-6 py-4.5 shadow-xs">
+      <header className="bg-white border-b border-slate-150 sticky top-0 z-50 px-4 sm:px-6 py-4.5 shadow-xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 w-full">
             <Link to="/notes" className="h-10 w-10 bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200/60 rounded-2xl flex items-center justify-center text-[#0F2744] transition-all shrink-0 hover:shadow-xs" aria-label="Back">

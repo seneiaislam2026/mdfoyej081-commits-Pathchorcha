@@ -519,7 +519,17 @@ export default function Memorize() {
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-4 flex flex-col justify-start">
         
         {/* Header Layout */}
-        {selectedLanguage && (
+        {!selectedLanguage ? (
+          <div className="mb-2">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="w-12 h-12 flex items-center justify-center text-slate-600 hover:bg-slate-200/50 rounded-full transition-all active:scale-95 -ml-2 cursor-pointer"
+              aria-label="Back to Dashboard"
+            >
+              <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
+            </button>
+          </div>
+        ) : (
           selectedCategory ? (
             <div className="flex items-center justify-between bg-white px-3 py-2 rounded-2xl mb-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.015)]">
               <button
@@ -568,7 +578,7 @@ export default function Memorize() {
             <div className="mb-2">
               <button
                 onClick={() => setSelectedLanguage(null)}
-                className="w-12 h-12 flex items-center justify-center text-slate-600 hover:bg-slate-200/50 rounded-full transition-all active:scale-95 -ml-2"
+                className="w-12 h-12 flex items-center justify-center text-slate-600 hover:bg-slate-200/50 rounded-full transition-all active:scale-95 -ml-2 cursor-pointer"
               >
                 <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
               </button>

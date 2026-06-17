@@ -466,7 +466,7 @@ export default function QuestionBank() {
     return (
       <div className="max-w-4xl mx-auto py-4 px-4 pb-24 flex flex-col font-sans">
         {/* Modern styled Header */}
-        <div className="flex items-center justify-between py-4 border-b border-slate-100/80 mb-6 bg-[#F8FAFC]/50 backdrop-blur-md sticky top-0 z-30">
+        <div className="flex items-center justify-between py-4 border-b border-slate-150 mb-6 bg-[#F8FAFC] sticky top-0 z-50">
           <div className="flex items-center gap-3.5 sm:gap-4 flex-1 min-w-0">
             <button 
              onClick={() => {
@@ -580,7 +580,7 @@ export default function QuestionBank() {
   return (
     <div className="w-full max-w-4xl mx-auto pb-24 relative min-h-[80vh] flex flex-col font-sans">
       {/* Dynamic Header modeled after screenshot 3 */}
-      <div className="flex items-center justify-between py-4 border-b border-slate-100/80 mb-5 bg-[#F8FAFC]/50 backdrop-blur-md sticky top-0 z-30">
+      <div className="flex items-center justify-between py-4 border-b border-slate-150 mb-5 bg-[#F8FAFC] sticky top-0 z-50">
         <div className="flex items-center gap-3.5 sm:gap-4 flex-1 min-w-0">
           <button 
            onClick={() => {

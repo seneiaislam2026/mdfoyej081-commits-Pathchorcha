@@ -25,6 +25,8 @@ interface UserData {
   tutorSubjects?: string[];
   photoURL?: string;
   lastExamDate?: string;
+  batch?: string;
+  quote?: string;
 }
 
 interface AuthContextType {

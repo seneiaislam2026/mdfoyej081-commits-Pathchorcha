@@ -41,7 +41,7 @@ export default function PublicExamsList() {
 
   return (
     <div className="min-h-screen border-t bg-slate-50 font-bengali pb-20">
-      <div className="bg-white sticky top-0 z-20 px-4 py-4 md:px-8 border-b border-slate-100">
+      <div className="bg-white sticky top-0 z-50 px-4 py-4 md:px-8 border-b border-slate-100">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate(-1)} className="p-2 hover:bg-slate-50 text-slate-600 rounded-full">
