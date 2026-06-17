@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { db } from "../lib/firebase";
 import { collection, query, where, getDocs, doc, updateDoc, increment, writeBatch, addDoc, serverTimestamp } from "firebase/firestore";
-import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2, Trash2, Briefcase } from "lucide-react";
+import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2, Trash2, Briefcase, ChevronDown, Check, FileEdit, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
@@ -16,11 +16,7 @@ const mockSets = [
   { id: "mock-30", title: "বড় মক টেস্ট", totalQuestions: 30, timeMinutes: 30 },
 ];
 
-const modelSets = [
-  { id: "model-1", title: "মডেল টেস্ট - ১ (পূর্ণাঙ্গ)", totalQuestions: 50, timeMinutes: 45 },
-  { id: "model-2", title: "মডেল টেস্ট - ২ (পূর্ণাঙ্গ)", totalQuestions: 50, timeMinutes: 45 },
-  { id: "model-3", title: "মডেল টেস্ট - ৩ (পূর্ণাঙ্গ)", totalQuestions: 50, timeMinutes: 45 },
-];
+const modelSets: any[] = [];
 
 const subjectsByGroup: Record<string, {name: string, icon: any, color: string}[]> = {
   "common": [
@@ -1269,71 +1265,156 @@ export default function Exam() {
       );
     } else if (mockStep === 2) {
       return (
-        <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-6 font-bengali relative z-0 min-h-screen bg-[#f8fafc] animate-in fade-in slide-in-from-right-4">
-          <div className="flex items-center justify-between mb-8">
-            <button onClick={() => setMockStep(1)} className="flex items-center text-slate-800 font-bold transition-colors p-2 bg-transparent rounded-lg">
-              <ArrowLeft className="w-5 h-5 mr-3" />
-              <span className="text-lg">নিশ্চিত করো</span>
-            </button>
-            <div className="bg-[#e4efe9] text-[#008060] px-4 py-1.5 rounded-full text-[14px] font-extrabold tracking-wide">২/২ স্টেপস</div>
+        <div className="w-full max-w-7xl mx-auto pb-40 relative z-0 min-h-screen bg-[#f8fafc] animate-in fade-in slide-in-from-right-4 font-bengali">
+          <div className="flex items-center justify-between mb-8 px-4 sm:px-6 pt-6">
+            <div className="flex items-center gap-4">
+               <button 
+                  onClick={() => setMockStep(1)} 
+                  className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-100 hover:bg-slate-50 transition-colors"
+               >
+                 <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
+               </button>
+               <span className="text-[22px] font-extrabold text-[#1E2B4C] select-none">নিশ্চিত করো</span>
+            </div>
+            <div className="bg-[#E6F4EA] text-[#008060] px-3.5 py-1.5 rounded-full text-[13px] font-black tracking-wide select-none">২/২ স্টেপস</div>
           </div>
 
-          <div className="flex gap-2 mb-8 items-center px-1">
-              <div className="h-2 flex-1 bg-[#008060] rounded-full"></div>
-              <div className="h-2 flex-1 bg-[#008060] rounded-full"></div>
+          {/* Progress Lines */}
+          <div className="flex gap-2 mb-10 items-center px-4 sm:px-6">
+              <div className="h-1.5 flex-1 bg-[#008060] rounded-full"></div>
+              <div className="h-1.5 flex-1 bg-[#008060] rounded-full"></div>
           </div>
 
-          {/* Configuration Area */}
-          <div className="space-y-6">
-             <div className="font-bold text-slate-800 text-[18px] mb-4">সিলেক্টেড বিষয় ({mockCustomSubjects.length})</div>
+          <div className="px-4 sm:px-6 space-y-4">
+             {/* Heading */}
+             <div className="mb-6">
+                 <div className="flex items-center gap-2.5 mb-1.5">
+                      <div className="w-1.5 h-[22px] bg-[#008060] rounded-full"></div>
+                      <h2 className="text-[19px] sm:text-[20px] font-extrabold text-[#1E2B4C] select-none">সিলেক্টেড বিষয় ({mockCustomSubjects.length})</h2>
+                 </div>
+                 <p className="text-slate-500 text-[13px] sm:text-[14px] ml-4 select-none">যে বিষয় নিয়ে পরীক্ষা দিতে চান সেটিই সিলেক্ট করুন</p>
+             </div>
              
-             <div className="grid grid-cols-2 gap-4">
+             {/* Cards */}
+             <div className="flex flex-col gap-4">
                 {mockCustomSubjects.map(sub => (
-                   <div key={sub} className="bg-white p-4 rounded-[20px] border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] flex flex-col gap-3">
-                      <div className="font-bold text-slate-800 text-[16px]">{sub}</div>
-                      <div className="bg-slate-100 flex items-center justify-between rounded-[12px] p-2 border border-slate-200">
-                         <input 
-                           type="number" 
-                           value={mockQuestionCounts[sub] || 25} 
-                           onChange={(e) => setMockQuestionCounts(p => ({...p, [sub]: parseInt(e.target.value) || 0}))} 
-                           className="bg-transparent border-none outline-none font-bold text-slate-800 w-full px-2"
-                         />
-                         <span className="text-slate-500 font-bold px-2">টি</span>
-                      </div>
+                   <div key={sub} className="bg-white p-4 sm:p-5 rounded-[20px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
+                       <div className="flex items-center gap-4 sm:gap-5">
+                           <div className="w-16 h-16 rounded-full bg-[#E6F4EA] flex items-center justify-center relative shrink-0">
+                               <div className="w-8 h-8 grid grid-cols-2 grid-rows-2 gap-[2px]">
+                                   <div className="bg-[#008060] rounded flex items-center justify-center text-white font-extrabold text-[12px] pb-[1px]">+</div>
+                                   <div className="bg-[#008060] rounded flex items-center justify-center text-white font-extrabold text-[12px] pb-[1px]">-</div>
+                                   <div className="bg-[#008060] rounded flex items-center justify-center text-white font-extrabold text-[12px] pb-[1px]">×</div>
+                                   <div className="bg-[#008060] rounded flex items-center justify-center text-white font-extrabold text-[12px] pb-[1px]">=</div>
+                               </div>
+                               <div className="absolute top-1 right-1 w-1 h-1 bg-amber-400 rounded-full"></div>
+                               <div className="absolute bottom-2 -left-1 w-1.5 h-1.5 bg-amber-400 rounded-full"></div>
+                               <div className="absolute top-4 -right-2 w-1.5 h-1.5 bg-emerald-400 rounded-full pointer-events-none"></div>
+                           </div>
+                           <div>
+                               <div className="font-extrabold text-[#1E2B4C] text-[16px] sm:text-[17px] mb-2">{sub}</div>
+                               <div className="border border-slate-200 rounded-[10px] flex items-center bg-white overflow-hidden w-fit shadow-sm h-9">
+                                   <input 
+                                       type="number" 
+                                       value={mockQuestionCounts[sub] || 25} 
+                                       onChange={(e) => setMockQuestionCounts(p => ({...p, [sub]: parseInt(e.target.value) || 0}))} 
+                                       className="bg-transparent border-none outline-none font-extrabold text-[#008060] text-[16px] w-[46px] text-center h-full appearance-none m-0 p-0"
+                                   />
+                                   <div className="w-[1px] h-[50%] bg-slate-200"></div>
+                                   <div className="bg-white flex items-center text-slate-600 font-bold px-2.5 h-full text-[13px]">
+                                       মিনিট <ChevronDown className="w-3.5 h-3.5 ml-1 text-slate-800" strokeWidth={3} />
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                       
+                       <div className="relative">
+                          <div className="w-12 h-12 rounded-full bg-[#f2fcf5] flex items-center justify-center shrink-0 border border-emerald-50">
+                              <div className="w-7 h-7 rounded-full bg-[#008060] flex items-center justify-center text-white shadow-sm">
+                                  <Check className="w-4 h-4" strokeWidth={3} />
+                              </div>
+                          </div>
+                          <div className="absolute top-0 right-[-4px] w-1 h-1 bg-amber-400 rounded-full"></div>
+                          <div className="absolute bottom-1 left-[-4px] w-1 h-1 bg-amber-400 rounded-full"></div>
+                          <div className="absolute top-6 left-[-10px] w-1 h-1 bg-[#008060] rounded-full"></div>
+                       </div>
                    </div>
                 ))}
              </div>
 
-             <div className="bg-white rounded-[20px] border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-5 flex items-center justify-between cursor-pointer hover:bg-slate-50 mt-6" onClick={() => {
+             <div className="bg-white rounded-[20px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 mt-2 transition-colors" onClick={() => {
                 setMockStep(1);
                 setShowChaptersAccordion(true);
              }}>
-                <span className="font-bold text-slate-800 text-[15px]">সিলেক্টেড টপিকস দেখতে এখানে ট্যাপ করো</span>
-                <ChevronRight className="w-5 h-5 text-slate-400" />
+                <div className="flex items-center gap-3.5">
+                    <div className="w-11 h-11 rounded-[14px] bg-[#E6F4EA] flex items-center justify-center shrink-0">
+                         <FileEdit className="w-5 h-5 text-[#008060]" />
+                    </div>
+                    <div>
+                         <div className="font-extrabold text-[#1E2B4C] text-[14px] sm:text-[15px] mb-0.5">সিলেক্টেড টপিকস দেখতে এখানে ট্যাপ করো</div>
+                         <div className="text-slate-500 text-[12px]">সিলেবাস থেকে টপিকস দেখে নিতে পারবেন</div>
+                    </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-slate-400" strokeWidth={2.5} />
              </div>
-
           </div>
           
-          <div className="fixed bottom-0 left-0 w-full bg-white border-t border-slate-100 p-4 sm:p-6 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10">
-             <div className="max-w-7xl mx-auto">
-               <div className="bg-slate-100 rounded-[16px] p-4 flex items-center justify-between mb-4 border border-slate-200">
-                  <span className="font-bold text-slate-800 text-[16px]">মোট সময়</span>
-                  <div className="flex items-center w-24 justify-end">
-                     <span className="font-bold text-slate-800 text-lg">২৫</span>
-                     <span className="text-slate-500 font-bold px-2">মিনিট</span>
+          {/* Bottom Card Area */}
+          <div className="fixed sm:static bottom-0 left-0 w-full sm:mt-10 p-4 sm:px-6 z-20 flex justify-center pb-6">
+              <div className="w-full max-w-7xl mx-auto bg-white p-4 rounded-[28px] shadow-[0_-8px_30px_rgba(0,0,0,0.04)] sm:shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-slate-100 flex flex-col gap-3.5">
+                  <div className="bg-[#f8fafc] rounded-[20px] px-4 py-3.5 flex items-center justify-between border border-slate-100/60 relative overflow-hidden h-[68px]">
+                       <div className="flex items-center gap-3 relative z-10 pl-1">
+                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
+                                 <Clock className="w-4 h-4 text-[#008060]" strokeWidth={2.5} />
+                            </div>
+                            <span className="font-extrabold text-[#1E2B4C] text-[16px]">মোট সময়</span>
+                       </div>
+                       <div className="flex items-center gap-1.5 relative z-10 pr-2">
+                            <span className="font-extrabold text-[#008060] text-xl">২৫</span>
+                            <span className="font-extrabold text-[#008060] text-[16px]">মিনিট</span>
+                       </div>
+                       <div className="absolute right-[-4px] sm:right-4 top-1/2 -translate-y-1/2 opacity-[0.05] pointer-events-none">
+                            <Timer className="w-20 h-20 text-[#008060]" strokeWidth={2} />
+                       </div>
                   </div>
-               </div>
 
-               <button 
-                  onClick={() => {
-                     const totalQ = Object.values(mockQuestionCounts).reduce((a,b) => a+b, 0);
-                     setActiveSet(`mock-${totalQ}-25`);
-                  }}
-                  className="w-full py-4.5 bg-[#008060] text-white font-extrabold rounded-[16px] hover:bg-[#006e52] transition-all shadow-md active:scale-95 text-[18px]"
-               >
-                  পরীক্ষা শুরু করো
-               </button>
-             </div>
+                  <button 
+                       onClick={() => {
+                           const totalQ = Object.values(mockQuestionCounts).reduce((a,b) => a+b, 0);
+                           setActiveSet(`mock-${totalQ}-25`);
+                       }}
+                       className="w-full h-[56px] cursor-pointer bg-[#008060] text-white font-extrabold rounded-[20px] hover:bg-[#007050] transition-colors active:scale-[0.98] text-[17px] flex items-center justify-center gap-2 relative overflow-hidden"
+                  >
+                       <div className="absolute left-6 top-1/2 -translate-y-1/2 flex gap-1.5 opacity-20 pointer-events-none">
+                            <div className="flex flex-col gap-1.5">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                            </div>
+                       </div>
+
+                       <span>পরীক্ষা শুরু করো</span>
+                       <ArrowRight className="w-5 h-5 ml-1" strokeWidth={2.5} />
+
+                       <div className="absolute right-6 top-1/2 -translate-y-1/2 flex gap-1.5 opacity-20 transform scale-x-[-1] pointer-events-none">
+                            <div className="flex flex-col gap-1.5">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                            </div>
+                       </div>
+                  </button>
+              </div>
           </div>
         </div>
       )
@@ -1344,186 +1425,201 @@ export default function Exam() {
   if (!activeSet) {
     if (type === 'model') {
        return (
-         <div className="max-w-2xl mx-auto py-12 px-4 relative z-0">
-           <button 
-             onClick={() => navigate("/dashboard")}  
-             className="absolute top-4 left-4 sm:top-6 sm:left-4 flex items-center text-slate-600 font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-lg"
-           >
-             <ArrowLeft className="w-5 h-5 mr-1.5" /> ফিরে যান
-           </button>
-           {/* Header */}
-           <div className="text-center mb-10 relative mt-8">
-              <div className="flex justify-center mb-6">
-                 {/* Circle with clipboard icon */}
-                 <div className="w-[100px] h-[100px] rounded-full bg-slate-50 flex items-center justify-center relative shadow-sm border border-slate-100">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                       <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
-                       <rect x="9" y="3" width="6" height="4" rx="2"/>
-                       <path d="M9 14h6"/>
-                       <path d="M9 10h6"/>
-                    </svg>
-                    <div className="absolute bottom-2 -right-1 bg-white p-1 rounded-full shadow-sm">
-                       <div className="bg-amber-400 p-2 rounded-full border-2 border-white">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                             <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
-                          </svg>
-                       </div>
-                    </div>
-                    {/* Decorative dashes */}
-                    <div className="absolute top-2 -left-2 text-amber-500 rotate-12">
-                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 12h-4"/>
-                          <path d="M12 3v4"/>
-                          <path d="M20 5l-2.5 2.5"/>
-                       </svg>
-                    </div>
-                 </div>
-              </div>
+         <div className="max-w-2xl mx-auto py-8 px-4 relative z-0 bg-[#F8FAFC]">
+           {/* Top Navigation Bar Mockup */}
+           <div className="flex items-center justify-between mb-8">
+              {/* Back Button */}
+              <button 
+                 onClick={() => navigate("/dashboard")} 
+                 className="w-11 h-11 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all active:scale-95 cursor-pointer"
+              >
+                 <ArrowLeft className="w-5 h-5" />
+              </button>
 
-              <h2 className="text-[32px] sm:text-[40px] font-bengali font-extrabold mb-5 leading-tight">
-                 <span className="text-slate-800">মডেল টেস্ট</span> <span className="text-[#FFB800]">অনুশীলন</span>
-              </h2>
+              {/* Capsule Handle */}
+              <div className="w-16 h-1.5 bg-slate-200 rounded-full"></div>
 
-              <div className="flex items-center justify-center gap-3 text-slate-500 font-bengali font-medium mb-6">
-                 <div className="w-12 sm:w-16 h-[1px] bg-slate-300"></div>
-                 <div className="flex items-center gap-2">
-                   <BookOpen className="w-4 h-4 text-slate-600" />
-                   <span className="text-sm sm:text-base text-slate-600">সাফল্যের পথে এক ধাপ এগিয়ে</span>
-                 </div>
-                 <div className="w-12 sm:w-16 h-[1px] bg-slate-300"></div>
-              </div>
-
-              <p className="text-slate-500 font-bengali text-sm sm:text-base max-w-[90%] mx-auto leading-relaxed">
-                 {pageDesc}
-              </p>
-
-              {/* Offline mode button */}
-              <div className="flex items-center justify-center gap-3 mt-6">
-                 {isOffline ? (
-                   <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
-                     <AlertCircle className="w-4 h-4" /> অফলাইন মোড
-                   </span>
-                 ) : (
-                   isPWA && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleOfflineSync} 
-                      disabled={isSyncing}
-                      className="font-bengali text-slate-600 rounded-full shrink-0"
-                    >
-                      <BookOpen className="w-4 h-4 mr-1.5" />
-                      {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
-                    </Button>
-                   )
-                 )}
+              {/* Bell Button */}
+              <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-600 relative">
+                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+                 </svg>
+                 <span className="absolute top-[12px] right-[12px] w-2.5 h-2.5 bg-amber-400 rounded-full border-2 border-white"></span>
               </div>
            </div>
+
+           {/* Header Row */}
+           <div className="flex flex-row items-center justify-between gap-2 sm:gap-6 mb-8 mt-4 text-left">
+              <div className="flex-1 mt-2">
+                 <h1 className="text-[32px] sm:text-[40px] font-bengali font-extrabold text-[#0C1E36] leading-tight select-none whitespace-nowrap">
+                    মডেল টেস্ট
+                 </h1>
+                 <h2 className="text-[32px] sm:text-[40px] font-bengali font-extrabold text-[#EC9D00] mt-1 leading-none select-none whitespace-nowrap">
+                    অনুশীলন
+                 </h2>
+                 <div className="flex items-center justify-start gap-1.5 sm:gap-2 mt-4 text-[#008060] font-bold font-bengali">
+                    <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-[#008060] shrink-0" strokeWidth={2.5} />
+                    <span className="text-[12px] sm:text-[15px] tracking-wide">সাফল্যের পথে এক ধাপ এগিয়ে</span>
+                 </div>
+              </div>
+              
+              {/* Clipboard Illustration */}
+              <div className="relative w-36 h-36 sm:w-48 sm:h-48 shrink-0 flex items-center justify-center select-none pointer-events-none -mr-2 sm:mr-0">
+                 {/* Soft backdrop circle */}
+                 <div className="absolute w-28 h-28 sm:w-40 sm:h-40 bg-[#E6F4EA] rounded-full blur-[8px] -z-10 opacity-80"></div>
+                 <div className="absolute w-24 h-24 sm:w-36 sm:h-36 bg-[#ECFDF5] rounded-full -z-10"></div>
+                 
+                 {/* Floating accents */}
+                 <div className="absolute top-2 left-4 sm:left-6 text-emerald-400 animate-pulse">
+                    <svg width="12" height="12" className="sm:w-[14px] sm:h-[14px]" viewBox="0 0 24 24" fill="currentColor">
+                       <path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>
+                    </svg>
+                 </div>
+                 <div className="absolute bottom-6 right-2 sm:right-4 text-emerald-300">
+                    <svg width="14" height="14" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="currentColor">
+                       <path d="M12 2l2.4 7.6L22 12l-7.6 2.4L12 22l-2.4-7.6L2 12l7.6-2.4z"/>
+                    </svg>
+                 </div>
+                 <div className="absolute top-1/2 right-2 sm:right-4 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-indigo-200 rounded-full"></div>
+                 <div className="absolute bottom-8 left-2 sm:left-4 text-[#008060] font-black text-sm sm:text-lg select-none pointer-events-none">+</div>
+
+                 {/* Premium SVG Clipboard */}
+                 <svg viewBox="0 0 200 200" fill="none" className="w-[100px] h-[100px] sm:w-[125px] sm:h-[125px] drop-shadow-md">
+                    {/* Clipboard template back */}
+                    <rect x="42" y="32" width="116" height="136" rx="14" fill="white" stroke="#008060" strokeWidth="4" />
+                    {/* Clipboard top clip */}
+                    <path d="M86 32V25c0-1.6 1.4-3 3-3h22c1.6 0 3 1.4 3 3v7" fill="#0C1E36" />
+                    <circle cx="100" cy="25" r="3" fill="white" />
+                    
+                    {/* Checklist 1 */}
+                    <rect x="58" y="60" width="16" height="16" rx="4" fill="#E6F4EA" stroke="#008060" strokeWidth="2" />
+                    <path d="M62 67l2.5 2.5 4.5-4.5" stroke="#008060" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1="84" y1="68" x2="136" y2="68" stroke="#0C1E36" strokeWidth="4.5" strokeLinecap="round" />
+                    
+                    {/* Checklist 2 */}
+                    <rect x="58" y="90" width="16" height="16" rx="4" fill="#E6F4EA" stroke="#008060" strokeWidth="2" />
+                    <path d="M62 97l2.5 2.5 4.5-4.5" stroke="#008060" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1="84" y1="98" x2="136" y2="98" stroke="#0C1E36" strokeWidth="4.5" strokeLinecap="round" />
+                    
+                    {/* Checklist 3 */}
+                    <rect x="58" y="120" width="16" height="16" rx="4" fill="#E6F4EA" stroke="#008060" strokeWidth="2" />
+                    <path d="M62 127l2.5 2.5 4.5-4.5" stroke="#008060" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <line x1="84" y1="128" x2="136" y2="128" stroke="#0C1E36" strokeWidth="4.5" strokeLinecap="round" />
+                    
+                    {/* Stylized pencil */}
+                    <g transform="translate(142, 106) rotate(-28)">
+                       <rect x="0" y="0" width="11" height="46" rx="2.5" fill="#008060" />
+                       <rect x="4" y="0" width="3" height="46" fill="#059669" />
+                       <path d="M0 0 L5.5 -10 L11 0 Z" fill="#FBBF24" />
+                       <path d="M3.5 -6 L5.5 -10 L7.5 -6 Z" fill="#0C1E36" />
+                       <rect x="0" y="41" width="11" height="5" rx="1" fill="#E2E8F0" />
+                    </g>
+                 </svg>
+              </div>
+           </div>
+
+
 
            {/* Cards List */}
-           <div className="flex flex-col gap-4 mb-6">
-             {dynamicModelSets.map((set, idx) => (
-                <motion.div
-                   key={set.id}
-                   whileHover={{ scale: 1.02 }}
-                   whileTap={{ scale: 0.98 }}
-                   onClick={() => {
-                      if (set.isAdminExam) {
-                         navigate(`/public-exam/${set.id}`);
-                      } else {
-                         setActiveSet(set.id);
-                      }
-                   }}
-                   className="cursor-pointer bg-white border border-slate-200 hover:border-slate-300 shadow-sm rounded-3xl p-4 sm:p-5 flex items-center justify-between group transition-all"
-                >
-                   <div className="flex items-center gap-5 sm:gap-6">
-                      <div className="relative shrink-0">
-                         {/* Document Icon Graphic */}
-                         <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-sm">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#F8FAFC"/>
-                            <path d="M14 2v6h6" strokeWidth="1"/>
-                            <path d="M8 13h8" strokeWidth="1.5"/>
-                            <path d="M8 17h8" strokeWidth="1.5"/>
-                            {/* tiny checkmarks */}
-                            <path d="M8 9l1 1 2-2" strokeWidth="1.5" stroke="#10B981" />
-                            <path d="M8 13l1 1 2-2" strokeWidth="1.5" stroke="#10B981" />
-                         </svg>
-                         {/* Pen */}
-                         <div className="absolute -bottom-1 -right-2 text-amber-400 rotate-[15deg] bg-white rounded-full">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="#FBBF24" stroke="#1E293B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                               <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+           <div className="flex flex-col gap-4 mb-8">
+             {dynamicModelSets.map((set, idx) => {
+                const bnIdx = (idx + 1).toString().padStart(2, '0').replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
+                return (
+                   <motion.div
+                      key={set.id}
+                      whileHover={{ scale: 1.01, y: -2 }}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => {
+                         if (set.isAdminExam) {
+                            navigate(`/public-exam/${set.id}`);
+                         } else {
+                            setActiveSet(set.id);
+                         }
+                      }}
+                      className="cursor-pointer bg-white border border-[#F1F5F9] hover:border-emerald-200 hover:shadow-md shadow-sm rounded-3xl p-4 flex items-center justify-between group transition-all"
+                   >
+                      <div className="flex items-center gap-4">
+                         {/* Mint Green Document Backdrop */}
+                         <div className="relative shrink-0 w-14 h-14 rounded-2xl bg-[#E6F4EA] flex items-center justify-center border border-emerald-50">
+                            {/* Document Pencil SVG */}
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#008060" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                               <polyline points="14 2 14 8 20 8" />
+                               <line x1="16" y1="13" x2="8" y2="13" strokeWidth="1.5" />
+                               <line x1="16" y1="17" x2="8" y2="17" strokeWidth="1.5" />
                             </svg>
+                            {/* Numerical mini-badge */}
+                            <div className="absolute -bottom-1 -left-1 w-[22px] h-[22px] rounded-full bg-[#008060] text-white font-bold text-[11px] flex items-center justify-center shadow-md border-2 border-white pl-0.5 pt-0.5">
+                               {bnIdx}
+                            </div>
                          </div>
-                         {/* Number Badge */}
-                         <div className="absolute -bottom-1 -left-2 bg-[#0F172A] text-white font-mono font-bold text-sm sm:text-base px-2 py-0.5 rounded-lg shadow-md border-2 border-white tracking-widest pl-2.5">
-                            {(idx + 1).toString().padStart(2, '0').replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])}
+
+                         <div className="text-left pl-1">
+                            <h3 className="text-[16px] sm:text-[18px] font-bengali font-bold text-[#1E2B4C] mb-1.5 group-hover:text-[#008060] transition-colors leading-tight">
+                                {set.title}
+                            </h3>
+                            <div className="flex items-center gap-3 text-slate-400 font-bengali text-xs">
+                               <div className="flex items-center gap-1">
+                                  <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                  <span>{
+                                     set.timeMinutes >= 60 
+                                         ? `${Math.floor(set.timeMinutes / 60)} ঘণ্টা ${set.timeMinutes % 60 > 0 ? `${set.timeMinutes % 60} মিনিট` : ''}`.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])
+                                         : `${set.timeMinutes} মিনিট`.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])
+                                  }</span>
+                               </div>
+                               <span className="text-slate-300">|</span>
+                               <div className="flex items-center gap-1">
+                                  <FileText className="w-3.5 h-3.5 text-slate-400" />
+                                  <span>{set.totalQuestions.toString().replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])} নম্বর</span>
+                               </div>
+                            </div>
                          </div>
                       </div>
 
-                      <div className="pl-2">
-                         <h3 className="text-lg sm:text-xl font-bengali font-bold text-slate-800 mb-2 group-hover:text-amber-600 transition-colors">
-                             {set.title}
-                         </h3>
-                         <div className="flex flex-wrap items-center gap-3 text-slate-500 font-bengali text-xs sm:text-sm">
-                            <div className="flex items-center gap-1.5">
-                               <Timer className="w-4 h-4 text-slate-400" />
-                               <span>{
-                                  set.timeMinutes >= 60 
-                                      ? `${Math.floor(set.timeMinutes / 60)} ঘণ্টা ${set.timeMinutes % 60 > 0 ? `${set.timeMinutes % 60} মিনিট` : ''}`.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])
-                                      : `${set.timeMinutes} মিনিট`.replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])
-                               }</span>
-                            </div>
-                            <div className="text-slate-300">|</div>
-                            <div className="flex items-center gap-1.5">
-                               <FileText className="w-4 h-4 text-slate-400" />
-                               <span>{set.totalQuestions.toString().replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)])} নম্বর</span>
-                            </div>
-                         </div>
+                      {/* Accent Chevron Circle Button */}
+                      <div className="w-10 h-10 rounded-full bg-[#E6F4EA] flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-all">
+                         <ChevronRight className="w-5 h-5 text-[#008060] stroke-[2.5]" />
                       </div>
-                   </div>
-
-                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#0F172A] border-[3px] border-amber-400 flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400" />
-                   </div>
-                </motion.div>
-             ))}
+                   </motion.div>
+                );
+             })}
            </div>
 
-           {/* Bottom Banner */}
-           <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 sm:p-6 mt-6 flex items-center gap-4 sm:gap-6 justify-center sm:justify-start text-center sm:text-left shadow-sm relative overflow-hidden">
-               {/* Pattern */}
-               <div className="absolute right-4 top-1/2 -translate-y-1/2 opacity-20">
-                  <svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <pattern id="dotsBanner" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-                        <circle fill="#0F172A" cx="2" cy="2" r="2"></circle>
-                      </pattern>
-                    </defs>
-                    <rect x="0" y="0" width="100%" height="100%" fill="url(#dotsBanner)"></rect>
-                  </svg>
-               </div>
-               
-               <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center bg-transparent shrink-0">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                     <circle cx="12" cy="12" r="10" stroke="#0F172A" strokeWidth="2"/>
-                     <circle cx="12" cy="12" r="6" stroke="#0F172A" strokeWidth="2"/>
-                     <circle cx="12" cy="12" r="2" stroke="#0F172A" strokeWidth="2"/>
-                     <path d="M12 2v4M12 18v4M2 12h4M18 12h4" stroke="#0F172A" opacity="0.3" />
-                  </svg>
-               </div>
-               <div className="relative z-10">
-                  <div className="text-lg sm:text-xl font-bengali font-bold text-slate-800">
-                     লক্ষ্য ঠিক রাখো,
-                  </div>
-                  <div className="text-xl sm:text-2xl font-bengali font-extrabold mt-0.5 relative inline-block">
-                     <span className="text-[#FFB800]">সাফল্য</span> <span className="text-slate-800">হবেই তোমার!</span>
-                     <span className="text-amber-400 absolute -right-6 top-0">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                           <path d="M2 12h4M18 12h4M12 2v4M12 18v4"/>
-                        </svg>
-                     </span>
-                  </div>
-               </div>
+           {/* Mobile Prototype Bottom Navigation Menu */}
+           <div className="mt-8 border-t border-slate-100 bg-white shadow-[0_-8px_30px_rgba(0,0,0,0.03)] rounded-[24px] p-4 flex justify-around items-center gap-2 max-w-xl mx-auto border border-slate-100/50">
+              <div className="flex flex-col items-center gap-1.5 cursor-pointer text-[#008060]">
+                 <div className="px-3 py-1 rounded-xl bg-[#E6F4EA] flex items-center justify-center">
+                    <BookOpen className="w-5 h-5" strokeWidth={2.5} />
+                 </div>
+                 <span className="text-xs font-bengali font-bold select-none">মডেল টেস্ট</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors" onClick={() => navigate("/leaderboard")}>
+                 <div className="p-1">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                       <line x1="18" y1="20" x2="18" y2="10" />
+                       <line x1="12" y1="20" x2="12" y2="4" />
+                       <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                 </div>
+                 <span className="text-xs font-bengali font-medium select-none">পারফরম্যান্স</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors" onClick={() => navigate("/dashboard")}>
+                 <div className="p-1">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                       <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                    </svg>
+                 </div>
+                 <span className="text-xs font-bengali font-medium select-none">সেভড</span>
+              </div>
+              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors" onClick={() => navigate("/profile")}>
+                 <div className="p-1">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                       <circle cx="12" cy="7" r="4" />
+                    </svg>
+                 </div>
+                 <span className="text-xs font-bengali font-medium select-none">প্রোফাইল</span>
+              </div>
            </div>
          </div>
        );
@@ -1540,26 +1636,7 @@ export default function Exam() {
         <div className="text-center mb-12 mt-8">
           <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">{pageTitle}</h2>
 
-          <div className="flex items-center justify-center gap-3 mb-6">
-             {isOffline ? (
-               <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
-                 <AlertCircle className="w-4 h-4" /> অফলাইন মোড
-               </span>
-             ) : (
-               isPWA && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleOfflineSync} 
-                  disabled={isSyncing}
-                  className="font-bengali text-slate-600 rounded-full shrink-0"
-                >
-                  <BookOpen className="w-4 h-4 mr-1.5" />
-                  {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
-                </Button>
-               )
-             )}
-          </div>
+
 
           <p className="text-slate-500 font-bengali text-lg max-w-xl mx-auto">
             {pageDesc}
@@ -1724,6 +1801,7 @@ export default function Exam() {
                    const selected = selectedOptions[q.id] === optionId;
                    const correct = isCorrect(q.id, optionId);
                    const wrong = isIncorrect(q.id, optionId);
+                   const qWasSkipped = !selectedOptions[q.id];
                    
                    let containerClass = "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50 border-[1.5px] text-slate-700 shadow-sm";
                    let labelBg = "bg-slate-100 text-slate-600 border border-slate-200";
@@ -1731,6 +1809,9 @@ export default function Exam() {
                    if (selected && !isSubmitted) {
                      containerClass = "bg-blue-50/50 border-blue-500 border-[1.5px] text-blue-900 shadow-md ring-4 ring-blue-500/10";
                      labelBg = "bg-blue-500 text-white border border-blue-600 shadow-inner";
+                   } else if (isSubmitted && correct && qWasSkipped) {
+                     containerClass = "bg-orange-50 border-orange-400 border-[1.5px] text-orange-800 shadow-md ring-4 ring-orange-500/10";
+                     labelBg = "bg-orange-500 text-white border border-orange-600 shadow-inner";
                    } else if (correct) {
                      containerClass = "bg-[#f2fbf5] border-[#4bb063] border-[1.5px] text-[#2c7a3f] shadow-md ring-4 ring-[#4bb063]/10";
                      labelBg = "bg-[#4bb063] text-white border border-[#3e9552] shadow-inner";

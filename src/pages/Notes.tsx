@@ -2123,6 +2123,12 @@ export default function Notes() {
         <div className="bg-white border-b border-slate-100 overflow-hidden relative shadow-sm">
           <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-8 sm:py-10 flex items-center justify-between">
             <div className="relative z-10 space-y-1.5 sm:space-y-2">
+              <button 
+                onClick={() => navigate(-1)} 
+                className="w-10 h-10 bg-slate-50 hover:bg-slate-100 rounded-full flex items-center justify-center transition-colors mb-4 border border-slate-200"
+              >
+                <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
+              </button>
               <h1 className="font-bengali text-3xl sm:text-4xl font-extrabold text-[#1e293b] tracking-tight">
                 নোটস
               </h1>

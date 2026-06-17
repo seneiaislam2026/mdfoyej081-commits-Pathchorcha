@@ -574,10 +574,12 @@ export default function PublicExam() {
                   {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any, optIdx: number) => {
                     const isSelected = selectedAnswers[idx] === option.id;
                     const isThisCorrect = isQuestionSubmitted && (correct === option.id);
+                    const qWasSkipped = !selectedAnswers[idx];
                     
                     let optStyle = "";
                     if (isQuestionSubmitted) {
-                       if (isThisCorrect) optStyle = "border-green-500 bg-green-100 shadow-[0_0_0_1px_#22c55e]";
+                       if (isThisCorrect && qWasSkipped) optStyle = "border-orange-500 bg-orange-100 shadow-[0_0_0_1px_#f97316]";
+                       else if (isThisCorrect) optStyle = "border-green-500 bg-green-100 shadow-[0_0_0_1px_#22c55e]";
                        else if (isSelected && !isThisCorrect) optStyle = "border-red-500 bg-red-100 shadow-[0_0_0_1px_#ef4444]";
                        else optStyle = "border-slate-200 bg-slate-50 opacity-60";
                     } else {
@@ -587,7 +589,8 @@ export default function PublicExam() {
 
                     let badgeStyle = "";
                     if (isQuestionSubmitted) {
-                       if (isThisCorrect) badgeStyle = "bg-green-600 text-white border-r-green-600";
+                       if (isThisCorrect && qWasSkipped) badgeStyle = "bg-orange-600 text-white border-r-orange-600";
+                       else if (isThisCorrect) badgeStyle = "bg-green-600 text-white border-r-green-600";
                        else if (isSelected && !isThisCorrect) badgeStyle = "bg-red-600 text-white border-r-red-600";
                        else badgeStyle = "bg-slate-200 text-slate-500 border-slate-200";
                     } else {
@@ -597,7 +600,8 @@ export default function PublicExam() {
 
                     let textColor = "";
                     if (isQuestionSubmitted) {
-                       if (isThisCorrect) textColor = "text-green-900 font-bold";
+                       if (isThisCorrect && qWasSkipped) textColor = "text-orange-900 font-bold";
+                       else if (isThisCorrect) textColor = "text-green-900 font-bold";
                        else if (isSelected && !isThisCorrect) textColor = "text-red-900 font-bold";
                        else textColor = "text-slate-600 font-medium";
                     } else {
