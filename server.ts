@@ -11,18 +11,8 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
-
-  // Intercept logo.png requests of any nested routes and serve as image/svg+xml
-  app.get("*/logo.png", (req, res) => {
-    res.setHeader("Content-Type", "image/svg+xml");
-    const logoPath = path.join(process.cwd(), "public", "logo.png");
-    if (fs.existsSync(logoPath)) {
-      res.sendFile(logoPath);
-    } else {
-      res.status(404).send("File not found");
-    }
-  });
+  app.use(express.json({ limit: "50mb" }));
+  app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
   // Helper for formatting phone num
   const formatPhoneForGreenweb = (phone: string) => {

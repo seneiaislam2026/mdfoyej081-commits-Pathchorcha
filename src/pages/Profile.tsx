@@ -70,7 +70,7 @@ export default function Profile() {
       setEditName(userData.fullName || "");
       setEditInstitution(userData.institution || "শিক্ষাপ্রতিষ্ঠান যুক্ত করা হয়নি");
       setEditClass(userData.class || "এইচএসসি");
-      setEditBatch(userData.batch || "HSC-25");
+      setEditBatch(userData.batch || userData.class || "Not set");
       setEditQuote(userData.quote || "শিক্ষাই শক্তি, শিক্ষাই মুক্তি");
     }
   }, [userData]);
@@ -363,11 +363,11 @@ export default function Profile() {
                 )}
               </p>
 
-              {/* Batch HSC-25 Badge Pill */}
+              {/* Batch/Class Badge Pill */}
               <div className="mt-2.5">
-                <span className="text-xs font-bold bg-violet-100 text-violet-700 px-3 py-1 rounded-full border border-violet-200 inline-flex items-center gap-1.5 shadow-3xs font-sans">
+                <span className="text-xs font-bold bg-violet-100 text-violet-700 px-3 py-1 rounded-full border border-violet-200 inline-flex items-center gap-1.5 shadow-3xs font-bengali">
                   <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse"></span>
-                  Batch: {userData?.batch || "HSC-25"}
+                  {userData?.batch || userData?.class || "ক্লাস সেট করা নেই"}
                 </span>
               </div>
 
@@ -654,7 +654,7 @@ export default function Profile() {
                     value={editBatch}
                     onChange={(e) => setEditBatch(e.target.value)}
                     className="w-full border border-slate-200 rounded-2xl p-3 font-sans font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800"
-                    placeholder="e.g. HSC-25"
+                    placeholder="e.g. Class 9 / HSC"
                   />
                 </div>
               </div>

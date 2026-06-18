@@ -616,7 +616,7 @@ export default function PublicExam() {
                         className={`w-full flex items-stretch rounded-[16px] border-[1.5px] overflow-hidden transition-all text-left ${optStyle}`}
                       >
                         <div className={`w-[52px] flex items-center justify-center text-[15px] font-bold shrink-0 border-r-[1.5px] transition-colors ${badgeStyle}`}>
-                          {option.id}
+                          {option.id === 'A' || option.id === '1' ? 'ক' : option.id === 'B' || option.id === '2' ? 'খ' : option.id === 'C' || option.id === '3' ? 'গ' : option.id === 'D' || option.id === '4' ? 'ঘ' : option.id}
                         </div>
                         <div className="flex-1 p-4 px-5">
                           <span className={`text-[16px] sm:text-[17px] ${textColor}`}>

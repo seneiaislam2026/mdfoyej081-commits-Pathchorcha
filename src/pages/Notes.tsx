@@ -73,17 +73,17 @@ export const ORIGINAL_NOTE_PAGES: Record<string, number> = {
 
 // Helper function to map user classes into standardized class groups
 export const mapUserClassToGroup = (cls?: string) => {
-  if (cls === "এডমিশন" || cls === "Admission") return "Admission";
-  if (cls === "দশম শ্রেণী" || cls === "SSC") return "SSC";
-  if (cls === "এইচএসসি" || cls === "HSC" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী")
+  if (!cls) return "Admission";
+  if (cls === "এডমিশন" || cls.includes("Admission")) return "Admission";
+  if (cls === "দশম শ্রেণী" || cls.includes("SSC") || cls.includes("দশম")) return "SSC";
+  if (cls === "এইচএসসি" || cls === "HSC" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী" || cls.includes("HSC"))
     return "HSC";
-  if (cls === "নবম শ্রেণী" || cls === "Class 9") return "SSC";
+  if (cls === "নবম শ্রেণী" || cls.includes("Class 9") || cls.includes("নবম")) return "Class 9";
   if (
-    cls === "৬ষ্ঠ শ্রেণী" ||
-    cls === "৭ম শ্রেণী" ||
-    cls === "৮ম শ্রেণী" ||
-    cls === "৬ষ্ঠ থেকে ৮ম শ্রেণী" ||
-    cls === "Class 6-8"
+    cls.includes("৬ষ্ঠ") ||
+    cls.includes("৭ম") ||
+    cls.includes("৮ম") ||
+    cls.includes("Class 6")
   )
     return "Class 6-8";
   return "Admission"; // Default fallback to Admission to prevent empty lists
@@ -109,6 +109,144 @@ export const getSubjectsByGroup = (group?: string, classGroup?: string) => {
 
 // Lecture Notes Database
 export const ALL_NOTES = [
+  {
+    id: "bn-denapaona-ssc",
+    title: "দেনাপাওনা — সম্পূর্ণ লেকচার শিট",
+    subject: "বাংলা",
+    classGroup: "SSC",
+    badges: ["মাস্টার নোট", "এসএসসি"],
+    description: "রবীন্দ্রনাথ ঠাকুরের 'দেনাপাওনা' গল্পের গুরুত্বপূর্ণ তথ্য, মূল বিষয়বস্তু ও MCQ সমূহের বিস্তারিত আলোচনা।",
+    link: "",
+    isExternal: false,
+    content: {
+      intro: "নবম-দশম শ্রেণির বাংলা সাবজেক্টের জন্য 'দেনাপাওনা' গল্পটি অত্যন্ত গুরুত্বপূর্ণ। এখানে গল্পের যাবতীয় তথ্য ও প্রশ্নোত্তর সহজভাবে সাজানো হয়েছে।",
+      chapters: [
+        {
+          title: "১. লেখক পরিচিতি",
+          items: [
+            "👉 নাম: রবীন্দ্রনাথ ঠাকুর",
+            "👉 জন্ম-মৃত্যু: ১৮৬১ - ১৯৪১ খ্রিস্টাব্দ",
+            "👉 উপাধি: বিশ্বকবি",
+            "👉 নোবেল পুরস্কার: ১৯১৩ সালে 'গীতাঞ্জলি' কাব্যগ্রন্থের জন্য",
+            "👉 সাহিত্যিক বৈশিষ্ট্য: সমাজের নিচুতলার মানুষের জীবন ও নারীর অসহায়ত্বের চিত্রায়ন।"
+          ]
+        },
+        {
+          title: "২. পাঠ পরিচিতি ও মূল বিষয়বস্তু",
+          items: [
+            "👉 উৎস: সাধনা পত্রিকা",
+            "👉 মূল বিষয়: তৎকালীন হিন্দু সমাজে যৌতুক প্রথার অভিশপ্ত রূপ",
+            "👉 মূল ভাব: অর্থের লিপ্সায় মানবিক সম্পর্ক ধ্বংস এবং যৌতুকের বলি হওয়া এক তরুণীর করুণ কাহিনী।"
+          ]
+        },
+        {
+          title: "৩. গল্পের বিস্তারিত বিশ্লেষণ",
+          items: [
+            "👉 বিয়ের আয়োজন: রামসুন্দর মেয়ের সুখের আশায় সর্বস্ব বাজি রেখে যৌতুক দিতে রাজি হন, যা তৎকালীন আভিজাত্যের সামাজিক দায়।",
+            "👉 শ্বশুরবাড়ির নিষ্ঠুরতা: বিয়ের পর নিরুপমার প্রতি শ্বশুরবাড়ির অমানবিক অত্যাচার শুরু হয়, যেখানে সে কেবল একটি পণদ্রব্য হিসেবে গণ্য হয়।",
+            "👉 পিতার অসহায়ত্ব: রামসুন্দর জমি-জিরাত বিক্রি করে টাকা পাঠান, কিন্তু শ্বশুরবাড়ির লোভের শেষ হয় না।",
+            "👉 নিরুপমার আত্মসম্মান: নিরুপমা নিজের জীবনের চেয়ে বাবার মান রক্ষা বড় মনে করে বাবাকে আর টাকা না পাঠাতে নিষেধ করে।",
+            "👉 গল্পের পরিণতি: অবহেলার শিকার হয়ে নিরুপমার অকাল মৃত্যু ঘটে, যা যৌতুক প্রথার নির্মম ট্র্যাজেডি।"
+          ]
+        },
+        {
+          title: "৪. গুরুত্বপূর্ণ শব্দার্থ",
+          items: [
+            "👉 দেনাপাওনা: বিয়ের পণ বা যৌতুক",
+            "👉 রায়বাহাদুর: তৎকালীন ব্রিটিশ সরকারের দেওয়া উপাধি",
+            "👉 কৌলিন্য: বংশমর্যাদা বা আভিজাত্য",
+            "👉 বিদ্রূপ: ব্যঙ্গ বা উপহাসমূলক আচরণ",
+            "👉 অনাদর: অবহেলা করা",
+            "👉 নিঃস্ব: সর্বস্বান্ত বা সহায়হীন"
+          ]
+        },
+        {
+          title: "৫. MCQ Quiz",
+          items: [
+            { type: "qa", q: "'দেনাপাওনা' গল্পের রচয়িতা কে?", a: "রবীন্দ্রনাথ ঠাকুর" },
+            { type: "qa", q: "রবীন্দ্রনাথ ঠাকুর কত সালে নোবেল পান?", a: "১৯১৩" },
+            { type: "qa", q: "নিরুপমার বাবা কে?", a: "রামসুন্দর" },
+            { type: "qa", q: "যৌতুক প্রথা কেমন?", a: "সামাজিক অভিশাপ" },
+            { type: "qa", q: "নিরুপমার শ্বশুরবাড়িতে তাকে কী চোখে দেখা হতো?", a: "পণদ্রব্য" },
+            { type: "qa", q: "নিরুপমা কেন বাবাকে টাকা পাঠাতে নিষেধ করে?", a: "সে আত্মমর্যাদাবান বলে" },
+            { type: "qa", q: "'কৌলিন্য' শব্দের অর্থ কী?", a: "বংশমর্যাদা" },
+            { type: "qa", q: "এই গল্পে রবীন্দ্রনাথ কিসের বিরুদ্ধে প্রতিবাদ করেছেন?", a: "যৌতুক প্রথা" },
+            { type: "qa", q: "গল্পের শেষে নিরুপমার কী হয়?", a: "সে অসুস্থ হয়ে মারা যায়" },
+            { type: "qa", q: "'দেনাপাওনা' কোন ধরণের সাহিত্যকর্ম?", a: "ছোটগল্প" }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    id: "bn-denapaona-class9",
+    title: "দেনাপাওনা — সম্পূর্ণ লেকচার শিট",
+    subject: "বাংলা",
+    classGroup: "Class 9",
+    badges: ["মাস্টার নোট", "নবম শ্রেণি"],
+    description: "রবীন্দ্রনাথ ঠাকুরের 'দেনাপাওনা' গল্পের গুরুত্বপূর্ণ তথ্য, মূল বিষয়বস্তু ও MCQ সমূহের বিস্তারিত আলোচনা।",
+    link: "",
+    isExternal: false,
+    content: {
+      intro: "নবম-দশম শ্রেণির বাংলা সাবজেক্টের জন্য 'দেনাপাওনা' গল্পটি অত্যন্ত গুরুত্বপূর্ণ। এখানে গল্পের যাবতীয় তথ্য ও প্রশ্নোত্তর সহজভাবে সাজানো হয়েছে।",
+      chapters: [
+        {
+          title: "১. লেখক পরিচিতি",
+          items: [
+            "👉 নাম: রবীন্দ্রনাথ ঠাকুর",
+            "👉 জন্ম-মৃত্যু: ১৮৬১ - ১৯৪১ খ্রিস্টাব্দ",
+            "👉 উপাধি: বিশ্বকবি",
+            "👉 নোবেল পুরস্কার: ১৯১৩ সালে 'গীতাঞ্জলি' কাব্যগ্রন্থের জন্য",
+            "👉 সাহিত্যিক বৈশিষ্ট্য: সমাজের নিচুতলার মানুষের জীবন ও নারীর অসহায়ত্বের চিত্রায়ন।"
+          ]
+        },
+        {
+          title: "২. পাঠ পরিচিতি ও মূল বিষয়বস্তু",
+          items: [
+            "👉 উৎস: সাধনা পত্রিকা",
+            "👉 মূল বিষয়: তৎকালীন হিন্দু সমাজে যৌতুক প্রথার অভিশপ্ত রূপ",
+            "👉 মূল ভাব: অর্থের লিপ্সায় মানবিক সম্পর্ক ধ্বংস এবং যৌতুকের বলি হওয়া এক তরুণীর করুণ কাহিনী।"
+          ]
+        },
+        {
+          title: "৩. গল্পের বিস্তারিত বিশ্লেষণ",
+          items: [
+            "👉 বিয়ের আয়োজন: রামসুন্দর মেয়ের সুখের আশায় সর্বস্ব বাজি রেখে যৌতুক দিতে রাজি হন, যা তৎকালীন আভিজাত্যের সামাজিক দায়।",
+            "👉 শ্বশুরবাড়ির নিষ্ঠুরতা: বিয়ের পর নিরুপমার প্রতি শ্বশুরবাড়ির অমানবিক অত্যাচার শুরু হয়, যেখানে সে কেবল একটি পণদ্রব্য হিসেবে গণ্য হয়।",
+            "👉 পিতার অসহায়ত্ব: রামসুন্দর জমি-জিরাত বিক্রি করে টাকা পাঠান, কিন্তু শ্বশুরবাড়ির লোভের শেষ হয় না।",
+            "👉 নিরুপমার আত্মসম্মান: নিরুপমা নিজের জীবনের চেয়ে বাবার মান রক্ষা বড় মনে করে বাবাকে আর টাকা না পাঠাতে নিষেধ করে।",
+            "👉 গল্পের পরিণতি: অবহেলার শিকার হয়ে নিরুপমার অকাল মৃত্যু ঘটে, যা যৌতুক প্রথার নির্মম ট্র্যাজেডি।"
+          ]
+        },
+        {
+          title: "৪. গুরুত্বপূর্ণ শব্দার্থ",
+          items: [
+            "👉 দেনাপাওনা: বিয়ের পণ বা যৌতুক",
+            "👉 রায়বাহাদুর: তৎকালীন ব্রিটিশ সরকারের দেওয়া উপাধি",
+            "👉 কৌলিন্য: বংশমর্যাদা বা আভিজাত্য",
+            "👉 বিদ্রূপ: ব্যঙ্গ বা উপহাসমূলক আচরণ",
+            "👉 অনাদর: অবহেলা করা",
+            "👉 নিঃস্ব: সর্বস্বান্ত বা সহায়হীন"
+          ]
+        },
+        {
+          title: "৫. MCQ Quiz",
+          items: [
+            { type: "qa", q: "'দেনাপাওনা' গল্পের রচয়িতা কে?", a: "রবীন্দ্রনাথ ঠাকুর" },
+            { type: "qa", q: "রবীন্দ্রনাথ ঠাকুর কত সালে নোবেল পান?", a: "১৯১৩" },
+            { type: "qa", q: "নিরুপমার বাবা কে?", a: "রামসুন্দর" },
+            { type: "qa", q: "যৌতুক প্রথা কেমন?", a: "সামাজিক অভিশাপ" },
+            { type: "qa", q: "নিরুপমার শ্বশুরবাড়িতে তাকে কী চোখে দেখা হতো?", a: "পণদ্রব্য" },
+            { type: "qa", q: "নিরুপমা কেন বাবাকে টাকা পাঠাতে নিষেধ করে?", a: "সে আত্মমর্যাদাবান বলে" },
+            { type: "qa", q: "'কৌলিন্য' শব্দের অর্থ কী?", a: "বংশমর্যাদা" },
+            { type: "qa", q: "এই গল্পে রবীন্দ্রনাথ কিসের বিরুদ্ধে প্রতিবাদ করেছেন?", a: "যৌতুক প্রথা" },
+            { type: "qa", q: "গল্পের শেষে নিরুপমার কী হয়?", a: "সে অসুস্থ হয়ে মারা যায়" },
+            { type: "qa", q: "'দেনাপাওনা' কোন ধরণের সাহিত্যকর্ম?", a: "ছোটগল্প" }
+          ]
+        }
+      ]
+    }
+  },
   {
     id: "bn-oporichita-hsc",
     title: "অপরিচিতা — সম্পূর্ণ লেকচার শিট",
@@ -2087,13 +2225,15 @@ export default function Notes() {
   const userClassGroup = mapUserClassToGroup(userClass);
   const combinedAllNotes = [...ALL_NOTES, ...dbNotes];
 
+  const allowedSubjectsForUser = getSubjectsByGroup(userData?.group, userClassGroup);
+
   // Dynamic subjects list from this class group
   const availableSubjects = [
     "All",
     ...Array.from(
       new Set(
         combinedAllNotes
-          .filter((note) => note.classGroup === userClassGroup)
+          .filter((note) => note.classGroup === userClassGroup && allowedSubjectsForUser.includes(note.subject))
           .map((note) => note.subject)
           .filter(Boolean),
       ),
@@ -2103,6 +2243,9 @@ export default function Notes() {
   const filteredNotes = combinedAllNotes.filter((note) => {
     const isClassMatch = note.classGroup === userClassGroup;
     if (!isClassMatch) return false;
+
+    // Filter by group-specific subjects
+    if (!allowedSubjectsForUser.includes(note.subject)) return false;
 
     if (chosenSubject) {
       let isMatch = note.subject === chosenSubject;
@@ -2124,7 +2267,7 @@ export default function Notes() {
           <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-8 sm:py-10 flex items-center justify-between">
             <div className="relative z-10 space-y-1.5 sm:space-y-2">
               <button 
-                onClick={() => navigate(-1)} 
+                onClick={() => navigate("/dashboard")} 
                 className="w-10 h-10 bg-slate-50 hover:bg-slate-100 rounded-full flex items-center justify-center transition-colors mb-4 border border-slate-200"
               >
                 <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
@@ -2759,18 +2902,6 @@ export default function Notes() {
                     <div
                       className={`flex items-center gap-2.5 shrink-0 self-end sm:self-center bg-black/5 dark:bg-white/5 rounded-2xl p-1 border ${tc.border}`}
                     >
-                      {/* Print button */}
-                      <button
-                        onClick={() => handlePrintNote(readingNote)}
-                        disabled={downloadingPdf}
-                        className={`h-7 w-7 flex items-center justify-center rounded-xl transition-all ${downloadingPdf ? 'opacity-50 cursor-wait' : 'text-slate-550 hover:text-slate-800 hover:bg-black/5 dark:hover:bg-white/10'}`}
-                        title="Print Note / Save as PDF"
-                      >
-                        <Printer className={`w-3.5 h-3.5 ${downloadingPdf ? 'animate-spin' : ''}`} />
-                      </button>
-
-                      <div className="h-4 w-[1px] bg-slate-300 dark:bg-slate-700" />
-
                       {/* Theme buttons */}
                       <div className="flex items-center gap-0.5">
                         <button
@@ -2818,12 +2949,12 @@ export default function Notes() {
                     {/* Note Banner Info */}
                     <div className="space-y-4">
                       <h1
-                        className={`font-bengali font-extrabold text-2xl sm:text-3xl leading-tight transition-colors duration-300 ${tc.textTitle}`}
+                        className={`font-nctb font-extrabold text-2xl sm:text-3xl leading-tight transition-colors duration-300 ${tc.textTitle}`}
                       >
                         {readingNote.title}
                       </h1>
                       <p
-                        className={`text-sm sm:text-base font-bengali leading-relaxed italic border-l-4 p-4.5 rounded-r-2xl transition-all duration-300 ${tc.introBg}`}
+                        className={`text-sm sm:text-base font-nctb leading-relaxed italic border-l-4 p-4.5 rounded-r-2xl transition-all duration-300 ${tc.introBg}`}
                       >
                         {readingNote.content?.intro}
                       </p>
@@ -2835,7 +2966,7 @@ export default function Notes() {
                         (chapter: any, cIdx: number) => (
                           <section key={cIdx} className="space-y-5">
                             <h2
-                              className={`font-bengali font-extrabold text-xl sm:text-2xl transition-colors duration-300 ${tc.textTitle}`}
+                              className={`font-nctb font-extrabold text-xl sm:text-2xl transition-colors duration-300 ${tc.textTitle}`}
                             >
                               {chapter.title}
                             </h2>
@@ -2856,7 +2987,7 @@ export default function Notes() {
                                           className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${tc.textTitle} opacity-40`}
                                         />
                                         <p
-                                          className={`font-bengali ${fontSizeClass} tracking-wide select-none break-words flex-1 transition-all duration-300 ${tc.textBody}`}
+                                          className={`font-nctb ${fontSizeClass} tracking-wide select-none break-words flex-1 transition-all duration-300 ${tc.textBody}`}
                                         >
                                           {cleanItem}
                                         </p>
@@ -2872,7 +3003,7 @@ export default function Notes() {
                                             <thead>
                                               <tr className={`${tc.textTitle} border-b border-slate-200/50`}>
                                                 {item.headers?.map((head: string, hIdx: number) => (
-                                                  <th key={hIdx} className="text-left font-bold py-3 px-4 text-sm border-r border-slate-200/30 font-bengali uppercase tracking-wide">
+                                                  <th key={hIdx} className="text-left font-bold py-3 px-4 text-sm border-r border-slate-200/30 font-nctb uppercase tracking-wide">
                                                     {head}
                                                   </th>
                                                 ))}
@@ -2882,7 +3013,7 @@ export default function Notes() {
                                               {item.rows?.map((row: any[], rIdx: number) => (
                                                 <tr key={rIdx} className="hover:bg-slate-50/20 transition-colors text-sm text-left">
                                                   {row?.map((cell: any, dIdx: number) => (
-                                                    <td key={dIdx} className="py-3.5 px-4 border-r border-slate-200/20 font-bengali leading-relaxed align-top">
+                                                    <td key={dIdx} className="py-3.5 px-4 border-r border-slate-200/20 font-nctb leading-relaxed align-top">
                                                       {typeof cell === "object" ? (
                                                         <div className="space-y-2">
                                                           {Array.isArray(cell) ? cell.map((c: any, i: number) => (
@@ -2912,10 +3043,10 @@ export default function Notes() {
                                     if (item.type === "tip") {
                                       return (
                                         <div key={iIdx} className="bg-amber-50/60 border border-amber-200/80 p-5 rounded-xl space-y-2 text-slate-800 shadow-sm border-l-4 border-l-amber-500 w-full">
-                                          <div className="font-bold flex items-center gap-2 select-none text-amber-900 font-bengali text-lg">
+                                          <div className="font-bold flex items-center gap-2 select-none text-amber-900 font-nctb text-lg">
                                             ⚡ {item.title || "এক্সক্লুসিভ শিক্ষক টিপস"}
                                           </div>
-                                          <div className="font-bengali whitespace-pre-line text-[#1e293b] leading-relaxed text-sm sm:text-base">
+                                          <div className="font-nctb whitespace-pre-line text-[#1e293b] leading-relaxed text-sm sm:text-base">
                                             {item.content}
                                           </div>
                                         </div>
@@ -2925,10 +3056,10 @@ export default function Notes() {
                                     if (item.type === "qa") {
                                       return (
                                         <div key={iIdx} className="bg-emerald-50/40 border border-emerald-100/80 p-5 rounded-xl space-y-2 shadow-sm border-l-4 border-l-emerald-500 w-full">
-                                          <div className="font-black text-emerald-900 font-bengali text-base sm:text-lg">
+                                          <div className="font-black text-emerald-900 font-nctb text-base sm:text-lg">
                                             {item.q}
                                           </div>
-                                          <div className="text-slate-800 font-bengali font-medium leading-relaxed text-sm sm:text-base">
+                                          <div className="text-slate-800 font-nctb font-medium leading-relaxed text-sm sm:text-base">
                                             {item.a}
                                           </div>
                                         </div>
@@ -2937,7 +3068,7 @@ export default function Notes() {
 
                                     if (item.type === "text") {
                                       return (
-                                        <p key={iIdx} className={`font-bengali ${fontSizeClass} tracking-wide select-none break-words w-full transition-all duration-300 ${tc.textBody}`}>
+                                        <p key={iIdx} className={`font-nctb ${fontSizeClass} tracking-wide select-none break-words w-full transition-all duration-300 ${tc.textBody}`}>
                                           {item.content}
                                         </p>
                                       );

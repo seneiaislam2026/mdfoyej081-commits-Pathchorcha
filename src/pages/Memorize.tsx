@@ -35,7 +35,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { db } from "../lib/firebase";
-import { collection, getDocs, onSnapshot, doc, getDoc, updateDoc } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, doc, getDoc, updateDoc, setDoc } from "firebase/firestore";
 import { ENGLISH_WORDS, BANGLA_WORDS, WordItem } from "../data/vocabularyData";
 import { useAuth } from "../lib/AuthContext";
 
@@ -326,7 +326,7 @@ export default function Memorize() {
     setMasteredIds(newIds);
     if (userData?.uid) {
       try {
-        await updateDoc(doc(db, "users", userData.uid), { masteredWords: newIds });
+        await setDoc(doc(db, "users", userData.uid), { masteredWords: newIds }, { merge: true });
       } catch (e) {
         console.error("Error updating mastered words", e);
       }
@@ -338,7 +338,7 @@ export default function Memorize() {
     setBookmarkedIds(newIds);
     if (userData?.uid) {
       try {
-        await updateDoc(doc(db, "users", userData.uid), { bookmarkedWords: newIds });
+        await setDoc(doc(db, "users", userData.uid), { bookmarkedWords: newIds }, { merge: true });
       } catch (e) {
         console.error("Error updating bookmarked words", e);
       }
@@ -371,9 +371,10 @@ export default function Memorize() {
     const map = new Map<string, string>();
     // First pass: Populate all actual defined meanings
     allWordsList.forEach(w => {
-      if (w.language === "english" && w.meaning) {
+      if (w.language === "english" && w.meaning && w.category !== "verb_forms" && w.category !== "spelling") {
         const cleanMeaning = w.meaning.split("(")[0].split("-")[0].replace(/[a-zA-Z]/g, '').trim();
-        if (cleanMeaning) {
+        // If cleanMeaning only consists of numbers and punctuation, it's not a real meaning.
+        if (cleanMeaning && !/^[\d\s]+$/.test(cleanMeaning)) {
           map.set(w.word.toLowerCase().trim(), cleanMeaning);
         }
       }
@@ -1043,7 +1044,7 @@ export default function Memorize() {
                                 }
                               }
 
-                              const optionLabel = String.fromCharCode(65 + oIdx);
+                              const optionLabel = ['ক', 'খ', 'গ', 'ঘ'][oIdx] || String.fromCharCode(65 + oIdx);
 
                               return (
                                 <button

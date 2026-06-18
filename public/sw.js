@@ -1,11 +1,12 @@
-const CACHE_NAME = 'shikkhangon-cache-v8';
+const CACHE_NAME = 'shikkhangon-cache-v10';
 const PRE_CACHE_RESOURCES = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icon.svg',
   '/icon-192.png',
-  '/icon-512.png'
+  '/icon-512.png',
+  '/logo.png'
 ];
 
 // On install, pre-cache core layout resources

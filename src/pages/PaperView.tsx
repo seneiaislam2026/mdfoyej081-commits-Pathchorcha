@@ -5,6 +5,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
 import { managementMCQs } from "../data/managementMcqs";
+import { hscIctCQ } from "../data/hscIctCqData";
 
 export default function PaperView() {
   const [searchParams] = useSearchParams();
@@ -48,8 +49,8 @@ export default function PaperView() {
           results.push({ id: doc.id, ...data });
         });
 
-        // Insert local management MCQs if title matches (or all if we want to filter later)
-        let localQ = managementMCQs as any[];
+        // Insert local questions
+        let localQ = [...(managementMCQs as any[]), ...(hscIctCQ as any[])];
         if (title && title !== "Subject-wise Questions") {
           localQ = localQ.filter(m => m.title === title);
         } else if (classGroup && university) {
@@ -150,85 +151,117 @@ export default function PaperView() {
                     </h4>
                   </div>
                   
-                  <div className="grid gap-3 pl-2 md:pl-4">
-                    {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, label: q.options[k], text: q.options[k] }))).map((opt: any, optIdx: number) => {
-                      const isSelected = selectedAns[q.id || q.text] === opt.id;
-                      const isCorrect = q.correctOption === opt.id;
-                      const isRevealed = revealedAns[q.id || q.text] || selectedAns[q.id || q.text];
+                  {q.is_cq ? (
+                    <div className="grid gap-4 pl-2 md:pl-4 mt-4">
+                      {['ক', 'খ', 'গ', 'ঘ'].map((key) => {
+                        const ansData = q.answers?.[key];
+                        if (!ansData) return null;
+                        const isRevealed = revealedAns[`${q.id || q.text}-${key}`];
+                        return (
+                          <div key={key} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                            <h5 className="font-bengali font-bold text-slate-800 text-lg mb-2">
+                              {key}. {ansData.question}
+                            </h5>
+                            <button 
+                              onClick={() => setRevealedAns(prev => ({ ...prev, [`${q.id || q.text}-${key}`]: !prev[`${q.id || q.text}-${key}`] }))}
+                              className="text-sm font-bengali text-primary font-bold hover:underline mb-2"
+                            >
+                              {isRevealed ? "উত্তর লুকান" : "উত্তর দেখুন"}
+                            </button>
+                            {isRevealed && (
+                              <div className="mt-3 bg-white border border-slate-100 rounded-lg p-4">
+                               <p className="text-[15px] font-bengali text-slate-700 leading-relaxed whitespace-pre-wrap">
+                                 {ansData.answer}
+                               </p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid gap-3 pl-2 md:pl-4">
+                        {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, label: q.options[k], text: q.options[k] }))).map((opt: any, optIdx: number) => {
+                          const isSelected = selectedAns[q.id || q.text] === opt.id;
+                          const isCorrect = q.correctOption === opt.id;
+                          const isRevealed = revealedAns[q.id || q.text] || selectedAns[q.id || q.text];
 
-                      let optionClass = 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 cursor-pointer';
-                      let letterClass = 'bg-slate-100 text-slate-700';
+                          let optionClass = 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 cursor-pointer';
+                          let letterClass = 'bg-slate-100 text-slate-700';
 
-                      if (isRevealed) {
-                        optionClass = 'bg-white border-slate-200 text-slate-400 opacity-60 cursor-default';
-                        letterClass = 'bg-slate-100 text-slate-400';
-                        if (isCorrect) {
-                          optionClass = 'bg-[#f2fbf5] border-[#4bb063] text-[#2c7a3f] shadow-sm cursor-default';
-                          letterClass = 'bg-[#4bb063] text-white';
-                        } else if (isSelected) {
-                          optionClass = 'bg-red-50 border-red-500 text-red-700 shadow-sm cursor-default';
-                          letterClass = 'bg-red-500 text-white';
-                        }
-                      }
-
-                      // Handle both 'A'/'B' and 'ক'/'খ' formats
-                      let displayLetter = opt.id;
-                      if (opt.id === 'A') displayLetter = 'ক';
-                      else if (opt.id === 'B') displayLetter = 'খ';
-                      else if (opt.id === 'C') displayLetter = 'গ';
-                      else if (opt.id === 'D') displayLetter = 'ঘ';
-
-                      return (
-                        <div 
-                          key={`${q.id || q.text}-${optIdx}`} 
-                          onClick={() => {
-                            if (!isRevealed) {
-                              setSelectedAns(prev => ({ ...prev, [q.id || q.text]: opt.id }));
-                              setRevealedAns(prev => ({ ...prev, [q.id || q.text]: true }));
+                          if (isRevealed) {
+                            optionClass = 'bg-white border-slate-200 text-slate-400 opacity-60 cursor-default';
+                            letterClass = 'bg-slate-100 text-slate-400';
+                            if (isCorrect) {
+                              optionClass = 'bg-[#f2fbf5] border-[#4bb063] text-[#2c7a3f] shadow-sm cursor-default';
+                              letterClass = 'bg-[#4bb063] text-white';
+                            } else if (isSelected) {
+                              optionClass = 'bg-red-50 border-red-500 text-red-700 shadow-sm cursor-default';
+                              letterClass = 'bg-red-500 text-white';
                             }
-                          }}
-                          className={`flex flex-row items-center rounded-[14px] transition-all min-h-[44px] md:min-h-[48px] relative border-[1.5px] ${optionClass}`}
-                        >
-                          <div className={`w-10 md:w-11 h-full flex-shrink-0 flex items-center justify-center font-bold text-[13px] md:text-sm font-bengali border-r border-[rgba(0,0,0,0.05)] rounded-l-[12.5px] transition-colors ${letterClass}`}>
-                            {displayLetter}
-                          </div>
-                          <div className="font-bengali font-medium text-[15px] px-3 py-2 flex-1 relative">
-                            {opt.label || opt.text}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  
-                  <div className="mt-4 pl-2 md:pl-4">
-                    <button 
-                      onClick={() => setRevealedAns(prev => ({ ...prev, [q.id || q.text]: !prev[q.id || q.text] }))}
-                      className="text-sm font-bengali text-primary font-bold hover:underline"
-                    >
-                      {revealedAns[q.id || q.text] || selectedAns[q.id || q.text] ? "উত্তর লুকান" : "উত্তর দেখুন"}
-                    </button>
-                    
-                    {(revealedAns[q.id || q.text] || selectedAns[q.id || q.text]) && (
-                      <div className="mt-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 md:p-5">
-                        <p className="font-bengali text-slate-800 mb-2 font-medium">
-                          <span className="font-bold text-green-700">সঠিক উত্তর:</span> {
-                            q.correctOption === 'A' ? 'ক' : 
-                            q.correctOption === 'B' ? 'খ' : 
-                            q.correctOption === 'C' ? 'গ' : 
-                            q.correctOption === 'D' ? 'ঘ' : q.correctOption
                           }
-                        </p>
-                        {q.explanation && (
-                          <div className="pt-3 mt-3 border-t border-slate-200">
-                             <p className="text-sm font-bengali text-slate-600 leading-relaxed flex items-start gap-2">
-                               <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                               <span><span className="font-bold text-slate-700">ব্যাখ্যা:</span> {q.explanation}</span>
-                             </p>
+
+                          // Handle both 'A'/'B' and 'ক'/'খ' formats
+                          let displayLetter = opt.id;
+                          if (opt.id === 'A' || opt.id === '1') displayLetter = 'ক';
+                          else if (opt.id === 'B' || opt.id === '2') displayLetter = 'খ';
+                          else if (opt.id === 'C' || opt.id === '3') displayLetter = 'গ';
+                          else if (opt.id === 'D' || opt.id === '4') displayLetter = 'ঘ';
+
+                          return (
+                            <div 
+                              key={`${q.id || q.text}-${optIdx}`} 
+                              onClick={() => {
+                                if (!isRevealed) {
+                                  setSelectedAns(prev => ({ ...prev, [q.id || q.text]: opt.id }));
+                                  setRevealedAns(prev => ({ ...prev, [q.id || q.text]: true }));
+                                }
+                              }}
+                              className={`flex flex-row items-center rounded-[14px] transition-all min-h-[44px] md:min-h-[48px] relative border-[1.5px] ${optionClass}`}
+                            >
+                              <div className={`w-10 md:w-11 h-full flex-shrink-0 flex items-center justify-center font-bold text-[13px] md:text-sm font-bengali border-r border-[rgba(0,0,0,0.05)] rounded-l-[12.5px] transition-colors ${letterClass}`}>
+                                {displayLetter}
+                              </div>
+                              <div className="font-bengali font-medium text-[15px] px-3 py-2 flex-1 relative">
+                                {opt.label || opt.text}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      
+                      <div className="mt-4 pl-2 md:pl-4">
+                        <button 
+                          onClick={() => setRevealedAns(prev => ({ ...prev, [q.id || q.text]: !prev[q.id || q.text] }))}
+                          className="text-sm font-bengali text-primary font-bold hover:underline"
+                        >
+                          {revealedAns[q.id || q.text] || selectedAns[q.id || q.text] ? "উত্তর লুকান" : "উত্তর দেখুন"}
+                        </button>
+                        
+                        {(revealedAns[q.id || q.text] || selectedAns[q.id || q.text]) && (
+                          <div className="mt-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 md:p-5">
+                            <p className="font-bengali text-slate-800 mb-2 font-medium">
+                              <span className="font-bold text-green-700">সঠিক উত্তর:</span> {
+                                q.correctOption === 'A' ? 'ক' : 
+                                q.correctOption === 'B' ? 'খ' : 
+                                q.correctOption === 'C' ? 'গ' : 
+                                q.correctOption === 'D' ? 'ঘ' : q.correctOption
+                              }
+                            </p>
+                            {q.explanation && (
+                              <div className="pt-3 mt-3 border-t border-slate-200">
+                                 <p className="text-sm font-bengali text-slate-600 leading-relaxed flex items-start gap-2">
+                                   <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                   <span><span className="font-bold text-slate-700">ব্যাখ্যা:</span> {q.explanation}</span>
+                                 </p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
-                    )}
-                  </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

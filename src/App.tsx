@@ -69,11 +69,8 @@ function NoteLayout() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-3">
-          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
-            <span className="text-[#0F2744]">শিক্ষা</span>
-            <span className="text-[#F4B400]">ঙ্গন</span>
-          </span>
+        <div className="animate-pulse flex flex-col items-center justify-center">
+          <img src="/logo.png" alt="শিক্ষাঙ্গন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
         </div>
       </div>
     );
@@ -124,16 +121,13 @@ function AppLayout() {
   const { user, loading, userData } = useAuth();
   
   // Do not show back button on dashboard, exam, paper, and question-bank pages
-  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams" || location.pathname === "/subscription";
+  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams" || location.pathname === "/subscription" || location.pathname === "/mock-payment";
 
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-3">
-          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
-            <span className="text-[#0F2744]">শিক্ষা</span>
-            <span className="text-[#F4B400]">ঙ্গন</span>
-          </span>
+        <div className="animate-pulse flex flex-col items-center justify-center">
+          <img src="/logo.png" alt="শিক্ষাঙ্গন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
         </div>
       </div>
     );
@@ -160,8 +154,8 @@ function AppLayout() {
     }
   };
 
-  const isFullScreenPage = location.pathname.startsWith("/notes") || location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize");
-  const hideNavbar = location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/notes") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize");
+  const isFullScreenPage = location.pathname.startsWith("/notes") || location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment");
+  const hideNavbar = location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/notes") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment");
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans mb-8">

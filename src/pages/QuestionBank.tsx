@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Filter, Briefcase, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Users, TrendingUp, Map as MapIcon } from "lucide-react";
+import { Search, Filter, Briefcase, BookOpen, ArrowLeft, ArrowRight, PenTool, LayoutList, AlertCircle, Clock, Calendar, Download, Trophy, Sparkles, CheckCircle2, ChevronRight, Brain, Library, Languages, Monitor, Calculator, Atom, FlaskConical, Dna, Globe, Users, TrendingUp, Map as MapIcon, GraduationCap, Landmark, Server, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -117,11 +117,12 @@ const getSubjectsByGroup = (group?: string, classGroup?: string) => {
 };
 
 const mapUserClassToGroup = (cls?: string) => {
-  if (cls === "এডমিশন") return "Admission";
-  if (cls === "দশম শ্রেণী") return "SSC";
-  if (cls === "এইচএসসি" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী") return "HSC";
-  if (cls === "নবম শ্রেণী") return "Class 9";
-  if (cls === "৬ষ্ঠ শ্রেণী" || cls === "৭ম শ্রেণী" || cls === "৮ম শ্রেণী" || cls === "৬ষ্ঠ থেকে ৮ম শ্রেণী") return "Class 6-8";
+  if (!cls) return "HSC";
+  if (cls === "এডমিশন" || cls.includes("Admission")) return "Admission";
+  if (cls === "দশম শ্রেণী" || cls.includes("SSC") || cls.includes("দশম")) return "SSC";
+  if (cls === "এইচএসসি" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী" || cls.includes("HSC")) return "HSC";
+  if (cls === "নবম শ্রেণী" || cls.includes("Class 9") || cls.includes("নবম")) return "Class 9";
+  if (cls.includes("৬ষ্ঠ") || cls.includes("৭ম") || cls.includes("৮ম")) return "Class 6-8";
   return "HSC";
 };
 
@@ -176,6 +177,7 @@ const TOPICS_METADATA: Record<string, any> = {
 };
 
 import { managementMCQs } from "../data/managementMcqs";
+import { hscIctCQ } from "../data/hscIctCqData";
 
 export default function QuestionBank() {
   const { userData, previewClass, setPreviewClass } = useAuth();
@@ -192,13 +194,15 @@ export default function QuestionBank() {
   const initialClassGroup = mapUserClassToGroup(effectiveClass);
   const [activeClassGroup, setActiveClassGroup] = useState(initialClassGroup);
   const [activeClass, setActiveClass] = useState(initialClassGroup === "Admission" ? "ঢাকা বিশ্ববিদ্যালয়" : (initialClassGroup === "Class 6-8" ? "Class 6" : initialClassGroup));
-  const [questionFormat, setQuestionFormat] = useState<"MCQ" | "CQ" | null>(initialClassGroup === "Admission" ? "MCQ" : null);
+  const is9To12 = initialClassGroup === "Class 9" || initialClassGroup === "SSC" || initialClassGroup === "HSC";
+  const [questionFormat, setQuestionFormat] = useState<"MCQ" | "CQ" | null>(is9To12 ? "MCQ" : (initialClassGroup === "Admission" ? "MCQ" : null));
 
   useEffect(() => {
     const newGroup = mapUserClassToGroup(effectiveClass);
     setActiveClassGroup(newGroup);
     setActiveClass(newGroup === "Admission" ? "ঢাকা বিশ্ববিদ্যালয়" : (newGroup === "Class 6-8" ? "Class 6" : newGroup));
-    setQuestionFormat(newGroup === "Admission" ? "MCQ" : null);
+    const isNineToTwelve = newGroup === "Class 9" || newGroup === "SSC" || newGroup === "HSC";
+    setQuestionFormat(isNineToTwelve ? "MCQ" : (newGroup === "Admission" ? "MCQ" : null));
   }, [effectiveClass]);
   const [selectedUniversity, setSelectedUniversity] = useState<string | null>(null);
   const [questionsList, setQuestionsList] = useState<any[]>([]);
@@ -209,12 +213,13 @@ export default function QuestionBank() {
   
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const tabParam = searchParams.get("tab") as "bank" | "topics" | "practice" | null;
+  const tabParam = searchParams.get("tab") as "bank" | "topics" | "practice" | "institutions" | null;
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSubTab, setActiveSubTab] = useState<"bank" | "topics" | "practice">(tabParam || "bank");
+  const isTab9To12 = initialClassGroup === "Class 9" || initialClassGroup === "SSC" || initialClassGroup === "HSC";
+  const [activeSubTab, setActiveSubTab] = useState<"bank" | "topics" | "practice" | "institutions">(tabParam || (isTab9To12 ? "topics" : "bank"));
 
   useEffect(() => {
-    if (tabParam === "practice" || tabParam === "topics" || tabParam === "bank") {
+    if (tabParam === "practice" || tabParam === "topics" || tabParam === "bank" || tabParam === "institutions") {
       setActiveSubTab(tabParam);
     }
   }, [tabParam]);
@@ -222,6 +227,7 @@ export default function QuestionBank() {
   const [activeTopicSubject, setActiveTopicSubject] = useState<string>("বাংলা");
   const [selectedTopicAnswers, setSelectedTopicAnswers] = useState<Record<string, string>>({});
   const [revealedTopicAnswers, setRevealedTopicAnswers] = useState<Record<string, boolean>>({});
+  const [selectedSubjectForModal, setSelectedSubjectForModal] = useState<{title: string, subtitle: string} | null>(null);
   
   // Interactive practice engine states
   const [quizStarted, setQuizStarted] = useState(false);
@@ -264,6 +270,10 @@ export default function QuestionBank() {
       setActiveClassGroup("HSC");
       setActiveClass("HSC");
     }
+    // Auto-select MCQ for Admission since there is no CQ
+    if (activeClassGroup === "Admission" && questionFormat === null) {
+      setQuestionFormat("MCQ");
+    }
   }, [questionFormat, activeClassGroup]);
 
 
@@ -282,8 +292,16 @@ export default function QuestionBank() {
         let results: any[] = [];
         snap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
 
-        // Insert local management MCQs if we are in Admission classGroup (filter locally to match)
-        let filteredLocal = (managementMCQs as any[]).filter(m => m.classGroup === activeClassGroup);
+        // Insert local data
+        let filteredLocal: any[] = [];
+        if (questionFormat === "MCQ") {
+          filteredLocal = (managementMCQs as any[]).filter(m => m.classGroup === activeClassGroup);
+        } else if (questionFormat === "CQ") {
+          filteredLocal = (hscIctCQ as any[]).filter(m => m.classGroup === activeClassGroup);
+        } else {
+          filteredLocal = [...(managementMCQs as any[]), ...(hscIctCQ as any[])].filter(m => m.classGroup === activeClassGroup);
+        }
+        
         if (activeClassGroup === "Admission" && activeClass) {
           filteredLocal = filteredLocal.filter(m => !m.university || m.university === activeClass);
         } else if (activeClassGroup !== "Admission" && activeClass) {
@@ -338,51 +356,280 @@ export default function QuestionBank() {
     );
   };
 
-  const renderBottomNav = () => (
-    <div className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200/80 py-3.5 px-6 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto">
-      <button 
-        onClick={() => {
-          setActiveSubTab("bank");
-          setQuizStarted(false);
-        }}
-        className={`flex-1 flex flex-col items-center gap-1 transition-all relative cursor-pointer ${activeSubTab === "bank" ? "text-blue-600 scale-102" : "text-slate-400 hover:text-slate-500"}`}
-      >
-        <BookOpen className="w-5 h-5 shrink-0" />
-        <span className="text-[11px] sm:text-xs font-bengali font-bold">নোটস</span>
-        {activeSubTab === "bank" && (
-          <motion.div layoutId="bottom_indicator" className="absolute bottom-[-15px] inset-x-8 h-1 bg-blue-500 rounded-full" />
-        )}
-      </button>
+  const renderTopicsView9To12 = () => {
+    return (
+      <div className="w-full relative min-h-[100vh] bg-[#f8fafc] font-sans pb-40">
+        <div className="max-w-xl mx-auto p-4 sm:p-6 flex flex-col">
+          {/* Header */}
+          <div className="flex flex-col pb-4 mb-2 bg-[#f8fafc] sticky top-0 z-50 pt-2">
+            <div className="relative w-full flex items-center gap-3 mb-6">
+              <button 
+                onClick={() => navigate("/dashboard")} 
+                className="shrink-0 w-12 sm:w-14 h-12 sm:h-14 bg-white hover:bg-slate-50 flex items-center justify-center rounded-full shadow-[0_2px_15px_rgba(0,0,0,0.04)] border border-slate-100 transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" strokeWidth={2.5} />
+              </button>
+              <div className="relative w-full">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Input 
+                  type="search" 
+                  placeholder="প্রশ্নব্যাংক খুঁজুন" 
+                  className="pl-12 pr-14 font-bengali bg-white border-0 shadow-[0_2px_15px_rgba(0,0,0,0.04)] rounded-full h-12 sm:h-14 text-base placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-emerald-500 w-full" 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors">
+                  <div className="relative">
+                    <svg width="18" height="18" className="sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                    <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                  </div>
+                </button>
+              </div>
+            </div>
 
-      <button 
-        onClick={() => {
-          setActiveSubTab("topics");
-          setQuizStarted(false);
-        }}
-        className={`flex-1 flex flex-col items-center gap-1 transition-all relative cursor-pointer ${activeSubTab === "topics" ? "text-emerald-600 scale-102" : "text-slate-400 hover:text-slate-500"}`}
-      >
-        <LayoutList className="w-5 h-5 shrink-0" />
-        <span className="text-[11px] sm:text-xs font-bengali font-bold">টপিক ভিত্তিক নোটস</span>
-        {activeSubTab === "topics" && (
-          <motion.div layoutId="bottom_indicator" className="absolute bottom-[-15px] inset-x-8 h-1 bg-emerald-500 rounded-full" />
-        )}
-      </button>
+            <div className="flex justify-between items-start w-full relative h-[80px]">
+              <div className="flex flex-col z-10">
+                <h2 className="text-[26px] sm:text-[28px] font-bengali font-black text-[#1E2B4C] leading-none mb-1">
+                  বিষয় ভিত্তিক
+                </h2>
+                <span className="text-[14px] sm:text-[15px] font-bengali text-slate-500">
+                  সকল বিষয়ের প্রশ্নব্যাংক
+                </span>
+              </div>
+              <div className="absolute right-[-10px] top-[-20px] w-36 h-32 pointer-events-none opacity-90 object-contain flex items-end justify-end">
+                {/* Embedded illustration representation using minimal geometry/SVG as stand-in for the book illustration */}
+                <svg viewBox="0 0 120 100" className="w-full h-full drop-shadow-md">
+                  {/* Base shadow/background blob */}
+                  <ellipse cx="60" cy="85" rx="55" ry="10" fill="#E2E8F0" opacity="0.6" />
+                  
+                  {/* Purple Book (Bottom) */}
+                  <rect x="25" y="65" width="70" height="15" rx="2" fill="#5C5CBE" />
+                  <rect x="25" y="68" width="70" height="9" fill="#FFFFFF" opacity="0.9" />
+                  <rect x="25" y="65" width="70" height="15" rx="2" fill="none" stroke="#4B4BA8" strokeWidth="1" />
+                  <rect x="25" y="65" width="4" height="15" fill="#3D3D8A" />
+                  
+                  {/* Red/Orange Book (Middle) */}
+                  <rect x="30" y="52" width="60" height="13" rx="2" fill="#E65100" />
+                  <rect x="30" y="55" width="60" height="7" fill="#FFFFFF" opacity="0.9" />
+                  <rect x="30" y="52" width="60" height="13" rx="2" fill="none" stroke="#BF360C" strokeWidth="1" />
+                  <rect x="30" y="52" width="4" height="13" fill="#9E2A0B" />
+                  
+                  {/* Blue Pencil Stand */}
+                  <path d="M85 45 L95 45 L95 65 L85 65 Z" fill="#3B82F6" />
+                  <path d="M85 65 Q90 68 95 65" fill="#2563EB" />
+                  <rect x="87" y="25" width="3" height="20" fill="#FBBF24" />
+                  <polygon points="87,25 90,20 88.5,15" fill="#475569" />
+                  <rect x="91" y="30" width="3" height="15" fill="#EF4444" />
+                  <polygon points="91,30 94,25 92.5,20" fill="#475569" />
+                  
+                  {/* Graduation Cap */}
+                  <polygon points="50,20 85,32 50,44 15,32" fill="#1E293B" />
+                  <polygon points="50,22 83,32 50,42 17,32" fill="#334155" />
+                  <path d="M35 38 L35 52 Q50 58 65 52 L65 38" fill="#1E293B" />
+                  <path d="M80 32 L80 48" fill="none" stroke="#FBBF24" strokeWidth="1.5" />
+                  <circle cx="80" cy="48" r="2.5" fill="#FBBF24" />
+                </svg>
+              </div>
+            </div>
+          </div>
 
-      <button 
-        onClick={() => {
-          setActiveSubTab("practice");
-          setQuizStarted(false);
-        }}
-        className={`flex-1 flex flex-col items-center gap-1 transition-all relative cursor-pointer ${activeSubTab === "practice" ? "text-emerald-600 scale-102" : "text-slate-400 hover:text-slate-500"}`}
-      >
-        <PenTool className="w-5 h-5 shrink-0" />
-        <span className="text-[11px] sm:text-xs font-bengali font-bold">প্র্যাকটিস</span>
-        {activeSubTab === "practice" && (
-          <motion.div layoutId="bottom_indicator" className="absolute bottom-[-15px] inset-x-12 h-1 bg-emerald-500 rounded-full" />
+          {/* Grid Layout matching the specified subjects and colors */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 z-10 relative mt-2">
+            {[
+              { title: "বাংলা", subtitle: "১ম পত্র", count: "4", bg: "bg-gradient-to-br from-[#87d853] to-[#71c33a]", letter: "অ", icon: BookOpen },
+              { title: "বাংলা", subtitle: "২য় পত্র", count: "149", bg: "bg-gradient-to-br from-[#fda63a] to-[#ff8f00]", letter: "ব", icon: PenTool },
+              { title: "ইংরেজি", subtitle: "১ম পত্র", count: "3", bg: "bg-gradient-to-br from-[#ff6b6b] to-[#fa5252]", letter: "A", icon: Languages },
+              { title: "ইংরেজি", subtitle: "২য় পত্র", count: "149", bg: "bg-gradient-to-br from-[#4ea5ff] to-[#3a8eed]", letter: "a", icon: BookOpen }, // Assuming microphone stands for listening/vocal or alternative Aa
+              { title: "একাউন্টিং", subtitle: "১ম পত্র", count: "3", bg: "bg-gradient-to-br from-[#2ccfb6] to-[#1bb59e]", letter: "এ", icon: TrendingUp },
+              { title: "একাউন্টিং", subtitle: "২য় পত্র", count: "3", bg: "bg-gradient-to-br from-[#a671ff] to-[#8d54ea]", letter: "অ", icon: Calculator },
+            ].map((subject, idx) => (
+               <button 
+                  key={idx} 
+                  onClick={() => {
+                    if (subject.title === "ইংরেজি") {
+                      navigate(`/paper?title=${encodeURIComponent("Subject-wise Questions")}&subject=${encodeURIComponent(subject.title + " " + subject.subtitle)}&classGroup=${encodeURIComponent(activeClassGroup || "")}`);
+                    } else {
+                      setSelectedSubjectForModal(subject);
+                    }
+                  }}
+                  className={`${subject.bg} relative overflow-hidden rounded-[20px] p-4 sm:p-5 text-white flex flex-col justify-between aspect-[1.3/1] shadow-sm hover:shadow-md transition-all active:scale-95 text-left`}
+               >
+                 {/* Faded Letter Background */}
+                 <span className="absolute -bottom-4 -right-1 text-[80px] sm:text-[90px] font-bengali font-black opacity-[0.15] leading-none pointer-events-none select-none">
+                   {subject.letter}
+                 </span>
+                 
+                 <div className="flex justify-between items-start relative z-10 w-full">
+                   <div className="flex flex-col">
+                     <span className="font-bengali font-extrabold text-[19px] sm:text-[21px] leading-tight drop-shadow-sm">{subject.title}</span>
+                     <span className="font-bengali font-medium text-[13px] sm:text-[14px] opacity-90">{subject.subtitle}</span>
+                   </div>
+                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/95 flex items-center justify-center shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                     <subject.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${subject.title === 'বাংলা' && subject.subtitle === '১ম পত্র' ? 'text-[#71c33a]' : subject.title === 'বাংলা' && subject.subtitle === '২য় পত্র' ? 'text-[#ff8f00]' : subject.title === 'ইংরেজি' && subject.subtitle === '১ম পত্র' ? 'text-[#fa5252]' : subject.title === 'ইংরেজি' && subject.subtitle === '২য় পত্র' ? 'text-[#3a8eed]' : subject.title === 'একাউন্টিং' && subject.subtitle === '১ম পত্র' ? 'text-[#1bb59e]' : 'text-[#8d54ea]'}`} strokeWidth={2.5} />
+                   </div>
+                 </div>
+                 
+                 <div className="mt-auto relative z-10">
+                   <div className="bg-white text-slate-800 text-[12px] sm:text-[13px] font-bold px-3 py-1 rounded-md inline-flex items-center gap-1.5 shadow-sm">
+                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                     {subject.count}
+                   </div>
+                 </div>
+               </button>
+            ))}
+          </div>
+
+          {/* Banner bottom */}
+          <div className="mt-4 bg-[#f0f9f3] border border-[#d6eedf] rounded-[16px] p-3.5 sm:p-4 flex items-center gap-3">
+             <div className="w-10 h-10 relative shrink-0">
+               <svg viewBox="0 0 40 40" className="w-full h-full drop-shadow-sm">
+                 <rect x="5" y="5" width="26" height="30" rx="3" fill="#FFFFFF" stroke="#008060" strokeWidth="1.5" />
+                 <path d="M12 4 L24 4 L24 8 L12 8 Z" fill="#008060" />
+                 <line x1="12" y1="15" x2="24" y2="15" stroke="#E2E8F0" strokeWidth="2" strokeLinecap="round" />
+                 <line x1="12" y1="22" x2="24" y2="22" stroke="#E2E8F0" strokeWidth="2" strokeLinecap="round" />
+                 <circle cx="28" cy="28" r="8" fill="#008060" />
+                 <path d="M25 28 L27 30 L31 25" fill="none" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+               </svg>
+             </div>
+             <div className="flex-1 min-w-0">
+               <h4 className="font-bengali font-bold text-[#006047] text-[13px] sm:text-[15px] truncate">প্রতিদিন পড়ুন, নিয়মিত অনুশীলন করুন</h4>
+               <p className="font-bengali text-slate-500 text-[11px] sm:text-[12px]">সাফল্য আপনার হাতের মুঠোয়</p>
+             </div>
+             <div className="w-7 h-7 rounded-full bg-[#008060] text-white flex items-center justify-center shrink-0 shadow-sm cursor-pointer hover:bg-[#006047] transition-colors">
+               <ChevronRight className="w-4 h-4 ml-0.5" strokeWidth={3} />
+             </div>
+          </div>
+
+        </div>
+
+        {/* Format Selection Modal */}
+        {selectedSubjectForModal && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+               onClick={() => setSelectedSubjectForModal(null)}>
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative"
+                onClick={e => e.stopPropagation()}
+              >
+                 <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex justify-between items-start">
+                   <div>
+                     <h3 className="font-bengali font-bold text-xl text-slate-800">ফরম্যাট নির্বাচন করুন</h3>
+                     <p className="font-bengali text-sm text-slate-500 mt-1">{selectedSubjectForModal.title} {selectedSubjectForModal.subtitle}</p>
+                   </div>
+                   <button onClick={() => setSelectedSubjectForModal(null)} className="p-2 -mr-2 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors">
+                     <X className="w-5 h-5" />
+                   </button>
+                 </div>
+                 <div className="p-4 flex flex-col gap-3">
+                    {[
+                       { id: 'MCQ', label: 'MCQ', icon: LayoutList },
+                       { id: 'CQ', label: 'CQ', icon: PenTool },
+                       { id: 'KaBhandar', label: "'ক' ভান্ডার", icon: BookOpen },
+                       { id: 'KhaBhandar', label: "'খ' ভান্ডার", icon: BookOpen }
+                    ].map(format => (
+                       <button
+                          key={format.id}
+                          className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition-colors text-left"
+                          onClick={() => {
+                             navigate(`/paper?title=${encodeURIComponent("Subject-wise Questions")}&subject=${encodeURIComponent(selectedSubjectForModal.title + " " + selectedSubjectForModal.subtitle)}&format=${format.id}&classGroup=${encodeURIComponent(activeClassGroup || "")}`);
+                          }}
+                       >
+                          <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-emerald-600 shrink-0">
+                             <format.icon className="w-5 h-5" />
+                          </div>
+                          <span className="font-bengali font-bold text-slate-700">{format.label}</span>
+                       </button>
+                    ))}
+                 </div>
+              </motion.div>
+          </div>
         )}
-      </button>
-    </div>
-  );
+
+      </div>
+    );
+  };
+  const renderBottomNav = () => {
+    const is9To12Config = activeClassGroup === "Class 9" || activeClassGroup === "SSC" || activeClassGroup === "HSC";
+    if (is9To12Config) {
+      return (
+        <div className="fixed bottom-20 inset-x-0 mx-auto w-full max-w-sm px-4 z-50 transition-all flex justify-center pb-2">
+          <div className="bg-white border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] rounded-full p-1.5 flex items-center w-full relative">
+            <button
+              onClick={() => { setActiveSubTab("bank"); setQuizStarted(false); }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full text-[12px] sm:text-[13px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "bank" ? "text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+            >
+              {activeSubTab === "bank" && <motion.div layoutId="pill_active_bg" className="absolute inset-0 bg-[#008060] rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
+              <CheckCircle2 className={`w-4 h-4 shrink-0 ${activeSubTab === "bank" ? "text-white" : "text-slate-400"}`} />
+              মডেল টেস্ট
+            </button>
+            <button
+              onClick={() => { setActiveSubTab("topics"); setQuizStarted(false); }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full text-[12px] sm:text-[13px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "topics" ? "text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+            >
+              {activeSubTab === "topics" && <motion.div layoutId="pill_active_bg" className="absolute inset-0 bg-[#008060] rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
+              <LayoutList className={`w-4 h-4 shrink-0 ${activeSubTab === "topics" ? "text-white" : "text-slate-400"}`} />
+              বিষয় ভিত্তিক
+            </button>
+            <button
+              onClick={() => { setActiveSubTab("institutions"); setQuizStarted(false); }}
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full text-[12px] sm:text-[13px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "institutions" ? "text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+            >
+              {activeSubTab === "institutions" && <motion.div layoutId="pill_active_bg" className="absolute inset-0 bg-[#008060] rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
+              <Landmark className={`w-4 h-4 shrink-0 ${activeSubTab === "institutions" ? "text-white" : "text-slate-400"}`} />
+              প্রতিষ্ঠান ভিত্তিক
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200/80 py-3.5 px-6 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto pb-safe">
+        <button 
+          onClick={() => {
+            setActiveSubTab("bank");
+            setQuizStarted(false);
+          }}
+          className={`flex-1 flex flex-col items-center gap-1 transition-all relative cursor-pointer ${activeSubTab === "bank" ? "text-blue-600 scale-102" : "text-slate-400 hover:text-slate-500"}`}
+        >
+          <BookOpen className="w-5 h-5 shrink-0" />
+          <span className="text-[11px] sm:text-xs font-bengali font-bold">নোটস</span>
+          {activeSubTab === "bank" && (
+            <motion.div layoutId="bottom_indicator" className="absolute bottom-[-15px] inset-x-8 h-1 bg-blue-500 rounded-full" />
+          )}
+        </button>
+
+        <button 
+          onClick={() => {
+            setActiveSubTab("topics");
+            setQuizStarted(false);
+          }}
+          className={`flex-1 flex flex-col items-center gap-1 transition-all relative cursor-pointer ${activeSubTab === "topics" ? "text-emerald-600 scale-102" : "text-slate-400 hover:text-slate-500"}`}
+        >
+          <LayoutList className="w-5 h-5 shrink-0" />
+          <span className="text-[11px] sm:text-xs font-bengali font-bold">টপিক ভিত্তিক</span>
+          {activeSubTab === "topics" && (
+            <motion.div layoutId="bottom_indicator" className="absolute bottom-[-15px] inset-x-8 h-1 bg-emerald-500 rounded-full" />
+          )}
+        </button>
+
+        <button 
+          onClick={() => {
+            setActiveSubTab("practice");
+            setQuizStarted(false);
+          }}
+          className={`flex-1 flex flex-col items-center gap-1 transition-all relative cursor-pointer ${activeSubTab === "practice" ? "text-emerald-600 scale-102" : "text-slate-400 hover:text-slate-500"}`}
+        >
+          <PenTool className="w-5 h-5 shrink-0" />
+          <span className="text-[11px] sm:text-xs font-bengali font-bold">প্র্যাকটিস</span>
+          {activeSubTab === "practice" && (
+            <motion.div layoutId="bottom_indicator" className="absolute bottom-[-15px] inset-x-12 h-1 bg-emerald-500 rounded-full" />
+          )}
+        </button>
+      </div>
+    );
+  };
 
   if (!isContentRendered) {
     return (
@@ -463,60 +710,96 @@ export default function QuestionBank() {
   }
 
   if (activeClassGroup === "Admission" && !selectedUniversity && activeSubTab === "bank") {
+    const getUniThemeInfo = (short: string) => {
+        switch(short) {
+            case "ঢাবি": return { icon: Calendar, theme: "bg-[#F0F7FF] text-[#1E6BFF]", line: "bg-[#1E6BFF]" };
+            case "রাবি": return { icon: BookOpen, theme: "bg-[#F0FDF4] text-[#10B981]", line: "bg-[#10B981]" };
+            case "জাবি": return { icon: GraduationCap, theme: "bg-[#F5F3FF] text-[#8B5CF6]", line: "bg-[#8B5CF6]" };
+            case "চবি": return { icon: Landmark, theme: "bg-[#FFFBEB] text-[#F59E0B]", line: "bg-[#F59E0B]" };
+            case "কুবি": return { icon: PenTool, theme: "bg-[#FDF2F8] text-[#EC4899]", line: "bg-[#EC4899]" };
+            case "গুচ্ছ": return { icon: Server, theme: "bg-[#F8FAFC] text-[#64748B]", line: "", disabled: true, textBelow: "আসছে শীঘ্রই" };
+            case "মেডিকেল": return { icon: Dna, theme: "bg-[#FFE4E6] text-[#E11D48]", line: "bg-[#E11D48]" };
+            case "প্রকৌশল": return { icon: Calculator, theme: "bg-[#E0F2FE] text-[#0284C7]", line: "bg-[#0284C7]" };
+            case "জাতীয়": return { icon: Library, theme: "bg-[#F3E8FF] text-[#9333EA]", line: "bg-[#9333EA]" };
+            default: return { icon: Sparkles, theme: "bg-slate-100 text-slate-500", line: "bg-slate-500" };
+        }
+    };
+
     return (
-      <div className="max-w-4xl mx-auto py-4 px-4 pb-24 flex flex-col font-sans">
-        {/* Modern styled Header */}
-        <div className="flex items-center justify-between py-4 border-b border-slate-150 mb-6 bg-[#F8FAFC] sticky top-0 z-50">
-          <div className="flex items-center gap-3.5 sm:gap-4 flex-1 min-w-0">
-            <button 
-             onClick={() => {
-               // Resets question format back to selection
-               setQuestionFormat(null);
-             }}
-             className="w-10 h-10 rounded-full bg-white border border-slate-200/80 shadow-xs flex items-center justify-center hover:bg-slate-50 hover:text-blue-700 hover:border-slate-300 transition-all cursor-pointer text-slate-600 shrink-0"
-             title="পেছনে যান"
-            >
-             <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className="flex flex-col min-w-0">
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold text-blue-600 font-sans">
-                ভর্তি পরীক্ষা • Admission
-              </span>
-              <h2 className="text-[15px] sm:text-[18px] font-bengali font-extrabold text-slate-800 leading-tight">
-                বিশ্ববিদ্যালয় নির্বাচন করো
-              </h2>
+      <div className="w-full relative min-h-[100vh] bg-[#f8fafc] font-sans pb-32">
+        <div className="max-w-xl mx-auto p-4 sm:p-6 flex flex-col">
+          {/* Header */}
+          <div className="flex flex-col pb-6 border-b border-slate-200/50 mb-6 bg-[#f8fafc] sticky top-0 z-50 pt-2">
+            <div className="flex items-center gap-4">
+              <button 
+               onClick={() => navigate("/dashboard")}
+               className="w-11 h-11 rounded-full bg-white border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex items-center justify-center hover:bg-slate-50 transition-all cursor-pointer text-slate-700 shrink-0"
+              >
+               <ArrowLeft className="w-5 h-5" strokeWidth={2.5} />
+              </button>
+              <div className="flex flex-col">
+                <span className="text-[12px] font-extrabold text-[#1E6BFF] uppercase tracking-widest mb-0.5">
+                  ভর্তি পরীক্ষা • ADMISSION
+                </span>
+                <h2 className="text-[20px] sm:text-[24px] font-bengali font-extrabold text-[#1E2B4C] leading-tight">
+                  বিশ্ববিদ্যালয় নির্বাচন করো
+                </h2>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 sm:gap-6">
-          {getUniversitiesByGroup(userData?.group).map(uni => {
-            return (
-              <motion.button
-                whileHover={{ scale: 1.025, translateY: -2 }}
-                whileTap={{ scale: 0.975 }}
-                key={uni.name}
-                onClick={() => {
-                  setSelectedUniversity(uni.name);
-                  setActiveClass(uni.name);
-                }}
-                className="flex flex-col items-center justify-center p-6 rounded-[28px] border border-slate-200/60 hover:border-blue-200 hover:bg-blue-50/5 hover:shadow-md transition-all bg-white shadow-xs group cursor-pointer"
-              >
-                <div className="w-16 h-16 flex items-center justify-center mb-4 transition-transform duration-200 group-hover:scale-105">
-                  <img 
-                    src={uni.logo} 
-                    alt={uni.short} 
-                    onError={(e) => {
-                      e.currentTarget.onerror = null;
-                      e.currentTarget.src = "/icon-192.png";
-                    }}
-                    className="w-16 h-16 object-contain" 
-                  />
-                </div>
-                <span className="font-bengali font-bold text-slate-800 text-base group-hover:text-blue-600 transition-colors">{uni.short}</span>
-              </motion.button>
-            );
-          })}
+          {/* Grid */}
+          <div className="grid grid-cols-2 gap-4 sm:gap-6">
+            {getUniversitiesByGroup(userData?.group).map(uni => {
+              const { icon: IconObj, theme, line, disabled, textBelow } = getUniThemeInfo(uni.short);
+              
+              return (
+                <motion.button
+                  whileHover={{ scale: disabled ? 1 : 1.02, translateY: disabled ? 0 : -2 }}
+                  whileTap={{ scale: disabled ? 1 : 0.98 }}
+                  key={uni.name}
+                  onClick={() => {
+                    if(!disabled) {
+                      setSelectedUniversity(uni.name);
+                      setActiveClass(uni.name);
+                    }
+                  }}
+                  className={`relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-[24px] bg-white transition-all overflow-hidden border border-slate-100 ${disabled ? "opacity-90 cursor-not-allowed" : "cursor-pointer hover:border-slate-200"}`}
+                  style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}
+                >
+                  {/* Subtle corner marker for DHABI (like the design) */}
+                  {uni.short === "ঢাবি" && (
+                    <div className="absolute top-0 right-0 w-8 h-8 flex items-start justify-end rounded-bl-[20px] bg-[#1E6BFF] z-10 pointer-events-none">
+                       <CheckCircle2 className="w-3.5 h-3.5 text-white m-[6px] opacity-90" strokeWidth={3} />
+                    </div>
+                  )}
+                  
+                  <div className={`relative w-[76px] h-[76px] rounded-full flex items-center justify-center mb-5 ${theme}`}>
+                    {!disabled && (
+                      <>
+                        <div className="absolute top-1 left-2 w-1.5 h-1.5 rounded-full bg-current opacity-30"></div>
+                        <div className="absolute bottom-2 left-0 w-1.5 h-1.5 rounded-full bg-current opacity-20"></div>
+                        <div className="absolute top-3 right-0 w-1.5 h-1.5 rounded-full bg-current opacity-30"></div>
+                        <div className="absolute -bottom-1 right-2 w-1 h-1 rounded-full bg-current opacity-20"></div>
+                        <div className="absolute top-1/2 -left-3 w-1 h-1 rounded-full bg-current opacity-25"></div>
+                        <div className="absolute top-1/4 -right-2 w-1.5 h-1.5 rounded-full bg-current opacity-20"></div>
+                      </>
+                    )}
+                    
+                    <IconObj className="w-8 h-8" strokeWidth={2.5} />
+                  </div>
+
+                  <span className="font-bengali font-extrabold text-[#1E2B4C] text-[20px] mb-2">{uni.short}</span>
+                  
+                  {disabled ? (
+                    <span className="text-[13px] font-bengali font-bold text-slate-400">{textBelow}</span>
+                  ) : (
+                    <div className={`h-[3px] w-8 rounded-full ${line}`}></div>
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
         </div>
         {renderBottomNav()}
       </div>
@@ -576,6 +859,16 @@ export default function QuestionBank() {
     if (!text) return "";
     return text.toString().replace(/^[A-Da-d][\s.:)•-]+/, "").trim();
   };
+
+  const is9To12Render = activeClassGroup === "Class 9" || activeClassGroup === "SSC" || activeClassGroup === "HSC";
+  if (is9To12Render && activeSubTab === "topics") {
+    return (
+      <>
+        {renderTopicsView9To12()}
+        {renderBottomNav()}
+      </>
+    );
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto pb-24 relative min-h-[80vh] flex flex-col font-sans">

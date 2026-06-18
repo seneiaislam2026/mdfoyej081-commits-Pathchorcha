@@ -15,9 +15,9 @@ const AdmissionIcon = ({ className }: { className: string }) => (
 
 const classes = [
   { id: "c68", label: "৬ষ্ঠ থেকে ৮ম শ্রেণী", icon: <Book className="w-8 h-8 text-indigo-500" /> },
-  { id: "c9", label: "নবম শ্রেণী", icon: <Book className="w-8 h-8 text-blue-500" /> },
-  { id: "c10", label: "দশম শ্রেণী", icon: <GraduationCap className="w-8 h-8 text-green-500" /> },
-  { id: "hsc", label: "এইচএসসি", icon: <Trophy className="w-8 h-8 text-orange-500" /> },
+  { id: "c9", label: "নবম শ্রেণী (Class 9)", icon: <Book className="w-8 h-8 text-blue-500" /> },
+  { id: "c10", label: "দশম শ্রেণী / SSC", icon: <GraduationCap className="w-8 h-8 text-green-500" /> },
+  { id: "hsc", label: "এইচএসসি (HSC)", icon: <Trophy className="w-8 h-8 text-orange-500" /> },
   { id: "admission", label: "এডমিশন", icon: <AdmissionIcon className="w-8 h-8 text-red-500" /> },
 ];
 
@@ -62,11 +62,8 @@ export default function Onboarding() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-3">
-          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
-            <span className="text-[#0F2744]">শিক্ষা</span>
-            <span className="text-[#F4B400]">ঙ্গন</span>
-          </span>
+        <div className="animate-pulse flex flex-col items-center justify-center">
+          <img src="/logo.png" alt="শিক্ষাঙ্গন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
         </div>
       </div>
     );

@@ -59,11 +59,8 @@ export default function Auth() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center gap-2">
-          <span className="font-bengali font-bold text-4xl sm:text-5xl tracking-tight">
-            <span className="text-[#0F2744]">শিক্ষা</span>
-            <span className="text-[#F4B400]">ঙ্গন</span>
-          </span>
+        <div className="animate-pulse flex flex-col items-center justify-center">
+          <img src="/logo.png" alt="শিক্ষাঙ্গন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
         </div>
       </div>
     );

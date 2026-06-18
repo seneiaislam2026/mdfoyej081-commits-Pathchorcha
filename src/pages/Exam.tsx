@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { db } from "../lib/firebase";
-import { collection, query, where, getDocs, doc, updateDoc, increment, writeBatch, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, increment, writeBatch, addDoc, serverTimestamp, limit } from "firebase/firestore";
 import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2, Trash2, Briefcase, ChevronDown, Check, FileEdit, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -373,7 +373,26 @@ export default function Exam() {
              totalQuestions: Array.isArray(data.questions) ? data.questions.length : 50,
              timeMinutes: data.duration || 45,
              isAdminExam: true,
+             targetClass: data.targetClass || "সকল ক্লাস"
            };
+        }).filter(set => {
+           if (set.targetClass === "সকল ক্লাস") return true;
+           if (!userData?.class) return true;
+           
+           const uClass = (userData.class || "").toLowerCase();
+           const tClass = (set.targetClass || "").toLowerCase();
+           
+           if (uClass.includes(tClass) || tClass.includes(uClass)) return true;
+           
+           // specifically handle equivalents
+           if (tClass.includes("এইচএসসি") && (uClass.includes("hsc") || uClass.includes("একাদশ") || uClass.includes("দ্বাদশ"))) return true;
+           if (uClass.includes("এইচএসসি") && (tClass.includes("hsc") || tClass.includes("একাদশ") || tClass.includes("দ্বাদশ"))) return true;
+           
+           if (tClass.includes("দশম") && (uClass.includes("ssc") || uClass.includes("দশম"))) return true;
+           if (uClass.includes("দশম") && (tClass.includes("ssc") || tClass.includes("দশম"))) return true;
+           
+           if (tClass.includes("নবম") && uClass.includes("nine")) return true;
+           return false;
         });
         setDynamicModelSets([...adminSets, ...modelSets]);
       } catch (err) {
@@ -445,16 +464,30 @@ export default function Exam() {
               allQs = [...cachedQs.qs];
           } else {
               if (type === 'mistakes') {
-                 const userWrong = JSON.parse(localStorage.getItem(`pathcharcha_wrong_${userData?.uid}`) || "{}");
-                 const wrongIds = Object.keys(userWrong);
-                 if (wrongIds.length > 0) {
+                 if (userData?.uid) {
                      try {
-                         const qBase = collection(db, "questions");
-                         const qQuery = query(qBase, where("__name__", "in", wrongIds.slice(0, 10)));
+                         const mistakesRef = collection(db, "users", userData.uid, "mistakes");
+                         const qQuery = query(mistakesRef, limit(30));
                          const snap = await getDocs(qQuery);
                          allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
-                     } catch {
-                         // ignore
+                     } catch (err) {
+                         console.error("Failed to fetch mistakes from DB", err);
+                     }
+                 }
+                 
+                 if (allQs.length === 0) {
+                     const userWrong = JSON.parse(localStorage.getItem(`pathcharcha_wrong_${userData?.uid}`) || "{}");
+                     const wrongIds = Object.keys(userWrong);
+                     if (wrongIds.length > 0) {
+                         try {
+                             const qBase = collection(db, "questions");
+                             const chunkedIds = wrongIds.slice(0, 30);
+                             const qQuery = query(qBase, where("__name__", "in", chunkedIds.slice(0, 10)));
+                             const snap = await getDocs(qQuery);
+                             allQs = snap.docs.map((d: any) => ({ id: d.id, ...d.data() }));
+                         } catch (err) {
+                             console.error("Failed to fetch mistakes from DB (fallback)", err);
+                         }
                      }
                  }
               } else {
@@ -581,15 +614,15 @@ export default function Exam() {
                                qText = `What is the synonym of "${word.word}"?`;
                                
                                const maybeSyn = (word.synonyms && word.synonyms.length > 0) ? word.synonyms[0].trim() : "";
-                               if (maybeSyn && !/[অ-য়]/.test(maybeSyn)) {
+                               if (maybeSyn && !/[\u0980-\u09FF]/.test(maybeSyn)) {
                                   correctAnswer = maybeSyn;
                                } else {
                                   correctAnswer = word.word + " (Synonym)";
                                 }
                                
-                               const allSynonyms = ENGLISH_WORDS.filter(w => w.language === 'english' && w.synonyms && w.synonyms.length > 0)
+                               const allSynonyms = ENGLISH_WORDS.filter(w => w.language === 'english' && w.category !== 'spelling' && w.synonyms && w.synonyms.length > 0)
                                   .map(w => w.synonyms![0].trim())
-                                  .filter(s => s && !/[অ-য়]/.test(s) && s.toLowerCase() !== word.word.toLowerCase() && s.toLowerCase() !== correctAnswer.toLowerCase());
+                                  .filter(s => s && !/[\u0980-\u09FF]/.test(s) && s.toLowerCase() !== word.word.toLowerCase() && s.toLowerCase() !== correctAnswer.toLowerCase());
                                
                                const uniqueWrongs = Array.from(new Set(allSynonyms));
                                wrongAnswers = uniqueWrongs.sort(() => Math.random() - 0.5).slice(0, 3);
@@ -601,15 +634,15 @@ export default function Exam() {
                                qText = `What is the antonym of "${word.word}"?`;
                                
                                const maybeAnt = (word.antonyms && word.antonyms.length > 0) ? word.antonyms[0].trim() : "";
-                               if (maybeAnt && !/[অ-য়]/.test(maybeAnt)) {
+                               if (maybeAnt && !/[\u0980-\u09FF]/.test(maybeAnt)) {
                                   correctAnswer = maybeAnt;
                                } else {
                                   correctAnswer = word.word + " (Antonym)";
                                }
                                
-                               const allAntonyms = ENGLISH_WORDS.filter(w => w.language === 'english' && w.antonyms && w.antonyms.length > 0)
+                               const allAntonyms = ENGLISH_WORDS.filter(w => w.language === 'english' && w.category !== 'spelling' && w.antonyms && w.antonyms.length > 0)
                                   .map(w => w.antonyms![0].trim())
-                                  .filter(s => s && !/[অ-য়]/.test(s) && s.toLowerCase() !== word.word.toLowerCase() && s.toLowerCase() !== correctAnswer.toLowerCase());
+                                  .filter(s => s && !/[\u0980-\u09FF]/.test(s) && s.toLowerCase() !== word.word.toLowerCase() && s.toLowerCase() !== correctAnswer.toLowerCase());
                                
                                const uniqueWrongs = Array.from(new Set(allAntonyms));
                                wrongAnswers = uniqueWrongs.sort(() => Math.random() - 0.5).slice(0, 3);
@@ -654,7 +687,7 @@ export default function Exam() {
                                    if (m) englishMeaning = m[1].trim();
                                 }
                                 
-                                if (englishMeaning && englishMeaning.length > 2 && !/[অ-য়]/.test(englishMeaning)) {
+                                if (englishMeaning && englishMeaning.length > 2 && !/[\u0980-\u09FF]/.test(englishMeaning)) {
                                    correctAnswer = englishMeaning;
                                 } else {
                                    correctAnswer = word.word + " (Meaning)";
@@ -667,7 +700,7 @@ export default function Exam() {
                                       if (m) return m[1].trim();
                                    }
                                    return "";
-                                }).filter(m => m && !/[অ-য়]/.test(m) && m.toLowerCase() !== correctAnswer.toLowerCase());
+                                }).filter(m => m && !/[\u0980-\u09FF]/.test(m) && m.toLowerCase() !== correctAnswer.toLowerCase());
                                 
                                 const uniqueWrongs = Array.from(new Set(allIdiomMeanings));
                                 wrongAnswers = uniqueWrongs.sort(() => Math.random() - 0.5).slice(0, 3);
@@ -1585,8 +1618,12 @@ export default function Exam() {
              })}
            </div>
 
+           {/* Padding to prevent content from hiding behind fixed nav */}
+           <div className="h-28" />
+
            {/* Mobile Prototype Bottom Navigation Menu */}
-           <div className="mt-8 border-t border-slate-100 bg-white shadow-[0_-8px_30px_rgba(0,0,0,0.03)] rounded-[24px] p-4 flex justify-around items-center gap-2 max-w-xl mx-auto border border-slate-100/50">
+           <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none">
+             <div className="pointer-events-auto border-t-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-[32px] p-3 flex justify-around items-center gap-2 max-w-[400px] mx-auto border border-slate-100">
               <div className="flex flex-col items-center gap-1.5 cursor-pointer text-[#008060]">
                  <div className="px-3 py-1 rounded-xl bg-[#E6F4EA] flex items-center justify-center">
                     <BookOpen className="w-5 h-5" strokeWidth={2.5} />
@@ -1620,8 +1657,9 @@ export default function Exam() {
                  </div>
                  <span className="text-xs font-bengali font-medium select-none">প্রোফাইল</span>
               </div>
-           </div>
-         </div>
+            </div>
+          </div>
+        </div>
        );
     }
 
@@ -1839,7 +1877,7 @@ export default function Exam() {
                          {correct ? (
                            <CheckCircle2 className="w-5 h-5 text-white drop-shadow-sm" />
                          ) : (
-                           option.id
+                           option.id === 'A' ? 'ক' : option.id === 'B' ? 'খ' : option.id === 'C' ? 'গ' : option.id === 'D' ? 'ঘ' : option.id === '1' ? 'ক' : option.id === '2' ? 'খ' : option.id === '3' ? 'গ' : option.id === '4' ? 'ঘ' : option.id
                          )}
                        </div>
                        
