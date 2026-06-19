@@ -137,16 +137,18 @@ const getUniversitiesByGroup = (group?: string) => {
   ];
 
   const nu = { name: "জাতীয় বিশ্ববিদ্যালয়", short: "জাতীয়", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/f/f6/National_University%2C_Bangladesh_Logo.svg/512px-National_University%2C_Bangladesh_Logo.svg.png" };
+  const dkau = { name: "ঢাকা কৃষি বিশ্ববিদ্যালয়", short: "ঢাকেবি", logo: "https://cdn-icons-png.flaticon.com/512/8076/8076045.png" };
 
   if (group === "বিজ্ঞান" || !group) {
     return [
       ...commonBefore,
       { name: "মেডিকেল", short: "মেডিকেল", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Star_of_life2.svg/512px-Star_of_life2.svg.png" },
       { name: "প্রকৌশল", short: "প্রকৌশল", logo: "https://upload.wikimedia.org/wikipedia/en/thumb/9/96/BUET_LOGO.svg/512px-BUET_LOGO.svg.png" },
-      nu
+      nu,
+      dkau
     ];
   }
-  return [...commonBefore, nu];
+  return [...commonBefore, nu, dkau];
 };
 
 
@@ -365,7 +367,7 @@ export default function QuestionBank() {
             <div className="relative w-full flex items-center gap-3 mb-6">
               <button 
                 onClick={() => navigate("/dashboard")} 
-                className="shrink-0 w-12 sm:w-14 h-12 sm:h-14 bg-white hover:bg-slate-50 flex items-center justify-center rounded-full shadow-[0_2px_15px_rgba(0,0,0,0.04)] border border-slate-100 transition-colors"
+                className="shrink-0 w-12 sm:w-14 h-12 sm:h-14 bg-card hover:bg-muted flex items-center justify-center rounded-full shadow-[0_2px_15px_rgba(0,0,0,0.04)] border border-slate-100 transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-slate-700" strokeWidth={2.5} />
               </button>
@@ -374,11 +376,11 @@ export default function QuestionBank() {
                 <Input 
                   type="search" 
                   placeholder="প্রশ্নব্যাংক খুঁজুন" 
-                  className="pl-12 pr-14 font-bengali bg-white border-0 shadow-[0_2px_15px_rgba(0,0,0,0.04)] rounded-full h-12 sm:h-14 text-base placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-emerald-500 w-full" 
+                  className="pl-12 pr-14 font-bengali bg-card border-0 shadow-[0_2px_15px_rgba(0,0,0,0.04)] rounded-full h-12 sm:h-14 text-base placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-emerald-500 w-full" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-white shadow-sm border border-slate-100 rounded-full flex items-center justify-center text-slate-700 hover:bg-slate-50 transition-colors">
+                <button className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-card shadow-sm border border-slate-100 rounded-full flex items-center justify-center text-slate-700 hover:bg-muted transition-colors">
                   <div className="relative">
                     <svg width="18" height="18" className="sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                     <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
@@ -465,13 +467,13 @@ export default function QuestionBank() {
                      <span className="font-bengali font-extrabold text-[19px] sm:text-[21px] leading-tight drop-shadow-sm">{subject.title}</span>
                      <span className="font-bengali font-medium text-[13px] sm:text-[14px] opacity-90">{subject.subtitle}</span>
                    </div>
-                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/95 flex items-center justify-center shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                   <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-card/95 flex items-center justify-center shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
                      <subject.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${subject.title === 'বাংলা' && subject.subtitle === '১ম পত্র' ? 'text-[#71c33a]' : subject.title === 'বাংলা' && subject.subtitle === '২য় পত্র' ? 'text-[#ff8f00]' : subject.title === 'ইংরেজি' && subject.subtitle === '১ম পত্র' ? 'text-[#fa5252]' : subject.title === 'ইংরেজি' && subject.subtitle === '২য় পত্র' ? 'text-[#3a8eed]' : subject.title === 'একাউন্টিং' && subject.subtitle === '১ম পত্র' ? 'text-[#1bb59e]' : 'text-[#8d54ea]'}`} strokeWidth={2.5} />
                    </div>
                  </div>
                  
                  <div className="mt-auto relative z-10">
-                   <div className="bg-white text-slate-800 text-[12px] sm:text-[13px] font-bold px-3 py-1 rounded-md inline-flex items-center gap-1.5 shadow-sm">
+                   <div className="bg-card text-foreground text-[12px] sm:text-[13px] font-bold px-3 py-1 rounded-md inline-flex items-center gap-1.5 shadow-sm">
                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                      {subject.count}
                    </div>
@@ -512,7 +514,7 @@ export default function QuestionBank() {
     const is9To12Config = activeClassGroup === "Class 9" || activeClassGroup === "SSC" || activeClassGroup === "HSC";
     if (is9To12Config) {
       return (
-        <div className="fixed bottom-0 inset-x-0 w-full z-50 transition-all bg-white border-t border-slate-200">
+        <div className="fixed bottom-0 inset-x-0 w-full z-50 transition-all bg-card border-t border-slate-200">
           <div className="flex items-center w-full max-w-md mx-auto">
             <button
               onClick={() => { setActiveSubTab("bank"); setQuizStarted(false); }}
@@ -541,7 +543,7 @@ export default function QuestionBank() {
     }
     
     return (
-      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200/80 py-3.5 px-6 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto pb-safe">
+      <div className="fixed bottom-0 inset-x-0 bg-card border-t border-slate-200/80 py-3.5 px-6 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto pb-safe">
         <button 
           onClick={() => {
             setActiveSubTab("bank");
@@ -600,7 +602,7 @@ export default function QuestionBank() {
     return (
       <div className="max-w-4xl mx-auto py-12 px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">কী ধরনের প্রশ্ন অনুশীলন করতে চাও?</h2>
+          <h2 className="text-3xl font-bengali font-bold text-foreground mb-4">কী ধরনের প্রশ্ন অনুশীলন করতে চাও?</h2>
           
           <div className="flex items-center justify-center gap-3 mb-6">
              {isOffline && (
@@ -623,12 +625,12 @@ export default function QuestionBank() {
             whileHover={{ scale: 1.02, translateY: -4 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setQuestionFormat("MCQ")}
-            className="cursor-pointer bg-white border-2 border-slate-100 hover:border-primary/50 shadow-sm hover:shadow-md p-8 rounded-[32px] text-center transition-all group"
+            className="cursor-pointer bg-card border-2 border-slate-100 hover:border-primary/50 shadow-sm hover:shadow-md p-8 rounded-[32px] text-center transition-all group"
           >
             <div className="bg-primary/10 w-20 h-20 rounded-[24px] flex items-center justify-center mx-auto mb-6 group-hover:bg-primary/20 transition-colors">
               <LayoutList className="w-10 h-10 text-primary" />
             </div>
-            <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-2">MCQ প্রশ্ন</h3>
+            <h3 className="text-2xl font-bengali font-bold text-foreground mb-2">MCQ প্রশ্ন</h3>
             <p className="text-slate-500 font-bengali">বহুনির্বাচনি প্রশ্ন এবং মডেল টেস্ট</p>
           </motion.div>
 
@@ -637,12 +639,12 @@ export default function QuestionBank() {
               whileHover={{ scale: 1.02, translateY: -4 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setQuestionFormat("CQ")}
-              className="cursor-pointer bg-white border-2 border-slate-100 hover:border-secondary/50 shadow-sm hover:shadow-md p-8 rounded-[32px] text-center transition-all group"
+              className="cursor-pointer bg-card border-2 border-slate-100 hover:border-secondary/50 shadow-sm hover:shadow-md p-8 rounded-[32px] text-center transition-all group"
             >
               <div className="bg-secondary/10 w-20 h-20 rounded-[24px] flex items-center justify-center mx-auto mb-6 group-hover:bg-secondary/20 transition-colors">
                 <PenTool className="w-10 h-10 text-secondary" />
               </div>
-              <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-2">CQ প্রশ্ন</h3>
+              <h3 className="text-2xl font-bengali font-bold text-foreground mb-2">CQ প্রশ্ন</h3>
               <p className="text-slate-500 font-bengali">সৃজনশীল বা লিখিত প্রশ্নমালা</p>
             </motion.div>
           )}
@@ -656,6 +658,7 @@ export default function QuestionBank() {
     const getUniThemeInfo = (short: string) => {
         switch(short) {
             case "ঢাবি": return { icon: Calendar, theme: "bg-[#F0F7FF] text-[#1E6BFF]", line: "bg-[#1E6BFF]" };
+            case "ঢাকেবি": return { icon: BookOpen, theme: "bg-[#FFF4E6] text-[#FF8C00]", line: "bg-[#FF8C00]" };
             case "রাবি": return { icon: BookOpen, theme: "bg-[#F0FDF4] text-[#10B981]", line: "bg-[#10B981]" };
             case "জাবি": return { icon: GraduationCap, theme: "bg-[#F5F3FF] text-[#8B5CF6]", line: "bg-[#8B5CF6]" };
             case "চবি": return { icon: Landmark, theme: "bg-[#FFFBEB] text-[#F59E0B]", line: "bg-[#F59E0B]" };
@@ -664,7 +667,7 @@ export default function QuestionBank() {
             case "মেডিকেল": return { icon: Dna, theme: "bg-[#FFE4E6] text-[#E11D48]", line: "bg-[#E11D48]" };
             case "প্রকৌশল": return { icon: Calculator, theme: "bg-[#E0F2FE] text-[#0284C7]", line: "bg-[#0284C7]" };
             case "জাতীয়": return { icon: Library, theme: "bg-[#F3E8FF] text-[#9333EA]", line: "bg-[#9333EA]" };
-            default: return { icon: Sparkles, theme: "bg-slate-100 text-slate-500", line: "bg-slate-500" };
+            default: return { icon: Sparkles, theme: "bg-slate-100 text-slate-500", line: "bg-muted0" };
         }
     };
 
@@ -676,7 +679,7 @@ export default function QuestionBank() {
             <div className="flex items-center gap-4">
               <button 
                onClick={() => navigate("/dashboard")}
-               className="w-11 h-11 rounded-full bg-white border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex items-center justify-center hover:bg-slate-50 transition-all cursor-pointer text-slate-700 shrink-0"
+               className="w-11 h-11 rounded-full bg-card border border-slate-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] flex items-center justify-center hover:bg-muted transition-all cursor-pointer text-slate-700 shrink-0"
               >
                <ArrowLeft className="w-5 h-5" strokeWidth={2.5} />
               </button>
@@ -707,7 +710,7 @@ export default function QuestionBank() {
                       setActiveClass(uni.name);
                     }
                   }}
-                  className={`relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-[24px] bg-white transition-all overflow-hidden border border-slate-100 ${disabled ? "opacity-90 cursor-not-allowed" : "cursor-pointer hover:border-slate-200"}`}
+                  className={`relative flex flex-col items-center justify-center p-6 sm:p-8 rounded-[24px] bg-card transition-all overflow-hidden border border-slate-100 ${disabled ? "opacity-90 cursor-not-allowed" : "cursor-pointer hover:border-slate-200"}`}
                   style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.03)" }}
                 >
                   {/* Subtle corner marker for DHABI (like the design) */}
@@ -729,7 +732,23 @@ export default function QuestionBank() {
                       </>
                     )}
                     
-                    <IconObj className="w-8 h-8" strokeWidth={2.5} />
+                    {uni.short === "ঢাবি" ? (
+                      <img src="https://i.ibb.co/WQNnNVx/IMG-20260619-WA0020.jpg" alt="ঢাবি" className="w-[38px] h-[38px] object-contain drop-shadow-sm rounded-full" />
+                    ) : uni.short === "রাবি" ? (
+                      <img src="https://i.ibb.co/mr1nV4zQ/IMG-20260619-WA0022.jpg" alt="রাবি" className="w-[38px] h-[38px] object-contain drop-shadow-sm rounded-full" />
+                    ) : uni.short === "জাবি" ? (
+                      <img src="https://i.ibb.co/xq78dw8G/IMG-20260619-WA0023.jpg" alt="জাবি" className="w-[38px] h-[38px] object-contain drop-shadow-sm rounded-full" />
+                    ) : uni.short === "চবি" ? (
+                      <img src="https://i.ibb.co/jZHvJMj7/IMG-20260619-WA0021.jpg" alt="চবি" className="w-[38px] h-[38px] object-contain drop-shadow-sm rounded-full" />
+                    ) : uni.short === "জাতীয়" ? (
+                      <img src="https://i.ibb.co/Cd4T262/IMG-20260619-WA0024.jpg" alt="জাতীয়" className="w-[38px] h-[38px] object-contain drop-shadow-sm rounded-full" />
+                    ) : uni.short === "কুবি" ? (
+                      <img src="https://i.ibb.co/99NTPs1W/IMG-20260619-WA0025.jpg" alt="কুবি" className="w-[38px] h-[38px] object-contain drop-shadow-sm rounded-full" />
+                    ) : uni.short === "ঢাকেবি" ? (
+                      <img src="https://i.ibb.co/7dnGbBHN/IMG-20260619-WA0027.jpg" alt="ঢাকেবি" className="w-[38px] h-[38px] object-contain drop-shadow-sm rounded-full" />
+                    ) : (
+                      <IconObj className="w-8 h-8" strokeWidth={2.5} />
+                    )}
                   </div>
 
                   <span className="font-bengali font-extrabold text-[#1E2B4C] text-[20px] mb-2">{uni.short}</span>
@@ -826,7 +845,7 @@ export default function QuestionBank() {
                navigate("/dashboard");
              }
            }}
-           className="w-10 h-10 rounded-full bg-white border border-slate-200/80 shadow-xs flex items-center justify-center hover:bg-slate-50 hover:text-blue-700 hover:border-slate-300 transition-all cursor-pointer text-slate-600 shrink-0"
+           className="w-10 h-10 rounded-full bg-card border border-slate-200/80 shadow-xs flex items-center justify-center hover:bg-muted hover:text-blue-700 hover:border-slate-300 transition-all cursor-pointer text-muted-foreground shrink-0"
            title="ফিরে যান"
           >
            <ArrowLeft className="w-5 h-5" />
@@ -836,7 +855,7 @@ export default function QuestionBank() {
             <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold text-blue-600 font-sans">
               {activeSubTab === "bank" ? "প্রশ্নপত্র • Question Bank" : activeSubTab === "topics" ? "টপিক ভিত্তিক • Topics" : "প্র্যাকটিস • Practice Engine"}
             </span>
-            <h2 className="text-[14px] sm:text-[17px] font-bengali font-extrabold text-slate-800 leading-tight truncate">
+            <h2 className="text-[14px] sm:text-[17px] font-bengali font-extrabold text-foreground leading-tight truncate">
               {activeSubTab === "topics" 
                 ? "বিষয়ভিত্তিক প্রশ্নমালা" 
                 : (activeClass === "ঢাকা বিশ্ববিদ্যালয়" 
@@ -854,7 +873,7 @@ export default function QuestionBank() {
             <img 
               src="/logo.png" 
               alt="Logo" 
-              className="w-8 h-8 object-contain rounded-full shadow-xs bg-white p-0.5 border" 
+              className="w-8 h-8 object-contain rounded-full shadow-xs bg-card p-0.5 border" 
               onError={(e) => {
                 e.currentTarget.onerror = null;
                 e.currentTarget.src = "/icon-192.png";
@@ -881,7 +900,7 @@ export default function QuestionBank() {
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-slate-400"></div>
                 </div>
               ) : questionsList.length === 0 ? (
-                <div className="bg-white p-12 text-center rounded-[32px] border border-slate-100 shadow-sm">
+                <div className="bg-card p-12 text-center rounded-[32px] border border-slate-100 shadow-sm">
                   <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-3" />
                   <p className="font-bengali text-sm text-slate-500">এই বিভাগে কোনো প্রশ্নপত্র পাওয়া যায়নি।</p>
                 </div>
@@ -891,7 +910,7 @@ export default function QuestionBank() {
                     <Link 
                       key={idx}
                       to={`/paperview?title=${encodeURIComponent(paper.title)}&classGroup=${encodeURIComponent(activeClassGroup)}`}
-                      className="bg-white p-5 sm:p-6 rounded-[28px] border border-slate-200/70 hover:border-blue-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 flex items-center justify-between gap-4 group relative overflow-hidden"
+                      className="bg-card p-5 sm:p-6 rounded-[28px] border border-slate-200/70 hover:border-blue-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 flex items-center justify-between gap-4 group relative overflow-hidden"
                     >
                       {/* Left accent bar */}
                       <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-500 rounded-l-full scale-y-75 group-hover:scale-y-100 transition-transform duration-300" />
@@ -909,15 +928,15 @@ export default function QuestionBank() {
                         <h4 className="font-bengali text-slate-900 font-extrabold text-base sm:text-lg group-hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
                           {formatPaperTitle(paper.title, activeClass)}
                         </h4>
-                        <div className="flex items-center gap-1.5 text-slate-600 text-xs sm:text-[13px] font-bengali font-semibold">
-                          <div className="p-1 rounded-lg bg-slate-50 text-slate-500 border border-slate-100">
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs sm:text-[13px] font-bengali font-semibold">
+                          <div className="p-1 rounded-lg bg-muted text-slate-500 border border-slate-100">
                             <BookOpen className="w-3.5 h-3.5" />
                           </div>
                           <span>{paper.questions?.length || 0} টি প্রশ্ন</span>
                         </div>
                       </div>
                       
-                      <div className="w-11 h-11 rounded-full bg-slate-50/80 border border-slate-100 text-slate-400 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 group-hover:shadow-md transition-all duration-300">
+                      <div className="w-11 h-11 rounded-full bg-muted/80 border border-slate-100 text-slate-400 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 group-hover:shadow-md transition-all duration-300">
                         <ChevronRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5" />
                       </div>
                     </Link>
@@ -950,7 +969,7 @@ export default function QuestionBank() {
                   <h2 className="font-bengali text-2xl sm:text-3xl font-extrabold text-[#0F2744] tracking-tight leading-tight">
                     বিষয়ভিত্তিক প্রশ্নমালা
                   </h2>
-                  <p className="text-sm font-bengali text-slate-600 max-w-sm leading-relaxed">
+                  <p className="text-sm font-bengali text-muted-foreground max-w-sm leading-relaxed">
                     আপনার পছন্দের বিষয় নির্বাচন করে বহুনির্বাচনী প্রশ্ন (MCQ) প্র্যাকটিস করুন
                   </p>
                 </div>
@@ -963,14 +982,14 @@ export default function QuestionBank() {
                   <h2 className="font-bengali text-xl font-extrabold text-[#0F2744] tracking-tight leading-tight">
                     বিষয়ভিত্তিক প্রশ্নমালা
                   </h2>
-                  <p className="text-xs font-bengali text-slate-600 max-w-xs leading-relaxed">
+                  <p className="text-xs font-bengali text-muted-foreground max-w-xs leading-relaxed">
                     আপনার পছন্দের বিষয় নির্বাচন করে বহুনির্বাচনী প্রশ্ন (MCQ) প্র্যাকটিস করুন
                   </p>
                 </div>
 
                 {/* Vector / Abstract Illo */}
                 <div className="z-10 relative shrink-0">
-                  <div className="w-20 h-24 sm:w-28 sm:h-32 relative bg-white/60 backdrop-blur-sm rounded-xl border border-white shadow-[10px_10px_30px_rgba(0,0,0,0.05)] flex items-center justify-center skew-x-[-10deg] rotate-6 transform">
+                  <div className="w-20 h-24 sm:w-28 sm:h-32 relative bg-card/60 backdrop-blur-sm rounded-xl border border-white shadow-[10px_10px_30px_rgba(0,0,0,0.05)] flex items-center justify-center skew-x-[-10deg] rotate-6 transform">
                      <Library className="w-10 h-10 sm:w-14 sm:h-14 text-indigo-400 rotate-[-6deg] skew-x-[10deg]" />
                      <div className="absolute -bottom-2 -left-2 w-8 h-8 rounded-full bg-emerald-100 border-2 border-white flex items-center justify-center rotate-[-6deg] skew-x-[10deg]">
                        <Sparkles className="w-4 h-4 text-emerald-500" />
@@ -985,7 +1004,7 @@ export default function QuestionBank() {
                 <Input 
                   type="search" 
                   placeholder="বিষয় খুঁজুন..." 
-                  className="pl-12 pr-14 font-bengali bg-white border-none shadow-[0_2px_15px_rgba(0,0,0,0.04)] rounded-[20px] h-14 text-base placeholder:text-slate-400" 
+                  className="pl-12 pr-14 font-bengali bg-card border-none shadow-[0_2px_15px_rgba(0,0,0,0.04)] rounded-[20px] h-14 text-base placeholder:text-slate-400" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -1005,7 +1024,7 @@ export default function QuestionBank() {
                       icon: BookOpen, 
                       count: "১৫", 
                       desc: `${sub} বিষয়ের গুরুত্বপূর্ণ সকল বহুনির্বাচনী প্রশ্ন (MCQ)`, 
-                      bg: "bg-slate-50", 
+                      bg: "bg-muted", 
                       iconColor: "text-slate-500" 
                     };
                     const IconComp = meta.icon;
@@ -1013,7 +1032,7 @@ export default function QuestionBank() {
                       <Link 
                         key={sub} 
                         to={`/paper?title=${encodeURIComponent("Subject-wise Questions")}&subject=${encodeURIComponent(sub)}&classGroup=${encodeURIComponent(activeClassGroup || "")}&university=${encodeURIComponent(activeClass || "")}`}
-                        className="bg-white p-4 sm:p-5 rounded-[24px] border border-slate-100/50 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-slate-200 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] transition-all flex items-center justify-between gap-4 group"
+                        className="bg-card p-4 sm:p-5 rounded-[24px] border border-slate-100/50 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:border-slate-200 hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] transition-all flex items-center justify-between gap-4 group"
                       >
                          <div className="flex items-center gap-4 sm:gap-5 flex-1 min-w-0">
                            <div className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[20px] flex items-center justify-center ${meta.bg} ${meta.iconColor} shrink-0 group-hover:scale-105 transition-transform duration-300`}>
@@ -1021,7 +1040,7 @@ export default function QuestionBank() {
                            </div>
                            <div className="space-y-0.5 sm:space-y-1 flex-1 min-w-0">
                              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                               <h4 className="font-bengali font-bold text-slate-800 text-base sm:text-[19px] group-hover:text-[#0F2744] transition-colors truncate mb-1">
+                               <h4 className="font-bengali font-bold text-foreground text-base sm:text-[19px] group-hover:text-[#0F2744] transition-colors truncate mb-1">
                                  {meta.name}
                                </h4>
                                <span className="font-bengali text-[10px] sm:text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full shrink-0">
@@ -1050,12 +1069,12 @@ export default function QuestionBank() {
               className="space-y-4"
             >
               {!quizStarted ? (
-                <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-xs text-center max-w-lg mx-auto">
+                <div className="bg-card rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-xs text-center max-w-lg mx-auto">
                   <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4 shadow-xs">
                     <Trophy className="w-8 h-8" />
                   </div>
                   
-                  <h3 className="font-bengali font-bold text-slate-800 text-xl sm:text-2xl mb-2">
+                  <h3 className="font-bengali font-bold text-foreground text-xl sm:text-2xl mb-2">
                     ডেইলি কুইজ প্র্যাকটিস
                   </h3>
                   <p className="font-bengali text-slate-500 text-sm mb-6 leading-relaxed max-w-sm mx-auto">
@@ -1070,7 +1089,7 @@ export default function QuestionBank() {
                   </Button>
                 </div>
               ) : quizFinished ? (
-                <div className="bg-white rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-xs text-center max-w-lg mx-auto space-y-6">
+                <div className="bg-card rounded-[32px] p-6 sm:p-8 border border-slate-200/90 shadow-xs text-center max-w-lg mx-auto space-y-6">
                   <div className="relative inline-flex items-center justify-center">
                     <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
                       <Trophy className="w-11 h-11" />
@@ -1080,14 +1099,14 @@ export default function QuestionBank() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <h3 className="font-bengali font-bold text-slate-800 text-xl sm:text-2xl">
+                    <h3 className="font-bengali font-bold text-foreground text-xl sm:text-2xl">
                       কুইজ সম্পন্ন হয়েছে!
                     </h3>
                     <p className="font-bengali text-sm text-slate-500">আপনার স্কোর নিচে দেওয়া হলো</p>
                   </div>
 
                   {/* Core scorecard displays */}
-                  <div className="bg-slate-50 rounded-2xl p-4 flex justify-around items-center border border-slate-100/80">
+                  <div className="bg-muted rounded-2xl p-4 flex justify-around items-center border border-slate-100/80">
                     <div className="text-center">
                       <span className="block text-2xl font-black text-emerald-600 font-sans">{quizScore} / {quizQuestions.length}</span>
                       <span className="text-[11px] font-bengali font-semibold text-slate-400">সঠিক উত্তর</span>
@@ -1114,14 +1133,14 @@ export default function QuestionBank() {
                         setQuizStarted(false);
                         setQuizFinished(false);
                       }}
-                      className="flex-1 rounded-2xl border-slate-200 text-slate-600 text-xs font-bengali font-semibold py-4 h-11 bg-white hover:bg-slate-50"
+                      className="flex-1 rounded-2xl border-slate-200 text-muted-foreground text-xs font-bengali font-semibold py-4 h-11 bg-card hover:bg-muted"
                     >
                       কুইজ বন্ধ করুন
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="bg-white rounded-3xl p-5 border border-slate-150 shadow-xs max-w-lg mx-auto space-y-6">
+                <div className="bg-card rounded-3xl p-5 border border-slate-150 shadow-xs max-w-lg mx-auto space-y-6">
                   {/* Progress Header */}
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bengali font-bold text-emerald-600 bg-emerald-50 py-1.5 px-3 rounded-full">
@@ -1143,7 +1162,7 @@ export default function QuestionBank() {
                   {/* Display active question content carefully */}
                   {quizQuestions[currentQuizIndex] && (
                     <div className="space-y-5">
-                      <h4 className="font-bengali text-slate-800 text-base sm:text-lg font-bold leading-normal">
+                      <h4 className="font-bengali text-foreground text-base sm:text-lg font-bold leading-normal">
                         {quizQuestions[currentQuizIndex].text}
                       </h4>
 
@@ -1156,14 +1175,14 @@ export default function QuestionBank() {
                           const correctAns = quizQuestions[currentQuizIndex].correctOption || quizQuestions[currentQuizIndex].correct_answer || quizQuestions[currentQuizIndex].correctAnswer || quizQuestions[currentQuizIndex].answer;
                           const isCorrectOption = optionKey.trim().toLowerCase() === correctAns?.trim()?.toLowerCase();
                           
-                          let optionStyle = "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100/80 hover:border-slate-300";
+                          let optionStyle = "border-slate-200 bg-muted text-slate-700 hover:bg-slate-100/80 hover:border-slate-300";
                           if (quizAnswered) {
                             if (isCorrectOption) {
                               optionStyle = "border-green-200 bg-green-50 text-green-800 font-semibold shadow-xs shadow-green-100";
                             } else if (isSelected) {
                               optionStyle = "border-rose-200 bg-rose-50 text-rose-800 font-semibold";
                             } else {
-                              optionStyle = "border-slate-100 bg-slate-50/50 text-slate-400 opacity-60";
+                              optionStyle = "border-slate-100 bg-muted/50 text-slate-400 opacity-60";
                             }
                           }
 
@@ -1187,8 +1206,8 @@ export default function QuestionBank() {
                       {quizAnswered && (
                         <div className="pt-2 flex flex-col gap-3">
                           {quizQuestions[currentQuizIndex].explanation && (
-                            <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3.5 text-xs font-bengali text-slate-600 leading-relaxed">
-                              <span className="font-bold text-slate-800 block mb-1">💡 ব্যাখ্যা:</span>
+                            <div className="bg-muted border border-slate-100 rounded-2xl p-3.5 text-xs font-bengali text-muted-foreground leading-relaxed">
+                              <span className="font-bold text-foreground block mb-1">💡 ব্যাখ্যা:</span>
                               {quizQuestions[currentQuizIndex].explanation}
                             </div>
                           )}

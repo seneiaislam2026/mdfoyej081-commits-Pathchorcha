@@ -60,7 +60,7 @@ export default function NoteHonesty() {
     <div className="w-full flex justify-center pb-10 px-0 sm:px-4">
       
 
-      <div className="bg-white w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
+      <div className="bg-card w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
         <div className="flex justify-end mb-2">
             <Button 
                 variant="outline"

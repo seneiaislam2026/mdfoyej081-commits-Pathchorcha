@@ -339,12 +339,12 @@ export default function Profile() {
             {/* Profile Info Texts */}
             <div className="space-y-1 sm:max-w-xs">
               <div className="flex items-center justify-center sm:justify-start gap-2.5">
-                <h1 className="text-2xl font-black text-slate-800 font-sans tracking-tight">
+                <h1 className="text-2xl font-black text-foreground font-sans tracking-tight">
                   {(userData?.fullName || "MD FOYEZ RABBI").toUpperCase()}
                 </h1>
                 <button 
                   onClick={() => setShowPersonalInfoModal(true)} 
-                  className="p-1 hover:bg-white/50 rounded-full text-indigo-500 hover:text-indigo-700 transition-colors"
+                  className="p-1 hover:bg-card/50 rounded-full text-indigo-500 hover:text-indigo-700 transition-colors"
                   title="তথ্য পরিবর্তন করুন"
                 >
                   <Edit2 className="w-4 h-4" />
@@ -353,7 +353,7 @@ export default function Profile() {
 
               <p className="text-slate-500 font-medium text-sm block col-span-1">
                 {userData?.email ? (
-                  userData.email.includes("@pathchorcha") || userData.email.includes("@pathchola.com") || userData.email.includes("@shikkhangon.com") ? (
+                  userData.email.includes("@pathchorcha") || userData.email.includes("@pathchola.com") || userData.email.includes("@biddayon.com") ? (
                     userData.email.split("@")[0]
                   ) : (
                     userData.email
@@ -435,7 +435,7 @@ export default function Profile() {
         <div 
           id="opt_personal_info"
           onClick={() => setShowPersonalInfoModal(true)}
-          className="bg-white rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
+          className="bg-card rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-300">
@@ -453,7 +453,7 @@ export default function Profile() {
         <div 
           id="opt_subscription"
           onClick={() => navigate("/subscription")}
-          className="bg-white rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
+          className="bg-card rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-300">
@@ -471,7 +471,7 @@ export default function Profile() {
         <div 
           id="opt_routine_planner"
           onClick={() => setShowRoutineModal(true)}
-          className="bg-white rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
+          className="bg-card rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-300">
@@ -489,7 +489,7 @@ export default function Profile() {
         <div 
           id="opt_notifications"
           onClick={() => setShowNotificationModal(true)}
-          className="bg-white rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
+          className="bg-card rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-300 relative">
@@ -510,7 +510,7 @@ export default function Profile() {
         <div 
           id="opt_settings"
           onClick={() => setShowGeneralSettingsModal(true)}
-          className="bg-white rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
+          className="bg-card rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(109,40,217,0.03)] transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
         >
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-300">
@@ -527,7 +527,7 @@ export default function Profile() {
       </div>
 
       {/* Collapsible Student Statistics & Analytics Below Menu for HSC Preparation */}
-      <div className="bg-white rounded-[32px] shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-slate-100 p-6 relative overflow-hidden">
+      <div className="bg-card rounded-[32px] shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-slate-100 p-6 relative overflow-hidden">
         <div className="flex items-center justify-between mb-5 border-b border-slate-50 pb-3">
           <div className="flex items-center gap-2.5">
             <Target className="w-6 h-6 text-indigo-600" strokeWidth={2.5} />
@@ -539,7 +539,7 @@ export default function Profile() {
           <div className="bg-[#F8FAFC] p-4 rounded-2xl flex flex-col items-center justify-center text-center">
             <ClipboardList className="w-5 h-5 text-blue-500 mb-1" />
             <span className="text-xs font-bengali text-slate-500">লিডারবোর্ডের র্যাঙ্ক</span>
-            <span className="font-extrabold text-slate-800 text-lg mt-1 font-sans">-</span>
+            <span className="font-extrabold text-foreground text-lg mt-1 font-sans">-</span>
           </div>
 
           <div className="bg-[#F8FAFC] p-4 rounded-2xl flex flex-col items-center justify-center text-center">
@@ -553,7 +553,7 @@ export default function Profile() {
 
         {/* Mini progress line graphs synced from recent exams */}
         <div className="mt-6">
-          <h3 className="text-sm font-extrabold font-bengali text-slate-800 mb-4">সর্বশেষ ৭টি টেস্টের ফলাফল গ্রাফ</h3>
+          <h3 className="text-sm font-extrabold font-bengali text-foreground mb-4">সর্বশেষ ৭টি টেস্টের ফলাফল গ্রাফ</h3>
           <div className="h-28 w-full flex items-end justify-between gap-2.5">
             {examResults.slice(-7).map((res, idx) => {
               const percentage = (res.score / Math.max(res.total, 1)) * 100;
@@ -562,7 +562,7 @@ export default function Profile() {
                   <div className="absolute top-[-26px] opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm font-bengali">
                     {toBn(Math.round(percentage))}%
                   </div>
-                  <div className="w-full bg-slate-50 rounded-t-lg h-full flex items-end max-h-[70%]">
+                  <div className="w-full bg-muted rounded-t-lg h-full flex items-end max-h-[70%]">
                     <div 
                       className="w-full bg-gradient-to-t from-violet-600 to-indigo-400 rounded-t-lg transition-all duration-500" 
                       style={{ height: `${Math.max(percentage, 8)}%` }}
@@ -573,7 +573,7 @@ export default function Profile() {
               );
             })}
             {examResults.length === 0 && (
-              <div className="w-full h-16 flex items-center justify-center text-slate-400 font-bengali text-xs border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+              <div className="w-full h-16 flex items-center justify-center text-slate-400 font-bengali text-xs border border-dashed border-slate-200 rounded-xl bg-muted/50">
                 কোনো টেস্ট ডাটা এখন পর্যন্ত জমা হয়নি
               </div>
             )}
@@ -584,7 +584,7 @@ export default function Profile() {
       {/* Modal 1: ব্যক্তিগত তথ্য পরিবর্তন এবং যুক্তকরণের ফর্ম */}
       {showPersonalInfoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-5">
               <h3 className="text-xl font-bold font-bengali text-slate-900">ব্যক্তিগত তথ্য এডিট করুন</h3>
               <button 
@@ -602,7 +602,7 @@ export default function Profile() {
                   type="text" 
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full border border-slate-200 rounded-2xl p-3 font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800"
+                  className="w-full border border-slate-200 rounded-2xl p-3 font-sans focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-foreground"
                   placeholder="আপনার নাম লিখুন..."
                 />
               </div>
@@ -613,7 +613,7 @@ export default function Profile() {
                   type="text" 
                   value={editQuote}
                   onChange={(e) => setEditQuote(e.target.value)}
-                  className="w-full border border-slate-200 rounded-2xl p-3 font-bengali focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800"
+                  className="w-full border border-slate-200 rounded-2xl p-3 font-bengali focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-foreground"
                   placeholder="যেমন: শিক্ষাই শক্তি, শিক্ষাই মুক্তি"
                 />
               </div>
@@ -624,7 +624,7 @@ export default function Profile() {
                   type="text" 
                   value={editInstitution}
                   onChange={(e) => setEditInstitution(e.target.value)}
-                  className="w-full border border-slate-200 rounded-2xl p-3 font-bengali focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800"
+                  className="w-full border border-slate-200 rounded-2xl p-3 font-bengali focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-foreground"
                   placeholder="আপনার কলেজ বা স্কুলের নাম..."
                 />
               </div>
@@ -635,7 +635,7 @@ export default function Profile() {
                   <select 
                     value={editClass}
                     onChange={(e) => setEditClass(e.target.value)}
-                    className="w-full border border-slate-200 rounded-2xl p-3 font-bengali focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800 bg-white"
+                    className="w-full border border-slate-200 rounded-2xl p-3 font-bengali focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-foreground bg-card"
                   >
                     <option value="৬ষ্ঠ শ্রেণী">৬ষ্ঠ শ্রেণী</option>
                     <option value="৭ম শ্রেণী">৭ম শ্রেণী</option>
@@ -653,7 +653,7 @@ export default function Profile() {
                     type="text" 
                     value={editBatch}
                     onChange={(e) => setEditBatch(e.target.value)}
-                    className="w-full border border-slate-200 rounded-2xl p-3 font-sans font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-slate-800"
+                    className="w-full border border-slate-200 rounded-2xl p-3 font-sans font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-foreground"
                     placeholder="e.g. Class 9 / HSC"
                   />
                 </div>
@@ -684,7 +684,7 @@ export default function Profile() {
       {/* Modal 3: রুটিন তৈরি ও পড়ার সূচি ম্যানেজার */}
       {showRoutineModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+          <div className="bg-card rounded-3xl w-full max-w-lg p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
             
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-2">
@@ -700,7 +700,7 @@ export default function Profile() {
             </div>
 
             {/* Quick Slot Planner Add form */}
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3 mb-6">
+            <div className="bg-muted p-4 rounded-2xl border border-slate-100 space-y-3 mb-6">
               <h4 className="text-xs font-bold uppercase text-slate-500 tracking-wider font-bengali">নতুন পড়ার স্লট যোগ করুন</h4>
               
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -709,7 +709,7 @@ export default function Profile() {
                   <select 
                     value={selectedDay}
                     onChange={(e) => setSelectedDay(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2 font-bengali text-slate-700 text-sm focus:outline-none"
+                    className="w-full bg-card border border-slate-200 rounded-xl p-2 font-bengali text-slate-700 text-sm focus:outline-none"
                   >
                     <option value="শনিবার">শনিবার</option>
                     <option value="রবিবার">রবিবার</option>
@@ -726,7 +726,7 @@ export default function Profile() {
                   <select 
                     value={selectedSubject}
                     onChange={(e) => setSelectedSubject(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2 font-bengali text-slate-700 text-sm focus:outline-none"
+                    className="w-full bg-card border border-slate-200 rounded-xl p-2 font-bengali text-slate-700 text-sm focus:outline-none"
                   >
                     <option value="পদার্থবিজ্ঞান">পদার্থবিজ্ঞান</option>
                     <option value="রসায়ন">রসায়ন</option>
@@ -744,7 +744,7 @@ export default function Profile() {
                   <select 
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full bg-white border border-slate-200 rounded-xl p-2 font-bengali text-slate-700 text-sm focus:outline-none"
+                    className="w-full bg-card border border-slate-200 rounded-xl p-2 font-bengali text-slate-700 text-sm focus:outline-none"
                   >
                     <option value="সকাল ০৮:০০">সকাল ০৮:০০</option>
                     <option value="সকাল ১০:০০">সকাল ১০:০০</option>
@@ -764,7 +764,7 @@ export default function Profile() {
                   placeholder="বিষয়ের নাম লিখুন..."
                   value={customSubject}
                   onChange={(e) => setCustomSubject(e.target.value)}
-                  className="w-full text-xs font-bengali border bg-white border-slate-200 rounded-xl p-2.5 focus:outline-none"
+                  className="w-full text-xs font-bengali border bg-card border-slate-200 rounded-xl p-2.5 focus:outline-none"
                 />
               )}
 
@@ -774,7 +774,7 @@ export default function Profile() {
                   placeholder="পড়ার সময় লিখুন (যেমন: রাত ১০:৩০)..."
                   value={customTime}
                   onChange={(e) => setCustomTime(e.target.value)}
-                  className="w-full text-xs font-bengali border bg-white border-slate-200 rounded-xl p-2.5 focus:outline-none"
+                  className="w-full text-xs font-bengali border bg-card border-slate-200 rounded-xl p-2.5 focus:outline-none"
                 />
               )}
 
@@ -790,7 +790,7 @@ export default function Profile() {
 
             {/* Timetable schedule display */}
             <div>
-              <h4 className="font-extrabold text-sm text-slate-800 font-bengali mb-3">আমার পড়ার রুটিন তালিকা</h4>
+              <h4 className="font-extrabold text-sm text-foreground font-bengali mb-3">আমার পড়ার রুটিন তালিকা</h4>
               
               <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
                 {["শনিবার", "রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার"].map(dayName => {
@@ -798,16 +798,16 @@ export default function Profile() {
                   if (daySlots.length === 0) return null;
 
                   return (
-                    <div key={dayName} className="border border-slate-100 rounded-2xl p-3 bg-slate-50/20">
+                    <div key={dayName} className="border border-slate-100 rounded-2xl p-3 bg-muted/20">
                       <h5 className="font-extrabold text-sm text-indigo-700 font-bengali mb-2 border-b border-indigo-100/30 pb-1 flex items-center gap-2">
                         <span className="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
                         {dayName}
                       </h5>
                       <div className="space-y-1.5">
                         {daySlots.map(slot => (
-                          <div key={slot.id} className="bg-white p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
+                          <div key={slot.id} className="bg-card p-2.5 rounded-xl border border-slate-100 flex items-center justify-between">
                             <div className="flex flex-col items-start gap-0.5">
-                              <span className="text-sm font-extrabold font-bengali text-slate-800">{slot.subject}</span>
+                              <span className="text-sm font-extrabold font-bengali text-foreground">{slot.subject}</span>
                               <span className="text-[11px] text-slate-500 font-bengali">{slot.time}</span>
                             </div>
                             <button 
@@ -825,7 +825,7 @@ export default function Profile() {
                 })}
 
                 {routineList.length === 0 && (
-                  <div className="text-center py-12 bg-slate-50 border border-dashed border-slate-100 rounded-2xl text-slate-400 text-xs font-bengali">
+                  <div className="text-center py-12 bg-muted border border-dashed border-slate-100 rounded-2xl text-slate-400 text-xs font-bengali">
                     কোনো রুটিন স্লট যোগ করা হয়নি এখনও। উপরে বিষয় যোগ করুন!
                   </div>
                 )}
@@ -839,7 +839,7 @@ export default function Profile() {
       {/* Modal 4: নোটিফিকেশন সেন্টার ইনবক্স */}
       {showNotificationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-100 max-h-[85vh] overflow-hidden flex flex-col">
+          <div className="bg-card rounded-3xl w-full max-w-md p-6 shadow-2xl border border-slate-100 max-h-[85vh] overflow-hidden flex flex-col">
             
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-2">
@@ -854,7 +854,7 @@ export default function Profile() {
               </button>
             </div>
 
-            <div className="flex justify-between items-center bg-slate-50/50 p-2.5 rounded-xl border border-slate-100 mb-4">
+            <div className="flex justify-between items-center bg-muted/50 p-2.5 rounded-xl border border-slate-100 mb-4">
               <span className="text-xs font-medium text-slate-500 font-bengali">
                 মোট unread: {toBn(notifications.filter(u => !u.read).length)}টি নোটিফিকেশন
               </span>
@@ -879,14 +879,14 @@ export default function Profile() {
                       updateDoc(doc(db, "notifications", noti.id), { read: true });
                     }
                   }}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex gap-3 ${!noti.read ? 'bg-amber-50/15 border-amber-100' : 'bg-white border-slate-100 hover:bg-slate-50'}`}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex gap-3 ${!noti.read ? 'bg-amber-50/15 border-amber-100' : 'bg-card border-slate-100 hover:bg-muted'}`}
                 >
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${noti.type === 'pro_approval' ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600'}`}>
                     <Bell className="w-4 h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2.5 mb-1">
-                      <p className="text-[14px] text-slate-800 font-extrabold leading-tight break-words flex items-center gap-1.5">
+                      <p className="text-[14px] text-foreground font-extrabold leading-tight break-words flex items-center gap-1.5">
                         {noti.title}
                         {!noti.read && <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0 animate-pulse"></span>}
                       </p>
@@ -910,7 +910,7 @@ export default function Profile() {
       {/* Modal 5: প্রোফাইল ও সেটিংস মোডাল */}
       {showGeneralSettingsModal && (
          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-            <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100">
+            <div className="bg-card rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl border border-slate-100">
                <div className="p-6">
                   <div className="flex justify-between items-center mb-5">
                      <h3 className="text-xl font-bold font-bengali text-slate-900">অ্যাকাউন্ট সেটিংস</h3>
@@ -926,14 +926,14 @@ export default function Profile() {
                           setShowGeneralSettingsModal(false);
                           setShowClassChangeModal(true);
                        }} 
-                       className="w-full flex items-center justify-between bg-slate-50 hover:bg-slate-100 border border-slate-100 p-3.5 rounded-2xl transition-colors text-left"
+                       className="w-full flex items-center justify-between bg-muted hover:bg-slate-100 border border-slate-100 p-3.5 rounded-2xl transition-colors text-left"
                      >
                         <div className="flex items-center gap-3">
                            <div className="w-[38px] h-[38px] rounded-full bg-indigo-100 flex items-center justify-center shrink-0 text-indigo-600">
                               <Target className="w-5 h-5" />
                            </div>
                            <div className="text-left">
-                              <div className="font-extrabold text-slate-800 text-sm font-bengali">গ্রুপ ও ক্লাস পরিবর্তন করুন</div>
+                              <div className="font-extrabold text-foreground text-sm font-bengali">গ্রুপ ও ক্লাস পরিবর্তন করুন</div>
                               <div className="text-[11px] text-slate-400 font-bengali mt-0.5">আপনার বর্তমান গ্রুপ পরিবর্তন রিকুয়েস্ট দিন</div>
                            </div>
                         </div>
@@ -968,14 +968,14 @@ export default function Profile() {
       {/* Class Change Group Request Modal */}
       {showClassChangeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100">
+          <div className="bg-card rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100">
             <h3 className="text-xl font-bold font-bengali text-slate-900 mb-2">গ্রুপ পরিবর্তন রিকুয়েস্ট</h3>
             <p className="text-xs font-bengali text-slate-500 mb-4 leading-relaxed">
               আপনি কোন ক্লাসে বা গ্রুপে যেতে চান? অ্যাডমিন অ্যাপ্রুভ করলে আপনার রিকুয়েস্ট কার্যকর হবে।
             </p>
             <div className="space-y-2 mb-5 max-h-[250px] overflow-y-auto pr-1">
               {['বিজ্ঞান', 'মানবিক', 'বাণিজ্য', 'এইচএসসি বিজ্ঞান', 'এইচএসসি মানবিক', 'এইচএসসি বাণিজ্য', 'এইচএসসি', 'এডমিশন'].map(grp => (
-                <label key={grp} className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-colors ${classChangeGroup === grp ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-slate-100 hover:bg-slate-50'}`}>
+                <label key={grp} className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition-colors ${classChangeGroup === grp ? 'bg-indigo-50 border-indigo-200' : 'bg-card border-slate-100 hover:bg-muted'}`}>
                   <input 
                     type="radio" 
                     name="group" 

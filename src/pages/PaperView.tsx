@@ -152,10 +152,10 @@ export default function PaperView() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans pb-24">
+    <div className="min-h-screen bg-background font-sans pb-24">
       {/* Header */}
       <div className="px-4 pt-4 md:px-8 md:pt-8 max-w-4xl mx-auto">
-        <div className="bg-white border border-slate-200 shadow-sm px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between rounded-3xl">
+        <div className="bg-card border border-slate-200 shadow-sm px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between rounded-3xl">
           <button 
             onClick={() => navigate(-1)} 
             className="w-10 h-10 bg-slate-100 hover:bg-slate-200 flex items-center justify-center rounded-full transition-colors shrink-0"
@@ -163,7 +163,7 @@ export default function PaperView() {
             <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
           </button>
           <div className="text-center w-full px-4">
-            <h1 className="font-bengali font-bold text-lg sm:text-xl text-slate-800 line-clamp-1">
+            <h1 className="font-bengali font-bold text-lg sm:text-xl text-foreground line-clamp-1">
               {title === "Subject-wise Questions" ? `${subjectParam || "বিষয়ভিত্তিক"} MCQ` : (title || "প্রশ্নমালা")}
             </h1>
             <p className="text-slate-500 text-xs sm:text-sm font-bengali mt-0.5">{questions.length} টি প্রশ্ন</p>
@@ -176,8 +176,8 @@ export default function PaperView() {
         {(() => {
           let globalQIndex = 0;
           return Object.entries<any[]>(subjects).map(([sub, qs]) => (
-            <div key={sub} className="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-slate-200/60">
-              <h2 className="text-xl font-bengali font-bold text-slate-800 mb-6 pb-3 border-b border-slate-100 inline-block px-1">
+            <div key={sub} className="bg-card rounded-2xl p-5 md:p-8 shadow-sm border border-slate-200/60">
+              <h2 className="text-xl font-bengali font-bold text-foreground mb-6 pb-3 border-b border-slate-100 inline-block px-1">
                 {sub}
               </h2>
               
@@ -189,11 +189,11 @@ export default function PaperView() {
                     <div key={`${q.id || "q"}-${globalQIndex}`} className="relative border-b border-slate-50 pb-8 last:border-0 last:pb-0">
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-sm font-bold font-bengali">
+                      <span className="bg-slate-100 text-muted-foreground px-2 py-0.5 rounded text-sm font-bold font-bengali">
                         প্রশ্ন {qSerial}
                       </span>
                     </div>
-                    <h4 className="text-[18px] md:text-[20px] font-bold text-slate-800 font-bengali leading-snug whitespace-pre-wrap">
+                    <h4 className="text-[18px] md:text-[20px] font-bold text-foreground font-bengali leading-snug whitespace-pre-wrap">
                       {q.text || q.question}
                     </h4>
                   </div>
@@ -224,8 +224,8 @@ export default function PaperView() {
                         if (!ansData) return null;
                         const isRevealed = revealedAns[`${q.id || q.text}-${key}`];
                         return (
-                          <div key={key} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                            <h5 className="font-bengali font-bold text-slate-800 text-[16px] mb-2">
+                          <div key={key} className="bg-muted border border-slate-200 rounded-xl p-4">
+                            <h5 className="font-bengali font-bold text-foreground text-[16px] mb-2">
                               {key}. {ansData.question}
                             </h5>
                             <button 
@@ -236,7 +236,7 @@ export default function PaperView() {
                               {isRevealed ? "উত্তর লুকান" : "উত্তর দেখুন"}
                             </button>
                             {isRevealed && (
-                              <div className="mt-3 bg-white border border-slate-100 rounded-lg p-3.5">
+                              <div className="mt-3 bg-card border border-slate-100 rounded-lg p-3.5">
                                <p className="text-[15px] font-bengali text-slate-700 leading-relaxed whitespace-pre-wrap">
                                  {ansData.answer}
                                </p>
@@ -255,11 +255,11 @@ export default function PaperView() {
                           const isCorrect = String(q.correctOption) === optionId || String(q.correctOption) === String(optIdx);
                           const isRevealed = revealedAns[q.id || q.text] || selectedAns[q.id || q.text];
 
-                          let optionClass = 'bg-white border-slate-200 text-slate-800 hover:border-slate-300 cursor-pointer';
+                          let optionClass = 'bg-card border-slate-200 text-foreground hover:border-slate-300 cursor-pointer';
                           let letterClass = 'bg-slate-100 text-slate-700';
 
                           if (isRevealed) {
-                            optionClass = 'bg-white border-slate-200 text-slate-400 opacity-60 cursor-default';
+                            optionClass = 'bg-card border-slate-200 text-slate-400 opacity-60 cursor-default';
                             letterClass = 'bg-slate-100 text-slate-400';
                             if (isCorrect) {
                               optionClass = 'bg-[#f2fbf5] border-[#4bb063] text-[#2c7a3f] shadow-sm cursor-default';
@@ -324,8 +324,8 @@ export default function PaperView() {
                         </button>
                         
                         {(revealedAns[q.id || q.text] || selectedAns[q.id || q.text]) && (
-                          <div className="mt-3 bg-slate-50 border border-slate-100 rounded-2xl p-4 md:p-5">
-                            <p className="font-bengali text-slate-800 mb-2 font-medium">
+                          <div className="mt-3 bg-muted border border-slate-100 rounded-2xl p-4 md:p-5">
+                            <p className="font-bengali text-foreground mb-2 font-medium">
                               <span className="font-bold text-green-700">সঠিক উত্তর:</span> {
                                 q.correctOption === 'A' ? 'ক' : 
                                 q.correctOption === 'B' ? 'খ' : 
@@ -335,7 +335,7 @@ export default function PaperView() {
                             </p>
                             {q.explanation && (
                               <div className="pt-3 mt-3 border-t border-slate-200">
-                                 <p className="text-sm font-bengali text-slate-600 leading-relaxed flex items-start gap-2">
+                                 <p className="text-sm font-bengali text-muted-foreground leading-relaxed flex items-start gap-2">
                                    <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
                                    <span><span className="font-bold text-slate-700">ব্যাখ্যা:</span> {q.explanation}</span>
                                  </p>

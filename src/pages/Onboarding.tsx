@@ -61,9 +61,9 @@ export default function Onboarding() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans relative">
+      <div className="min-h-screen bg-card flex flex-col items-center justify-center font-sans relative">
         <div className="animate-pulse flex flex-col items-center justify-center mb-8">
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-white rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-slate-50">
+          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-slate-50">
              <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
                <span className="text-[#0F2744]">শিক্ষা</span>
                <span className="text-[#ff9800]">ঙ্গন</span>
@@ -135,7 +135,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F2F5] flex flex-col items-center justify-center p-6 font-sans overflow-hidden relative">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-6 font-sans overflow-hidden relative">
       {/* Background Ornaments */}
       <div className="absolute top-0 left-0 w-full h-96 bg-primary rounded-b-[60px] md:rounded-b-[100px] z-0 shadow-lg"></div>
       <div className="absolute -top-20 -right-20 w-64 h-64 bg-secondary rounded-full opacity-20 blur-3xl z-0"></div>
@@ -155,9 +155,9 @@ export default function Onboarding() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-white p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-xl w-full mx-auto"
+              className="bg-card p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-xl w-full mx-auto"
             >
-              <h2 className="text-2xl font-bengali font-bold text-slate-800 mb-8 text-center flex flex-col gap-2">
+              <h2 className="text-2xl font-bengali font-bold text-foreground mb-8 text-center flex flex-col gap-2">
                 <span>তোমার নাম কী?</span>
                 <span className="text-lg text-slate-500 font-medium">এবং তোমার শিক্ষাপ্রতিষ্ঠানের নাম</span>
               </h2>
@@ -169,7 +169,7 @@ export default function Onboarding() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="তোমার নাম বাংলায় লেখো" 
-                    className="w-full h-14 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white focus:border-primary px-4 font-bengali shadow-sm outline-none border-2 transition-all"
+                    className="w-full h-14 rounded-2xl bg-muted border-slate-200 focus:bg-card focus:border-primary px-4 font-bengali shadow-sm outline-none border-2 transition-all"
                   />
                 </div>
                 <div>
@@ -178,7 +178,7 @@ export default function Onboarding() {
                     value={institution}
                     onChange={(e) => setInstitution(e.target.value)}
                     placeholder="শিক্ষাপ্রতিষ্ঠানের নাম" 
-                    className="w-full h-14 rounded-2xl bg-slate-50 border-slate-200 focus:bg-white focus:border-primary px-4 font-bengali shadow-sm outline-none border-2 transition-all"
+                    className="w-full h-14 rounded-2xl bg-muted border-slate-200 focus:bg-card focus:border-primary px-4 font-bengali shadow-sm outline-none border-2 transition-all"
                   />
                 </div>
                 
@@ -200,9 +200,9 @@ export default function Onboarding() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-white p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-2xl w-full mx-auto"
+              className="bg-card p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-2xl w-full mx-auto"
             >
-              <h2 className="text-2xl font-bengali font-bold text-slate-800 mb-8 text-center">তুমি কোন ক্লাসে পড়ো?</h2>
+              <h2 className="text-2xl font-bengali font-bold text-foreground mb-8 text-center">তুমি কোন ক্লাসে পড়ো?</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {classes.map((c) => (
@@ -214,14 +214,14 @@ export default function Onboarding() {
                     className={`cursor-pointer p-6 rounded-2xl border-2 flex items-center justify-between transition-all ${
                       selectedClass === c.id 
                         ? "border-primary bg-primary/5 ring-4 ring-primary/10 shadow-sm" 
-                        : "border-slate-100 bg-white hover:border-primary/30 shadow-sm"
+                        : "border-slate-100 bg-card hover:border-primary/30 shadow-sm"
                     }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className="bg-slate-50 p-3 rounded-xl">
+                      <div className="bg-muted p-3 rounded-xl">
                         {c.icon}
                       </div>
-                      <span className="font-bengali font-semibold text-lg text-slate-800">{c.label}</span>
+                      <span className="font-bengali font-semibold text-lg text-foreground">{c.label}</span>
                     </div>
                   </motion.div>
                 ))}
@@ -236,13 +236,13 @@ export default function Onboarding() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-white p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-2xl w-full mx-auto"
+              className="bg-card p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-2xl w-full mx-auto"
             >
               <div className="flex items-center mb-8 relative">
-                <button onClick={() => setStep("class")} className="absolute left-0 p-2 text-slate-400 hover:text-primary transition-colors bg-slate-50 rounded-full">
+                <button onClick={() => setStep("class")} className="absolute left-0 p-2 text-slate-400 hover:text-primary transition-colors bg-muted rounded-full">
                   <ArrowLeft className="w-6 h-6" />
                 </button>
-                <h2 className="text-2xl font-bengali font-bold text-slate-800 text-center w-full">নির্দিষ্ট ক্লাস নির্বাচন করো</h2>
+                <h2 className="text-2xl font-bengali font-bold text-foreground text-center w-full">নির্দিষ্ট ক্লাস নির্বাচন করো</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -255,13 +255,13 @@ export default function Onboarding() {
                     className={`cursor-pointer p-6 rounded-2xl border-2 flex flex-col items-center justify-center text-center transition-all ${
                       selectedClass === c.id 
                         ? "border-primary bg-primary/5 ring-4 ring-primary/10 shadow-sm" 
-                        : "border-slate-100 bg-white hover:border-primary/30 shadow-sm"
+                        : "border-slate-100 bg-card hover:border-primary/30 shadow-sm"
                     }`}
                   >
-                    <div className="bg-slate-50 p-4 rounded-full mb-3">
+                    <div className="bg-muted p-4 rounded-full mb-3">
                       {c.icon}
                     </div>
-                    <span className="font-bengali font-semibold text-lg text-slate-800">{c.label}</span>
+                    <span className="font-bengali font-semibold text-lg text-foreground">{c.label}</span>
                   </motion.div>
                 ))}
               </div>
@@ -275,13 +275,13 @@ export default function Onboarding() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="bg-white p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-3xl w-full mx-auto"
+              className="bg-card p-8 md:p-12 rounded-[32px] shadow-xl border border-slate-100 max-w-3xl w-full mx-auto"
             >
               <div className="flex items-center mb-8 relative">
-                <button onClick={() => setStep("class")} className="absolute left-0 p-2 text-slate-400 hover:text-primary transition-colors bg-slate-50 rounded-full">
+                <button onClick={() => setStep("class")} className="absolute left-0 p-2 text-slate-400 hover:text-primary transition-colors bg-muted rounded-full">
                   <ArrowLeft className="w-6 h-6" />
                 </button>
-                <h2 className="text-2xl font-bengali font-bold text-slate-800 text-center w-full">তোমার বিভাগ নির্বাচন করো</h2>
+                <h2 className="text-2xl font-bengali font-bold text-foreground text-center w-full">তোমার বিভাগ নির্বাচন করো</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -294,13 +294,13 @@ export default function Onboarding() {
                     className={`cursor-pointer p-8 rounded-3xl border-2 flex flex-col items-center text-center transition-all ${
                       selectedGroup === g.id 
                         ? "border-primary bg-primary/5 ring-4 ring-primary/10 shadow-md" 
-                        : "border-slate-100 bg-white hover:border-primary/30 shadow-sm hover:shadow-md"
+                        : "border-slate-100 bg-card hover:border-primary/30 shadow-sm hover:shadow-md"
                     }`}
                   >
-                    <div className="bg-slate-50 p-4 rounded-2xl mb-4">
+                    <div className="bg-muted p-4 rounded-2xl mb-4">
                       {g.icon}
                     </div>
-                    <span className="font-bengali font-bold text-xl text-slate-800">{g.label}</span>
+                    <span className="font-bengali font-bold text-xl text-foreground">{g.label}</span>
                   </motion.div>
                 ))}
               </div>
@@ -313,7 +313,7 @@ export default function Onboarding() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-              className="bg-white p-12 rounded-[40px] shadow-2xl border border-slate-100 max-w-lg w-full mx-auto text-center relative overflow-hidden"
+              className="bg-card p-12 rounded-[40px] shadow-2xl border border-slate-100 max-w-lg w-full mx-auto text-center relative overflow-hidden"
             >
               {/* Confetti / Decoration */}
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-secondary to-primary"></div>
@@ -330,10 +330,10 @@ export default function Onboarding() {
               </motion.div>
 
               <h2 className="text-3xl md:text-4xl font-bengali font-bold text-slate-900 mb-4 tracking-tight">
-                স্বাগতম <span className="text-primary">Shikkhangon</span> পরিবারে
+                স্বাগতম <span className="text-primary">Biddayon</span> পরিবারে
               </h2>
               
-              <div className="inline-flex gap-2 mb-8 bg-slate-50 px-6 py-3 rounded-full border border-slate-100 shadow-sm font-bengali">
+              <div className="inline-flex gap-2 mb-8 bg-muted px-6 py-3 rounded-full border border-slate-100 shadow-sm font-bengali">
                 {selectedClass && <span className="font-medium text-slate-700">{classes.find(c => c.id === selectedClass)?.label}</span>}
                 {selectedGroup && (
                   <>

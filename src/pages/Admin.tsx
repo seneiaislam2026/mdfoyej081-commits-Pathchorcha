@@ -58,7 +58,7 @@ const menuItems = [
 
 export const formatEmail = (email: string) => {
   if (!email) return "";
-  if (email.includes("@pathchola.com") || email.includes("@shikkhangon.com") || email.includes("@pathchorcha")) {
+  if (email.includes("@pathchola.com") || email.includes("@biddayon.com") || email.includes("@pathchorcha")) {
      return email.split("@")[0];
   }
   return email;
@@ -103,19 +103,19 @@ const ClassRequestsTab = () => {
 
   return (
     <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden mt-4">
-      <CardHeader className="bg-slate-50 border-b pb-4 p-6">
+      <CardHeader className="bg-muted border-b pb-4 p-6">
         <CardTitle className="font-bengali">অপেক্ষমান ক্লাস রিকুয়েস্ট সমূহ</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-50 hover:bg-slate-50">
-              <TableHead className="font-bold text-slate-800 font-bengali">শিক্ষার্থী</TableHead>
-              <TableHead className="font-bold text-slate-800 font-bengali">বর্তমান ক্লাস</TableHead>
-              <TableHead className="font-bold text-slate-800 font-bengali">অনুরোধকৃত ক্লাস</TableHead>
-              <TableHead className="font-bold text-slate-800 font-bengali">কারন</TableHead>
-              <TableHead className="font-bold text-slate-800 font-bengali">স্ট্যাটাস</TableHead>
-              <TableHead className="font-bold text-slate-800 text-right font-bengali">অ্যাকশন</TableHead>
+            <TableRow className="bg-muted hover:bg-muted">
+              <TableHead className="font-bold text-foreground font-bengali">শিক্ষার্থী</TableHead>
+              <TableHead className="font-bold text-foreground font-bengali">বর্তমান ক্লাস</TableHead>
+              <TableHead className="font-bold text-foreground font-bengali">অনুরোধকৃত ক্লাস</TableHead>
+              <TableHead className="font-bold text-foreground font-bengali">কারন</TableHead>
+              <TableHead className="font-bold text-foreground font-bengali">স্ট্যাটাস</TableHead>
+              <TableHead className="font-bold text-foreground text-right font-bengali">অ্যাকশন</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -208,7 +208,7 @@ const NotePublisherTab = () => {
 
   return (
     <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden mt-4 max-w-2xl">
-       <CardHeader className="bg-slate-50 border-b pb-4 p-6">
+       <CardHeader className="bg-muted border-b pb-4 p-6">
          <CardTitle className="font-bengali">সহজ নোট পাবলিশার</CardTitle>
          <CardDescription className="font-bengali text-xs">পিডিএফ ড্রাইভ লিংক বা অন্যান্য এক্সটার্নাল লিংক সরাসরি যুক্ত করুন</CardDescription>
        </CardHeader>
@@ -1069,7 +1069,7 @@ export default function Admin() {
       await updateDoc(doc(db, "doubts", doubtId), {
         status: "answered",
         answer: answer,
-        answeredBy: "শিক্ষাঙ্গন"
+        answeredBy: "বিদ্যায়ন"
       });
       fetchPendingDoubts();
     } catch (e) {
@@ -1281,7 +1281,7 @@ export default function Admin() {
     }
     
     let html = `<div class="print-box-exam">
-      <div class="header-title-exam">শিক্ষাঙ্গন</div>
+      <div class="header-title-exam">বিদ্যায়ন</div>
       <div class="header-title-sub">${exam.title || 'Question Paper'}</div>
       <div class="header-meta-exam">
         <span>প্রিন্ট তারিখ: ${new Date().toLocaleDateString('en-GB')}</span>
@@ -1514,16 +1514,16 @@ export default function Admin() {
   const topTutors = [...users].filter(u => u.isTutor).sort((a, b) => (b.points || 0) - (a.points || 0));
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-[#F8FAFC] gap-6 -mt-2 -mx-4 px-4 py-4 md:-mx-8 md:px-8">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-background gap-6 -mt-2 -mx-4 px-4 py-4 md:-mx-8 md:px-8">
       {/* Premium Admin Sidebar */}
-      <aside className="w-full lg:w-[280px] bg-white border border-slate-100/80 rounded-[32px] p-5 shrink-0 flex flex-col shadow-sm transition-all duration-300">
+      <aside className="w-full lg:w-[280px] bg-card border border-slate-100/80 rounded-[32px] p-5 shrink-0 flex flex-col shadow-sm transition-all duration-300">
         {/* Logo Header */}
         <div className="mb-6 p-2 flex items-center gap-3 border-b border-slate-50 pb-5">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
             <Crown className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-800 font-bengali flex items-center gap-1 leading-none">
+            <h2 className="text-xl font-bold tracking-tight text-foreground font-bengali flex items-center gap-1 leading-none">
               শিক্ষা<span className="text-amber-500">অঙ্গন</span>
             </h2>
             <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider mt-1.5 font-mono">Admin Portal</p>
@@ -1541,13 +1541,13 @@ export default function Admin() {
                 className={`w-full flex items-center gap-3 px-4 py-3 text-left rounded-2xl transition-all duration-200 cursor-pointer group
                   ${isActive 
                     ? "bg-[#2563EB] text-white shadow-lg shadow-blue-500/15 font-bold" 
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    : "text-muted-foreground hover:bg-muted hover:text-slate-900"
                   }
                 `}
               >
                 {/* Icon wrapper */}
                 <div className={`p-2 rounded-xl transition-colors shrink-0
-                  ${isActive ? "bg-white/15 text-white" : "bg-slate-50 text-slate-500 group-hover:bg-white group-hover:text-slate-700"}
+                  ${isActive ? "bg-card/15 text-white" : "bg-muted text-slate-500 group-hover:bg-card group-hover:text-slate-700"}
                 `}>
                   {item.icon}
                 </div>
@@ -1578,7 +1578,7 @@ export default function Admin() {
           <div className="absolute -right-6 -top-6 w-20 h-20 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all duration-300"></div>
           <div className="relative z-10 flex flex-col items-center">
             {/* Standard illustrative icon */}
-            <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-card/10 backdrop-blur-md flex items-center justify-center mb-3">
               <Trophy className="w-6 h-6 text-amber-400" />
             </div>
             <h4 className="text-sm font-bengali font-semibold tracking-wide text-zinc-100">শিক্ষাকে করবো সহজ</h4>
@@ -1610,11 +1610,11 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       {/* Admin Content Area */}
       <main className="flex-1 min-w-0">
         {/* Premium Top Navigation Header */}
-        <header className="bg-white border border-slate-100/50 rounded-3xl p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+        <header className="bg-card border border-slate-100/50 rounded-3xl p-4 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
           {/* Left search */}
           <div className="flex items-center gap-3 w-full md:w-auto flex-1">
-            <button className="md:hidden p-2 hover:bg-slate-50 rounded-xl">
-              <Menu className="w-5 h-5 text-slate-600" />
+            <button className="md:hidden p-2 hover:bg-muted rounded-xl">
+              <Menu className="w-5 h-5 text-muted-foreground" />
             </button>
             <div className="relative w-full max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -1629,16 +1629,16 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
           {/* Right Header items */}
           <div className="flex items-center gap-4 shrink-0 justify-end w-full md:w-auto">
             {/* Bell notification */}
-            <button className="relative p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer">
-              <Bell className="w-5 h-5 text-slate-600" />
+            <button className="relative p-2.5 bg-muted hover:bg-slate-100 rounded-2xl transition-all cursor-pointer">
+              <Bell className="w-5 h-5 text-muted-foreground" />
               <span className="absolute top-1.5 right-1.5 w-5 h-5 bg-red-550 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
                 6
               </span>
             </button>
 
             {/* Theme Toggle placeholder */}
-            <button className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-2xl transition-all cursor-pointer">
-              <Moon className="w-5 h-5 text-slate-600" />
+            <button className="p-2.5 bg-muted hover:bg-slate-100 rounded-2xl transition-all cursor-pointer">
+              <Moon className="w-5 h-5 text-muted-foreground" />
             </button>
 
             {/* Profile info */}
@@ -1651,7 +1651,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 )}
               </div>
               <div className="text-left">
-                <div className="text-sm font-bold text-slate-800 font-bengali leading-none">Admin</div>
+                <div className="text-sm font-bold text-foreground font-bengali leading-none">Admin</div>
                 <div className="text-[10px] text-slate-400 font-mono mt-1 font-semibold leading-none">Super Admin</div>
               </div>
             </div>
@@ -1663,14 +1663,14 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             {/* Dashboard Welcome Head row */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-800 font-bengali flex items-center gap-2 leading-tight">
+                <h3 className="text-2xl md:text-3xl font-black text-foreground font-bengali flex items-center gap-2 leading-tight">
                   স্বাগতম, Admin 👋
                 </h3>
                 <p className="text-sm text-slate-500 mt-1 font-semibold font-bengali">এখানে আপনার প্রতিষ্ঠানের সার্বিক অগ্রগতি দেখুন</p>
               </div>
               
               {/* Date dropdown */}
-              <div className="flex items-center gap-2 bg-white px-4 py-2.5 border border-slate-100 rounded-2xl text-sm font-semibold text-slate-700 font-bengali shadow-sm cursor-pointer hover:bg-slate-50 transition-all">
+              <div className="flex items-center gap-2 bg-card px-4 py-2.5 border border-slate-100 rounded-2xl text-sm font-semibold text-slate-700 font-bengali shadow-sm cursor-pointer hover:bg-muted transition-all">
                 <Calendar className="w-4 h-4 text-slate-500" />
                 <span>২৬ মে, ২০২৪</span>
                 <span className="text-[10px] text-slate-400 ml-1">▼</span>
@@ -1680,10 +1680,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             {/* 4 Premium Metric KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* Card 1: Total Students */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট শিক্ষার্থী</div>
-                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight">
+                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight">
                     {users.length && users.length > 0 ? users.length.toLocaleString('en-US') : "12,845"}
                   </div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
@@ -1697,10 +1697,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </div>
 
               {/* Card 2: Total Courses */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট কোর্স</div>
-                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight">256</div>
+                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight">256</div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
                     <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ৮.৩%</span>
                     <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
@@ -1712,10 +1712,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </div>
 
               {/* Card 3: Total Exams */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট পরীক্ষা</div>
-                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight">
+                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight">
                     1,128
                   </div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
@@ -1729,10 +1729,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </div>
 
               {/* Card 4: Total Earnings */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট আয়</div>
-                  <div className="text-2xl md:text-3xl font-black text-slate-800 mt-2 tracking-tight flex items-baseline">৳ ২৪,৮৫,৩২০</div>
+                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight flex items-baseline">৳ ২৪,৮৫,৩২০</div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
                     <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ১৮.৬%</span>
                     <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
@@ -1747,12 +1747,12 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             {/* Recharts Analytics: Line chart + Pie charts */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Overall Progress (Line Chart) */}
-              <div className="lg:col-span-2 bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+              <div className="lg:col-span-2 bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h4 className="text-base font-bold text-slate-800 font-bengali font-black">সার্বিক অগ্রগতি <span className="text-xs text-slate-400 font-semibold">(গত ৬ মাস)</span></h4>
+                    <h4 className="text-base font-bold text-foreground font-bengali font-black">সার্বিক অগ্রগতি <span className="text-xs text-slate-400 font-semibold">(গত ৬ মাস)</span></h4>
                   </div>
-                  <select className="border border-slate-105 bg-slate-50 px-3 py-1.5 rounded-xl text-xs text-slate-500 font-bengali focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold cursor-pointer">
+                  <select className="border border-slate-105 bg-muted px-3 py-1.5 rounded-xl text-xs text-slate-500 font-bengali focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold cursor-pointer">
                     <option>৬ মাস</option>
                     <option>৩ মাস</option>
                     <option>১ বছর</option>
@@ -1763,15 +1763,15 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <div className="flex flex-wrap gap-4 text-xs font-semibold mb-2.5">
                   <div className="flex items-center gap-1.5">
                     <span className="w-3 h-3 bg-blue-500 rounded-full inline-block"></span>
-                    <span className="text-slate-600 font-bengali">শিক্ষার্থী</span>
+                    <span className="text-muted-foreground font-bengali">শিক্ষার্থী</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-3 h-3 bg-[#10b981] rounded-full inline-block"></span>
-                    <span className="text-slate-600 font-bengali">পরীক্ষায় অংশগ্রহণ</span>
+                    <span className="text-muted-foreground font-bengali">পরীক্ষায় অংশগ্রহণ</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <span className="w-3 h-3 bg-[#a855f7] rounded-full inline-block"></span>
-                    <span className="text-slate-600 font-bengali font-black">আয় (৳)</span>
+                    <span className="text-muted-foreground font-bengali font-black">আয় (৳)</span>
                   </div>
                 </div>
 
@@ -1802,9 +1802,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </div>
 
               {/* Student Enrollment Doughnut Chart */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
-                  <h4 className="text-base font-bold text-slate-800 font-bengali font-black"> শিক্ষার্থীর এনরোলমেন্ট</h4>
+                  <h4 className="text-base font-bold text-foreground font-bengali font-black"> শিক্ষার্থীর এনরোলমেন্ট</h4>
                 </div>
 
                 <div className="relative flex items-center justify-center my-6 h-48 w-full">
@@ -1832,7 +1832,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   
                   {/* Absolute core dynamic indicator total in center */}
                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                    <span className="text-2xl font-black text-slate-800 tracking-tight leading-none">
+                    <span className="text-2xl font-black text-foreground tracking-tight leading-none">
                       {users.length && users.length > 0 ? users.length.toLocaleString('en-US') : "12,845"}
                     </span>
                     <span className="text-[11px] font-extrabold text-slate-400 font-bengali mt-1">মোট</span>
@@ -1841,24 +1841,24 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
                 {/* Custom Styled Legends to match image */}
                 <div className="space-y-2 text-xs font-semibold mt-2">
-                  <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl">
+                  <div className="flex items-center justify-between p-2 bg-muted/50 rounded-xl">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
-                      <span className="text-slate-600 font-bengali">একটিভ</span>
+                      <span className="text-muted-foreground font-bengali">একটিভ</span>
                     </div>
                     <span className="text-slate-500 font-mono">7,845 (61%)</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl">
+                  <div className="flex items-center justify-between p-2 bg-muted/50 rounded-xl">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 bg-[#10b981] rounded-full"></span>
-                      <span className="text-slate-600 font-bengali font-black">ইনএকটিভ</span>
+                      <span className="text-muted-foreground font-bengali font-black">ইনএকটিভ</span>
                     </div>
                     <span className="text-slate-500 font-mono">3,245 (25%)</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 bg-slate-50/50 rounded-xl">
+                  <div className="flex items-center justify-between p-2 bg-muted/50 rounded-xl">
                     <div className="flex items-center gap-2">
                       <span className="w-2.5 h-2.5 bg-amber-500 rounded-full"></span>
-                      <span className="text-slate-600 font-bengali">পেন্ডিং</span>
+                      <span className="text-muted-foreground font-bengali">পেন্ডিং</span>
                     </div>
                     <span className="text-slate-500 font-mono">1,755 (14%)</span>
                   </div>
@@ -1869,9 +1869,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             {/* List Row (3 Columns: Students, Payments, Model Tests) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Recent Students Column */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-slate-800 font-bengali">সাম্প্রতিক শিক্ষার্থী</h4>
+                  <h4 className="text-sm font-bold text-foreground font-bengali">সাম্প্রতিক শিক্ষার্থী</h4>
                   <button onClick={() => setActiveTab("students")} className="text-xs text-blue-600 hover:underline font-bengali font-semibold cursor-pointer">
                     সব দেখুন
                   </button>
@@ -1899,7 +1899,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                             {name ? name.substring(0, 2) : "ST"}
                           </div>
                           <div>
-                            <div className="text-xs font-bold text-slate-800 font-bengali leading-none text-left">{name}</div>
+                            <div className="text-xs font-bold text-foreground font-bengali leading-none text-left">{name}</div>
                             <div className="text-[10px] text-slate-400 font-mono mt-1 text-left">{dateVal}</div>
                           </div>
                         </div>
@@ -1920,9 +1920,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </div>
 
               {/* Recent Payments Column */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-slate-800 font-bengali">সাম্প্রতিক পেমেন্ট</h4>
+                  <h4 className="text-sm font-bold text-foreground font-bengali">সাম্প্রতিক পেমেন্ট</h4>
                   <button onClick={() => setActiveTab("payments")} className="text-xs text-blue-600 hover:underline font-bengali font-semibold cursor-pointer">
                     সব দেখুন
                   </button>
@@ -1950,7 +1950,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                       <div key={pay.id || index} className="flex items-center justify-between border-b border-slate-50/50 pb-2">
                         <div className="text-left">
                           <div className="text-[11px] font-bold text-slate-500 font-mono leading-none">{txn}</div>
-                          <div className="text-xs font-semibold text-slate-800 font-bengali mt-1">{name}</div>
+                          <div className="text-xs font-semibold text-foreground font-bengali mt-1">{name}</div>
                           <div className="text-[9px] text-slate-400 font-mono mt-0.5">{dateVal}</div>
                         </div>
 
@@ -1973,9 +1973,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </div>
 
               {/* Recent Exams Column */}
-              <div className="bg-white border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
+              <div className="bg-card border border-slate-100/60 rounded-3xl p-5 shadow-sm flex flex-col">
                 <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-bold text-slate-800 font-bengali">সাম্প্রতিক পরীক্ষা</h4>
+                  <h4 className="text-sm font-bold text-foreground font-bengali">সাম্প্রতিক পরীক্ষা</h4>
                   <button onClick={() => setActiveTab("exams")} className="text-xs text-blue-600 hover:underline font-bengali font-semibold cursor-pointer">
                     সব দেখুন
                   </button>
@@ -2001,7 +2001,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     return (
                       <div key={exam.id || index} className="flex items-center justify-between border-b border-slate-50/50 pb-2">
                         <div className="text-left">
-                          <div className="text-xs font-bold text-slate-800 tracking-tight leading-none">{title}</div>
+                          <div className="text-xs font-bold text-foreground tracking-tight leading-none">{title}</div>
                           <div className="text-[9px] text-slate-400 font-mono mt-1">{dateVal}</div>
                         </div>
 
@@ -2026,8 +2026,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             </div>
 
             {/* Quick Action Buttons Row */}
-            <div className="bg-white border border-slate-100/60 rounded-3xl p-6 shadow-sm">
-              <h4 className="text-xs md:text-sm font-bold text-slate-800 font-bengali mb-4 text-left">দ্রুত অ্যাকশন</h4>
+            <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm">
+              <h4 className="text-xs md:text-sm font-bold text-foreground font-bengali mb-4 text-left">দ্রুত অ্যাকশন</h4>
               
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {/* Action 1 */}
@@ -2102,27 +2102,27 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             <div className="bg-gradient-to-r from-[#EFF6FF] via-[#EEF2F6] to-white border border-blue-50/50 rounded-[32px] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-sm">
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl"></div>
               <div className="relative z-10 flex-1">
-                <h4 className="text-lg md:text-xl font-bold text-slate-800 font-bengali leading-none text-left font-black">আপনার প্রতিষ্ঠানের পারফরম্যান্স</h4>
+                <h4 className="text-lg md:text-xl font-bold text-foreground font-bengali leading-none text-left font-black">আপনার প্রতিষ্ঠানের পারফরম্যান্স</h4>
                 <p className="text-xs text-slate-500 font-semibold font-bengali mt-2.5 text-left">নিয়মিত অগ্রগতি পর্যবেক্ষণ করুন এবং উন্নতি করুন</p>
                 
                 {/* 4 statistics row */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                  <div className="p-4 bg-card/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
                     <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">কোর্স সম্পন্ন</div>
-                    <div className="text-xl font-black text-slate-800 mt-2">৭৮%</div>
+                    <div className="text-xl font-black text-foreground mt-2">৭৮%</div>
                     <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ১২.৫%</div>
                   </div>
-                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                  <div className="p-4 bg-card/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
                     <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">পরীক্ষায় অংশগ্রহণ</div>
-                    <div className="text-xl font-black text-slate-800 mt-2">৬৫%</div>
+                    <div className="text-xl font-black text-foreground mt-2">৬৫%</div>
                     <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ৮.৭%</div>
                   </div>
-                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                  <div className="p-4 bg-card/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
                     <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">শিক্ষার্থীর উপস্থিতি</div>
                     <div className="text-xl font-black text-[#1e293b] mt-2">৯২%</div>
                     <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ৫.৩%</div>
                   </div>
-                  <div className="p-4 bg-white/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
+                  <div className="p-4 bg-card/70 backdrop-blur-md rounded-2xl border border-slate-100/50 text-left">
                     <div className="text-[12px] font-semibold text-slate-400 font-bengali leading-none font-bold">গড় রেটিং</div>
                     <div className="text-xl font-black text-[#1e293b] mt-2">৪.৬/৫</div>
                     <div className="text-[10px] text-[#10B981] font-semibold mt-1">↑ ৭.৮%</div>
@@ -2141,8 +2141,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     <div className="w-16 h-16 bg-slate-350 rounded-full relative mt-4">
                       <div className="absolute top-0 inset-x-0 h-7 bg-amber-905 rounded-t-full"></div>
                       <div className="absolute top-5 left-2 w-12 flex justify-between px-1">
-                        <span className="w-4 h-4 border-2 border-slate-800 rounded-full bg-white/50"></span>
-                        <span className="w-4 h-4 border-2 border-slate-800 rounded-full bg-white/50"></span>
+                        <span className="w-4 h-4 border-2 border-slate-800 rounded-full bg-card/50"></span>
+                        <span className="w-4 h-4 border-2 border-slate-800 rounded-full bg-card/50"></span>
                       </div>
                       <div className="absolute bottom-4 left-6 w-4 h-2 border-b-2 border-slate-800 rounded-b-lg"></div>
                     </div>
@@ -2153,8 +2153,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
             {/* Class-wise Preview block */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden bg-white">
-                 <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
+              <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden bg-card">
+                 <CardHeader className="bg-muted/50 border-b pb-4 p-6">
                    <CardTitle className="text-lg font-bengali font-black">ড্যাশবোর্ড প্রিভিউ (Class-wise Preview)</CardTitle>
                  </CardHeader>
                  <CardContent className="p-6">
@@ -2176,8 +2176,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                    </div>
                    <div className="flex flex-col sm:flex-row gap-3">
                      <Button onClick={() => navigate('/dashboard')} className="flex-1 font-bengali">ড্যাশবোর্ডে যান</Button>
-                     <Button variant="outline" onClick={() => navigate('/question-bank')} className="flex-1 font-bengali shadow-sm text-slate-600">প্রশ্ন ব্যাংক দেখুন</Button>
-                     <Button variant="outline" onClick={() => navigate('/notes')} className="flex-1 font-bengali shadow-sm text-slate-600">নোটস দেখুন</Button>
+                     <Button variant="outline" onClick={() => navigate('/question-bank')} className="flex-1 font-bengali shadow-sm text-muted-foreground">প্রশ্ন ব্যাংক দেখুন</Button>
+                     <Button variant="outline" onClick={() => navigate('/notes')} className="flex-1 font-bengali shadow-sm text-muted-foreground">নোটস দেখুন</Button>
                    </div>
                  </CardContent>
               </Card>
@@ -2192,7 +2192,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <p className="text-muted-foreground font-bengali text-sm mt-1">যেকোনো বিষয়ের ওপর সরাসরি প্রশ্ন যোগ করুন।</p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" className="bg-white text-primary font-bengali" onClick={() => {
+                <Button variant="outline" className="bg-card text-primary font-bengali" onClick={() => {
                   setBulkUploadSubject(subjectBankFilter);
                   setShowBulkUpload(true);
                 }}>
@@ -2207,10 +2207,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+            <div className="flex items-center gap-4 bg-card p-4 rounded-2xl shadow-sm border border-slate-100">
                <label className="font-bengali font-bold whitespace-nowrap">বিষয় নির্বাচন করুন:</label>
                <select
-                 className="flex-1 max-w-xs border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10 bg-slate-50"
+                 className="flex-1 max-w-xs border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10 bg-muted"
                  value={subjectBankFilter}
                  onChange={(e) => setSubjectBankFilter(e.target.value)}
                >
@@ -2223,15 +2223,15 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
             <div className="grid gap-4 mt-6">
               {questions.filter(q => (!q.title || q.title === "Subject-wise Questions") && (subjectBankFilter ? q.subject === subjectBankFilter : true)).map((q: any) => (
-                   <div key={q.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between gap-4 group">
+                   <div key={q.id} className="bg-card p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row justify-between gap-4 group">
                      <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                            <Badge variant="outline" className="bg-blue-50 text-blue-700 font-bengali border-blue-200">{q.subject}</Badge>
                         </div>
-                        <h4 className="font-bengali font-medium text-slate-800 text-base mb-3 leading-relaxed whitespace-pre-wrap">{q.text}</h4>
+                        <h4 className="font-bengali font-medium text-foreground text-base mb-3 leading-relaxed whitespace-pre-wrap">{q.text}</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-4 opacity-80">
                             {Array.isArray(q.options) && q.options.map((opt: any, optIdx: number) => (
-                               <div key={optIdx} className={`flex items-center gap-2 p-2 rounded-lg text-sm font-bengali ${q.correctOption === opt.id ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-50 border border-slate-100'}`}>
+                               <div key={optIdx} className={`flex items-center gap-2 p-2 rounded-lg text-sm font-bengali ${q.correctOption === opt.id ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-muted border border-slate-100'}`}>
                                   <span className="font-bold">{opt.id}.</span> {opt.label}
                                </div>
                             ))}
@@ -2261,10 +2261,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               <div className="flex flex-wrap gap-3">
                 {selectedBankTitle || questionSubjectFilter !== "All Subjects" ? (
                   <>
-                    <Button variant="outline" className="bg-white border-primary/20 text-slate-600 font-bengali" onClick={() => { setSelectedBankTitle(null); setQuestionSubjectFilter("All Subjects"); }}>
+                    <Button variant="outline" className="bg-card border-primary/20 text-muted-foreground font-bengali" onClick={() => { setSelectedBankTitle(null); setQuestionSubjectFilter("All Subjects"); }}>
                       ← ফিরে যান
                     </Button>
-                    <Button variant="outline" className="bg-white border-primary/20 text-primary font-bengali" onClick={() => {
+                    <Button variant="outline" className="bg-card border-primary/20 text-primary font-bengali" onClick={() => {
                       if (questionSubjectFilter && questionSubjectFilter !== 'All Subjects') setBulkUploadSubject(questionSubjectFilter);
                       else setBulkUploadSubject('');
                       setShowBulkUpload(true);
@@ -2288,12 +2288,12 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" className="bg-white border-primary/20 text-indigo-600" onClick={async () => {
+                    <Button variant="outline" className="bg-card border-primary/20 text-indigo-600" onClick={async () => {
                       alert("Please use Bulk Upload JSON for newer exams.");
                     }}>
                       ঢাবি সি ইউনিট ফাইল আপলোড
                     </Button>
-                    <Button variant="outline" className="bg-white border-primary/20 text-primary font-bengali" onClick={() => {
+                    <Button variant="outline" className="bg-card border-primary/20 text-primary font-bengali" onClick={() => {
                       if (questionSubjectFilter && questionSubjectFilter !== 'All Subjects') setBulkUploadSubject(questionSubjectFilter);
                       else setBulkUploadSubject('');
                       setShowBulkUpload(true);
@@ -2308,19 +2308,19 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
             {selectedBankTitle || questionSubjectFilter !== "All Subjects" ? (
               <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-              <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
+              <CardHeader className="bg-muted/50 border-b pb-4 p-6">
                 <div className="flex flex-col sm:flex-row justify-between gap-4">
                   <div className="flex gap-2 w-full sm:w-auto">
                     <Input 
                       placeholder="Search questions..." 
-                      className="w-full sm:max-w-xs bg-white" 
+                      className="w-full sm:max-w-xs bg-card" 
                       value={questionSearch}
                       onChange={(e) => setQuestionSearch(e.target.value)}
                     />
                   </div>
                   <div className="flex gap-2 w-full sm:w-auto">
                     <select 
-                      className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background sm:max-w-[150px]"
+                      className="flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-sm ring-offset-background sm:max-w-[150px]"
                       value={questionSubjectFilter}
                       onChange={(e) => setQuestionSubjectFilter(e.target.value)}
                     >
@@ -2333,31 +2333,31 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6 bg-slate-50/50">
+              <CardContent className="p-4 sm:p-6 bg-muted/50">
                 {questionsLoading ? (
                   <div className="text-center p-10 font-bengali">লোড হচ্ছে...</div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredQuestions.map((q, index) => (
-                      <div key={q.id || index} className="group bg-white border border-slate-200/80 rounded-[24px] p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative flex flex-col gap-4">
+                      <div key={q.id || index} className="group bg-card border border-slate-200/80 rounded-[24px] p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 overflow-hidden relative flex flex-col gap-4">
                         <div className="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-blue-400 via-indigo-500 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         <div className="flex justify-between items-start gap-2">
                           <span className="font-mono text-[11px] text-slate-400 shrink-0 truncate max-w-[80px]" title={q.id}>#{q.id.slice(0, 6)}</span>
                           <div className="flex gap-2 flex-wrap justify-end">
-                            {q.university && <Badge variant="secondary" className="bg-slate-50 text-slate-600 border border-slate-200/60 text-[10px] px-2">{q.university}</Badge>}
+                            {q.university && <Badge variant="secondary" className="bg-muted text-muted-foreground border border-slate-200/60 text-[10px] px-2">{q.university}</Badge>}
                             {q.subject && <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200/60 text-[10px] px-2">{q.subject}</Badge>}
                           </div>
                         </div>
                         
-                        <p className="font-bengali text-base text-slate-800 flex-1 whitespace-pre-wrap font-medium leading-relaxed">
+                        <p className="font-bengali text-base text-foreground flex-1 whitespace-pre-wrap font-medium leading-relaxed">
                           {q.text}
                         </p>
                         
                         {q.options && q.options.length > 0 && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
                             {q.options.map((opt: any, optIdx: number) => (
-                              <div key={`${q.id || index}-${opt.id || optIdx}`} className={`flex items-center gap-3 p-2.5 rounded-xl border text-sm font-bengali transition-colors ${q.correctOption === opt.id ? 'bg-green-50/80 border-green-200 text-green-900 shadow-sm' : 'bg-slate-50 border-slate-200/60 text-slate-700 hover:bg-slate-100/80'}`}>
-                                <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[11px] shrink-0 font-bold ${q.correctOption === opt.id ? 'bg-green-200 text-green-800' : 'bg-white border shadow-sm text-slate-500'}`}>
+                              <div key={`${q.id || index}-${opt.id || optIdx}`} className={`flex items-center gap-3 p-2.5 rounded-xl border text-sm font-bengali transition-colors ${q.correctOption === opt.id ? 'bg-green-50/80 border-green-200 text-green-900 shadow-sm' : 'bg-muted border-slate-200/60 text-slate-700 hover:bg-slate-100/80'}`}>
+                                <span className={`w-6 h-6 flex items-center justify-center rounded-lg text-[11px] shrink-0 font-bold ${q.correctOption === opt.id ? 'bg-green-200 text-green-800' : 'bg-card border shadow-sm text-slate-500'}`}>
                                   {opt.id}
                                 </span>
                                 <span className="line-clamp-2" title={opt.label}>{opt.label}</span>
@@ -2393,7 +2393,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                       <div className="bg-primary/10 w-12 h-12 rounded-[16px] flex items-center justify-center mb-4">
                         <BookOpen className="w-6 h-6 text-primary" />
                       </div>
-                      <h4 className="font-bold text-lg font-bengali text-slate-800 line-clamp-2 mb-2 leading-tight">{title}</h4>
+                      <h4 className="font-bold text-lg font-bengali text-foreground line-clamp-2 mb-2 leading-tight">{title}</h4>
                       <p className="text-sm font-bengali text-slate-500 font-medium">{(qs as any[]).length} টি প্রশ্ন যুক্ত আছে</p>
                     </CardContent>
                   </Card>
@@ -2427,16 +2427,16 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <CardContent className="p-0">
                   <div className="divide-y divide-slate-100">
                     {topTutors.map((u, index) => (
-                      <div key={u.id} className="flex items-center justify-between p-4 sm:p-6 hover:bg-slate-50 transition-colors">
+                      <div key={u.id} className="flex items-center justify-between p-4 sm:p-6 hover:bg-muted transition-colors">
                         <div className="flex items-center gap-4">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : index === 1 ? "bg-slate-200 text-slate-600 border border-slate-300" : index === 2 ? "bg-orange-100 text-orange-600 border border-orange-200" : "bg-slate-50 text-slate-400"}`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${index === 0 ? "bg-amber-100 text-amber-600 border border-amber-200" : index === 1 ? "bg-slate-200 text-muted-foreground border border-slate-300" : index === 2 ? "bg-orange-100 text-orange-600 border border-orange-200" : "bg-muted text-slate-400"}`}>
                             {index + 1}
                           </div>
                           <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center text-slate-400 font-bold">
                             {u.photoURL ? <img src={u.photoURL} alt={u.fullName} className="w-full h-full object-cover" /> : u.fullName?.charAt(0) || <User className="w-6 h-6" />}
                           </div>
                           <div>
-                            <h4 className="font-bengali font-bold text-slate-800 text-lg leading-tight">{u.fullName || 'No Name'}</h4>
+                            <h4 className="font-bengali font-bold text-foreground text-lg leading-tight">{u.fullName || 'No Name'}</h4>
                             <p className="text-xs text-blue-600 font-bold font-sans truncate">{formatEmail(u.email) || u.phoneNumber}</p>
                           </div>
                         </div>
@@ -2456,19 +2456,19 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </Card>
             ) : (
               <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-                <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
+                <CardHeader className="bg-muted/50 border-b pb-4 p-6 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
                   <CardTitle className="text-lg whitespace-nowrap">
                     {userRoleTab === "all" ? "সব ইউজার" : userRoleTab === "tutor" ? "সব টিউটর" : "সব এডমিন"} ({filteredUsers.length})
                   </CardTitle>
                   <div className="flex flex-col sm:flex-row gap-2 w-full xl:w-auto">
                     <Input 
                       placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..." 
-                      className="w-full sm:w-64 bg-white" 
+                      className="w-full sm:w-64 bg-card" 
                       value={studentSearch}
                       onChange={(e) => setStudentSearch(e.target.value)}
                     />
                     <select 
-                      className="flex h-10 w-full sm:w-auto rounded-md border border-input bg-white px-3 py-2 text-sm ring-offset-background"
+                      className="flex h-10 w-full sm:w-auto rounded-md border border-input bg-card px-3 py-2 text-sm ring-offset-background"
                       value={studentClassFilter}
                       onChange={(e) => setStudentClassFilter(e.target.value)}
                     >
@@ -2482,13 +2482,13 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="p-4 sm:p-6 bg-slate-50/50">
+                <CardContent className="p-4 sm:p-6 bg-muted/50">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {filteredUsers.slice(0, studentsLimit).map((u) => (
                       <div 
                         key={u.id} 
                         onClick={() => setSelectedUserModal(u)}
-                        className="group bg-white border border-slate-200/80 rounded-[20px] p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-3 relative overflow-hidden"
+                        className="group bg-card border border-slate-200/80 rounded-[20px] p-4 shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-3 relative overflow-hidden"
                       >
                         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-slate-200 to-slate-300 group-hover:from-blue-400 group-hover:to-indigo-500 transition-colors duration-300" />
                         <div className="flex items-center gap-3">
@@ -2496,7 +2496,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                              {u.photoURL ? <img src={u.photoURL} alt={u.fullName} className="w-full h-full object-cover" /> : u.fullName?.charAt(0) || <User className="w-5 h-5" />}
                            </div>
                            <div className="overflow-hidden">
-                             <h4 className="font-bengali font-bold text-slate-800 text-sm truncate group-hover:text-primary transition-colors">{u.fullName || 'No Name'}</h4>
+                             <h4 className="font-bengali font-bold text-foreground text-sm truncate group-hover:text-primary transition-colors">{u.fullName || 'No Name'}</h4>
                              <p className="text-[11px] text-blue-600 font-bold font-sans truncate">{formatEmail(u.email) || u.phoneNumber}</p>
                            </div>
                         </div>
@@ -2509,9 +2509,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                       </div>
                     ))}
                     {filteredUsers.length === 0 && !loading && (
-                      <div className="col-span-full py-12 flex flex-col items-center justify-center bg-white rounded-2xl border border-dashed border-slate-200">
+                      <div className="col-span-full py-12 flex flex-col items-center justify-center bg-card rounded-2xl border border-dashed border-slate-200">
                         <User className="w-10 h-10 text-slate-300 mb-3" />
-                        <h4 className="text-slate-600 font-bold font-bengali">ইউজার পাওয়া যায়নি</h4>
+                        <h4 className="text-muted-foreground font-bold font-bengali">ইউজার পাওয়া যায়নি</h4>
                       </div>
                     )}
                   </div>
@@ -2520,7 +2520,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     <div className="mt-8 flex justify-center pb-2">
                       <Button
                         onClick={() => setStudentsLimit(prev => prev + 24)}
-                        className="bg-white border hover:bg-slate-50 font-bengali font-bold px-8 py-2 text-slate-700 rounded-xl shadow-xs transition-all cursor-pointer"
+                        className="bg-card border hover:bg-muted font-bengali font-bold px-8 py-2 text-slate-700 rounded-xl shadow-xs transition-all cursor-pointer"
                       >
                         আরও লোড করুন ({filteredUsers.length - studentsLimit} জন বাকি আছে)
                       </Button>
@@ -2551,15 +2551,15 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             </div>
             
             <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-              <CardHeader className="bg-slate-50/50 border-b pb-4 p-6">
+              <CardHeader className="bg-muted/50 border-b pb-4 p-6">
                 <CardTitle className="text-lg">সকল পাবলিক পরীক্ষা</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6 bg-slate-50/50">
+              <CardContent className="p-4 sm:p-6 bg-muted/50">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {publicExams.map((exam) => (
-                    <div key={exam.id} className="bg-white border rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                    <div key={exam.id} className="bg-card border rounded-2xl p-4 shadow-sm flex flex-col gap-3">
                       <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-bold text-slate-800 font-bengali flex-1">{exam.title}</h4>
+                        <h4 className="font-bold text-foreground font-bengali flex-1">{exam.title}</h4>
                         {exam.active ? (
                           <Badge className="bg-green-100 text-green-700 hover:bg-green-100 border-0 shrink-0">সক্রিয় (Active)</Badge>
                         ) : (
@@ -2586,7 +2586,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                         <Button variant="outline" size="sm" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => copyExamLink(exam.id)}>
                           <LinkIcon className="w-3.5 h-3.5 mr-1.5" /> লিংক
                         </Button>
-                        <Button variant="outline" size="sm" className="w-full text-slate-600" onClick={() => togglePublicExamActive(exam.id, exam.active)}>
+                        <Button variant="outline" size="sm" className="w-full text-muted-foreground" onClick={() => togglePublicExamActive(exam.id, exam.active)}>
                           {exam.active ? "বন্ধ করুন" : "চালু করুন"}
                         </Button>
                         <Button variant="outline" size="sm" className="w-full text-indigo-600 border-indigo-200 hover:bg-indigo-50" onClick={() => openEditPublicExam(exam)}>
@@ -2608,7 +2608,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     </div>
                   ))}
                   {publicExams.length === 0 && !examsLoading && (
-                    <div className="col-span-full text-center py-6 text-muted-foreground bg-white border rounded-2xl">
+                    <div className="col-span-full text-center py-6 text-muted-foreground bg-card border rounded-2xl">
                       কোনো পাবলিক পরীক্ষা তৈরি করা হয়নি।
                     </div>
                   )}
@@ -2633,7 +2633,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     <div className="flex flex-col sm:flex-row justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="font-bold text-slate-800">{doubt.userName}</span>
+                          <span className="font-bold text-foreground">{doubt.userName}</span>
                           <span className="text-xs text-muted-foreground">asked a question</span>
                         </div>
                         <p className="font-bengali text-lg text-slate-900 mb-2">{doubt.question}</p>
@@ -2670,23 +2670,23 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             </div>
             
             <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-              <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-row justify-between items-center">
+              <CardHeader className="bg-muted/50 border-b pb-4 p-6 flex flex-row justify-between items-center">
                 <CardTitle className="text-lg">সকল রিপোর্ট</CardTitle>
                 <Button variant="outline" size="sm" onClick={fetchReports} disabled={loading}>Refresh</Button>
               </CardHeader>
-              <CardContent className="p-4 sm:p-6 bg-slate-50/50">
+              <CardContent className="p-4 sm:p-6 bg-muted/50">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {reports.map((report) => (
-                    <div key={report.id} className="bg-white border rounded-2xl p-4 shadow-sm flex flex-col gap-3">
+                    <div key={report.id} className="bg-card border rounded-2xl p-4 shadow-sm flex flex-col gap-3">
                       <div className="flex justify-between items-start gap-2">
                         <div>
-                          <p className="font-medium text-slate-800">{report.user}</p>
+                          <p className="font-medium text-foreground">{report.user}</p>
                           <p className="text-xs text-muted-foreground">{report.date}</p>
                         </div>
                         <Badge variant="secondary" className="font-mono text-[10px] shrink-0">{report.questionId}</Badge>
                       </div>
                       
-                      <p className="font-bengali text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm flex-1">
+                      <p className="font-bengali text-slate-700 bg-muted p-3 rounded-xl border border-slate-100 text-sm flex-1">
                         {report.issue}
                       </p>
                       
@@ -2701,7 +2701,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     </div>
                   ))}
                   {reports.length === 0 && !loading && (
-                    <div className="col-span-full text-center py-6 text-muted-foreground bg-white border rounded-2xl">
+                    <div className="col-span-full text-center py-6 text-muted-foreground bg-card border rounded-2xl">
                       কোনো রিপোর্ট নেই।
                     </div>
                   )}
@@ -2734,7 +2734,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                       <TableBody>
                         {subjects.map((sub) => (
                           <TableRow key={sub.id}>
-                            <TableCell className="font-bold text-slate-800 font-bengali">{sub.name}</TableCell>
+                            <TableCell className="font-bold text-foreground font-bengali">{sub.name}</TableCell>
                             <TableCell className="font-bengali">{sub.group}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-2">
@@ -2811,7 +2811,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             </div>
             
             <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-               <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-row justify-between items-center">
+               <CardHeader className="bg-muted/50 border-b pb-4 p-6 flex flex-row justify-between items-center">
                  <CardTitle className="text-lg">Global Parameters</CardTitle>
                  <Button onClick={saveSettings} disabled={settingsLoading}>
                    {settingsLoading ? "Saving..." : "Save Settings"}
@@ -2834,7 +2834,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                             checked={settingsData.maintenanceMode}
                             onChange={(e) => setSettingsData({ ...settingsData, maintenanceMode: e.target.checked })}
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-card after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                      </div>
                      <div className="border-t pt-6 flex items-center justify-between gap-4">
@@ -2849,7 +2849,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                             checked={settingsData.alertBannerActive}
                             onChange={(e) => setSettingsData({ ...settingsData, alertBannerActive: e.target.checked })}
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-card after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                      </div>
                      {settingsData.alertBannerActive && (
@@ -2866,7 +2866,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                      <div className="border-t pt-6">
                         <div className="flex items-center justify-between mb-4">
                            <div className="flex-1">
-                             <p className="font-bold font-bengali text-slate-800">ড্যাশবোর্ড হিরো ব্যানার (Hero Banners)</p>
+                             <p className="font-bold font-bengali text-foreground">ড্যাশবোর্ড হিরো ব্যানার (Hero Banners)</p>
                              <p className="text-sm text-slate-500 mr-2 font-bengali">ড্যাশবোর্ডের উপরে শিক্ষার্থীদের জন্য ৩-৪টি রোট্যাটিং ব্যানার অ্যাড করুন।</p>
                            </div>
                            <Button 
@@ -2890,7 +2890,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                              <p className="text-sm text-slate-400 font-bengali text-center py-4 border border-dashed rounded-xl">কোনো ব্যানার যুক্ত করা হয়নি। স্ট্যাটিক ড্যাশবোর্ড ব্যানার দেখাবে।</p>
                            )}
                            {(settingsData.heroBanners || []).map((banner: any, idx: number) => (
-                              <div key={banner.id} className="p-4 border rounded-xl bg-slate-50 relative flex flex-col gap-4">
+                              <div key={banner.id} className="p-4 border rounded-xl bg-muted relative flex flex-col gap-4">
                                  <Button 
                                    variant="ghost" 
                                    size="sm" 
@@ -2953,7 +2953,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                      
                      <div className="border-t pt-6 flex items-center justify-between gap-4">
                         <div className="flex-1">
-                          <p className="font-bold font-bengali text-slate-800">স্টার্টআপ ক্যাম্পেইন পপ-আপ (Startup Promotional Pop-up)</p>
+                          <p className="font-bold font-bengali text-foreground">স্টার্টআপ ক্যাম্পেইন পপ-আপ (Startup Promotional Pop-up)</p>
                           <p className="text-sm text-slate-500 mr-2 font-bengali">স্টুডেন্ট ড্যাশবোর্ডে ঢোকার পর একটি আকর্ষক প্রোমোশনাল কুপন পপ-আপ ও ডিসকাউন্ট অফার নোটিশ দেখান।</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer shrink-0">
@@ -2963,11 +2963,11 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                             checked={settingsData.popupActive || false}
                             onChange={(e) => setSettingsData({ ...settingsData, popupActive: e.target.checked })}
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-card after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                      </div>
                      {settingsData.popupActive && (
-                       <div className="space-y-4 bg-slate-50/50 p-5 rounded-3xl border border-slate-100 flex flex-col gap-3 font-bengali">
+                       <div className="space-y-4 bg-muted/50 p-5 rounded-3xl border border-slate-100 flex flex-col gap-3 font-bengali">
                          <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Startup Pop-up Parameters</p>
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                            <div className="space-y-3">
@@ -3028,7 +3028,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                     const val = Math.max(0, Math.min(99, parseInt(e.target.value) || 0));
                                     setSettingsData({...settingsData, discountPercentage: val});
                                   }}
-                                  className="bg-white font-sans font-bold h-10 pr-8"
+                                  className="bg-card font-sans font-bold h-10 pr-8"
                                 />
                                 <span className="absolute right-3 top-2.5 text-slate-400 font-bold font-sans text-sm">%</span>
                               </div>
@@ -3062,7 +3062,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {settingsData.subscriptionPlans?.map((plan: any, index: number) => (
-                            <div key={plan.id} className="border border-slate-200 p-4 rounded-xl space-y-3 bg-slate-50 relative">
+                            <div key={plan.id} className="border border-slate-200 p-4 rounded-xl space-y-3 bg-muted relative">
                                <Button 
                                  variant="destructive" 
                                  size="icon" 
@@ -3084,7 +3084,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                        newPlans[index].name = e.target.value;
                                        setSettingsData({...settingsData, subscriptionPlans: newPlans});
                                     }}
-                                    className="bg-white h-8 text-sm"
+                                    className="bg-card h-8 text-sm"
                                  />
                                </div>
                                <div>
@@ -3096,7 +3096,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                        newPlans[index].duration = e.target.value;
                                        setSettingsData({...settingsData, subscriptionPlans: newPlans});
                                     }}
-                                    className="bg-white h-8 text-sm"
+                                    className="bg-card h-8 text-sm"
                                  />
                                </div>
                                <div>
@@ -3109,7 +3109,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                        newPlans[index].price = parseInt(e.target.value) || 0;
                                        setSettingsData({...settingsData, subscriptionPlans: newPlans});
                                     }}
-                                    className="font-mono bg-white h-8 text-sm"
+                                    className="font-mono bg-card h-8 text-sm"
                                  />
                                </div>
                                <label className="flex items-center gap-2 text-sm mt-2 font-medium cursor-pointer">
@@ -3135,7 +3135,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             </Card>
 
             <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden mt-6">
-                <CardHeader className="bg-slate-50/50 border-b pb-4 p-6 flex flex-row justify-between items-center">
+                <CardHeader className="bg-muted/50 border-b pb-4 p-6 flex flex-row justify-between items-center">
                   <CardTitle className="text-lg">কুপন কোড (Coupon Management)</CardTitle>
                   <Button onClick={() => setShowCreateCouponModal(true)}>
                     <Plus className="w-4 h-4 mr-2" />
@@ -3158,7 +3158,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                       <TableBody>
                         {coupons.map((c) => (
                           <TableRow key={c.id}>
-                            <TableCell className="font-mono font-bold text-slate-800">{c.code}</TableCell>
+                            <TableCell className="font-mono font-bold text-foreground">{c.code}</TableCell>
                             <TableCell>{c.months} Months</TableCell>
                             <TableCell>
                               {c.active ? (
@@ -3188,8 +3188,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             </div>
             
             <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden max-w-xl">
-               <CardHeader className="bg-slate-50 border-b border-slate-100">
-                 <CardTitle className="font-bengali text-lg text-slate-800">এসএমএস পাঠান</CardTitle>
+               <CardHeader className="bg-muted border-b border-slate-100">
+                 <CardTitle className="font-bengali text-lg text-foreground">এসএমএস পাঠান</CardTitle>
                </CardHeader>
                <CardContent className="p-6 space-y-4">
                  <form onSubmit={async (e) => {
@@ -3232,7 +3232,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                    </div>
                    <div className="space-y-2 mt-4">
                      <label className="font-bengali text-sm font-medium">মেসেজ (SMS Text)</label>
-                     <textarea required name="message" rows={4} placeholder="এসএমএস টেক্সট লিখুন..." className="w-full p-3 border rounded-xl bg-slate-50 focus:outline-primary placeholder:text-slate-400 font-bengali" />
+                     <textarea required name="message" rows={4} placeholder="এসএমএস টেক্সট লিখুন..." className="w-full p-3 border rounded-xl bg-muted focus:outline-primary placeholder:text-slate-400 font-bengali" />
                      <p className="text-xs text-slate-500 font-bengali">প্রতি এসএমএস এ রেগুলার চার্জ প্রযোজ্য (Greenweb SMS)। Sender ID: +8809617634384</p>
                    </div>
                    <div className="mt-6 flex justify-end">
@@ -3272,7 +3272,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                      </div>
                      <div>
                        <p className="text-sm text-slate-500 font-medium">Total Students</p>
-                       <p className="text-3xl font-bold text-slate-800">{analyticsData.usersCount}</p>
+                       <p className="text-3xl font-bold text-foreground">{analyticsData.usersCount}</p>
                      </div>
                    </CardContent>
                  </Card>
@@ -3284,7 +3284,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                      </div>
                      <div>
                        <p className="text-sm text-slate-500 font-medium">Total Questions</p>
-                       <p className="text-3xl font-bold text-slate-800">{analyticsData.questionsCount}</p>
+                       <p className="text-3xl font-bold text-foreground">{analyticsData.questionsCount}</p>
                      </div>
                    </CardContent>
                  </Card>
@@ -3317,7 +3317,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                        </div>
                        <div>
                          <p className="text-sm text-slate-500 font-medium font-bengali">সর্বমোট ইউজার</p>
-                         <p className="text-2xl font-bold text-slate-800">{premiumData.totalUsers}</p>
+                         <p className="text-2xl font-bold text-foreground">{premiumData.totalUsers}</p>
                        </div>
                      </CardContent>
                    </Card>
@@ -3328,7 +3328,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                          <Crown className="w-6 h-6 text-yellow-600" />
                        </div>
                        <div>
-                         <p className="text-sm text-slate-600 font-bengali font-semibold">প্রিমিয়াম ইউজার</p>
+                         <p className="text-sm text-muted-foreground font-bengali font-semibold">প্রিমিয়াম ইউজার</p>
                          <div className="flex items-end gap-1.5">
                             <p className="text-2xl font-bold text-yellow-700">{premiumData.premiumCount}</p>
                             <p className="text-xs font-bold text-yellow-600 mb-1 leading-tight">({premiumData.premiumPercent}%)</p>
@@ -3344,7 +3344,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                        </div>
                        <div>
                          <p className="text-sm text-slate-500 font-medium font-bengali">নতুন ইউজার (৭ দিন)</p>
-                         <p className="text-2xl font-bold text-slate-800">+{premiumData.newUsersLast7Days}</p>
+                         <p className="text-2xl font-bold text-foreground">+{premiumData.newUsersLast7Days}</p>
                          <p className="text-[10px] text-green-600 font-bold bg-green-50 px-1.5 py-0.5 rounded w-fit mt-1">Growth: {premiumData.newUsersLast30Days} in 30 days</p>
                        </div>
                      </CardContent>
@@ -3357,21 +3357,21 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                        </div>
                        <div>
                          <p className="text-sm text-slate-500 font-medium font-bengali">মেয়াদ শেষ হবে (৭ দিন)</p>
-                         <p className="text-2xl font-bold text-slate-800">{premiumData.expiringSoon.length}</p>
+                         <p className="text-2xl font-bold text-foreground">{premiumData.expiringSoon.length}</p>
                        </div>
                      </CardContent>
                    </Card>
                  </div>
 
                  <Card className="border border-muted shadow-sm rounded-2xl overflow-hidden mt-6">
-                    <CardHeader className="bg-slate-50 border-b flex flex-row items-center gap-2">
+                    <CardHeader className="bg-muted border-b flex flex-row items-center gap-2">
                        <LineChart className="w-5 h-5 text-slate-500" />
                        <CardTitle className="text-lg font-bengali">মার্কেটিং সাজেশন ও ট্র্যাকিং</CardTitle>
                     </CardHeader>
                     <CardContent className="p-6 space-y-8">
                        {/* New User Growth Section */}
                        <div className="space-y-4">
-                           <h4 className="font-bengali font-bold text-lg text-slate-800 border-b pb-2 flex items-center gap-2">
+                           <h4 className="font-bengali font-bold text-lg text-foreground border-b pb-2 flex items-center gap-2">
                               <TrendingUp className="w-5 h-5 text-primary" /> নতুন ইউজার কনভার্শন স্ট্র্যাটেজি
                            </h4>
                            <div className="grid md:grid-cols-2 gap-4">
@@ -3390,7 +3390,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
                        {/* Expiring Soon Section */}
                        <div className="space-y-4">
-                           <h4 className="font-bengali font-bold text-lg text-slate-800 border-b pb-2 flex justify-between items-end">
+                           <h4 className="font-bengali font-bold text-lg text-foreground border-b pb-2 flex justify-between items-end">
                               <span className="flex items-center gap-2"><Clock className="w-5 h-5 text-orange-500" /> সামনে যাদের মেয়াদ শেষ হবে (আগামী ৭ দিন)</span>
                               <span className="text-sm text-muted-foreground">{premiumData.expiringSoon.length} জন</span>
                            </h4>
@@ -3401,9 +3401,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                   {premiumData.expiringSoon.map((u: any, idx: number) => (
                                      <div key={idx} className="bg-orange-50/50 border border-orange-100 p-4 rounded-xl flex flex-col justify-between">
                                         <div>
-                                          <p className="font-bold text-slate-800">{u.fullName || u.name || "No Name"}</p>
-                                          <p className="text-sm text-slate-600 break-all">{formatEmail(u.email)}</p>
-                                          <p className="text-sm text-slate-600">{u.phoneNumber || u.phone || "No Phone Number"}</p>
+                                          <p className="font-bold text-foreground">{u.fullName || u.name || "No Name"}</p>
+                                          <p className="text-sm text-muted-foreground break-all">{formatEmail(u.email)}</p>
+                                          <p className="text-sm text-muted-foreground">{u.phoneNumber || u.phone || "No Phone Number"}</p>
                                         </div>
                                         <p className="text-xs text-orange-600 mt-3 font-bold bg-orange-100 inline-block px-2 py-1 rounded w-fit">Exp: {new Date(u.expiry).toLocaleDateString()}</p>
                                      </div>
@@ -3420,7 +3420,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
                        {/* Expired Recently Section */}
                        <div className="space-y-4">
-                           <h4 className="font-bengali font-bold text-lg text-slate-800 border-b pb-2 flex justify-between items-end">
+                           <h4 className="font-bengali font-bold text-lg text-foreground border-b pb-2 flex justify-between items-end">
                               <span className="flex items-center gap-2"><Clock className="w-5 h-5 text-red-500" /> সম্প্রতি যাদের মেয়াদ শেষ হয়েছে (গত ৩০ দিন)</span>
                               <span className="text-sm text-muted-foreground">{premiumData.expiredRecently.length} জন</span>
                            </h4>
@@ -3431,9 +3431,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                   {premiumData.expiredRecently.map((u: any, idx: number) => (
                                      <div key={idx} className="bg-red-50/50 border border-red-100 p-4 rounded-xl opacity-80 flex flex-col justify-between">
                                         <div>
-                                          <p className="font-bold text-slate-800">{u.fullName || u.name || "No Name"}</p>
-                                          <p className="text-sm text-slate-600 break-all">{formatEmail(u.email)}</p>
-                                          <p className="text-sm text-slate-600">{u.phoneNumber || u.phone || "No Phone Number"}</p>
+                                          <p className="font-bold text-foreground">{u.fullName || u.name || "No Name"}</p>
+                                          <p className="text-sm text-muted-foreground break-all">{formatEmail(u.email)}</p>
+                                          <p className="text-sm text-muted-foreground">{u.phoneNumber || u.phone || "No Phone Number"}</p>
                                         </div>
                                         <p className="text-xs text-red-600 mt-3 font-bold bg-red-100 inline-block px-2 py-1 rounded w-fit">Expired: {new Date(u.expiry).toLocaleDateString()}</p>
                                      </div>
@@ -3460,13 +3460,13 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <h3 className="text-2xl font-bold font-bengali">পেমেন্ট ভেরিফিকেশন প্যানেল</h3>
                 <p className="text-muted-foreground font-bengali text-sm mt-0.5">ম্যানুয়াল সাবস্ক্রিপশন ও ইউজার পেমেন্ট রিকোয়েস্ট যাচাই করুন।</p>
               </div>
-              <Button variant="outline" className="font-bengali bg-white border-slate-200" onClick={fetchPaymentRequests} disabled={paymentsLoading}>
+              <Button variant="outline" className="font-bengali bg-card border-slate-200" onClick={fetchPaymentRequests} disabled={paymentsLoading}>
                 Refresh Requests
               </Button>
             </div>
 
             <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
-              <CardHeader className="bg-slate-50 border-b p-6 pb-4 flex flex-row items-center justify-between">
+              <CardHeader className="bg-muted border-b p-6 pb-4 flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-bengali">পেমেন্ট রিকোয়েস্টের তালিকা</CardTitle>
                 <div className="flex items-center gap-3">
                   <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-0 font-bengali font-bold">
@@ -3477,7 +3477,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="p-0 sm:p-6 bg-slate-50/50">
+              <CardContent className="p-0 sm:p-6 bg-muted/50">
                 {paymentsLoading ? (
                   <div className="p-12 text-center text-muted-foreground font-bengali font-bold">লোড হচ্ছে...</div>
                 ) : paymentRequests.length === 0 ? (
@@ -3487,10 +3487,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     {/* Mobile Card List: visible only on mobile screens */}
                     <div className="block md:hidden space-y-4 p-4">
                       {paymentRequests.map((req) => (
-                        <div key={req.id} className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm relative space-y-3">
+                        <div key={req.id} className="bg-card rounded-2xl border border-slate-200/80 p-4 shadow-sm relative space-y-3">
                           <div className="flex justify-between items-start">
                             <div className="flex flex-col">
-                              <span className="font-bold text-slate-800 font-bengali text-sm">{req.fullName || 'No Name'}</span>
+                              <span className="font-bold text-foreground font-bengali text-sm">{req.fullName || 'No Name'}</span>
                               <span className="text-xs text-blue-600 font-bold font-sans mt-0.5 max-w-[170px] truncate">{formatEmail(req.email) || req.phone}</span>
                               {req.className && (
                                 <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full w-fit mt-1 font-bengali font-semibold">
@@ -3520,7 +3520,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                           <div className="border-t border-slate-100 my-2 pt-2 grid grid-cols-2 gap-2 text-xs">
                             <div>
                               <span className="text-slate-400 block font-bengali text-[10px]">মোবাইল নম্বর / TrxID</span>
-                              <span className="font-mono font-bold text-slate-800 break-all select-all">{req.walletNumber}</span>
+                              <span className="font-mono font-bold text-foreground break-all select-all">{req.walletNumber}</span>
                             </div>
                             <div>
                               <span className="text-slate-400 block font-bengali text-[10px]">টাকার পরিমাণ & প্ল্যান</span>
@@ -3539,7 +3539,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                           <div className="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
                             {req.status === 'pending' ? (
                               <div className="flex items-center gap-2 w-full justify-between">
-                                <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-lg p-1 shrink-0">
+                                <div className="flex items-center gap-1 bg-muted border border-slate-200 rounded-lg p-1 shrink-0">
                                   <input 
                                     type="number" 
                                     min={1} 
@@ -3549,7 +3549,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                       const val = Math.max(1, Number(e.target.value));
                                       setCustomMonths(prev => ({ ...prev, [req.id]: val }));
                                     }}
-                                    className="w-10 h-7 bg-white text-center rounded-md border border-slate-200 font-sans font-bold text-xs outline-none"
+                                    className="w-10 h-7 bg-card text-center rounded-md border border-slate-200 font-sans font-bold text-xs outline-none"
                                   />
                                   <span className="text-[10px] font-bengali font-bold text-slate-500">মাস</span>
                                 </div>
@@ -3595,23 +3595,23 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     {/* Desktop Table View: hidden on mobile */}
                     <div className="hidden md:block overflow-x-auto">
                       <Table>
-                        <TableHeader className="bg-white">
+                        <TableHeader className="bg-card">
                           <TableRow>
-                            <TableHead className="font-bengali font-bold text-slate-800">শিক্ষার্থী (Student Info)</TableHead>
-                            <TableHead className="font-bengali font-bold text-slate-800">পেমেন্ট মাধ্যম</TableHead>
-                            <TableHead className="font-bengali font-bold text-slate-800 text-center">মোবাইল নম্বর / TrxID</TableHead>
-                            <TableHead className="font-bengali font-bold text-slate-800">টাকার পরিমাণ & প্ল্যান</TableHead>
-                            <TableHead className="font-bengali font-bold text-slate-800">সময় (Submitted)</TableHead>
-                            <TableHead className="font-bengali font-bold text-slate-800">স্ট্যাটাস</TableHead>
-                            <TableHead className="text-right font-bengali font-bold text-slate-800">অ্যাকশন</TableHead>
+                            <TableHead className="font-bengali font-bold text-foreground">শিক্ষার্থী (Student Info)</TableHead>
+                            <TableHead className="font-bengali font-bold text-foreground">পেমেন্ট মাধ্যম</TableHead>
+                            <TableHead className="font-bengali font-bold text-foreground text-center">মোবাইল নম্বর / TrxID</TableHead>
+                            <TableHead className="font-bengali font-bold text-foreground">টাকার পরিমাণ & প্ল্যান</TableHead>
+                            <TableHead className="font-bengali font-bold text-foreground">সময় (Submitted)</TableHead>
+                            <TableHead className="font-bengali font-bold text-foreground">স্ট্যাটাস</TableHead>
+                            <TableHead className="text-right font-bengali font-bold text-foreground">অ্যাকশন</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {paymentRequests.map((req) => (
-                            <TableRow key={req.id} className="bg-white border-b hover:bg-slate-50/50 transition-colors">
+                            <TableRow key={req.id} className="bg-card border-b hover:bg-muted/50 transition-colors">
                               <TableCell>
                                 <div className="flex flex-col">
-                                  <span className="font-bold text-slate-800 font-bengali text-sm">{req.fullName || 'No Name'}</span>
+                                  <span className="font-bold text-foreground font-bengali text-sm">{req.fullName || 'No Name'}</span>
                                   <span className="text-xs text-blue-600 font-bold font-sans mt-0.5">{formatEmail(req.email) || req.phone}</span>
                                   {req.className && (
                                     <span className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full w-fit mt-1 font-bengali font-semibold">
@@ -3631,7 +3631,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                 </span>
                               </TableCell>
                               <TableCell>
-                                <div className="font-mono font-bold text-slate-900 tracking-wider bg-slate-50 p-2 text-center rounded-xl border border-slate-100 select-all font-sans text-xs max-w-[150px] mx-auto">
+                                <div className="font-mono font-bold text-slate-900 tracking-wider bg-muted p-2 text-center rounded-xl border border-slate-100 select-all font-sans text-xs max-w-[150px] mx-auto">
                                   {req.walletNumber}
                                 </div>
                               </TableCell>
@@ -3659,7 +3659,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                 <div className="flex items-center justify-end gap-2.5">
                                   {req.status === 'pending' ? (
                                     <>
-                                      <div className="flex items-center gap-1 shrink-0 bg-slate-50 border border-slate-200 rounded-lg p-1">
+                                      <div className="flex items-center gap-1 shrink-0 bg-muted border border-slate-200 rounded-lg p-1">
                                         <input 
                                           type="number" 
                                           min={1} 
@@ -3669,7 +3669,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                                             const val = Math.max(1, Number(e.target.value));
                                             setCustomMonths(prev => ({ ...prev, [req.id]: val }));
                                           }}
-                                          className="w-10 h-7 bg-white text-center rounded-md border border-slate-200 font-sans font-bold text-xs outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
+                                          className="w-10 h-7 bg-card text-center rounded-md border border-slate-200 font-sans font-bold text-xs outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-300"
                                         />
                                         <span className="text-[10px] font-bengali font-bold text-slate-500 px-1">মাস</span>
                                       </div>
@@ -3731,13 +3731,13 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <h3 className="text-2xl font-bold font-bengali">সিস্টেম শব্দকোষ ব্যবস্থাপনা Panel</h3>
                 <p className="text-muted-foreground font-bengali text-sm mt-0.5">যে কোনো ভাষায় JSON Array ফরম্যাটে সিস্টেম শব্দকোষে নতুন শব্দ যোগ করুন বা মুছুন।</p>
               </div>
-              <Button variant="outline" className="font-bengali bg-white border-slate-200" onClick={fetchVocabulary} disabled={vocabularyLoading}>
+              <Button variant="outline" className="font-bengali bg-card border-slate-200" onClick={fetchVocabulary} disabled={vocabularyLoading}>
                 Refresh Vocabulary
               </Button>
             </div>
 
             {/* Quick JSON array guidelines card */}
-            <Card className="border border-indigo-100 shadow-sm rounded-[24px] bg-slate-50/40">
+            <Card className="border border-indigo-100 shadow-sm rounded-[24px] bg-muted/40">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-bold text-indigo-700 flex items-center gap-2">
                   <BookOpen className="w-4 h-4 text-indigo-600" />
@@ -3783,7 +3783,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <div>
                   <textarea
                     rows={8}
-                    className="w-full font-mono text-[11px] p-4 bg-slate-50 border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-slate-800"
+                    className="w-full font-mono text-[11px] p-4 bg-muted border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-card transition-all text-foreground"
                     placeholder="[ { ... }, { ... } ]"
                     value={newVocabJSON}
                     onChange={(e) => setNewVocabJSON(e.target.value)}
@@ -3844,10 +3844,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
             {/* List of existing vocabulary */}
             <Card className="border border-muted shadow-sm rounded-[24px] overflow-hidden">
-              <CardHeader className="bg-slate-50 border-b p-6 pb-4">
+              <CardHeader className="bg-muted border-b p-6 pb-4">
                 <CardTitle className="text-base font-bengali">আপলোডকৃত কাস্টম শব্দসমূহের তালিকা ({vocabulary.length})</CardTitle>
               </CardHeader>
-              <CardContent className="p-0 bg-slate-50/50">
+              <CardContent className="p-0 bg-muted/50">
                 {vocabularyLoading && vocabulary.length === 0 ? (
                   <div className="p-12 text-center text-muted-foreground font-bengali font-bold">লোড হচ্ছে...</div>
                 ) : vocabulary.length === 0 ? (
@@ -3855,20 +3855,20 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 ) : (
                   <div className="overflow-x-auto">
                     <Table>
-                      <TableHeader className="bg-white">
+                      <TableHeader className="bg-card">
                         <TableRow>
-                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">শব্দ</TableHead>
-                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">ভাষা</TableHead>
-                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">ক্যাটাগরি</TableHead>
-                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">উচ্চারণ</TableHead>
-                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">বাংলা অর্থ</TableHead>
-                          <TableHead className="font-bengali font-bold text-slate-800 text-xs">অন্যান্য</TableHead>
-                          <TableHead className="text-right font-bengali font-bold text-slate-800 text-xs">অ্যাকশন</TableHead>
+                          <TableHead className="font-bengali font-bold text-foreground text-xs">শব্দ</TableHead>
+                          <TableHead className="font-bengali font-bold text-foreground text-xs">ভাষা</TableHead>
+                          <TableHead className="font-bengali font-bold text-foreground text-xs">ক্যাটাগরি</TableHead>
+                          <TableHead className="font-bengali font-bold text-foreground text-xs">উচ্চারণ</TableHead>
+                          <TableHead className="font-bengali font-bold text-foreground text-xs">বাংলা অর্থ</TableHead>
+                          <TableHead className="font-bengali font-bold text-foreground text-xs">অন্যান্য</TableHead>
+                          <TableHead className="text-right font-bengali font-bold text-foreground text-xs">অ্যাকশন</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {vocabulary.map((vocab) => (
-                          <TableRow key={vocab.id} className="bg-white border-b hover:bg-slate-50/50 transition-colors">
+                          <TableRow key={vocab.id} className="bg-card border-b hover:bg-muted/50 transition-colors">
                             <TableCell className="font-bold text-slate-900">{vocab.word}</TableCell>
                             <TableCell>
                               <Badge className={vocab.language === "bangla" ? "bg-amber-50 text-amber-700 hover:bg-amber-100 border-0 text-[10px]" : "bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 text-[10px]"}>
@@ -3974,8 +3974,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       {/* Edit Question Modal */}
       {editQuestion && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
-            <div className="p-6 border-b flex justify-between items-center bg-slate-50 sticky top-0 z-10">
+          <div className="bg-card rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl flex flex-col">
+            <div className="p-6 border-b flex justify-between items-center bg-muted sticky top-0 z-10">
               <h3 className="text-xl font-bold font-bengali">{editQuestion.id === 'new' ? 'নতুন প্রশ্ন যোগ করুন' : 'প্রশ্ন এডিট করুন'}</h3>
               <Button variant="ghost" size="sm" onClick={() => setEditQuestion(null)} className="h-8 w-8 p-0 rounded-full">✕</Button>
             </div>
@@ -4065,7 +4065,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 />
               </div>
             </div>
-            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3 sticky bottom-0">
+            <div className="p-6 border-t bg-muted flex justify-end gap-3 sticky bottom-0">
               <Button variant="outline" onClick={() => setEditQuestion(null)} className="font-bengali">বাতিল</Button>
               <Button onClick={handleUpdateQuestion} className="font-bengali">সংরক্ষণ করুন</Button>
             </div>
@@ -4075,8 +4075,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
       {showBulkUpload && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-xl flex flex-col">
-            <div className="p-6 border-b flex justify-between items-center bg-slate-50">
+          <div className="bg-card rounded-3xl w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-xl flex flex-col">
+            <div className="p-6 border-b flex justify-between items-center bg-muted">
               <h3 className="text-xl font-bold font-bengali">Bulk Upload JSON</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowBulkUpload(false)} className="h-8 w-8 p-0 rounded-full">✕</Button>
             </div>
@@ -4152,7 +4152,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 spellCheck={false}
               />
             </div>
-            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
+            <div className="p-6 border-t bg-muted flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowBulkUpload(false)} className="font-bengali" disabled={isUploading}>Cancel</Button>
               <Button onClick={handleBulkUploadSubmit} className="font-bengali" disabled={!bulkUploadText.trim() || isUploading}>
                 {isUploading ? "Uploading..." : "Upload"}
@@ -4163,8 +4163,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       )}
       {showCreateExamModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-xl flex flex-col">
-            <div className="p-6 border-b flex justify-between items-center bg-slate-50">
+          <div className="bg-card rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-xl flex flex-col">
+            <div className="p-6 border-b flex justify-between items-center bg-muted">
               <h3 className="text-xl font-bold font-bengali">{editingExamId ? "পাবলিক পরীক্ষা ইডিট করুন" : "পাবলিক পরীক্ষা তৈরি করুন"}</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowCreateExamModal(false)} className="h-8 w-8 p-0 rounded-full">✕</Button>
             </div>
@@ -4174,7 +4174,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <Input 
                   value={newExamTitle}
                   onChange={(e) => setNewExamTitle(e.target.value)}
-                  className="font-bengali bg-white"
+                  className="font-bengali bg-card"
                 />
               </div>
               <div>
@@ -4183,7 +4183,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   type="number"
                   value={newExamDuration}
                   onChange={(e) => setNewExamDuration(e.target.value)}
-                  className="font-bengali bg-white"
+                  className="font-bengali bg-card"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -4192,7 +4192,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   <select
                     value={newExamClass}
                     onChange={(e) => setNewExamClass(e.target.value)}
-                    className="w-full h-10 border rounded-xl px-3 bg-white font-bengali select-none outline-none focus:ring-1 focus:ring-primary text-sm focus:border-primary"
+                    className="w-full h-10 border rounded-xl px-3 bg-card font-bengali select-none outline-none focus:ring-1 focus:ring-primary text-sm focus:border-primary"
                   >
                     <option value="সকল ক্লাস">সকল ক্লাস</option>
                     <option value="৬ষ্ঠ শ্রেণী">৬ষ্ঠ শ্রেণী</option>
@@ -4209,7 +4209,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   <select
                     value={newExamType}
                     onChange={(e) => setNewExamType(e.target.value)}
-                    className="w-full h-10 border rounded-xl px-3 bg-white font-bengali select-none outline-none focus:ring-1 focus:ring-primary text-sm focus:border-primary"
+                    className="w-full h-10 border rounded-xl px-3 bg-card font-bengali select-none outline-none focus:ring-1 focus:ring-primary text-sm focus:border-primary"
                   >
                     <option value="public">পাবলিক এক্সাম (Live Exam)</option>
                     <option value="live_model_test">লাইভ মডেল টেস্ট (Live Model Test)</option>
@@ -4229,7 +4229,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               <div>
                 <label className="text-sm font-bold mb-1 block font-bengali">প্রশ্নসমূহ (JSON Array - Optional)</label>
                 <textarea 
-                  className="w-full border rounded-xl p-4 text-sm font-mono h-[250px] outline-none focus:border-primary focus:ring-1 focus:ring-primary whitespace-pre resize-none bg-slate-50"
+                  className="w-full border rounded-xl p-4 text-sm font-mono h-[250px] outline-none focus:border-primary focus:ring-1 focus:ring-primary whitespace-pre resize-none bg-muted"
                   placeholder="[&#10;  {&#10;    &quot;text&quot;: &quot;Question?&quot;,&#10;    &quot;options&quot;: [{&quot;id&quot;:&quot;A&quot;, &quot;label&quot;:&quot;...&quot;}...],&#10;    &quot;correctOption&quot;: &quot;A&quot;&#10;  }&#10;]"
                   value={newExamQuestionsJSON}
                   onChange={(e) => setNewExamQuestionsJSON(e.target.value)}
@@ -4238,7 +4238,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <p className="text-xs text-slate-500 mt-2">ফাঁকা রাখলে ডেমো প্রশ্ন আসবে।</p>
               </div>
             </div>
-            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
+            <div className="p-6 border-t bg-muted flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowCreateExamModal(false)} className="font-bengali">Cancel</Button>
               <Button onClick={createPublicExam} disabled={examsLoading} className="font-bengali">{editingExamId ? "Save Changes" : "Create Exam"}</Button>
             </div>
@@ -4247,8 +4247,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       )}
       {showCreateCouponModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-hidden shadow-xl flex flex-col">
-            <div className="p-6 border-b flex justify-between items-center bg-slate-50">
+          <div className="bg-card rounded-3xl w-full max-w-sm max-h-[90vh] overflow-hidden shadow-xl flex flex-col">
+            <div className="p-6 border-b flex justify-between items-center bg-muted">
               <h3 className="text-xl font-bold font-bengali">নতুন কুপন</h3>
               <Button variant="ghost" size="sm" onClick={() => setShowCreateCouponModal(false)} className="h-8 w-8 p-0 rounded-full">✕</Button>
             </div>
@@ -4258,7 +4258,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <Input 
                   value={newCouponCode}
                   onChange={(e) => setNewCouponCode(e.target.value)}
-                  className="bg-white font-mono uppercase"
+                  className="bg-card font-mono uppercase"
                   placeholder="CODE100"
                 />
               </div>
@@ -4268,12 +4268,12 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   type="number"
                   value={newCouponMonths}
                   onChange={(e) => setNewCouponMonths(e.target.value)}
-                  className="bg-white"
+                  className="bg-card"
                   min="1"
                 />
               </div>
             </div>
-            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
+            <div className="p-6 border-t bg-muted flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowCreateCouponModal(false)} className="font-bengali">Cancel</Button>
               <Button onClick={createCoupon} className="font-bengali">Save Coupon</Button>
             </div>
@@ -4282,9 +4282,9 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       )}
       {confirmDialog?.isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="bg-white p-6 rounded-2xl shadow-xl max-w-sm w-full border animate-in fade-in zoom-in-95 duration-200">
-            <h3 className="text-lg font-bold font-bengali mb-3 text-slate-800">নিশ্চিত করুন (Confirm)</h3>
-            <p className="text-slate-600 mb-6 font-bengali leading-relaxed">{confirmDialog.message}</p>
+          <div className="bg-card p-6 rounded-2xl shadow-xl max-w-sm w-full border animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold font-bengali mb-3 text-foreground">নিশ্চিত করুন (Confirm)</h3>
+            <p className="text-muted-foreground mb-6 font-bengali leading-relaxed">{confirmDialog.message}</p>
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setConfirmDialog(null)} className="font-bengali">বাতিল (Cancel)</Button>
               <Button variant="destructive" onClick={() => { confirmDialog.onConfirm(); setConfirmDialog(null); }} className="font-bengali">নিশ্চিত (Confirm)</Button>
@@ -4294,20 +4294,20 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       )}
       {proGiftUser && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-[24px] overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 pb-4 border-b flex justify-between items-center bg-slate-50/50">
-              <h3 className="text-lg font-bold font-bengali text-slate-800 flex items-center gap-2">
+          <div className="bg-card rounded-[24px] overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 pb-4 border-b flex justify-between items-center bg-muted/50">
+              <h3 className="text-lg font-bold font-bengali text-foreground flex items-center gap-2">
                 <Crown className="w-5 h-5 text-orange-500 animate-pulse animate-duration-1000" /> প্রো এক্সেস গিফট (Gift Pro)
               </h3>
               <button 
                 onClick={() => setProGiftUser(null)} 
-                className="text-slate-400 hover:text-slate-600 rounded-full p-1.5 hover:bg-slate-100 transition-colors"
+                className="text-slate-400 hover:text-muted-foreground rounded-full p-1.5 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6 space-y-4">
-              <p className="text-slate-600 text-sm font-bengali leading-relaxed">
+              <p className="text-muted-foreground text-sm font-bengali leading-relaxed">
                 ইউজার <strong className="text-slate-900">{proGiftUser.name}</strong> কে প্রো সুবিধা গিফট করছেন। কত মাসের এক্সেস দিতে চান তা সিলেক্ট করুন:
               </p>
               
@@ -4320,7 +4320,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all flex flex-col items-center gap-0.5 ${
                       giftMonths === m 
                         ? "bg-slate-900 border-slate-900 text-white shadow-md" 
-                        : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200"
+                        : "bg-card text-slate-700 hover:bg-muted border-slate-200"
                     }`}
                   >
                     <span className="font-bengali">{m === "12" ? "১ বছর" : `${m} মাস`}</span>
@@ -4337,11 +4337,11 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                   placeholder="যেমন: ৩ বা ১২ মাস..."
                   value={giftMonths}
                   onChange={(e) => setGiftMonths(e.target.value)}
-                  className="bg-white rounded-xl py-4.5 font-bold text-sm"
+                  className="bg-card rounded-xl py-4.5 font-bold text-sm"
                 />
               </div>
             </div>
-            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
+            <div className="p-6 border-t bg-muted flex justify-end gap-3">
               <Button 
                 variant="outline" 
                 onClick={() => setProGiftUser(null)} 
@@ -4368,14 +4368,14 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       )}
       {selectedUserModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4" onClick={() => setSelectedUserModal(null)}>
-          <div className="bg-white rounded-[32px] overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6 pb-4 border-b flex justify-between items-start bg-slate-50/50">
+          <div className="bg-card rounded-[32px] overflow-hidden shadow-2xl max-w-md w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6 pb-4 border-b flex justify-between items-start bg-muted/50">
               <div className="flex items-center gap-4">
                  <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden font-bold text-slate-400 text-xl">
                    {selectedUserModal.photoURL ? <img src={selectedUserModal.photoURL} alt={selectedUserModal.fullName} className="w-full h-full object-cover" /> : selectedUserModal.fullName?.charAt(0) || <User className="w-8 h-8" />}
                  </div>
                  <div>
-                   <h3 className="text-xl font-bold font-bengali text-slate-800 leading-tight flex items-center gap-2">
+                   <h3 className="text-xl font-bold font-bengali text-foreground leading-tight flex items-center gap-2">
                      {selectedUserModal.fullName || 'No Name'}
                      {selectedUserModal.isAdmin && <Crown className="w-4 h-4 text-purple-500" />}
                    </h3>
@@ -4453,11 +4453,11 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 )}
 
                 <div className="pt-2">
-                   <h4 className="font-bold text-sm text-slate-800 font-bengali mb-3">লগড ইন ডিভাইসেস</h4>
+                   <h4 className="font-bold text-sm text-foreground font-bengali mb-3">লগড ইন ডিভাইসেস</h4>
                    {selectedUserModal.devices && Object.keys(selectedUserModal.devices).length > 0 ? (
                       <div className="space-y-2">
                          {Object.entries(selectedUserModal.devices).map(([deviceId, dev]: [string, any]) => (
-                            <div key={deviceId} className="bg-slate-50 border border-slate-200 rounded-lg p-3">
+                            <div key={deviceId} className="bg-muted border border-slate-200 rounded-lg p-3">
                                <div className="flex justify-between items-center mb-1">
                                   <span className="text-xs font-bold text-slate-700">{dev.type || 'অজানা ডিভাইস'}</span>
                                   <span className="text-[10px] text-slate-400 font-sans">
@@ -4502,20 +4502,20 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       )}
       {tutorSubjectModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-[24px] overflow-hidden shadow-2xl max-w-lg w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-6 pb-4 border-b flex justify-between items-center bg-slate-50/50">
-              <h3 className="text-lg font-bold font-bengali text-slate-800 flex items-center gap-2">
+          <div className="bg-card rounded-[24px] overflow-hidden shadow-2xl max-w-lg w-full border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-6 pb-4 border-b flex justify-between items-center bg-muted/50">
+              <h3 className="text-lg font-bold font-bengali text-foreground flex items-center gap-2">
                 <BookOpen className="w-5 h-5 text-blue-500" /> টিউটর সাবজেক্ট অ্যাক্সেস
               </h3>
               <button 
                 onClick={() => setTutorSubjectModal(null)} 
-                className="text-slate-400 hover:text-slate-600 rounded-full p-1.5 hover:bg-slate-100 transition-colors"
+                className="text-slate-400 hover:text-muted-foreground rounded-full p-1.5 hover:bg-slate-100 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-6 max-h-[60vh] overflow-y-auto">
-              <p className="text-slate-600 text-sm font-bengali leading-relaxed mb-4">
+              <p className="text-muted-foreground text-sm font-bengali leading-relaxed mb-4">
                 টিউটর <strong className="text-slate-900">{tutorSubjectModal.name}</strong> কোন কোন বিষয় বা টপিকের প্রশ্ন দেখতে ও উত্তর দিতে পারবেন তা সিলেক্ট করুন অথবা নতুন যুক্ত করুন:
               </p>
               <div className="flex flex-wrap gap-2 mb-4">
@@ -4532,7 +4532,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                           : [...currentSubs, sub];
                         setTutorSubjectModal({ ...tutorSubjectModal, subjects: newSubs });
                       }}
-                      className={`px-3 py-1.5 rounded-full text-sm font-bengali transition-colors border ${isSelected ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-700 hover:bg-slate-50 border-slate-200"}`}
+                      className={`px-3 py-1.5 rounded-full text-sm font-bengali transition-colors border ${isSelected ? "bg-blue-600 text-white border-blue-600" : "bg-card text-slate-700 hover:bg-muted border-slate-200"}`}
                     >
                       {sub}
                     </button>
@@ -4578,7 +4578,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 </Button>
               </div>
             </div>
-            <div className="p-6 border-t bg-slate-50 flex justify-end gap-3">
+            <div className="p-6 border-t bg-muted flex justify-end gap-3">
               <Button 
                 variant="outline" 
                 onClick={() => setTutorSubjectModal(null)} 
@@ -4610,14 +4610,14 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
       {/* Edit Vocabulary Modal */}
       {editingVocab && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="bg-card rounded-3xl w-full max-w-lg shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
             <div className="p-5 sm:p-6 pb-4 border-b border-slate-50 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
                   <BookOpen className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-bold text-slate-800 font-bengali tracking-tight">শব্দ পরিমার্জন</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground font-bengali tracking-tight">শব্দ পরিমার্জন</h2>
                   <p className="text-xs text-slate-500 font-bengali">কাস্টম শব্দকোষ এডিট করুন</p>
                 </div>
               </div>
@@ -4631,74 +4631,74 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
             
             <div className="p-5 sm:p-6 overflow-y-auto space-y-4 custom-scrollbar">
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">শব্দ (Word)</label>
+                <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">শব্দ (Word)</label>
                 <Input 
                   value={editingVocab.word}
                   onChange={(e) => setEditingVocab({...editingVocab, word: e.target.value})}
-                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                  className="h-12 bg-muted border-slate-200 text-sm font-semibold rounded-xl"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">উচ্চারণ (Pronunciation - ঐচ্ছিক)</label>
+                <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">উচ্চারণ (Pronunciation - ঐচ্ছিক)</label>
                 <Input 
                   value={editingVocab.pronunciation || ""}
                   onChange={(e) => setEditingVocab({...editingVocab, pronunciation: e.target.value})}
-                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                  className="h-12 bg-muted border-slate-200 text-sm font-semibold rounded-xl"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">ভাষা (Language)</label>
-                  <select className="w-full h-12 bg-slate-50 border border-slate-200 text-sm font-semibold rounded-xl px-3 outline-none focus:ring-2 focus:ring-blue-500/20" value={editingVocab.language || "english"} onChange={(e) => setEditingVocab({...editingVocab, language: e.target.value})}>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">ভাষা (Language)</label>
+                  <select className="w-full h-12 bg-muted border border-slate-200 text-sm font-semibold rounded-xl px-3 outline-none focus:ring-2 focus:ring-blue-500/20" value={editingVocab.language || "english"} onChange={(e) => setEditingVocab({...editingVocab, language: e.target.value})}>
                     <option value="english">English</option>
                     <option value="bangla">Bangla</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">ক্যাটাগরি</label>
+                  <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">ক্যাটাগরি</label>
                   <Input 
                     value={editingVocab.category || ""}
                     onChange={(e) => setEditingVocab({...editingVocab, category: e.target.value})}
                     placeholder="vocabulary"
-                    className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                    className="h-12 bg-muted border-slate-200 text-sm font-semibold rounded-xl"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">অর্থ (Meaning)</label>
+                <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">অর্থ (Meaning)</label>
                 <Input 
                   value={editingVocab.meaning || ""}
                   onChange={(e) => setEditingVocab({...editingVocab, meaning: e.target.value})}
-                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                  className="h-12 bg-muted border-slate-200 text-sm font-semibold rounded-xl"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">সমার্থক শব্দ (কমা দিয়ে আলাদা করুন)</label>
+                <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">সমার্থক শব্দ (কমা দিয়ে আলাদা করুন)</label>
                 <Input 
                   value={editingVocab.synonyms || ""}
                   onChange={(e) => setEditingVocab({...editingVocab, synonyms: e.target.value})}
-                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                  className="h-12 bg-muted border-slate-200 text-sm font-semibold rounded-xl"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">বিপরীত শব্দ (কমা দিয়ে আলাদা করুন)</label>
+                <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">বিপরীত শব্দ (কমা দিয়ে আলাদা করুন)</label>
                 <Input 
                   value={editingVocab.antonyms || ""}
                   onChange={(e) => setEditingVocab({...editingVocab, antonyms: e.target.value})}
-                  className="h-12 bg-slate-50 border-slate-200 text-sm font-semibold rounded-xl"
+                  className="h-12 bg-muted border-slate-200 text-sm font-semibold rounded-xl"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-600 mb-1.5 font-bengali uppercase tracking-wider">উদাহরণ (Example)</label>
+                <label className="block text-xs font-bold text-muted-foreground mb-1.5 font-bengali uppercase tracking-wider">উদাহরণ (Example)</label>
                 <textarea 
                   value={editingVocab.example || ""}
                   onChange={(e) => setEditingVocab({...editingVocab, example: e.target.value})}
-                  className="w-full p-3 min-h-[80px] bg-slate-50 border border-slate-200 text-sm font-medium rounded-xl resize-none outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  className="w-full p-3 min-h-[80px] bg-muted border border-slate-200 text-sm font-medium rounded-xl resize-none outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
                 />
               </div>
             </div>
 
-            <div className="p-5 sm:p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-slate-50/50 shrink-0">
+            <div className="p-5 sm:p-6 border-t border-slate-100 flex items-center justify-end gap-3 bg-muted/50 shrink-0">
               <Button 
                 variant="ghost"
                 onClick={() => setEditingVocab(null)} 

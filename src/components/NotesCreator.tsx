@@ -349,7 +349,7 @@ export const generatePrintableHtml = (note: any) => {
       </div>
       
       <div class="sheet-footer">
-        শিক্ষাঙ্গন ক্লাসরুম প্ল্যাটফর্ম — মেধাবী ভবিষ্যতের পথে
+        বিদ্যায়ন ক্লাসরুম প্ল্যাটফর্ম — মেধাবী ভবিষ্যতের পথে
       </div>
     </div>
   `;
@@ -475,13 +475,57 @@ export default function NotesCreator() {
   const [successMsg, setSuccessMsg] = useState("");
   const [downloadingPdf, setDownloadingPdf] = useState(false);
 
-  const [creatorMode, setCreatorMode] = useState<"json" | "external">("json");
+  const [creatorMode, setCreatorMode] = useState<"json" | "external" | "text">("json");
   const [extTitle, setExtTitle] = useState("");
   const [extSubject, setExtSubject] = useState("বাংলা");
   const [extClassGroup, setExtClassGroup] = useState("HSC");
   const [extDescription, setExtDescription] = useState("");
   const [extLink, setExtLink] = useState("");
   const [extBadge, setExtBadge] = useState("PDF নোট,রিভিশন");
+  const [textContent, setTextContent] = useState("");
+
+  const handleTextPublish = async () => {
+    if (!extTitle || !extSubject || !extClassGroup || !textContent) {
+      alert("দয়াকরে টাইটেল, বিষয়, ক্লাস এবং নোটের টেক্সট প্রদান করুন।");
+      return;
+    }
+    setLoading(true);
+    setSuccessMsg("");
+    try {
+      const payload = {
+        title: extTitle,
+        subject: extSubject,
+        classGroup: extClassGroup,
+        description: extDescription,
+        badges: extBadge.split(",").map(b => b.trim()).filter(b => b),
+        isExternal: false,
+        createdAt: new Date().toISOString(),
+        content: {
+          intro: "",
+          chapters: [
+            {
+              title: "প্রধান অংশ",
+              items: [
+                {
+                  type: "text",
+                  content: textContent
+                }
+              ]
+            }
+          ]
+        }
+      };
+      await addDoc(collection(db, "notes"), payload);
+      setSuccessMsg("🎉 টেক্সট নোটটি সফলভাবে পাবলিশ করা হয়েছে!");
+      setExtTitle(""); setExtDescription(""); setTextContent("");
+      loadSavedNotesFromDb();
+      setTimeout(() => setSuccessMsg(""), 6000);
+    } catch (err: any) {
+      alert("পাবলিশ ব্যর্থ হয়েছে: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleExternalPublish = async () => {
     if (!extTitle || !extSubject || !extClassGroup || !extLink) {
@@ -769,7 +813,7 @@ export default function NotesCreator() {
             </button>
             <button 
               onClick={() => loadTemplate("chemistry")}
-              className="h-11 px-5 bg-white/10 hover:bg-white/15 hover:scale-[1.02] text-white font-bold font-bengali rounded-xl text-xs border border-white/10 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+              className="h-11 px-5 bg-card/10 hover:bg-card/15 hover:scale-[1.02] text-white font-bold font-bengali rounded-xl text-xs border border-white/10 transition-all flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
             >
               <Code className="w-4 h-4 text-indigo-300" /> রসায়ন বিজ্ঞান বেসিক টেমপ্লেট
             </button>
@@ -778,25 +822,89 @@ export default function NotesCreator() {
       </div>
 
       {/* Mode Switcher */}
-      <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-slate-100 max-w-[400px]">
+      <div className="flex bg-card p-1 rounded-2xl shadow-sm border border-slate-100 max-w-[600px] overflow-x-auto">
         <button 
           onClick={() => setCreatorMode("external")}
-          className={`flex-1 py-3 text-sm font-bold font-bengali rounded-xl transition-all ${creatorMode === "external" ? "bg-emerald-500 text-white shadow-md" : "text-slate-600 hover:bg-slate-50"}`}
+          className={`px-4 whitespace-nowrap py-3 text-sm font-bold font-bengali rounded-xl transition-all ${creatorMode === "external" ? "bg-emerald-500 text-white shadow-md" : "text-muted-foreground hover:bg-muted"}`}
         >
-          সিঙ্গেল লিংক নোট (PDF/Drive)
+          সিঙ্গেল লিংক নোট 
         </button>
         <button 
           onClick={() => setCreatorMode("json")}
-          className={`flex-1 py-3 text-sm font-bold font-bengali rounded-xl transition-all ${creatorMode === "json" ? "bg-[#0f172a] text-white shadow-md" : "text-slate-600 hover:bg-slate-50"}`}
+          className={`flex-1 whitespace-nowrap px-4 py-3 text-sm font-bold font-bengali rounded-xl transition-all ${creatorMode === "json" ? "bg-[#0f172a] text-white shadow-md" : "text-muted-foreground hover:bg-muted"}`}
         >
-          কাস্টম স্মার্ট নোট (JSON)
+          কাস্টম স্মার্ট (JSON)
+        </button>
+        <button 
+          onClick={() => setCreatorMode("text")}
+          className={`flex-1 whitespace-nowrap px-4 py-3 text-sm font-bold font-bengali rounded-xl transition-all ${creatorMode === "text" ? "bg-blue-600 text-white shadow-md" : "text-muted-foreground hover:bg-muted"}`}
+        >
+          সাধারণ টেক্সট নোট
         </button>
       </div>
 
-      {creatorMode === "external" ? (
-        <div className="bg-white rounded-[24px] p-6 sm:p-8 border border-slate-100 shadow-sm max-w-3xl space-y-6">
+      {creatorMode === "text" ? (
+        <div className="bg-card rounded-[24px] p-6 sm:p-8 border border-slate-100 shadow-sm max-w-3xl space-y-6">
           <div className="border-b border-slate-100 pb-4">
-             <h3 className="text-xl font-bold font-bengali text-slate-800">এক্সটার্নাল লিংক নোট যুক্ত করুন</h3>
+             <h3 className="text-xl font-bold font-bengali text-foreground">সাধারণ টেক্সট নোট যুক্ত করুন</h3>
+             <p className="text-slate-500 text-sm mt-1 font-bengali">খাতা-কলমের মত লিখে লিখে সরাসরি নোট পাবলিশ করুন।</p>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">নোটের টাইটেল</label>
+              <input type="text" value={extTitle} onChange={e => setExtTitle(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bengali" placeholder="যেমন: এইচএসসি রসায়ন ১ম পত্র ফুল রিভিশন" />
+            </div>
+            
+            <div className="space-y-1.5 col-span-2 sm:col-span-1">
+               <label className="text-sm font-bold font-bengali text-slate-700">বিষয়</label>
+               <input type="text" value={extSubject} onChange={e => setExtSubject(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bengali" placeholder="যেমন: রসায়ন" />
+            </div>
+            
+            <div className="space-y-1.5 col-span-2 sm:col-span-1">
+               <label className="text-sm font-bold font-bengali text-slate-700">ক্লাস গ্রুপ</label>
+               <select value={extClassGroup} onChange={e => setExtClassGroup(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bengali">
+                  <option value="HSC">HSC (একাদশ-দ্বাদশ)</option>
+                  <option value="SSC">SSC (নবম-দশম)</option>
+                  <option value="Class 6-8">Class 6-8 (৬ষ্ঠ-৮ম)</option>
+                  <option value="Admission">Admission (ভর্তি পরীক্ষা)</option>
+               </select>
+            </div>
+            
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">মূল টেক্সট/নোট</label>
+              <textarea value={textContent} onChange={e => setTextContent(e.target.value)} className="w-full h-40 p-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bengali" placeholder="এখানে সরাসরি আপনার নোটের বিষয়বস্তু লিখুন..." />
+            </div>
+            
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">বর্ণনা (ঐচ্ছিক)</label>
+              <textarea value={extDescription} onChange={e => setExtDescription(e.target.value)} className="w-full h-16 p-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bengali" placeholder="নোট সম্পর্কে কিছু বিস্তারিত লিখুন..." />
+            </div>
+
+            <div className="space-y-1.5 col-span-2">
+              <label className="text-sm font-bold font-bengali text-slate-700">ট্যাগ বা ব্যাজ (কমা দিয়ে লিখুন)</label>
+              <input type="text" value={extBadge} onChange={e => setExtBadge(e.target.value)} className="w-full h-11 px-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bengali" placeholder="টেক্সট নোট, রিভিশন, শর্টকাট" />
+            </div>
+          </div>
+          
+          <button 
+            onClick={handleTextPublish}
+            disabled={loading}
+            className="w-full h-12 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white font-bold font-bengali rounded-xl text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+          >
+             <Save className="w-4.5 h-4.5" /> {loading ? "সেভ হচ্ছে..." : "পাবলিশ করুন"}
+          </button>
+          
+          {successMsg && creatorMode === "text" && (
+            <div className="p-3 bg-blue-50 border border-blue-200 text-blue-600 rounded-xl text-sm font-bold font-bengali text-center animate-pulse">
+              {successMsg}
+            </div>
+          )}
+        </div>
+      ) : creatorMode === "external" ? (
+        <div className="bg-card rounded-[24px] p-6 sm:p-8 border border-slate-100 shadow-sm max-w-3xl space-y-6">
+          <div className="border-b border-slate-100 pb-4">
+             <h3 className="text-xl font-bold font-bengali text-foreground">এক্সটার্নাল লিংক নোট যুক্ত করুন</h3>
              <p className="text-slate-500 text-sm mt-1 font-bengali">পিডিএফ, গুগল ড্রাইভ বা অন্য যেকোনো লিংকের মাধ্যমে নোট শেয়ার করুন।</p>
           </div>
           
@@ -990,9 +1098,9 @@ export default function NotesCreator() {
                   </h1>
                   
                   <div className="flex items-center gap-4 text-xs text-slate-500 font-bengali">
-                    <span>বিষয়: <strong className="text-slate-800 font-bold">{parsedNote.subject}</strong></span>
+                    <span>বিষয়: <strong className="text-foreground font-bold">{parsedNote.subject}</strong></span>
                     <span className="text-slate-300">|</span>
-                    <span>শ্রেণী গ্রুপ: <strong className="text-slate-800 font-bold">{parsedNote.classGroup}</strong></span>
+                    <span>শ্রেণী গ্রুপ: <strong className="text-foreground font-bold">{parsedNote.classGroup}</strong></span>
                   </div>
 
                   {parsedNote.content?.intro && (
@@ -1032,7 +1140,7 @@ export default function NotesCreator() {
                             // Table block renderer
                             if (item.type === "table") {
                               return (
-                                <div key={iIdx} className="overflow-x-auto border border-slate-200 rounded-xl my-4 bg-white shadow-xs">
+                                <div key={iIdx} className="overflow-x-auto border border-slate-200 rounded-xl my-4 bg-card shadow-xs">
                                   <table className="w-full border-collapse">
                                     <thead>
                                       <tr className="bg-[#0F2744] text-white border-b border-slate-200">
@@ -1045,7 +1153,7 @@ export default function NotesCreator() {
                                     </thead>
                                     <tbody className="divide-y divide-slate-150 text-slate-700">
                                       {item.rows?.map((row: any[], rIdx: number) => (
-                                        <tr key={rIdx} className="hover:bg-slate-50 odd:bg-stone-50/50 text-xs text-left">
+                                        <tr key={rIdx} className="hover:bg-muted odd:bg-stone-50/50 text-xs text-left">
                                           {row?.map((cell: any, dIdx: number) => (
                                             <td key={dIdx} className="py-2.5 px-3.5 border-r border-slate-100 font-bengali font-semibold">
                                               {typeof cell === "object" && cell !== null ? (
@@ -1054,9 +1162,9 @@ export default function NotesCreator() {
                                                     <div key={i} className="whitespace-pre-wrap">
                                                       {typeof c === "object" && c !== null ? (
                                                         c.q && c.a ? (
-                                                          <div className="bg-white p-2 rounded-lg border border-slate-200">
+                                                          <div className="bg-card p-2 rounded-lg border border-slate-200">
                                                             <div className="font-bold text-[#0c4a6e]">প্র: {c.q}</div>
-                                                            <div className="text-slate-600 mt-1">উ: {c.a}</div>
+                                                            <div className="text-muted-foreground mt-1">উ: {c.a}</div>
                                                           </div>
                                                         ) : JSON.stringify(c)
                                                       ) : c}
@@ -1077,7 +1185,7 @@ export default function NotesCreator() {
                             // Tip box renderer
                             if (item.type === "tip") {
                               return (
-                                <div key={iIdx} className="bg-amber-55 bg-amber-50/60 border border-amber-200/80 p-4 rounded-xl space-y-1.5 text-slate-800 text-xs sm:text-sm shadow-xs border-l-4 border-l-amber-500">
+                                <div key={iIdx} className="bg-amber-55 bg-amber-50/60 border border-amber-200/80 p-4 rounded-xl space-y-1.5 text-foreground text-xs sm:text-sm shadow-xs border-l-4 border-l-amber-500">
                                   <div className="font-bold font-bengali flex items-center gap-1.5 select-none text-amber-900 text-sm">
                                     ⚡ {item.title || "এক্সক্লুসিভ শিক্ষক টিপস"}
                                   </div>
@@ -1120,7 +1228,7 @@ export default function NotesCreator() {
 
                 {/* Footer Watermark layout */}
                 <div className="pt-8 border-t border-slate-200 text-center select-none">
-                  <span className="font-bengali text-xs text-slate-400">শিক্ষাঙ্গন ক্লাসরুম প্ল্যাটফর্ম — মেধাবী ভবিষ্যতের পথে</span>
+                  <span className="font-bengali text-xs text-slate-400">বিদ্যায়ন ক্লাসরুম প্ল্যাটফর্ম — মেধাবী ভবিষ্যতের পথে</span>
                 </div>
 
               </div>
@@ -1137,7 +1245,7 @@ export default function NotesCreator() {
       )}
 
       {/* Published Library Notes Catalog Shelves */}
-      <div className="bg-white border border-slate-100 rounded-[28px] overflow-hidden p-6 shadow-sm space-y-5">
+      <div className="bg-card border border-slate-100 rounded-[28px] overflow-hidden p-6 shadow-sm space-y-5">
         <div className="flex items-center justify-between border-b pb-4">
           <h3 className="font-bengali font-black text-base text-[#0F2744] flex items-center gap-2 select-none">
             <BookOpenCheck className="w-5 h-5 text-indigo-500" /> পূর্বে সংরক্ষিত লেকচার নোটস ডাটাবেজ ({savedNotes.length})
@@ -1167,7 +1275,7 @@ export default function NotesCreator() {
               return (
                 <div 
                   key={note.dbId}
-                  className="bg-white/70 hover:bg-white border border-slate-150 rounded-2xl p-5 flex flex-col gap-4 justify-between transition-all duration-300 shadow-xs hover:shadow-md hover:border-slate-300 relative group"
+                  className="bg-card/70 hover:bg-card border border-slate-150 rounded-2xl p-5 flex flex-col gap-4 justify-between transition-all duration-300 shadow-xs hover:shadow-md hover:border-slate-300 relative group"
                 >
                   {/* Decorative Left Ribbon represent planner cover bookmarks */}
                   <div className={`absolute top-0 left-0 w-1.5 h-full rounded-l-2xl ${decorColor}`} />
@@ -1193,7 +1301,7 @@ export default function NotesCreator() {
                     <button
                       onClick={() => handlePrint(note)}
                       disabled={downloadingPdf}
-                      className="flex-1 h-9 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-205/80 text-xs font-bold font-bengali rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
+                      className="flex-1 h-9 bg-muted hover:bg-slate-100 text-slate-700 border border-slate-205/80 text-xs font-bold font-bengali rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-50"
                     >
                       <Printer className={`w-3.5 h-3.5 ${downloadingPdf ? 'animate-spin' : ''}`} /> {downloadingPdf ? "ডাউনলোড..." : "PDF / প্রিন্ট"}
                     </button>

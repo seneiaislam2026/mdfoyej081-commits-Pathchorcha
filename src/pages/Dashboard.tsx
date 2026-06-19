@@ -80,7 +80,7 @@ export default function Dashboard() {
                   key={banner.id ? banner.id + '-' + index : index} 
                   className={`shrink-0 w-full min-w-[full] snap-center bg-gradient-to-r ${banner.gradient || 'from-[#1e293b] to-[#0f172a]'} rounded-[24px] p-6 text-white relative overflow-hidden shadow-sm flex flex-col justify-center min-h-[180px]`}
                 >
-                  <div className="absolute top-4 right-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
+                  <div className="absolute top-4 right-1/4 w-32 h-32 bg-card/5 rounded-full blur-2xl"></div>
                   <div className="absolute top-2 left-6 text-white/5 text-4xl transform -rotate-12 italic">✧</div>
                   
                   <div className="relative z-10 w-[60%] sm:w-[70%]">
@@ -142,14 +142,14 @@ export default function Dashboard() {
            {globalSettings.heroBanners.length > 1 && (
              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
                {globalSettings.heroBanners.map((_: any, idx: number) => (
-                 <div key={idx} className="w-1.5 h-1.5 rounded-full bg-white/40"></div>
+                 <div key={idx} className="w-1.5 h-1.5 rounded-full bg-card/40"></div>
                ))}
              </div>
            )}
         </div>
       ) : (
         <div className="bg-gradient-to-r from-[#637cf2] to-[#768bfa] rounded-[24px] p-6 text-white relative overflow-hidden shadow-lg shadow-blue-500/10 mt-2 min-h-[160px]">
-          <div className="absolute top-4 right-1/4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="absolute top-4 right-1/4 w-32 h-32 bg-card/10 rounded-full blur-2xl"></div>
           <div className="absolute top-8 right-8 text-white/30 text-2xl font-sans">✧</div>
           
           <div className="z-10 relative">
@@ -163,11 +163,11 @@ export default function Dashboard() {
              <div className="w-32 h-32 ml-auto shrink-0 drop-shadow-xl relative transform scale-[1.1] origin-bottom-right">
                 <div className="absolute bottom-4 right-1 bg-gradient-to-r from-orange-400 to-orange-500 w-24 h-5 rounded-xl transition-all shadow-md">
                    <div className="absolute left-0 w-2 h-full bg-orange-300 rounded-l-xl"></div>
-                   <div className="absolute inset-x-2 bottom-1 h-3 bg-white/90"></div>
+                   <div className="absolute inset-x-2 bottom-1 h-3 bg-card/90"></div>
                 </div>
                 <div className="absolute bottom-9 right-1 bg-gradient-to-r from-blue-600 to-blue-700 w-24 h-5 rounded-xl transition-all shadow-md">
                    <div className="absolute left-0 w-2 h-full bg-blue-400 rounded-l-xl"></div>
-                   <div className="absolute inset-x-2 bottom-1 h-3 bg-white/90"></div>
+                   <div className="absolute inset-x-2 bottom-1 h-3 bg-card/90"></div>
                 </div>
                 <div className="absolute bottom-16 right-0 text-[#0F2744] drop-shadow-2xl z-20">
                    <div className="w-28 h-8 rounded-[50%] bg-[#21436e] absolute -bottom-3 -right-2 rotate-[-5deg]"></div>
@@ -186,20 +186,20 @@ export default function Dashboard() {
 
       {/* Features Grid ("এক নজরে সব ফিচার") */}
       <section className="space-y-4">
-        <h3 className="font-bengali text-[17px] font-bold text-[#0F2744]">এক নজরে সব ফিচার</h3>
+        <h3 className="font-bengali text-[17px] font-bold text-[#0F2744] dark:text-foreground">এক নজরে সব ফিচার</h3>
         
         <div className="flex flex-col gap-4">
           {/* Row 1: 4 columns */}
           <div className="grid grid-cols-4 gap-3 sm:gap-4">
             
             <Link to="/exam?type=mock" className="group">
-              <div className="bg-white border border-fuchsia-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-fuchsia-200 hover:-translate-y-1 h-full shadow-xs">
+              <div className="bg-card border border-fuchsia-100 dark:border-fuchsia-900/30 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-fuchsia-200 dark:hover:border-fuchsia-800/50 hover:-translate-y-1 h-full shadow-xs">
                 <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
                   <div className="absolute inset-0 bg-[#C026D3] rounded-[16px] shadow-[0_6px_12px_rgba(192,38,211,0.3)] border-b-[4px] border-[#86198F]"></div>
                   
-                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-card/30 rounded-full border border-white/40"></div>
                   
-                  <div className="relative w-[28px] h-[30px] bg-white rounded-[8px] shadow-sm flex flex-col justify-center pl-[5px] gap-[5px]">
+                  <div className="relative w-[28px] h-[30px] bg-card rounded-[8px] shadow-sm flex flex-col justify-center pl-[5px] gap-[5px]">
                      {/* Row 1 */}
                      <div className="flex items-center gap-[4px]">
                         <div className="w-[7px] h-[7px] rounded-full border-[1.5px] border-[#E879F9]"></div>
@@ -214,27 +214,27 @@ export default function Dashboard() {
                      </div>
                   </div>
                 </div>
-                <h4 className="font-bengali text-xs sm:text-sm font-bold text-fuchsia-600 mb-1 leading-tight">মক<br/>টেস্ট</h4>
-                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight flex-1">অধ্যায়ভিত্তিক মক টেস্ট দিন</p>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-fuchsia-600 dark:text-foreground mb-1 leading-tight">মক<br/>টেস্ট</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-muted-foreground leading-tight flex-1">অধ্যায়ভিত্তিক মক টেস্ট দিন</p>
               </div>
             </Link>
 
             <Link to="/exam?type=model" className="group">
-              <div className="bg-white border border-orange-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-orange-200 hover:-translate-y-1 h-full shadow-xs">
+              <div className="bg-card border border-orange-100 dark:border-orange-900/30 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-orange-200 dark:hover:border-orange-800/50 hover:-translate-y-1 h-full shadow-xs">
                 <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
                   <div className="absolute inset-0 bg-[#F97316] rounded-[16px] shadow-[0_6px_12px_rgba(249,115,22,0.3)] border-b-[4px] border-[#C2410C]"></div>
-                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-card/30 rounded-full border border-white/40"></div>
                   
-                  <div className="relative w-[30px] h-[32px] bg-white rounded-[8px] shadow-sm flex flex-col pt-[6px] pl-[6px] gap-[4px] -ml-[2px] -mt-[2px]">
+                  <div className="relative w-[30px] h-[32px] bg-card rounded-[8px] shadow-sm flex flex-col pt-[6px] pl-[6px] gap-[4px] -ml-[2px] -mt-[2px]">
                      <div className="flex items-center gap-[4px]">
                         <div className="w-[6px] h-[6px] rounded-full bg-[#F97316]"></div>
-                        <div className="w-[10px] h-[3px] rounded-full bg-[#D5E1ED]"></div>
+                        <div className="w-[10px] h-[3px] rounded-full bg-slate-200 dark:bg-slate-700"></div>
                      </div>
                      <div className="flex items-center pl-[10px]">
-                        <div className="w-[10px] h-[3px] rounded-full bg-[#D5E1ED]"></div>
+                        <div className="w-[10px] h-[3px] rounded-full bg-slate-200 dark:bg-slate-700"></div>
                      </div>
                      <div className="flex items-center pl-[10px]">
-                        <div className="w-[7px] h-[3px] rounded-full bg-[#D5E1ED]"></div>
+                        <div className="w-[7px] h-[3px] rounded-full bg-slate-200 dark:bg-slate-700"></div>
                      </div>
                   </div>
 
@@ -242,19 +242,19 @@ export default function Dashboard() {
                     <Check className="w-[14px] h-[14px] text-white" strokeWidth={3.5} />
                   </div>
                 </div>
-                <h4 className="font-bengali text-xs sm:text-sm font-bold text-orange-600 mb-1 leading-tight">মডেল<br/>টেস্ট</h4>
-                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight">মডেল টেস্ট দিয়ে প্রস্তুতি যাচাই</p>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-orange-600 dark:text-foreground mb-1 leading-tight">মডেল<br/>টেস্ট</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-muted-foreground leading-tight">মডেল টেস্ট দিয়ে প্রস্তুতি যাচাই</p>
               </div>
             </Link>
 
             <Link to="/doubts" className="group">
-              <div className="bg-white border border-sky-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-sky-200 hover:-translate-y-1 h-full shadow-xs">
+              <div className="bg-card border border-sky-100 dark:border-sky-900/30 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-sky-200 dark:hover:border-sky-800/50 hover:-translate-y-1 h-full shadow-xs">
                 <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
                   <div className="absolute inset-0 bg-[#0EA5E9] rounded-[16px] shadow-[0_6px_12px_rgba(14,165,233,0.3)] border-b-[4px] border-[#0284C7]"></div>
                   
-                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-card/30 rounded-full border border-white/40"></div>
                   
-                  <div className="relative w-[28px] h-[28px] bg-white rounded-[8px] shadow-sm flex items-center justify-center -mt-[2px]">
+                  <div className="relative w-[28px] h-[28px] bg-card rounded-[8px] shadow-sm flex items-center justify-center -mt-[2px]">
                      <Brain className="w-[18px] h-[18px] text-[#0EA5E9]" strokeWidth={2.5} />
                   </div>
 
@@ -262,20 +262,20 @@ export default function Dashboard() {
                     <MessageCircleQuestion className="w-[14px] h-[14px] text-white" strokeWidth={2.5} />
                   </div>
                 </div>
-                <h4 className="font-bengali text-xs sm:text-sm font-bold text-sky-600 mb-1 leading-tight">ডাউট<br/>সলভিং</h4>
-                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight block">যেকোনো প্রশ্নের উত্তর জানুন<br/>এবং আলোচনা করুন</p>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-sky-600 dark:text-foreground mb-1 leading-tight">ডাউট<br/>সলভিং</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-muted-foreground leading-tight block">যেকোনো প্রশ্নের উত্তর জানুন<br/>এবং আলোচনা করুন</p>
               </div>
             </Link>
 
             <Link to="/exam?type=mistakes" className="group">
-              <div className="bg-white border border-pink-100 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-pink-200 hover:-translate-y-1 h-full shadow-xs">
+              <div className="bg-card border border-pink-100 dark:border-pink-900/30 rounded-[20px] p-3 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-pink-200 dark:hover:border-pink-800/50 hover:-translate-y-1 h-full shadow-xs">
                 <div className="relative w-[48px] h-[48px] flex items-center justify-center group-hover:scale-105 transition-transform mb-3">
                   <div className="absolute inset-0 bg-[#F43F5E] rounded-[16px] shadow-[0_6px_12px_rgba(244,63,94,0.3)] border-b-[4px] border-[#BE123C]"></div>
                   
-                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-white/30 rounded-full border border-white/40"></div>
+                  <div className="absolute top-1 right-1.5 w-2.5 h-2.5 bg-card/30 rounded-full border border-white/40"></div>
                   
-                  <div className="relative w-[28px] h-[28px] bg-white rounded-[8px] shadow-sm flex items-center justify-center -mt-[2px]">
-                     <div className="w-[18px] h-[18px] bg-[#6484A4] rounded-[5px] flex items-center justify-center">
+                  <div className="relative w-[28px] h-[28px] bg-card rounded-[8px] shadow-sm flex items-center justify-center -mt-[2px]">
+                     <div className="w-[18px] h-[18px] bg-[#6484A4] dark:bg-slate-600 rounded-[5px] flex items-center justify-center">
                         <svg className="w-[11px] h-[11px] text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M7 2L3 6l4 4"/>
                           <path d="M21 11v-1a4 4 0 0 0-4-4H3"/>
@@ -285,8 +285,8 @@ export default function Dashboard() {
                      </div>
                   </div>
                 </div>
-                <h4 className="font-bengali text-xs sm:text-sm font-bold text-rose-600 mb-1 leading-tight">ভুলের<br/>প্র্যাকটিস</h4>
-                <p className="font-bengali text-[10px] sm:text-[11px] text-slate-400 leading-tight">ভুল হওয়া প্রশ্নগুলোর পুনরাবৃত্তি</p>
+                <h4 className="font-bengali text-xs sm:text-sm font-bold text-rose-600 dark:text-foreground mb-1 leading-tight">ভুলের<br/>প্র্যাকটিস</h4>
+                <p className="font-bengali text-[10px] sm:text-[11px] text-muted-foreground leading-tight">ভুল হওয়া প্রশ্নগুলোর পুনরাবৃত্তি</p>
               </div>
             </Link>
 
@@ -296,49 +296,49 @@ export default function Dashboard() {
           <div className="grid grid-cols-3 gap-3 sm:gap-4">
             
             <Link to="/notes" className="group">
-              <div className="bg-white border border-emerald-100 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-emerald-200 hover:-translate-y-1 h-full shadow-xs">
+              <div className="bg-card border border-emerald-100 dark:border-emerald-900/30 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800/50 hover:-translate-y-1 h-full shadow-xs">
                 <div className="relative w-[56px] h-[56px] flex items-center justify-center group-hover:scale-105 transition-transform mb-4">
                   <div className="absolute inset-0 bg-[#319936] rounded-[18px] shadow-[0_8px_16px_rgba(49,153,54,0.3)] border-b-[5px] border-[#1C6B1C]"></div>
                   
                   {/* White Book Pages */}
-                  <div className="relative w-[34px] h-[38px] bg-white rounded-[10px] shadow-sm overflow-hidden flex items-center justify-center -mt-0.5">
+                  <div className="relative w-[34px] h-[38px] bg-card rounded-[10px] shadow-sm overflow-hidden flex items-center justify-center -mt-0.5">
                     {/* Center divider */}
-                    <div className="absolute top-1.5 bottom-1.5 left-1/2 w-[1.5px] bg-[#E0EBE0] -translate-x-1/2"></div>
+                    <div className="absolute top-1.5 bottom-1.5 left-1/2 w-[1.5px] bg-[#E0EBE0] dark:bg-[#1C6B1C]/30 -translate-x-1/2"></div>
                     
                     {/* Left page lines */}
                     <div className="absolute left-0 w-[17px] flex flex-col items-center top-[10px] space-y-[5px]">
-                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
-                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
-                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] dark:bg-[#1C6B1C]/50 rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] dark:bg-[#1C6B1C]/50 rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] dark:bg-[#1C6B1C]/50 rounded-full"></div>
                     </div>
                     
                     {/* Right page lines */}
                     <div className="absolute right-0 w-[17px] flex flex-col items-center top-[10px] space-y-[5px]">
-                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
-                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
-                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] dark:bg-[#1C6B1C]/50 rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] dark:bg-[#1C6B1C]/50 rounded-full"></div>
+                      <div className="w-[8px] h-[2px] bg-[#A4D5A6] dark:bg-[#1C6B1C]/50 rounded-full"></div>
                     </div>
                   </div>
                 </div>
-                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-emerald-600 mb-1 leading-tight">নোটস</h4>
-                <p className="font-bengali text-[11px] sm:text-xs text-slate-400 leading-tight px-1">বিষয়ভিত্তিক সাজানো গুরুত্বপূর্ণ নোটস</p>
+                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-emerald-600 dark:text-foreground mb-1 leading-tight">নোটস</h4>
+                <p className="font-bengali text-[11px] sm:text-xs text-muted-foreground leading-tight px-1">বিষয়ভিত্তিক সাজানো গুরুত্বপূর্ণ নোটস</p>
               </div>
             </Link>
 
             <Link to="/memorize" className="group">
-              <div className="bg-white border border-purple-100 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-purple-200 hover:-translate-y-1 h-full shadow-xs">
-                <div className="w-[60px] h-[60px] bg-gradient-to-br from-[#c850f0] to-[#8026eb] rounded-[18px] flex items-center justify-center mb-4 shadow-[0_6px_16px_rgba(168,85,247,0.3)] relative group-hover:scale-105 transition-transform overflow-hidden ring-[3px] ring-purple-50 ring-offset-1">
+              <div className="bg-card border border-purple-100 dark:border-purple-900/30 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-purple-200 dark:hover:border-purple-800/50 hover:-translate-y-1 h-full shadow-xs">
+                <div className="w-[60px] h-[60px] bg-gradient-to-br from-[#c850f0] to-[#8026eb] rounded-[18px] flex items-center justify-center mb-4 shadow-[0_6px_16px_rgba(168,85,247,0.3)] relative group-hover:scale-105 transition-transform overflow-hidden ring-[3px] ring-purple-50 dark:ring-purple-950 ring-offset-1">
                   <div className="absolute inset-0 border-[2px] border-white/20 rounded-[18px] z-10 pointer-events-none"></div>
                   <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent pointer-events-none"></div>
                   <Lightbulb className="w-10 h-10 text-white z-10 drop-shadow-md" strokeWidth={2} />
                 </div>
-                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-violet-600 mb-1 leading-tight">মেমোরাইজিং পার্ট</h4>
-                <p className="font-bengali text-[11px] sm:text-xs text-slate-400 leading-tight px-1">সমার্থক, বিপরীত ও শব্দকোষ</p>
+                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-violet-600 dark:text-foreground mb-1 leading-tight">মেমোরাইজিং পার্ট</h4>
+                <p className="font-bengali text-[11px] sm:text-xs text-muted-foreground leading-tight px-1">সমার্থক, বিপরীত ও শব্দকোষ</p>
               </div>
             </Link>
 
             <Link to="/bank" className="group">
-              <div className="bg-white border border-blue-100 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-blue-200 hover:-translate-y-1 h-full shadow-xs">
+              <div className="bg-card border border-blue-100 dark:border-blue-900/30 rounded-[20px] p-4 pb-4 flex flex-col items-center text-center transition-all hover:shadow-md hover:border-blue-200 dark:hover:border-blue-800/50 hover:-translate-y-1 h-full shadow-xs">
                 <div className="relative w-[64px] h-[64px] flex items-center justify-center group-hover:scale-105 transition-transform mb-4">
                   {/* Floating dots on left */}
                   <div className="absolute left-[6px] top-1/2 -translate-y-1/2 flex flex-col gap-[5px]">
@@ -350,21 +350,21 @@ export default function Dashboard() {
                   {/* Main Blue Board */}
                   <div className="relative w-[38px] h-[48px] bg-gradient-to-b from-[#3B82F6] to-[#2563EB] rounded-[10px] shadow-[0_8px_16px_rgba(37,99,235,0.3)] flex flex-col pt-[14px] px-[8px] gap-[6px]">
                     {/* Top Cutout */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[18px] h-[6px] bg-white rounded-b-[4px]"></div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[18px] h-[6px] bg-card rounded-b-[4px]"></div>
                     
                     {/* Lines */}
-                    <div className="w-[18px] mx-auto h-[2.5px] bg-white rounded-full"></div>
-                    <div className="w-[18px] mx-auto h-[2.5px] bg-white rounded-full"></div>
-                    <div className="w-[18px] mx-auto h-[2.5px] bg-white rounded-full"></div>
+                    <div className="w-[18px] mx-auto h-[2.5px] bg-card rounded-full"></div>
+                    <div className="w-[18px] mx-auto h-[2.5px] bg-card rounded-full"></div>
+                    <div className="w-[18px] mx-auto h-[2.5px] bg-card rounded-full"></div>
                   </div>
 
                   {/* Checkmark Circle badge */}
-                  <div className="absolute bottom-[2px] right-[4px] w-[26px] h-[26px] bg-[#3B82F6] rounded-full border-[3px] border-white flex items-center justify-center shadow-sm">
+                  <div className="absolute bottom-[2px] right-[4px] w-[26px] h-[26px] bg-[#3B82F6] rounded-full border-[3px] border-white dark:border-slate-800 flex items-center justify-center shadow-sm">
                     <Check className="w-[14px] h-[14px] text-white" strokeWidth={3.5} />
                   </div>
                 </div>
-                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-blue-600 mb-1 leading-tight">প্রশ্ন ব্যাংক</h4>
-                <p className="font-bengali text-[11px] sm:text-xs text-slate-400 leading-tight px-1">হাজারো প্রশ্ন অনুশীলন করুন</p>
+                <h4 className="font-bengali text-sm sm:text-[15px] font-bold text-blue-600 dark:text-foreground mb-1 leading-tight">প্রশ্ন ব্যাংক</h4>
+                <p className="font-bengali text-[11px] sm:text-xs text-muted-foreground leading-tight px-1">হাজারো প্রশ্ন অনুশীলন করুন</p>
               </div>
             </Link>
 
@@ -375,39 +375,39 @@ export default function Dashboard() {
       {/* Progress Section ("আজকের প্রগ্রেস") */}
       <section className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <h3 className="font-bengali text-[16px] font-bold text-slate-800 tracking-tight">আজকের প্রগ্রেস</h3>
+          <h3 className="font-bengali text-[16px] font-bold text-foreground tracking-tight">আজকের প্রগ্রেস</h3>
           <Link to="/profile" className="text-blue-500 font-bengali text-xs font-bold flex items-center hover:underline bg-blue-50 px-3 py-1 rounded-full">
             বিস্তারিত দেখুন <ChevronRight className="w-3.5 h-3.5 ml-0.5"/>
           </Link>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
+          <div className="bg-card border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
             <div className="w-[38px] h-[38px] rounded-full bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50">
                <CheckCircle2 className="w-5 h-5 text-blue-500" strokeWidth={2.5}/>
             </div>
             <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.totalSolved || 0}</div>
+               <div className="text-[20px] font-extrabold font-sans leading-none text-foreground mb-1.5">{userData?.progress?.totalSolved || 0}</div>
                <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">স্টাডি সম্পন্ন</div>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
+          <div className="bg-card border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
             <div className="w-[38px] h-[38px] rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100/50">
                <Target className="w-5 h-5 text-emerald-500" strokeWidth={2.5}/>
             </div>
             <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.accuracy || 0}%</div>
+               <div className="text-[20px] font-extrabold font-sans leading-none text-foreground mb-1.5">{userData?.progress?.accuracy || 0}%</div>
                <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">নির্ভুলতা</div>
             </div>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
+          <div className="bg-card border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
             <div className="w-[38px] h-[38px] rounded-full bg-orange-50 flex items-center justify-center shrink-0 border border-orange-100/50">
                <span className="text-orange-500 text-lg leading-none mt-0.5">🔥</span>
             </div>
             <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.streak || 0}</div>
+               <div className="text-[20px] font-extrabold font-sans leading-none text-foreground mb-1.5">{userData?.progress?.streak || 0}</div>
                <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">দিনের স্ট্রিক</div>
             </div>
           </div>
@@ -417,7 +417,7 @@ export default function Dashboard() {
             {/* Ongoing Exams ("চলমান পরীক্ষা") */}
       <section className="space-y-4">
         <div className="flex justify-between items-center px-1">
-          <h3 className="font-bengali text-[16px] font-bold text-slate-800 tracking-tight">চলমান পরীক্ষা</h3>
+          <h3 className="font-bengali text-[16px] font-bold text-foreground tracking-tight">চলমান পরীক্ষা</h3>
           <Link to="/public-exams" className="text-blue-500 font-bengali text-xs font-bold flex items-center hover:underline bg-blue-50 px-3 py-1 rounded-full">
             সব দেখুন <ChevronRight className="w-3.5 h-3.5 ml-0.5"/>
           </Link>
@@ -427,7 +427,7 @@ export default function Dashboard() {
           {liveExams.length > 0 ? (
             liveExams.slice(0, 4).map((exam, idx) => (
               <Link to={`/public-exam/${exam.id}`} key={exam.id ? `${exam.id}-${idx}` : `exam-${idx}`}>
-                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                <div className="bg-card border border-slate-100 rounded-[20px] p-3 flex items-center shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-3">
                      <div className={`w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 border ${
                        idx === 0 ? "bg-rose-50 text-rose-500 border-rose-100" : idx === 1 ? "bg-violet-50 text-violet-500 border-violet-100" : "bg-orange-50 text-orange-500 border-orange-100"
@@ -435,7 +435,7 @@ export default function Dashboard() {
                         {idx === 0 ? <RefreshCw className="w-[22px] h-[22px]" strokeWidth={2.5}/> : idx === 1 ? <BrainCircuit className="w-[22px] h-[22px]" strokeWidth={2.5}/> : <SearchCheck className="w-[22px] h-[22px]" strokeWidth={2.5}/>}
                      </div>
                      <div>
-                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors pr-2">{exam.title}</div>
+                        <div className="font-bengali font-bold text-[13px] text-foreground mb-0.5 leading-tight group-hover:text-blue-600 transition-colors pr-2">{exam.title}</div>
                         <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">
                           {exam.subject || "সাধারণ"} • {exam.questions?.length || 0}টি প্রশ্ন
                         </div>
@@ -448,13 +448,13 @@ export default function Dashboard() {
             <>
               {/* Dummy Data for exact design match if no exams are running */}
               <Link to="/exam?type=mistakes">
-                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                <div className="bg-card border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-3">
                      <div className="w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 bg-rose-50 border border-rose-100 text-rose-500">
                         <RefreshCw className="w-[22px] h-[22px]" strokeWidth={2.5}/>
                      </div>
                      <div>
-                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">ভুলের প্র্যাকটিস</div>
+                        <div className="font-bengali font-bold text-[13px] text-foreground mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">ভুলের প্র্যাকটিস</div>
                         <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">গণিত • ২০টি প্রশ্ন</div>
                      </div>
                   </div>
@@ -465,13 +465,13 @@ export default function Dashboard() {
               </Link>
               
               <Link to="/memorize">
-                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                <div className="bg-card border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-3">
                      <div className="w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 bg-violet-50 border border-violet-100 text-violet-500">
                         <Lightbulb className="w-[22px] h-[22px]" strokeWidth={2.5}/>
                      </div>
                      <div>
-                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">মেমোরাইজিং পাঠ</div>
+                        <div className="font-bengali font-bold text-[13px] text-foreground mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">মেমোরাইজিং পাঠ</div>
                         <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">ইংরেজি শব্দকোষ</div>
                      </div>
                   </div>
@@ -482,13 +482,13 @@ export default function Dashboard() {
               </Link>
               
               <Link to="/exam?type=model">
-                <div className="bg-white border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
+                <div className="bg-card border border-slate-100 rounded-[20px] p-3 flex items-center justify-between shadow-xs hover:border-blue-100 hover:shadow-sm transition-all group">
                   <div className="flex items-center gap-3">
                      <div className="w-[46px] h-[46px] rounded-[14px] flex items-center justify-center shrink-0 bg-orange-50 border border-orange-100 text-orange-500">
                         <SearchCheck className="w-[22px] h-[22px]" strokeWidth={2.5}/>
                      </div>
                      <div>
-                        <div className="font-bengali font-bold text-[13px] text-slate-800 mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">মডেল টেস্ট</div>
+                        <div className="font-bengali font-bold text-[13px] text-foreground mb-0.5 leading-tight group-hover:text-blue-600 transition-colors">মডেল টেস্ট</div>
                         <div className="text-[11px] font-bengali text-slate-400 font-medium leading-tight">মডেল টেস্ট - ০৩</div>
                      </div>
                   </div>
@@ -503,28 +503,52 @@ export default function Dashboard() {
       </section>
 
       {/* Stats Block */}
-      <section className="bg-white rounded-[24px] p-5 shadow-sm border border-slate-100 mt-2">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between py-3 border-b border-slate-100 border-dashed">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
-                <Star className="w-5 h-5" strokeWidth={2.5}/>
+      <section className="bg-card dark:bg-card/50 rounded-[20px] xl:rounded-[24px] p-5 sm:p-6 shadow-xs border border-slate-100 dark:border-slate-800 mt-2 relative overflow-hidden">
+        <div className="flex flex-col gap-5 sm:gap-6">
+          {/* Row 1 */}
+          <div className="flex items-center justify-between relative">
+            <div className="flex items-center gap-4 sm:gap-5">
+              <div className="relative">
+                {/* Sparkles */}
+                <div className="absolute -top-1.5 -right-1.5 text-emerald-500 dark:text-emerald-400 w-3 h-3 z-10">
+                  <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 0C7.5 4.14214 10.8579 7.5 15 7.5C10.8579 7.5 7.5 10.8579 7.5 15C7.5 10.8579 4.14214 7.5 0 7.5C4.14214 7.5 7.5 4.14214 7.5 0Z" fill="currentColor"/></svg>
+                </div>
+                <div className="w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] rounded-[16px] bg-emerald-50 dark:bg-emerald-500/20 flex items-center justify-center border-b-[3px] border-emerald-200 dark:border-emerald-500/40 relative">
+                  <Star className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600 dark:text-emerald-400" strokeWidth={2.5}/>
+                </div>
               </div>
-              <span className="font-bengali font-bold text-slate-700 text-[15px]">সঠিক উত্তর</span>
+              <div className="flex flex-col gap-0.5 sm:gap-1">
+                <span className="font-bengali font-bold text-foreground text-[16px] sm:text-[18px] leading-none">সঠিক উত্তর</span>
+                <span className="font-bengali text-muted-foreground text-[11px] sm:text-[13px] leading-none">আপনার সঠিক উত্তরের সংখ্যা</span>
+              </div>
             </div>
-            <div className="bg-emerald-100/60 text-emerald-600 px-3 py-1.5 rounded-full text-[13px] font-sans font-bold leading-none">
+            <div className="bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-1.5 sm:px-5 sm:py-2 rounded-full text-[16px] sm:text-[18px] font-sans font-bold leading-none min-w-[56px] sm:min-w-[70px] text-center border border-emerald-100 dark:border-emerald-500/20">
               {userData?.progress?.totalCorrect ?? Math.round((userData?.progress?.accuracy || 0) / 100 * (userData?.progress?.totalSolved || 0))}
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center text-purple-500">
-                <Clock className="w-5 h-5" strokeWidth={2.5}/>
+          <div className="w-full border-b border-dashed border-slate-200 dark:border-border"></div>
+
+          {/* Row 2 */}
+          <div className="flex items-center justify-between relative">
+            <div className="flex items-center gap-4 sm:gap-5">
+               <div className="relative">
+                {/* Sparkles */}
+                <div className="absolute -top-1.5 -right-1.5 text-purple-500 dark:text-purple-400 w-3 h-3 z-10">
+                  <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 0C7.5 4.14214 10.8579 7.5 15 7.5C10.8579 7.5 7.5 10.8579 7.5 15C7.5 10.8579 4.14214 7.5 0 7.5C4.14214 7.5 7.5 4.14214 7.5 0Z" fill="currentColor"/></svg>
+                </div>
+                <div className="w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] rounded-[16px] bg-purple-50 dark:bg-purple-500/20 flex items-center justify-center border-b-[3px] border-purple-200 dark:border-purple-500/40 relative">
+                  <Clock className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600 dark:text-purple-400" strokeWidth={2.5}/>
+                </div>
               </div>
-              <span className="font-bengali font-bold text-slate-700 text-[15px]">মোট সময়</span>
+              <div className="flex flex-col gap-0.5 sm:gap-1">
+                <span className="font-bengali font-bold text-foreground text-[16px] sm:text-[18px] leading-none">মোট সময়</span>
+                <span className="font-bengali text-muted-foreground text-[11px] sm:text-[13px] leading-none">আজকের মোট সময়</span>
+              </div>
             </div>
-            <div className="bg-fuchsia-100/60 text-fuchsia-700 px-3 py-1.5 rounded-full text-[13px] font-bengali font-bold leading-none">{userData?.progress?.totalTimeSpent || 0} মিনিট</div>
+            <div className="bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-[13px] sm:text-[14px] font-bengali font-bold leading-none shrink-0 border border-purple-100 dark:border-purple-500/20">
+              {userData?.progress?.totalTimeSpent || 0} মিনিট
+            </div>
           </div>
         </div>
       </section>
@@ -533,11 +557,11 @@ export default function Dashboard() {
       {!userData?.isPro && (
         <section className="mb-2 mt-4 px-1">
            <Link to="/subscription" className="block w-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-[24px] p-5 relative overflow-hidden shadow-[0_8px_20px_rgba(245,158,11,0.25)] hover:-translate-y-1 transition-transform group">
-             <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3"></div>
+             <div className="absolute right-0 top-0 w-32 h-32 bg-card/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3"></div>
              <div className="absolute left-0 bottom-0 w-24 h-24 bg-black/10 rounded-full blur-xl translate-y-1/3 -translate-x-1/2"></div>
              
              <div className="flex items-center gap-4 relative z-10">
-                <div className="w-[52px] h-[52px] bg-white/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-sm border border-white/30 text-white">
+                <div className="w-[52px] h-[52px] bg-card/20 rounded-full flex items-center justify-center shrink-0 backdrop-blur-sm border border-white/30 text-white">
                    <Crown className="w-7 h-7 drop-shadow-md" strokeWidth={2.5} />
                 </div>
                 <div>
@@ -552,20 +576,48 @@ export default function Dashboard() {
       )}
 
       {/* Quick Access: AI Tutor & Ask Teacher */}
-      <section className="grid grid-cols-2 gap-3 pt-2 mb-8">
-         <Link to="/tutor" className="bg-white rounded-[24px] p-6 py-8 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-3 hover:border-blue-200 transition-colors group">
-            <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-               <Brain className="w-7 h-7 text-blue-500" strokeWidth={2.5} />
+      <section className="grid grid-cols-2 gap-3 sm:gap-4 pt-2 mb-8 items-stretch">
+         <Link to="/tutor" className="col-span-1 bg-card dark:bg-card/50 rounded-[20px] xl:rounded-[24px] overflow-hidden flex flex-col items-center text-center p-4 sm:p-5 hover:-translate-y-1 transition-transform group border border-slate-100 dark:border-border shadow-xs relative">
+            {/* Soft decorative glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-24 bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[30px] pointer-events-none"></div>
+
+            {/* Icon */}
+            <div className="relative mb-3 mt-1">
+              <div className="w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] rounded-[16px] bg-[#EEF2FF] dark:bg-blue-500/20 flex items-center justify-center border-b-[3px] border-[#C7D2FE] dark:border-blue-500/40 relative group-hover:scale-105 transition-transform">
+                 <BrainCircuit className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600 dark:text-blue-400" strokeWidth={2.5} />
+              </div>
+              <div className="absolute -bottom-1 -right-1.5 w-[18px] h-[18px] bg-blue-600 rounded-full border-[2px] border-white dark:border-slate-800 flex items-center justify-center shadow-sm">
+                 <Sparkles className="w-[10px] h-[10px] text-white" strokeWidth={3} />
+              </div>
             </div>
-            <span className="font-bengali font-bold text-slate-800 text-[16px]">এআই টিউটর</span>
+
+            <h3 className="font-bengali font-bold text-foreground text-[14px] sm:text-[16px] mb-1 relative z-10">এআই টিউটর</h3>
+            <p className="font-bengali text-muted-foreground text-[10px] sm:text-[11px] leading-tight mb-4 relative z-10">এআই টিউটরের সাথে কথা বলে শিক্ষা উন্নত করুন</p>
+            
+            <button className="bg-blue-600 hover:bg-blue-700 text-white font-bengali text-[12px] sm:text-[13px] font-semibold px-4 py-2 w-full max-w-[140px] rounded-full flex justify-center items-center gap-1 mt-auto transition-colors">
+              চালু করুন
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
          </Link>
 
-         <Link to="/doubts" className="bg-white rounded-[24px] p-6 py-8 shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-3 hover:border-orange-200 transition-colors group relative">
-            <div className="w-14 h-14 rounded-full bg-orange-50 flex items-center justify-center group-hover:scale-110 transition-transform">
-               <MessageCircleQuestion className="w-7 h-7 text-orange-500" strokeWidth={2.5} />
+         <Link to="/doubts" className="col-span-1 bg-card dark:bg-card/50 rounded-[20px] xl:rounded-[24px] overflow-hidden flex flex-col items-center text-center p-4 sm:p-5 hover:-translate-y-1 transition-transform group border border-slate-100 dark:border-border shadow-xs relative">
+            {/* Soft decorative glow */}
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-24 bg-orange-500/10 dark:bg-orange-500/20 rounded-full blur-[30px] pointer-events-none"></div>
+
+            {/* Icon */}
+            <div className="relative mb-3 mt-1">
+              <div className="w-[48px] h-[48px] sm:w-[56px] sm:h-[56px] rounded-[16px] bg-[#FFF7ED] dark:bg-orange-500/20 flex items-center justify-center border-b-[3px] border-[#FFEDD5] dark:border-orange-500/40 relative group-hover:scale-105 transition-transform">
+                 <MessageCircleQuestion className="w-6 h-6 sm:w-7 sm:h-7 text-orange-600 dark:text-orange-400" strokeWidth={2.5} />
+              </div>
             </div>
-            <span className="font-bengali font-bold text-slate-800 text-[16px] text-center leading-tight">শিক্ষককে<br/>প্রশ্ন করুন</span>
+
+            <h3 className="font-bengali font-bold text-foreground text-[14px] sm:text-[16px] mb-1 relative z-10 leading-tight">শিক্ষককে<br/>প্রশ্ন করুন</h3>
+            <p className="font-bengali text-muted-foreground text-[10px] sm:text-[11px] leading-tight mb-4 relative z-10 w-[90%]">যেকোনো প্রশ্ন করুন শিক্ষকের সাথে</p>
             
+            <button className="bg-orange-600 hover:bg-orange-700 text-white font-bengali text-[12px] sm:text-[13px] font-semibold px-4 py-2 w-full max-w-[140px] rounded-full flex justify-center items-center gap-1 mt-auto transition-colors">
+              প্রশ্ন করুন
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="ml-0.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
          </Link>
       </section>
     </div>

@@ -22,17 +22,17 @@ export default function SubjectFormat() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans pb-24">
+    <div className="min-h-screen bg-background font-sans pb-24">
       {/* Header */}
-      <div className="bg-white sticky top-0 z-50 border-b border-slate-100 shadow-sm px-4 py-3 flex items-center justify-center">
+      <div className="bg-card sticky top-0 z-50 border-b border-slate-100 shadow-sm px-4 py-3 flex items-center justify-center">
         <button 
           onClick={() => navigate(-1)} 
-          className="absolute left-4 w-10 h-10 bg-slate-50 hover:bg-slate-100 flex items-center justify-center rounded-full transition-colors"
+          className="absolute left-4 w-10 h-10 bg-muted hover:bg-slate-100 flex items-center justify-center rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
         </button>
         <div className="text-center">
-          <h1 className="font-bengali font-bold text-lg text-slate-800">{subject}</h1>
+          <h1 className="font-bengali font-bold text-lg text-foreground">{subject}</h1>
           <p className="font-bengali text-xs text-slate-500">ফরম্যাট নির্বাচন করুন</p>
         </div>
       </div>
@@ -50,12 +50,12 @@ export default function SubjectFormat() {
               }}
               className={`w-full relative overflow-hidden rounded-2xl border ${format.border} ${format.bg} p-4 sm:p-5 flex items-center gap-4 hover:shadow-md transition-all active:scale-[0.98] text-left group`}
             >
-              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center shrink-0 border ${format.border} group-hover:scale-105 transition-transform`}>
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-card shadow-sm flex items-center justify-center shrink-0 border ${format.border} group-hover:scale-105 transition-transform`}>
                 <format.icon className={`w-6 h-6 sm:w-7 sm:h-7 ${format.iconCol}`} strokeWidth={2} />
               </div>
               <div>
                 <h3 className={`font-bengali font-bold text-lg sm:text-xl ${format.text}`}>{format.label}</h3>
-                <p className="font-bengali text-[13px] sm:text-sm text-slate-600 mt-0.5">{format.desc}</p>
+                <p className="font-bengali text-[13px] sm:text-sm text-muted-foreground mt-0.5">{format.desc}</p>
               </div>
             </motion.button>
           ))}

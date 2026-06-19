@@ -177,11 +177,11 @@ export default function Doubts() {
   };
 
   return (
-    <div className="flex flex-col bg-slate-50 w-full h-screen h-[100dvh] overflow-hidden">
+    <div className="flex flex-col bg-muted fixed inset-0 z-50 overflow-hidden">
       
       {/* Messenger Inspired Header */}
-      <div className="bg-white px-4 py-4 shrink-0 shadow-sm relative z-20 w-full flex flex-col justify-center">
-        <div className="flex items-center justify-between w-full max-w-4xl mx-auto">
+      <div className="bg-card px-4 pt-4 sm:pt-4 pb-4 shrink-0 shadow-sm relative z-20 w-full flex flex-col justify-center">
+        <div className="flex items-center justify-between w-full max-w-4xl mx-auto pt-[env(safe-area-inset-top,0px)]">
           {/* Back button */}
           <button
             onClick={() => navigate("/dashboard")}
@@ -218,7 +218,7 @@ export default function Doubts() {
           </div>
         ) : doubts.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto text-center space-y-8 pb-12 w-full">
-            <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center text-slate-600 border border-slate-100 shadow-sm relative">
+            <div className="w-24 h-24 rounded-full bg-card flex items-center justify-center text-muted-foreground border border-slate-100 shadow-sm relative">
               <Bot className="w-10 h-10" strokeWidth={1.5} />
               <Sparkles className="absolute -top-1 -right-1 text-slate-300 w-6 h-6" />
             </div>
@@ -234,22 +234,22 @@ export default function Doubts() {
 
             <div className="grid grid-cols-2 gap-3 w-full">
               <div 
-                className="p-5 text-center flex flex-col items-center rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-slate-200 transition-colors cursor-pointer"
+                className="p-5 text-center flex flex-col items-center rounded-2xl bg-card border border-slate-100 shadow-sm hover:border-slate-200 transition-colors cursor-pointer"
                 onClick={() => document.getElementById('doubt-input')?.focus()}
               >
-                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mb-2.5">
-                  <MessageCircle className="w-5 h-5 text-slate-600" />
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2.5">
+                  <MessageCircle className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <span className="block font-bengali font-semibold text-slate-800 text-xs text-center">টাইপ করে প্রশ্ন করুন</span>
+                <span className="block font-bengali font-semibold text-foreground text-xs text-center">টাইপ করে প্রশ্ন করুন</span>
               </div>
               <div 
-                className="p-5 text-center flex flex-col items-center rounded-2xl bg-white border border-slate-100 shadow-sm hover:border-slate-200 transition-colors cursor-pointer"
+                className="p-5 text-center flex flex-col items-center rounded-2xl bg-card border border-slate-100 shadow-sm hover:border-slate-200 transition-colors cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center mb-2.5">
-                  <ImagePlus className="w-5 h-5 text-slate-600" />
+                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-2.5">
+                  <ImagePlus className="w-5 h-5 text-muted-foreground" />
                 </div>
-                <span className="block font-bengali font-semibold text-slate-800 text-xs text-center">ছবি তুলে প্রশ্ন দিন</span>
+                <span className="block font-bengali font-semibold text-foreground text-xs text-center">ছবি তুলে প্রশ্ন দিন</span>
               </div>
             </div>
           </div>
@@ -372,7 +372,7 @@ export default function Doubts() {
           <div className="absolute top-4 right-4 flex gap-3">
             <button 
               onClick={() => setZoomImage(null)}
-              className="w-11 h-11 bg-white/20 hover:bg-white/30 text-white rounded-full flex items-center justify-center shadow-md transition-all border border-white/10"
+              className="w-11 h-11 bg-card/20 hover:bg-card/30 text-white rounded-full flex items-center justify-center shadow-md transition-all border border-white/10"
               title="বন্ধ করুন"
             >
               <X className="w-6 h-6" />
@@ -405,7 +405,7 @@ export default function Doubts() {
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
               required
-              className="bg-white border border-slate-200 text-slate-800 text-[15px] sm:text-base rounded-2xl px-5 py-3.5 font-bengali focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-sm cursor-pointer appearance-none w-full outline-none"
+              className="bg-card border border-slate-200 text-foreground text-[15px] sm:text-base rounded-2xl px-5 py-3.5 font-bengali focus:outline-none focus:ring-1 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-sm cursor-pointer appearance-none w-full outline-none"
               style={{ paddingRight: '2.5rem', backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1.2em' }}
             >
               <option value="" disabled>বিষয় নির্বাচন করুন...</option>
@@ -419,19 +419,19 @@ export default function Doubts() {
           {/* Small thumbnail image attached context toolbar */}
           {selectedImage && (
             <div className="flex items-center animate-in slide-in-from-bottom-2 duration-150">
-              <div className="relative inline-flex items-center gap-3 p-2 bg-white rounded-[16px] border border-slate-200 shadow-sm">
+              <div className="relative inline-flex items-center gap-3 p-2 bg-card rounded-[16px] border border-slate-200 shadow-sm">
                 <img 
                   src={selectedImage} 
                   alt="Selected problem" 
                   className="w-14 h-14 object-cover rounded-lg border border-slate-100" 
                 />
                 <div className="pr-4 py-1">
-                  <span className="block font-bengali text-xs font-bold text-slate-800">ছবিটি সিলেক্ট করা হয়েছে</span>
+                  <span className="block font-bengali text-xs font-bold text-foreground">ছবিটি সিলেক্ট করা হয়েছে</span>
                 </div>
                 <button 
                   onClick={clearImage}
                   type="button"
-                  className="absolute -top-2 -right-2 bg-white text-slate-600 hover:text-red-500 border border-slate-200 hover:border-red-200 rounded-full p-1.5 shadow-sm transition-colors"
+                  className="absolute -top-2 -right-2 bg-card text-muted-foreground hover:text-red-500 border border-slate-200 hover:border-red-200 rounded-full p-1.5 shadow-sm transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -440,7 +440,7 @@ export default function Doubts() {
           )}
 
           {/* Input controls row */}
-          <div className="flex items-center gap-3 w-full bg-white border border-[#E2E8F0] p-3 rounded-[28px] shadow-sm">
+          <div className="flex items-center gap-3 w-full bg-card border border-[#E2E8F0] p-3 rounded-[28px] shadow-sm">
             {/* File Upload Hidden Input Trigger */}
             <div className="shrink-0">
               {/* hidden file selector */}
@@ -476,7 +476,7 @@ export default function Doubts() {
                   }
                 }}
                 placeholder="শিক্ষককে আপনার প্রশ্নটি বলুন..."
-                className="w-full h-12 bg-transparent font-bengali text-[15px] sm:text-base text-slate-800 placeholder-slate-400 outline-none truncate"
+                className="w-full h-12 bg-transparent font-bengali text-[15px] sm:text-base text-foreground placeholder-slate-400 outline-none truncate"
                 disabled={posting}
               />
             </div>

@@ -174,10 +174,10 @@ export default function BoardQuestionsCreator() {
         <CardContent className="p-6">
           <form onSubmit={submitQuestions} className="space-y-8">
             
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-slate-50 rounded-xl border border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-muted rounded-xl border border-slate-100">
               <div>
                 <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">ক্লাস</label>
-                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 font-bengali" 
+                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 font-bengali" 
                   value={formData.classLevel} onChange={e => setFormData({...formData, classLevel: e.target.value})}>
                    {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -185,7 +185,7 @@ export default function BoardQuestionsCreator() {
               
               <div>
                 <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">বিষয়</label>
-                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
+                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
                   value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})}>
                    {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -193,7 +193,7 @@ export default function BoardQuestionsCreator() {
 
               <div>
                 <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">ফরম্যাট</label>
-                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
+                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
                   value={formData.format} onChange={e => setFormData({...formData, format: e.target.value})}>
                    {FORMATS.map(f => <option key={f} value={f}>{f}</option>)}
                 </select>
@@ -201,7 +201,7 @@ export default function BoardQuestionsCreator() {
 
               <div>
                 <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">বোর্ড</label>
-                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 font-bengali" 
+                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 font-bengali" 
                   value={formData.boardName} onChange={e => setFormData({...formData, boardName: e.target.value})}>
                    {BOARDS.map(b => <option key={b} value={b}>{b}</option>)}
                 </select>
@@ -209,7 +209,7 @@ export default function BoardQuestionsCreator() {
 
               <div>
                 <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">সাল</label>
-                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
+                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
                   value={formData.boardYear} onChange={e => setFormData({...formData, boardYear: e.target.value})}>
                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
@@ -243,7 +243,7 @@ export default function BoardQuestionsCreator() {
 
             <div className="space-y-6">
               {uploadMode === "manual" ? questions.map((q, index) => (
-                <div key={index} className="p-5 border border-slate-200 rounded-xl bg-white shadow-sm relative group">
+                <div key={index} className="p-5 border border-slate-200 rounded-xl bg-card shadow-sm relative group">
                   {questions.length > 1 && (
                     <button 
                       type="button"
@@ -254,14 +254,14 @@ export default function BoardQuestionsCreator() {
                     </button>
                   )}
                   
-                  <h4 className="font-bold text-slate-800 mb-4 font-bengali flex items-center gap-2">
+                  <h4 className="font-bold text-foreground mb-4 font-bengali flex items-center gap-2">
                     <span className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs">{index + 1}</span>
                     প্রশ্ন ও অপশন
                   </h4>
                   
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium mb-1 text-slate-600 font-bengali">প্রশ্ন</label>
+                      <label className="block text-sm font-medium mb-1 text-muted-foreground font-bengali">প্রশ্ন</label>
                       <textarea 
                         required
                         className="w-full min-h-[80px] p-3 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 font-bengali"
@@ -289,9 +289,9 @@ export default function BoardQuestionsCreator() {
                     
                     <div className="flex flex-col sm:flex-row gap-4 pt-2">
                       <div className="w-full sm:w-1/3">
-                        <label className="block text-sm font-medium mb-1 text-slate-600 font-bengali">সঠিক উত্তর</label>
+                        <label className="block text-sm font-medium mb-1 text-muted-foreground font-bengali">সঠিক উত্তর</label>
                         <select 
-                          className="w-full p-2.5 text-sm rounded-lg border border-slate-200 bg-slate-50 focus:ring-2 focus:ring-indigo-500/20 font-bold"
+                          className="w-full p-2.5 text-sm rounded-lg border border-slate-200 bg-muted focus:ring-2 focus:ring-indigo-500/20 font-bold"
                           value={q.correctOption}
                           onChange={(e) => handleQuestionChange(index, "correctOption", e.target.value)}
                         >
@@ -302,7 +302,7 @@ export default function BoardQuestionsCreator() {
                         </select>
                       </div>
                       <div className="w-full sm:w-2/3">
-                        <label className="block text-sm font-medium mb-1 text-slate-600 font-bengali">ব্যাখ্যা (Optional)</label>
+                        <label className="block text-sm font-medium mb-1 text-muted-foreground font-bengali">ব্যাখ্যা (Optional)</label>
                         <input 
                           type="text"
                           className="w-full p-2.5 text-sm rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 font-bengali"
@@ -315,11 +315,11 @@ export default function BoardQuestionsCreator() {
                   </div>
                 </div>
               )) : (
-                <div className="p-5 border border-slate-200 rounded-xl bg-white shadow-sm">
-                  <h4 className="font-bold text-slate-800 mb-4 font-bengali">JSON Array ইনপুট দিন</h4>
+                <div className="p-5 border border-slate-200 rounded-xl bg-card shadow-sm">
+                  <h4 className="font-bold text-foreground mb-4 font-bengali">JSON Array ইনপুট দিন</h4>
                   <textarea 
                     required
-                    className="w-full min-h-[300px] p-4 text-sm font-mono rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 bg-slate-50"
+                    className="w-full min-h-[300px] p-4 text-sm font-mono rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 bg-muted"
                     placeholder={`[\n  {\n    "text": "প্রশ্ন ১",\n    "options": [\n      {"id": "A", "label": "অপশন ক"},\n      {"id": "B", "label": "অপশন খ"},\n      {"id": "C", "label": "অপশন গ"},\n      {"id": "D", "label": "অপশন ঘ"}\n    ],\n    "correctOption": "A",\n    "explanation": "ব্যাখ্যা"\n  }\n]`}
                     value={bulkJson}
                     onChange={(e) => setBulkJson(e.target.value)}
@@ -348,7 +348,7 @@ export default function BoardQuestionsCreator() {
                   type="button" 
                   variant="outline" 
                   onClick={addQuestionField}
-                  className="font-bengali border-dashed border-2 hover:bg-slate-50 flex items-center gap-2 w-full sm:w-auto"
+                  className="font-bengali border-dashed border-2 hover:bg-muted flex items-center gap-2 w-full sm:w-auto"
                 >
                   <Plus className="w-4 h-4" />
                   আরেকটি প্রশ্ন যুক্ত করুন

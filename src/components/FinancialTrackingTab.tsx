@@ -93,14 +93,14 @@ export default function FinancialTrackingTab() {
     insightIcon = <TrendingUp className="w-6 h-6 text-emerald-600" />;
   } else {
     insightMessage = "এখনো কোনো আয়ের রেকর্ড নেই। আপনার আয় ও ব্যয়ের হিসাব যুক্ত করা শুরু করুন।";
-    alertClasses = "bg-slate-50 border-slate-200 text-slate-800";
-    insightIcon = <Activity className="w-6 h-6 text-slate-600" />;
+    alertClasses = "bg-muted border-slate-200 text-foreground";
+    insightIcon = <Activity className="w-6 h-6 text-muted-foreground" />;
   }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-10">
       <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bengali font-bold text-slate-800 flex items-center gap-2">
+        <h2 className="text-3xl font-bengali font-bold text-foreground flex items-center gap-2">
           <PieChart className="w-8 h-8 text-indigo-600" />
           আয়-ব্যয় ট্র্যাকিং ও এনালাইসিস
         </h2>
@@ -188,14 +188,14 @@ export default function FinancialTrackingTab() {
                   <button 
                     type="button"
                     onClick={() => setType("income")}
-                    className={`py-2 px-3 text-sm font-bengali font-bold rounded-md transition-all ${type === "income" ? "bg-white text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                    className={`py-2 px-3 text-sm font-bengali font-bold rounded-md transition-all ${type === "income" ? "bg-card text-emerald-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
                   >
                     আয় (Income)
                   </button>
                   <button 
                     type="button"
                     onClick={() => setType("expense")}
-                    className={`py-2 px-3 text-sm font-bengali font-bold rounded-md transition-all ${type === "expense" ? "bg-white text-red-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                    className={`py-2 px-3 text-sm font-bengali font-bold rounded-md transition-all ${type === "expense" ? "bg-card text-red-600 shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
                   >
                     ব্যয় (Expense)
                   </button>
@@ -291,20 +291,20 @@ export default function FinancialTrackingTab() {
           </Card>
 
           <Card className="shadow-sm border-slate-200 overflow-hidden">
-            <CardHeader className="bg-slate-50 border-b border-slate-100 py-4">
+            <CardHeader className="bg-muted border-b border-slate-100 py-4">
               <CardTitle className="font-bengali text-lg">সাম্প্রতিক রেকর্ডসমূহ</CardTitle>
             </CardHeader>
             <div className="max-h-[350px] overflow-y-auto">
               {records.length > 0 ? (
                 <div className="divide-y divide-slate-100">
                   {records.map(record => (
-                    <div key={record.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                    <div key={record.id} className="p-4 flex items-center justify-between hover:bg-muted transition-colors">
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${record.type === "income" ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600"}`}>
                           {record.type === "income" ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
                         </div>
                         <div>
-                          <p className="font-bengali font-bold text-slate-800">{record.category}</p>
+                          <p className="font-bengali font-bold text-foreground">{record.category}</p>
                           <p className="text-xs text-slate-500 font-mono mt-0.5">{record.date}</p>
                         </div>
                       </div>

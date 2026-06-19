@@ -65,17 +65,17 @@ export default function SubjectPapers() {
   }, [subject, format, classGroup]);
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans pb-24">
+    <div className="min-h-screen bg-background font-sans pb-24">
       {/* Header */}
-      <div className="bg-white sticky top-0 z-50 border-b border-slate-100 shadow-sm px-4 py-3 flex items-center justify-center">
+      <div className="bg-card sticky top-0 z-50 border-b border-slate-100 shadow-sm px-4 py-3 flex items-center justify-center">
         <button 
           onClick={() => navigate(-1)} 
-          className="absolute left-4 w-10 h-10 bg-slate-50 hover:bg-slate-100 flex items-center justify-center rounded-full transition-colors"
+          className="absolute left-4 w-10 h-10 bg-muted hover:bg-slate-100 flex items-center justify-center rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
         </button>
         <div className="text-center">
-          <h1 className="font-bengali font-bold text-lg text-slate-800">{subject}</h1>
+          <h1 className="font-bengali font-bold text-lg text-foreground">{subject}</h1>
           <p className="font-bengali text-xs text-slate-500">{format === 'MCQ' ? 'বহুনির্বাচনি প্রশ্ন' : format === 'CQ' ? 'সৃজনশীল প্রশ্ন' : 'প্রশ্নব্যাংক'}</p>
         </div>
       </div>
@@ -98,7 +98,7 @@ export default function SubjectPapers() {
               <button
                 key={i}
                 onClick={() => navigate(`/paper?title=${encodeURIComponent(p.title)}&subject=${encodeURIComponent(subject)}&format=${format}&classGroup=${encodeURIComponent(classGroup)}`)}
-                className="bg-white rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-200/60 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all text-left group"
+                className="bg-card rounded-2xl p-4 sm:p-5 flex items-center gap-4 border border-slate-200/60 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all text-left group"
               >
                 <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <LayoutList className="w-6 h-6" strokeWidth={2} />
@@ -111,7 +111,7 @@ export default function SubjectPapers() {
                     </span>
                   </div>
                 </div>
-                <div className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shrink-0">
+                <div className="w-8 h-8 rounded-full bg-muted text-slate-400 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors shrink-0">
                   <ChevronRight className="w-5 h-5" />
                 </div>
               </button>

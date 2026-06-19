@@ -81,7 +81,7 @@ export default function ProApprovedCongrats() {
               transition: { type: "spring", damping: 15, stiffness: 200 }
             }}
             exit={{ scale: 0.9, opacity: 0, y: 10 }}
-            className="relative bg-white max-w-md w-full rounded-[36px] overflow-hidden shadow-[0_25px_60px_-15px_rgba(30,41,59,0.9)] border border-amber-200 p-6 sm:p-8 text-center font-bengali z-10"
+            className="relative bg-card max-w-md w-full rounded-[36px] overflow-hidden shadow-[0_25px_60px_-15px_rgba(30,41,59,0.9)] border border-amber-200 p-6 sm:p-8 text-center font-bengali z-10"
           >
             {/* Visual background accents */}
             <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-amber-500/10 to-transparent pointer-events-none" />
@@ -106,8 +106,8 @@ export default function ProApprovedCongrats() {
               আপনার প্রো অ্যাকাউন্ট সফলভাবে সক্রিয় করা হয়েছে!
             </h3>
 
-            <p className="text-slate-600 leading-relaxed text-sm mb-6 max-w-sm mx-auto">
-              স্বাগতম শিক্ষাঙ্গন প্রিমিয়ামে! এখন আপনি পাবেন লিমিটহীন মডেল টেস্ট, নির্ভুল ব্যাখ্যামূলক প্রশ্নোত্তর, প্রিমিয়াম নোটস এবং ইন্টারেক্টিভ এআই টিউটরের সব আনলকড সুবিধা।
+            <p className="text-muted-foreground leading-relaxed text-sm mb-6 max-w-sm mx-auto">
+              স্বাগতম বিদ্যায়ন প্রিমিয়ামে! এখন আপনি পাবেন লিমিটহীন মডেল টেস্ট, নির্ভুল ব্যাখ্যামূলক প্রশ্নোত্তর, প্রিমিয়াম নোটস এবং ইন্টারেক্টিভ এআই টিউটরের সব আনলকড সুবিধা।
             </p>
 
             {/* Features Highlight Grid */}

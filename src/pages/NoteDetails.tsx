@@ -58,7 +58,7 @@ export default function NoteDetails() {
 
   return (
     <div className="w-full flex justify-center pb-10 px-0 sm:px-4">
-      <div className="bg-white w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
+      <div className="bg-card w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
         <div className="mb-6">
           <Button 
             variant="ghost" 
@@ -170,11 +170,11 @@ export default function NoteDetails() {
             <p><strong>বিশ্লেষণ:</strong> এটি কবিতার সবচেয়ে গুরুত্বপূর্ণ মোড়। মহাকালের নৌকায় মানুষের সৃষ্টির স্থান সংকুলান হলেও, নশ্বর মানুষের নিজের কোনো স্থান হয় না। সৃষ্টি অমর, কিন্তু সৃষ্টিকর্তা মরণশীল।</p>
 
             <h2>৫. সৃজনশীল অনুধাবনমূলক প্রশ্ন ও উত্তর (CQ Booster)</h2>
-            <div className="bg-slate-50 p-6 rounded-2xl mb-6">
+            <div className="bg-muted p-6 rounded-2xl mb-6">
               <h3 className="font-bold text-lg mb-2">Q1. "ঠাঁই নাই, ঠাঁই নাই— ছোট সে তরী" বলতে কবি কী বুঝিয়েছেন?</h3>
               <p><strong>উত্তর:</strong> 'সোনার তরী' কবিতায় আলোচ্য পঙক্তিটি দিয়ে কবি মহাকালের বুকে নশ্বর মানুষের স্থান না হওয়ার রূঢ় বাস্তবতাকে বুঝিয়েছেন। মহাকালের তরী বা এই পৃথিবী অত্যন্ত সীমাবদ্ধ। এখানে মানুষের মহৎ কর্ম বা সৃষ্টির স্থান হলেও, রক্ত-মাংসের ক্ষণস্থায়ী মানুষের নিজের কোনো চিরস্থায়ী স্থান বা আশ্রয় নেই। সময় মানুষের অমর সৃষ্টি বা শিল্পকে সাদরে গ্রহণ করে সংরক্ষণ করে, কিন্তু ব্যক্তি মানুষকে পরম অবহেলায় মৃত্যুর মুখে ফেলে রেখে যায়।</p>
             </div>
-            <div className="bg-slate-50 p-6 rounded-2xl mb-6">
+            <div className="bg-muted p-6 rounded-2xl mb-6">
               <h3 className="font-bold text-lg mb-2">Q2. "দেখে যেন মনে হয় চিনি উহারে"— কৃষকের এমন উপলব্ধির কারণ কী?</h3>
               <p><strong>উত্তর:</strong> কৃষকের এমন উপলব্ধির কারণ হলো— তরীর মাঝি কোনো সাধারণ মানুষ নয়, সে হলো চিরন্তন মহাকাল বা সময়ের প্রতীক। মানুষ সচেতন বা অবচেতনভাবে মনে মনে জানে যে সময় বা মহাকাল এক পরম ও চিরচেনা সত্য। জীবনের সমস্ত কর্মের অবসান এবং চূড়ান্ত হিসাব এই সময়ের হাতেই নির্ধারিত হয়। সময়ের এই চিরন্তন ও অমোঘ রূপটির কারণেই তরী বেয়ে আসা অচেনা মাঝিকে দেখেও কৃষকের মনে হয়েছে সে তাকে চেনে।</p>
             </div>

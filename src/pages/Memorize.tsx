@@ -516,7 +516,7 @@ export default function Memorize() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans pb-32">
+    <div className="min-h-screen bg-background flex flex-col font-sans pb-32">
       <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-4 flex flex-col justify-start">
         
         {/* Header Layout */}
@@ -524,7 +524,7 @@ export default function Memorize() {
           <div className="mb-2">
             <button
               onClick={() => navigate("/dashboard")}
-              className="w-12 h-12 flex items-center justify-center text-slate-600 hover:bg-slate-200/50 rounded-full transition-all active:scale-95 -ml-2 cursor-pointer"
+              className="w-12 h-12 flex items-center justify-center text-muted-foreground hover:bg-slate-200/50 rounded-full transition-all active:scale-95 -ml-2 cursor-pointer"
               aria-label="Back to Dashboard"
             >
               <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
@@ -532,14 +532,14 @@ export default function Memorize() {
           </div>
         ) : (
           selectedCategory ? (
-            <div className="flex items-center justify-between bg-white px-3 py-2 rounded-2xl mb-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.015)]">
+            <div className="flex items-center justify-between bg-card px-3 py-2 rounded-2xl mb-4 border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.015)]">
               <button
                 onClick={() => {
                   setSelectedCategory(null);
                   setSearchQuery("");
                   setPracticeMode(false);
                 }}
-                className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center border border-slate-100 hover:bg-slate-50 border-b-4 border-b-slate-200 active:scale-95 transition-all text-slate-700 shrink-0 cursor-pointer"
+                className="w-12 h-12 bg-card rounded-2xl flex items-center justify-center border border-slate-100 hover:bg-muted border-b-4 border-b-slate-200 active:scale-95 transition-all text-slate-700 shrink-0 cursor-pointer"
               >
                 <ArrowLeft className="w-5 h-5" strokeWidth={2.5} />
               </button>
@@ -547,28 +547,28 @@ export default function Memorize() {
               <div className="flex items-center gap-2 shrink-0">
                 <button 
                   onClick={() => setPracticeMode(true)}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${practiceMode ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${practiceMode ? 'bg-indigo-100 text-indigo-700' : 'bg-muted text-slate-500 hover:bg-slate-100'}`}
                   title="MCQ Quiz"
                 >
                   <Sparkles className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => { setActiveTab("all"); setPracticeMode(false); }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeTab === 'all' && !practiceMode ? 'bg-[#0F2744] text-white' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeTab === 'all' && !practiceMode ? 'bg-[#0F2744] text-white' : 'bg-muted text-slate-500 hover:bg-slate-100'}`}
                   title="All Words"
                 >
                   <Search className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => { setActiveTab("bookmarked"); setPracticeMode(false); }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeTab === 'bookmarked' && !practiceMode ? 'bg-amber-100 text-amber-700' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeTab === 'bookmarked' && !practiceMode ? 'bg-amber-100 text-amber-700' : 'bg-muted text-slate-500 hover:bg-slate-100'}`}
                   title="Bookmarked"
                 >
                   <Bookmark className="w-5 h-5" />
                 </button>
                 <button 
                   onClick={() => { setActiveTab("mastered"); setPracticeMode(false); }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeTab === 'mastered' && !practiceMode ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeTab === 'mastered' && !practiceMode ? 'bg-emerald-100 text-emerald-700' : 'bg-muted text-slate-500 hover:bg-slate-100'}`}
                   title="Memorized"
                 >
                   <CheckCircle className="w-5 h-5" />
@@ -579,7 +579,7 @@ export default function Memorize() {
             <div className="mb-2">
               <button
                 onClick={() => setSelectedLanguage(null)}
-                className="w-12 h-12 flex items-center justify-center text-slate-600 hover:bg-slate-200/50 rounded-full transition-all active:scale-95 -ml-2 cursor-pointer"
+                className="w-12 h-12 flex items-center justify-center text-muted-foreground hover:bg-slate-200/50 rounded-full transition-all active:scale-95 -ml-2 cursor-pointer"
               >
                 <ArrowLeft className="w-6 h-6" strokeWidth={2.5} />
               </button>
@@ -634,7 +634,7 @@ export default function Memorize() {
               {/* English Card */}
               <button 
                 onClick={() => setSelectedLanguage("english")}
-                className="bg-white rounded-[20px] sm:rounded-[32px] p-4 sm:p-8 flex items-center justify-between shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 transition-all group overflow-hidden relative cursor-pointer w-full text-left"
+                className="bg-card rounded-[20px] sm:rounded-[32px] p-4 sm:p-8 flex items-center justify-between shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 transition-all group overflow-hidden relative cursor-pointer w-full text-left"
               >
                 <div className="flex items-center gap-4 sm:gap-8 relative z-10 w-full">
                   {/* Illustration */}
@@ -669,7 +669,7 @@ export default function Memorize() {
               {/* Bangla Card */}
               <button 
                 onClick={() => setSelectedLanguage("bangla")}
-                className="bg-white rounded-[20px] sm:rounded-[32px] p-4 sm:p-8 flex items-center justify-between shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 transition-all group overflow-hidden relative cursor-pointer w-full text-left"
+                className="bg-card rounded-[20px] sm:rounded-[32px] p-4 sm:p-8 flex items-center justify-between shadow-[0_4px_24px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] border border-slate-100 transition-all group overflow-hidden relative cursor-pointer w-full text-left"
               >
                  <div className="flex items-center gap-4 sm:gap-8 relative z-10 w-full">
                   {/* Illustration */}
@@ -713,7 +713,7 @@ export default function Memorize() {
           <div className="flex-1 flex flex-col items-center justify-start gap-6 px-4 pt-4 pb-8">
              <div className="text-center mb-2">
               <div className="w-16 h-16 bg-[#F8FAFC] rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200">
-                <BookOpen className="w-8 h-8 text-slate-600" />
+                <BookOpen className="w-8 h-8 text-muted-foreground" />
               </div>
               <h2 className="text-2xl font-bengali font-extrabold text-[#0D2A4B] mb-2">ক্যাটাগরি নির্বাচন করুন</h2>
               <p className="text-slate-500 font-bengali text-sm">
@@ -730,13 +730,13 @@ export default function Memorize() {
                   <button
                     key={cat}
                     onClick={() => setSelectedCategory(cat)}
-                    className={`bg-white border-[1.5px] border-slate-100 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all cursor-pointer shadow-xs hover:shadow-md hover:-translate-y-0.5 ${style.border}`}
+                    className={`bg-card border-[1.5px] border-slate-100 rounded-2xl p-4 flex items-center justify-between gap-4 transition-all cursor-pointer shadow-xs hover:shadow-md hover:-translate-y-0.5 ${style.border}`}
                   >
                     <div className="flex items-center gap-4">
                       <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${style.bg}`}>
                         {getCategoryIcon(cat, `w-6 h-6 ${style.text}`)}
                       </div>
-                      <span className="font-sans font-bold text-slate-800 text-[15px]">{getCategoryTitle(cat)}</span>
+                      <span className="font-sans font-bold text-foreground text-[15px]">{getCategoryTitle(cat)}</span>
                     </div>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${style.light}`}>
                       <ChevronRight className={`w-4 h-4 ${style.text}`} />
@@ -749,7 +749,7 @@ export default function Memorize() {
         ) : (
           <>
             <div className="flex items-center justify-between mb-4 px-1.5 mt-2">
-              <span className="text-sm font-bengali font-extrabold text-slate-600">
+              <span className="text-sm font-bengali font-extrabold text-muted-foreground">
                 {activeTab === "bookmarked" ? "বুকমার্ক করা শব্দ" : activeTab === "mastered" ? "মুখস্থ হয়েছে" : "শব্দের তালিকা"}
               </span>
               <div className="w-10 h-[22px] bg-[#0F2744] rounded-full flex items-center justify-center text-white font-mono font-black text-xs shadow-xs">
@@ -766,7 +766,7 @@ export default function Memorize() {
 
                   return (
                     <div key={wordItem.id} className="w-full flex flex-col">
-                      <div className={`bg-white p-6 sm:p-8 flex flex-col gap-5 overflow-hidden shadow-[0_12px_45px_rgba(0,0,0,0.032)] ${wordItem.category === 'paragraph' ? '-mx-4 sm:mx-0 w-[calc(100%+2rem)] sm:w-full rounded-none sm:rounded-[32px] border-y sm:border border-slate-150/90' : 'rounded-[32px] border border-slate-150/90'}`}>
+                      <div className={`bg-card p-6 sm:p-8 flex flex-col gap-5 overflow-hidden shadow-[0_12px_45px_rgba(0,0,0,0.032)] ${wordItem.category === 'paragraph' ? '-mx-4 sm:mx-0 w-[calc(100%+2rem)] sm:w-full rounded-none sm:rounded-[32px] border-y sm:border border-slate-150/90' : 'rounded-[32px] border border-slate-150/90'}`}>
                         
                         {/* Sub categorization and hash index indicator */}
                         <div className="flex items-center justify-between">
@@ -792,18 +792,14 @@ export default function Memorize() {
                             </button>
                             <button
                               onClick={() => toggleBookmark(wordItem.id)}
-                              className={`p-1 px-1.5 rounded-lg cursor-pointer transition-all active:scale-90 flex items-center justify-center ${bookmarkedIds.includes(wordItem.id) ? 'bg-amber-100 text-amber-600 shadow-sm' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-amber-500'}`}
+                              className={`p-1 px-1.5 rounded-lg cursor-pointer transition-all active:scale-90 flex items-center justify-center ${bookmarkedIds.includes(wordItem.id) ? 'bg-amber-100 text-amber-600 shadow-sm' : 'bg-muted text-slate-400 hover:bg-slate-100 hover:text-amber-500'}`}
                               title={bookmarkedIds.includes(wordItem.id) ? "বুকমার্ক সরানো" : "বুকমার্ক করুন"}
                             >
                               <Bookmark className="w-4 h-4" />
                             </button>
                             <button
-                              onClick={() => {
-                                setMasteredIds(prev => 
-                                  prev.includes(wordItem.id) ? prev.filter(x => x !== wordItem.id) : [...prev, wordItem.id]
-                                );
-                              }}
-                              className={`p-1 px-1.5 rounded-lg cursor-pointer transition-all active:scale-90 flex items-center justify-center ${masteredIds.includes(wordItem.id) ? 'bg-emerald-100 text-emerald-600 shadow-sm' : 'bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-emerald-500'}`}
+                              onClick={() => toggleMastered(wordItem.id)}
+                              className={`p-1 px-1.5 rounded-lg cursor-pointer transition-all active:scale-90 flex items-center justify-center ${masteredIds.includes(wordItem.id) ? 'bg-emerald-100 text-emerald-600 shadow-sm' : 'bg-muted text-slate-400 hover:bg-slate-100 hover:text-emerald-500'}`}
                               title={masteredIds.includes(wordItem.id) ? "মুখস্থ তালিকা থেকে সরান" : "মুখস্থ হয়েছে"}
                             >
                               <CheckCircle className="w-4 h-4" />
@@ -858,7 +854,7 @@ export default function Memorize() {
                                PARAGRAPH CONTENT
                              </span>
                            </div>
-                           <div className="font-sans text-[16px] sm:text-[18px] text-slate-800 leading-[1.8] text-justify">
+                           <div className="font-sans text-[16px] sm:text-[18px] text-foreground leading-[1.8] text-justify">
                              {wordItem.meaning.split('\n\n').filter(Boolean).map((para, idx) => (
                                <p key={idx} className="mb-4 last:mb-0 indent-8">{para}</p>
                              ))}
@@ -932,7 +928,7 @@ export default function Memorize() {
                             <span className="text-[10px] text-[#1D4ED8] font-black tracking-wider uppercase block mb-0.5">
                               {wordItem.language === "english" ? (wordItem.category === "analogy" ? "RATIONALE" : "EXAMPLE USAGE") : "উৎস ও উদাহরণ"}
                             </span>
-                            <p className="text-xs sm:text-[13px] font-semibold text-slate-600 leading-relaxed italic">
+                            <p className="text-xs sm:text-[13px] font-semibold text-muted-foreground leading-relaxed italic">
                               "{renderHighlightedExample(wordItem.example, wordItem.word)}"
                             </p>
                           </div>
@@ -948,7 +944,7 @@ export default function Memorize() {
                         className={`h-10 px-6 max-w-[240px] w-full rounded-xl text-xs font-bold font-bengali flex items-center justify-center gap-2 cursor-pointer border transition-all ${
                           isMastered 
                             ? "bg-emerald-100 text-emerald-800 border-emerald-200" 
-                            : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 shadow-xs"
+                            : "bg-card border-slate-200 text-slate-650 hover:bg-muted shadow-xs"
                         }`}
                       >
                         <Check className={`w-4 h-4 ${isMastered ? "text-emerald-700 font-bold scale-110" : "text-slate-400"}`} strokeWidth={2.5} />
@@ -972,7 +968,7 @@ export default function Memorize() {
                       <div className="absolute top-0 right-0 p-4 opacity-10">
                          <Crown className="w-32 h-32 text-orange-500" />
                       </div>
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(234,88,12,0.1)] mb-4 sm:mb-5 relative z-10 border border-orange-100">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 bg-card rounded-full flex items-center justify-center shadow-[0_4px_12px_rgba(234,88,12,0.1)] mb-4 sm:mb-5 relative z-10 border border-orange-100">
                         <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-[#EA580C]" />
                       </div>
                       <h3 className="font-bengali text-lg sm:text-xl md:text-2xl font-extrabold text-[#9A3412] mb-2 sm:mb-3 relative z-10 tracking-tight">সম্পূর্ণ শব্দকোষ আনলক করুন</h3>
@@ -997,7 +993,7 @@ export default function Memorize() {
                     (() => {
                       const qItem = quizQuestions[currentQuizIndex];
                       return (
-                        <div className="bg-white rounded-[32px] p-6 border border-slate-200/80 shadow-sm flex flex-col">
+                        <div className="bg-card rounded-[32px] p-6 border border-slate-200/80 shadow-sm flex flex-col">
                           
                           <div className="flex justify-between items-center text-xs font-mono text-slate-400 mb-4 pb-3 border-b">
                             <span className="bg-indigo-50 text-indigo-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border">
@@ -1033,14 +1029,14 @@ export default function Memorize() {
                               const isCorrect = option === qItem.correctMeaning;
                               const hasAnswered = selectedQuizOption !== null;
 
-                              let finalClass = "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-800 shadow-sm";
+                              let finalClass = "border-slate-200 bg-card hover:bg-muted hover:border-slate-300 text-foreground shadow-sm";
                               if (hasAnswered) {
                                 if (isCorrect) {
                                   finalClass = "border-emerald-500 bg-emerald-50 text-emerald-900 font-bold shadow-md shadow-emerald-500/10";
                                 } else if (isSelected) {
                                   finalClass = "border-rose-500 bg-rose-50 text-rose-900 font-bold border-2";
                                 } else {
-                                  finalClass = "border-slate-100 bg-slate-50 text-slate-400 opacity-60";
+                                  finalClass = "border-slate-100 bg-muted text-slate-400 opacity-60";
                                 }
                               }
 
@@ -1059,7 +1055,7 @@ export default function Memorize() {
                                   className={`w-full p-4 sm:p-5 rounded-2xl border-2 text-left transition-all duration-200 cursor-pointer flex justify-between items-center group ${finalClass} ${!hasAnswered ? "hover:-translate-y-0.5 active:translate-y-0" : ""}`}
                                 >
                                   <div className="flex items-center gap-4">
-                                    <div className={`w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${hasAnswered ? (isCorrect ? 'bg-emerald-500 text-white' : (isSelected ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-500')) : 'bg-slate-100 text-slate-600 group-hover:bg-indigo-100 group-hover:text-indigo-700'}`}>
+                                    <div className={`w-8 h-8 sm:w-9 sm:h-9 shrink-0 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${hasAnswered ? (isCorrect ? 'bg-emerald-500 text-white' : (isSelected ? 'bg-rose-500 text-white' : 'bg-slate-200 text-slate-500')) : 'bg-slate-100 text-muted-foreground group-hover:bg-indigo-100 group-hover:text-indigo-700'}`}>
                                       {optionLabel}
                                     </div>
                                     <span className={`font-bengali text-[15px] sm:text-base leading-snug ${hasAnswered && (isCorrect || isSelected) ? 'font-black' : 'font-semibold'}`}>{option}</span>
@@ -1091,19 +1087,19 @@ export default function Memorize() {
                       );
                     })()
                   ) : (
-                    <div className="bg-white rounded-[32px] border border-slate-200/80 p-8 sm:p-10 shadow-xl shadow-slate-200/40 text-center max-w-md mx-auto relative overflow-hidden">
+                    <div className="bg-card rounded-[32px] border border-slate-200/80 p-8 sm:p-10 shadow-xl shadow-slate-200/40 text-center max-w-md mx-auto relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-emerald-50/50 to-transparent pointer-events-none" />
                       
                       <div className="w-24 h-24 rounded-full bg-gradient-to-b from-emerald-100 to-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-6 border-4 border-white shadow-lg shadow-emerald-500/10 relative z-10">
                         <Award className="w-12 h-12" />
                       </div>
                       
-                      <h3 className="text-2xl sm:text-3xl font-bengali font-black text-slate-800 mb-3 relative z-10">কুইজ সেশন সমাপ্ত!</h3>
+                      <h3 className="text-2xl sm:text-3xl font-bengali font-black text-foreground mb-3 relative z-10">কুইজ সেশন সমাপ্ত!</h3>
                       <p className="text-slate-500 font-bengali text-sm max-w-xs mx-auto mb-8 relative z-10 leading-relaxed">
                         আপনার মেমোরাইজিং স্কিল চমৎকার! এভাবে চর্চা চালিয়ে যান।
                       </p>
 
-                      <div className="bg-white border border-slate-100 rounded-3xl p-6 grid grid-cols-2 gap-4 mx-auto mb-8 relative z-10 shadow-sm">
+                      <div className="bg-card border border-slate-100 rounded-3xl p-6 grid grid-cols-2 gap-4 mx-auto mb-8 relative z-10 shadow-sm">
                         <div className="flex flex-col items-center justify-center">
                           <span className="text-[11px] text-slate-400 font-bengali font-bold uppercase tracking-wider mb-1">মোট প্রশ্ন</span>
                           <span className="text-4xl font-black text-slate-700">{quizQuestions.length}</span>
@@ -1118,7 +1114,7 @@ export default function Memorize() {
                         <Button 
                           variant="outline" 
                           onClick={() => startPracticeQuiz()}
-                          className="rounded-xl font-bengali font-bold border-slate-200 py-6 text-sm text-slate-600 hover:bg-slate-50 w-full sm:w-auto"
+                          className="rounded-xl font-bengali font-bold border-slate-200 py-6 text-sm text-muted-foreground hover:bg-muted w-full sm:w-auto"
                         >
                           পুনরায় শুরু করুন
                         </Button>
@@ -1132,11 +1128,11 @@ export default function Memorize() {
                     </div>
                   )
                 ) : (
-                  <div className="text-center py-12 bg-white rounded-3xl border border-slate-100 flex flex-col items-center p-6">
+                  <div className="text-center py-12 bg-card rounded-3xl border border-slate-100 flex flex-col items-center p-6">
                     <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                       <Lock className="w-8 h-8 text-slate-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-slate-800 font-bengali mb-2">ইংরেজি শব্দ মুখস্থ নেই</h3>
+                    <h3 className="text-xl font-bold text-foreground font-bengali mb-2">ইংরেজি শব্দ মুখস্থ নেই</h3>
                     <p className="text-slate-500 font-bengali text-sm mb-6 max-w-sm text-center leading-relaxed">
                       কুইজ দেওয়ার জন্য অন্তত ৪টি ইংরেজি শব্দ 'মুখস্থ হয়েছে' (Mastered) তালিকায় থাকতে হবে। অনুগ্রহ করে কিছু ইংরেজি শব্দ মুখস্থ করুন।
                     </p>
@@ -1151,7 +1147,7 @@ export default function Memorize() {
               </div>
             )
           ) : (
-            <div className="w-full bg-white rounded-3xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-slate-200">
+            <div className="w-full bg-card rounded-3xl p-10 flex flex-col items-center justify-center border-2 border-dashed border-slate-200">
                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                  <Search className="w-8 h-8 text-slate-400" />
                </div>

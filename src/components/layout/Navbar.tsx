@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Search, Bell, Menu, User, ShieldCheck, LogOut } from "lucide-react";
+import { Search, Bell, Menu, User, ShieldCheck, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../../lib/AuthContext";
 import { collection, query, where, orderBy, onSnapshot, doc, updateDoc, writeBatch } from "firebase/firestore";
@@ -45,7 +45,7 @@ const IconButtonWrapper = ({ children, badge, onClick, title }: any) => (
   <button 
     onClick={onClick}
     title={title}
-    className="relative w-[38px] h-[38px] sm:w-[42px] sm:h-[42px] flex items-center justify-center rounded-[12px] sm:rounded-[14px] border border-[#DEE5ED]/60 bg-white hover:bg-slate-50 transition-all duration-200 cursor-pointer group shadow-[0_2px_8px_rgba(0,0,0,0.02)] sm:ml-1 focus:outline-none"
+    className="relative w-[38px] h-[38px] sm:w-[42px] sm:h-[42px] flex items-center justify-center rounded-[12px] sm:rounded-[14px] border border-[#DEE5ED]/60 dark:border-border bg-card hover:bg-muted transition-all duration-200 cursor-pointer group shadow-[0_2px_8px_rgba(0,0,0,0.02)] sm:ml-1 focus:outline-none"
   >
     <div className="group-hover:scale-110 transition-transform duration-200 ease-out flex items-center justify-center">
       {children}
@@ -66,6 +66,21 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const notificationRef = useRef<HTMLDivElement>(null);
   const [settings, setSettings] = useState<any>(null);
+
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark' ||
+      (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "settings", "general"), (snapshot) => {
@@ -162,13 +177,13 @@ export default function Navbar() {
           <span className="animate-bounce">📢</span>
           <span>{settings.alertBannerMessage}</span>
           {settings.discountPercentage > 0 && (
-            <span className="bg-white/25 text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold font-sans shrink-0">
+            <span className="bg-card/25 text-white text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold font-sans shrink-0">
               SAVE {settings.discountPercentage}%
             </span>
           )}
         </div>
       )}
-      <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100">
+      <header className="sticky top-0 z-50 w-full bg-card border-b border-slate-100 dark:border-border">
       <div className="container mx-auto max-w-[1200px] px-4 flex h-[88px] items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/dashboard" className="flex items-center space-x-2">
@@ -186,7 +201,7 @@ export default function Navbar() {
               <input
                 type="search"
                 placeholder="যা খুঁজছেন লিখুন..."
-                className="w-full bg-white border border-slate-200 rounded-full pl-12 pr-12 py-[10px] text-[15px] font-bengali focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 shadow-sm transition-all"
+                className="w-full bg-card border border-slate-200 dark:border-border rounded-full pl-12 pr-12 py-[10px] text-[15px] font-bengali focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/10 shadow-sm transition-all text-foreground"
               />
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-gray-400" />
             </div>
@@ -245,9 +260,9 @@ export default function Navbar() {
             </IconButtonWrapper>
             
             {showNotifications && (
-              <div className="absolute right-[-10px] sm:right-0 origin-top-right mt-3 w-[280px] sm:w-[320px] max-w-[calc(100vw-16px)] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden font-bengali">
-                <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                  <h3 className="font-bold text-slate-800 text-sm">নোটিফিকেশন</h3>
+              <div className="absolute right-[-10px] sm:right-0 origin-top-right mt-3 w-[280px] sm:w-[320px] max-w-[calc(100vw-16px)] bg-card rounded-2xl shadow-xl border border-slate-100 dark:border-border z-50 overflow-hidden font-bengali">
+                <div className="p-4 border-b border-slate-100 dark:border-border flex justify-between items-center bg-muted/50">
+                  <h3 className="font-bold text-foreground text-sm">নোটিফিকেশন</h3>
                   {unreadCount > 0 && (
                     <span className="text-xs text-red-600 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full font-bold">
                       {unreadCount}টি বাকি
@@ -263,7 +278,7 @@ export default function Navbar() {
                     notifications.map((noti) => (
                       <div 
                         key={noti.id} 
-                        className={`p-4 border-b border-slate-50 hover:bg-slate-50/80 transition-colors cursor-pointer group ${!noti.read ? 'bg-amber-50/20' : ''}`}
+                        className={`p-4 border-b border-slate-50 dark:border-border hover:bg-muted/80 transition-colors cursor-pointer group ${!noti.read ? 'bg-amber-50/20 dark:bg-amber-900/10' : ''}`}
                         onClick={() => {
                           if (!noti.read) {
                             updateDoc(doc(db, "notifications", noti.id), { read: true });
@@ -279,7 +294,7 @@ export default function Navbar() {
                             <Bell className="w-4 h-4" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm text-slate-800 font-bold leading-tight mb-1 flex items-center gap-1.5 break-words">
+                            <p className="text-sm text-foreground font-bold leading-tight mb-1 flex items-center gap-1.5 break-words">
                               {noti.title}
                               {!noti.read && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0"></span>}
                             </p>
@@ -292,7 +307,7 @@ export default function Navbar() {
                   )}
                 </div>
                 {unreadCount > 0 && (
-                  <div className="p-3 text-center border-t border-slate-100 bg-slate-50/30">
+                  <div className="p-3 text-center border-t border-slate-100 dark:border-border bg-muted/30">
                     <button 
                       className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors w-full py-1 border-0 bg-transparent cursor-pointer"
                       onClick={handleMarkAllAsRead}
@@ -311,6 +326,10 @@ export default function Navbar() {
             </IconButtonWrapper>
           </Link>
           
+          <IconButtonWrapper onClick={() => setIsDarkMode(!isDarkMode)} title="ডার্ক থিম টোগল">
+            {isDarkMode ? <Sun className="w-[20px] h-[20px] text-amber-500" /> : <Moon className="w-[20px] h-[20px] text-slate-700" />}
+          </IconButtonWrapper>
+
           <IconButtonWrapper onClick={handleSignOut} title="লগ আউট">
             <NavLogoutIcon />
           </IconButtonWrapper>

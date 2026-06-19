@@ -49,7 +49,7 @@ export default function Login() {
   return (
     <div className="flex h-screen w-full items-center justify-center bg-muted/40 px-4">
       <Card className="w-full max-w-md shadow-lg border border-muted rounded-[32px] overflow-hidden">
-        <CardHeader className="space-y-2 text-center pb-6 bg-slate-50 border-b p-8">
+        <CardHeader className="space-y-2 text-center pb-6 bg-muted border-b p-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-primary font-bold text-3xl shadow-sm">
               P

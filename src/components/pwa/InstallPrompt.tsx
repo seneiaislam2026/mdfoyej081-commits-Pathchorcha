@@ -11,7 +11,7 @@ export const InstallPrompt = () => {
   useEffect(() => {
     // Check if the app is already installed or if it's running standalone
     const isStandalone = window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : false;
-    if (isStandalone || window.navigator.standalone) {
+    if (isStandalone || (window.navigator as any).standalone) {
       console.log('App is running in standalone mode, skipping install prompt');
       return;
     }
@@ -38,11 +38,9 @@ export const InstallPrompt = () => {
         setShowPrompt(true);
     } else {
         // Standalone context but beforeinstallprompt might not fire immediately.
-        // For iOS, beforeinstallprompt never fires. We show custom instructions.
-        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-        if (isIos) {
-            setTimeout(() => setShowPrompt(true), 3000);
-        }
+        // Show the prompt manually after 3 seconds as a fallback so they get instructions
+        // on how to install manually if the native prompt isn't supported or is delayed.
+        setTimeout(() => setShowPrompt(true), 3000);
     }
 
     return () => {
@@ -100,14 +98,14 @@ export const InstallPrompt = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-[380px] z-[9999] bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-5 overflow-hidden"
+          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-[380px] z-[9999] bg-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-5 overflow-hidden"
         >
           {/* Decorative background glow */}
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
           
           <button 
             onClick={handleClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors p-1"
+            className="absolute top-4 right-4 text-slate-400 hover:text-muted-foreground transition-colors p-1"
           >
             <X size={18} />
           </button>
@@ -115,11 +113,11 @@ export const InstallPrompt = () => {
           <div className="flex flex-col gap-4 pt-1">
             {/* Brand/Product Header row */}
             <div className="flex items-center gap-3.5">
-              <div className="w-14 h-14 shrink-0 relative bg-white flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
-                <img src="/icon-192-v2.png" alt="শিক্ষাঙ্গন Icon" className="w-full h-full object-contain" />
+              <div className="w-14 h-14 shrink-0 relative bg-card flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
+                <img src="/icon-192-v2.png" alt="বিদ্যায়ন Icon" className="w-full h-full object-contain" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bengali font-bold text-lg text-slate-800 leading-tight">শিক্ষাঙ্গন অ্যাপ ইনস্টল করুন</h3>
+                <h3 className="font-bengali font-bold text-lg text-foreground leading-tight">বিদ্যায়ন অ্যাপ ইনস্টল করুন</h3>
                 <span className="text-[10px] font-sans font-bold tracking-wider text-amber-500 uppercase">OFFICIAL MOBILE APP</span>
               </div>
             </div>

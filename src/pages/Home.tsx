@@ -16,7 +16,7 @@ export default function Home() {
             {/* Base shadow layer */}
             <div className="absolute inset-0 bg-[#358742]/10 translate-y-3 rounded-[20px] blur-md"></div>
             {/* Emulated 3D Book */}
-            <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#4db05c] to-[#298a37] rounded-lg flex items-center justify-center shadow-lg border-b-[5px] border-[#1b5e20] before:absolute before:inset-y-[6px] before:inset-x-3 before:bg-white before:rounded-sm before:opacity-95">
+            <div className="relative z-10 w-20 h-20 bg-gradient-to-br from-[#4db05c] to-[#298a37] rounded-lg flex items-center justify-center shadow-lg border-b-[5px] border-[#1b5e20] before:absolute before:inset-y-[6px] before:inset-x-3 before:bg-card before:rounded-sm before:opacity-95">
                 <div className="w-[14px] h-[3px] bg-[#e0e0e0] absolute top-[28px] left-[18px] rounded-full opacity-100"></div>
                 <div className="w-[18px] h-[3px] bg-[#e0e0e0] absolute top-[40px] left-[18px] rounded-full opacity-100"></div>
                 <div className="w-[14px] h-[3px] bg-[#e0e0e0] absolute top-[52px] left-[18px] rounded-full opacity-100"></div>
@@ -43,9 +43,9 @@ export default function Home() {
             <div className="absolute inset-0 bg-[#1b4db3]/10 translate-y-3 rounded-[20px] blur-md"></div>
             <div className="relative z-10 w-16 h-20 bg-gradient-to-br from-[#3b7cf6] to-[#1244ac] rounded-[10px] shadow-lg border-b-[5px] border-[#0c2d73] flex flex-col items-center">
                 <div className="w-[30px] h-[10px] bg-[#f0f4ff] rounded-b-md mb-2 shadow-sm relative z-20 border-b border-[#c4d4f8]"></div>
-                <div className="w-[30px] h-[3px] bg-white/70 rounded-full mb-2 flex items-center justify-start"><div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div></div>
-                <div className="w-[30px] h-[3px] bg-white/70 rounded-full mb-2 flex items-center justify-start"><div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div></div>
-                <div className="w-[30px] h-[3px] bg-white/70 rounded-full mb-2 flex items-center justify-start"><div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div></div>
+                <div className="w-[30px] h-[3px] bg-card/70 rounded-full mb-2 flex items-center justify-start"><div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div></div>
+                <div className="w-[30px] h-[3px] bg-card/70 rounded-full mb-2 flex items-center justify-start"><div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div></div>
+                <div className="w-[30px] h-[3px] bg-card/70 rounded-full mb-2 flex items-center justify-start"><div className="w-[6px] h-[6px] bg-[#0c2d73] rounded-full absolute -left-3 border-2 border-white"></div></div>
                 {/* Floating check mark */}
                 <div className="absolute -bottom-2 -right-3 w-10 h-10 bg-[#3b7cf6] border-[3px] border-white rounded-full flex items-center justify-center shadow-md">
                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -64,7 +64,7 @@ export default function Home() {
       icon: (
         <div className="relative w-28 h-28 flex items-center justify-center pr-2">
             <div className="absolute inset-0 bg-[#e86a10]/10 translate-y-3 rounded-full blur-md"></div>
-            <div className="relative z-10 w-20 h-20 bg-white rounded-full border-[5px] border-[#f8a846] shadow-lg flex items-center justify-center text-orange-900 border-b-[#d17417] border-b-[8px]">
+            <div className="relative z-10 w-20 h-20 bg-card rounded-full border-[5px] border-[#f8a846] shadow-lg flex items-center justify-center text-orange-900 border-b-[#d17417] border-b-[8px]">
                 {/* Clock face */}
                 <div className="w-[3px] h-[22px] bg-[#333] rounded-full absolute bottom-1/2 left-1/2 transform -translate-x-1/2 origin-bottom shadow-sm"></div>
                 <div className="w-[3px] h-[14px] bg-[#333] rounded-full absolute bottom-1/2 left-1/2 transform -translate-x-1/2 rotate-90 origin-bottom shadow-sm"></div>
@@ -107,7 +107,7 @@ export default function Home() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="bg-[#fff6ec] border border-[#f5d9bd] px-8 py-[14px] rounded-xl shadow-sm"
         >
-          <span className="text-[17px] font-bengali font-semibold text-slate-800 tracking-wide block pt-[2px]">
+          <span className="text-[17px] font-bengali font-semibold text-foreground tracking-wide block pt-[2px]">
             লক্ষ্য স্থির করো, নিয়মিত চর্চা করো, সাফল্য আসবেই!
           </span>
         </motion.div>
@@ -163,7 +163,7 @@ export default function Home() {
           </div>
           
           <Link to="/exam" className="w-full md:w-auto h-full pr-[10px]">
-            <button className="w-full md:w-auto h-[60px] bg-white text-[#001452] font-bengali font-bold text-[19px] px-10 rounded-full hover:bg-slate-50 transition-all shadow-md active:scale-95">
+            <button className="w-full md:w-auto h-[60px] bg-card text-[#001452] font-bengali font-bold text-[19px] px-10 rounded-full hover:bg-muted transition-all shadow-md active:scale-95">
               আজই শুরু করুন
             </button>
           </Link>

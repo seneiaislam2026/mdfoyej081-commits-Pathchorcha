@@ -116,15 +116,15 @@ export default function LocalNotificationSystem() {
   if (!inAppNotice) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-4 max-w-sm w-full font-bengali flex items-start gap-4 animate-in slide-in-from-bottom-5 fade-in duration-300">
+    <div className="fixed bottom-6 right-6 z-50 bg-card rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-4 max-w-sm w-full font-bengali flex items-start gap-4 animate-in slide-in-from-bottom-5 fade-in duration-300">
        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
          <Bell className="w-5 h-5" />
        </div>
        <div className="flex-1 cursor-pointer" onClick={() => { navigate(inAppNotice.url); setInAppNotice(null); }}>
-         <h4 className="font-bold text-slate-800 text-[15px] mb-1">{inAppNotice.title}</h4>
+         <h4 className="font-bold text-foreground text-[15px] mb-1">{inAppNotice.title}</h4>
          <p className="text-slate-500 text-[13px] leading-snug">{inAppNotice.body}</p>
        </div>
-       <button onClick={() => setInAppNotice(null)} className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition-colors shrink-0">
+       <button onClick={() => setInAppNotice(null)} className="w-8 h-8 rounded-full bg-muted text-slate-400 hover:text-muted-foreground hover:bg-slate-100 flex items-center justify-center transition-colors shrink-0">
          <X className="w-4 h-4" />
        </button>
     </div>

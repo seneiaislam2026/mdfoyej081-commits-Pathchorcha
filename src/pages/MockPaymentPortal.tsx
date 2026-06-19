@@ -200,14 +200,14 @@ export default function MockPaymentPortal() {
     'bg-[#00529b]/10 text-[#00529b] hover:bg-[#00529b]/20 border-[#00529b]/25';
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-[32px] shadow-xl overflow-hidden border border-slate-100 transition-all duration-300">
+    <div className="min-h-screen bg-muted flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-card rounded-[32px] shadow-xl overflow-hidden border border-slate-100 transition-all duration-300">
         
         {step === 'select' && (
           <>
             {/* Header */}
             <div className="bg-slate-900 p-6 text-center">
-              <div className="w-12 h-12 bg-white/10 rounded-2xl mx-auto flex items-center justify-center mb-3">
+              <div className="w-12 h-12 bg-card/10 rounded-2xl mx-auto flex items-center justify-center mb-3">
                 <ShieldCheck className="w-6 h-6 text-emerald-400" />
               </div>
               <h1 className="text-xl font-bengali font-bold text-white leading-tight">পেমেন্ট গেটওয়ে</h1>
@@ -235,7 +235,7 @@ export default function MockPaymentPortal() {
                       type="button"
                       onClick={() => setSelectedMethod(method.id)}
                       className={`relative w-full py-4 px-2 bg-transparent transition-all flex items-center text-left border-b border-slate-100/80 last:border-b-0 ${
-                        isSelected ? 'bg-slate-50/50' : 'hover:bg-slate-50/30'
+                        isSelected ? 'bg-muted/50' : 'hover:bg-muted/30'
                       }`}
                     >
                       <div className="mr-3 shrink-0">
@@ -247,7 +247,7 @@ export default function MockPaymentPortal() {
                       </div>
                       
                       <div className="flex-1 flex items-center min-w-0">
-                        <div className="w-12 h-12 bg-white rounded-xl shadow-xs border border-slate-100 flex items-center justify-center shrink-0 mr-3 p-1.5 overflow-hidden">
+                        <div className="w-12 h-12 bg-card rounded-xl shadow-xs border border-slate-100 flex items-center justify-center shrink-0 mr-3 p-1.5 overflow-hidden">
                           {imageErrors[method.id] ? (
                             <div className={`w-full h-full rounded-lg flex items-center justify-center font-bengali font-extrabold text-[11px] ${method.brandColor} ${method.textColor}`}>
                               {method.id === 'upay' ? 'উপায়' : method.name.split(' ')[0]}
@@ -262,7 +262,7 @@ export default function MockPaymentPortal() {
                           )}
                         </div>
                         <div className="truncate">
-                          <h3 className="font-bengali font-bold text-slate-800 text-sm">{method.name}</h3>
+                          <h3 className="font-bengali font-bold text-foreground text-sm">{method.name}</h3>
                           <p className="font-bengali text-slate-500 text-xs truncate">{method.sub}</p>
                         </div>
                       </div>
@@ -285,7 +285,7 @@ export default function MockPaymentPortal() {
                 <button 
                   onClick={handleCancel}
                   type="button"
-                  className="w-full py-2.5 text-center font-bengali text-xs text-slate-400 hover:text-slate-600 transition-colors"
+                  className="w-full py-2.5 text-center font-bengali text-xs text-slate-400 hover:text-muted-foreground transition-colors"
                 >
                   বাতিল করুন (Cancel)
                 </button>
@@ -307,7 +307,7 @@ export default function MockPaymentPortal() {
                 <ArrowLeft className="w-5 h-5" />
               </button>
               
-              <div className="w-14 h-14 bg-white rounded-2xl mx-auto flex items-center justify-center mb-3 p-2 shadow-md overflow-hidden">
+              <div className="w-14 h-14 bg-card rounded-2xl mx-auto flex items-center justify-center mb-3 p-2 shadow-md overflow-hidden">
                 {imageErrors[currentBrand.id] ? (
                   <div className={`w-full h-full rounded-xl flex items-center justify-center font-bengali font-extrabold text-xs ${currentBrand.brandColor} ${currentBrand.textColor}`}>
                     {currentBrand.id === 'upay' ? 'উপায়' : currentBrand.name.split(' ')[0]}
@@ -322,7 +322,7 @@ export default function MockPaymentPortal() {
                 )}
               </div>
               <h2 className="text-xl font-bengali font-black tracking-wide">{currentBrand.name} দিয়ে পেমেন্ট করুন</h2>
-              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 text-xs backdrop-blur-xs font-bengali font-normal">
+              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-card/20 text-xs backdrop-blur-xs font-bengali font-normal">
                 <span>পেমেন্ট পরিমাণ:</span> <strong className="font-sans text-sm">৳ {amount}</strong>
               </div>
             </div>
@@ -332,21 +332,21 @@ export default function MockPaymentPortal() {
               {/* Steps Area styled like the banner layout carefully */}
               <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-2.5">
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center text-center">
+                  <div className="bg-muted border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center text-center">
                     <span className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs mb-1.5 shadow-xs">১</span>
-                    <span className="text-[10px] font-bengali text-slate-600 leading-tight">
+                    <span className="text-[10px] font-bengali text-muted-foreground leading-tight">
                       {currentBrand.id === 'bkash' ? 'bKash' : currentBrand.name.split(' ')[0]} অ্যাপ খুলুন
                     </span>
                   </div>
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center text-center">
+                  <div className="bg-muted border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center text-center">
                     <span className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs mb-1.5 shadow-xs">২</span>
-                    <span className="text-[10px] font-bengali text-slate-600 leading-tight">
+                    <span className="text-[10px] font-bengali text-muted-foreground leading-tight">
                       {currentBrand.typeText} অপশনটি সিলেক্ট করুন
                     </span>
                   </div>
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center text-center">
+                  <div className="bg-muted border border-slate-100 rounded-2xl p-2.5 flex flex-col items-center text-center">
                     <span className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold text-xs mb-1.5 shadow-xs">৩</span>
-                    <span className="text-[10px] font-bengali text-slate-600 leading-tight">
+                    <span className="text-[10px] font-bengali text-muted-foreground leading-tight">
                       নিচের নম্বরটি দিন এবং পেমেন্ট করুন
                     </span>
                   </div>
@@ -421,7 +421,7 @@ export default function MockPaymentPortal() {
                         setPaymentRef(val);
                       }}
                       required
-                      className="w-full h-12 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-slate-800 px-4 font-sans text-center text-lg font-bold tracking-widest text-slate-900 shadow-xs focus:ring-1 focus:ring-slate-800/20 outline-none transition-all placeholder:text-slate-400 placeholder:tracking-normal placeholder:font-normal placeholder:text-sm uppercase"
+                      className="w-full h-12 rounded-xl bg-muted border border-slate-200 focus:bg-card focus:border-slate-800 px-4 font-sans text-center text-lg font-bold tracking-widest text-slate-900 shadow-xs focus:ring-1 focus:ring-slate-800/20 outline-none transition-all placeholder:text-slate-400 placeholder:tracking-normal placeholder:font-normal placeholder:text-sm uppercase"
                     />
                   </div>
                 </div>
@@ -467,7 +467,7 @@ export default function MockPaymentPortal() {
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-lg font-bold font-bengali text-slate-800 animate-pulse">পেমেন্ট ভেরিফাই করা হচ্ছে...</h3>
+              <h3 className="text-lg font-bold font-bengali text-foreground animate-pulse">পেমেন্ট ভেরিফাই করা হচ্ছে...</h3>
               <p className="text-slate-500 font-bengali text-xs max-w-xs mx-auto leading-relaxed">
                 দয়া করে অপেক্ষা করুন, আপনার পেমেন্ট ইনফরমেশনটি সিস্টেমে যুক্ত করা হচ্ছে। এই উইন্ডোটি বন্ধ করবেন না।
               </p>
@@ -486,24 +486,24 @@ export default function MockPaymentPortal() {
               <div className="w-16 h-16 bg-emerald-50 rounded-full mx-auto flex items-center justify-center mb-4 border-2 border-emerald-150 shadow-inner">
                 <CheckCircle2 className="w-10 h-10 text-emerald-500 animate-bounce" />
               </div>
-              <h2 className="text-2xl font-bengali font-black text-slate-800 tracking-wide">পেমেন্ট রিকোয়েস্ট সাবমিট হয়েছে!</h2>
+              <h2 className="text-2xl font-bengali font-black text-foreground tracking-wide">পেমেন্ট রিকোয়েস্ট সাবমিট হয়েছে!</h2>
               <p className="text-slate-400 text-xs mt-1 uppercase font-sans tracking-wider">Transaction Status: Pending Verification</p>
             </div>
 
             {/* Content / Info Card */}
             <div className="bg-emerald-50/50 border border-emerald-100/60 rounded-3xl p-5 text-left space-y-4">
-              <h4 className="font-bengali font-bold text-slate-800 text-sm flex items-center gap-1.5">
+              <h4 className="font-bengali font-bold text-foreground text-sm flex items-center gap-1.5">
                 🎯 পেমেন্ট সংক্রান্ত তথ্য:
               </h4>
-              <div className="space-y-2.5 font-bengali text-xs text-slate-600 leading-relaxed">
+              <div className="space-y-2.5 font-bengali text-xs text-muted-foreground leading-relaxed">
                 <p>
                   আপনার পেমেন্ট ভেরিফিকেশন রিকোয়েস্টটি সফলভাবে সিস্টেমে গ্রহণ করা হয়েছে। 
                 </p>
-                <p className="bg-white p-3 rounded-xl border border-emerald-100 text-slate-800">
+                <p className="bg-card p-3 rounded-xl border border-emerald-100 text-foreground">
                   ⚡️ আগামী <strong className="text-emerald-600 font-extrabold text-sm">২০ মিনিটের মধ্যে</strong> আপনার পেমেন্টটি যাচাই সম্পন্ন করে আপনাকে নিশ্চিতকরণ মেসেজের (SMS) মাধ্যমে জানিয়ে দেওয়া হবে।
                 </p>
                 <p className="text-[11px] text-slate-500 italic">
-                  শিক্ষাঙ্গন (Shikkhangon) পরিবারের সাথে থাকার জন্য আপনাকে এবং আপনার শুভকামনাকে আন্তরিক ধন্যবাদ!
+                  বিদ্যায়ন (Biddayon) পরিবারের সাথে থাকার জন্য আপনাকে এবং আপনার শুভকামনাকে আন্তরিক ধন্যবাদ!
                 </p>
               </div>
             </div>
@@ -518,7 +518,7 @@ export default function MockPaymentPortal() {
               </Button>
 
               <div className="text-slate-400 font-bengali text-[10px]">
-                Transaction Ref: <span className="font-sans font-semibold text-slate-600">{txnId}</span>
+                Transaction Ref: <span className="font-sans font-semibold text-muted-foreground">{txnId}</span>
               </div>
             </div>
           </div>

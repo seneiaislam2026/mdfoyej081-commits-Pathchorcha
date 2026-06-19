@@ -21,6 +21,7 @@ export default function SubjectNotes() {
 
   // States
   const [searchQuery, setSearchQuery] = useState("");
+  const [dbNotes, setDbNotes] = useState<any[]>([]);
   const [savedNotesState, setSavedNotesState] = useState<Record<string, boolean>>({});
   const [readingNote, setReadingNote] = useState<any | null>(null);
   const [saveLoading, setSaveLoading] = useState<string | null>(null);
@@ -28,35 +29,22 @@ export default function SubjectNotes() {
   const [readerFontSize, setReaderFontSize] = useState<"base" | "lg" | "xl">("lg");
   const [isBlurred, setIsBlurred] = useState(false);
 
-  // Security Focus & Key blocker for Screenshot/Printscreen/Copying Prevention
+  // Focus and Blur
   useEffect(() => {
     if (!readingNote) {
       setIsBlurred(false);
       return;
     }
-
-    const handleBlur = () => {
-      setIsBlurred(true);
-    };
-
-    const handleFocus = () => {
-      setIsBlurred(false);
-    };
-
+    const handleBlur = () => setIsBlurred(true);
+    const handleFocus = () => setIsBlurred(false);
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        (e.ctrlKey && (e.key === "c" || e.key === "s" || e.key === "p" || e.key === "u")) ||
-        e.key === "PrintScreen" ||
-        e.key === "F12"
-      ) {
+      if ((e.ctrlKey && (e.key === "c" || e.key === "s" || e.key === "p" || e.key === "u")) || e.key === "PrintScreen" || e.key === "F12") {
         e.preventDefault();
       }
     };
-
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
@@ -64,13 +52,32 @@ export default function SubjectNotes() {
     };
   }, [readingNote]);
 
+  // Load custom notes from db
+  useEffect(() => {
+    const fetchDbNotes = async () => {
+      try {
+        const { collection, getDocs } = await import("firebase/firestore");
+        const querySnapshot = await getDocs(collection(db, "notes"));
+        const list: any[] = [];
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        setDbNotes(list);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchDbNotes();
+  }, []);
+
   // Load saved notes status on mount
   useEffect(() => {
     const fetchSavedNotes = async () => {
       if (!userData?.uid) return;
       try {
         const tempSaved: Record<string, boolean> = {};
-        for (const note of ALL_NOTES) {
+        const combined = [...ALL_NOTES, ...dbNotes];
+        for (const note of combined) {
           const docRef = doc(db, "users", userData.uid, "saved_notes", note.id);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
@@ -83,7 +90,7 @@ export default function SubjectNotes() {
       }
     };
     fetchSavedNotes();
-  }, [userData]);
+  }, [userData, dbNotes]);
 
   // Handle toggling save/bookmark
   const handleToggleSaveNote = async (note: any, e: React.MouseEvent) => {
@@ -116,7 +123,7 @@ export default function SubjectNotes() {
   };
 
   // Filter notes based on class group AND current subject
-  const filteredNotes = ALL_NOTES.filter(note => {
+  const filteredNotes = [...ALL_NOTES, ...dbNotes].filter(note => {
     if (note.classGroup !== userClassGroup) return false;
 
     let isSubjectMatch = note.subject.toLowerCase() === decodedSubject.toLowerCase();
@@ -144,13 +151,13 @@ export default function SubjectNotes() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-28 font-sans antialiased text-slate-800">
+    <div className="min-h-screen bg-background pb-28 font-sans antialiased text-foreground">
       
       {/* Clean Topbar */}
-      <header className="bg-white border-b border-slate-150 sticky top-0 z-50 px-4 sm:px-6 py-4.5 shadow-xs">
+      <header className="bg-card border-b border-slate-150 sticky top-0 z-50 px-4 sm:px-6 py-4.5 shadow-xs">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 w-full">
-            <Link to="/notes" className="h-10 w-10 bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200/60 rounded-2xl flex items-center justify-center text-[#0F2744] transition-all shrink-0 hover:shadow-xs" aria-label="Back">
+            <Link to="/notes" className="h-10 w-10 bg-muted hover:bg-slate-100 active:scale-95 border border-slate-200/60 rounded-2xl flex items-center justify-center text-[#0F2744] transition-all shrink-0 hover:shadow-xs" aria-label="Back">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
@@ -171,13 +178,13 @@ export default function SubjectNotes() {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         
         {/* Search Bar Block */}
-        <div className="bg-white border border-slate-150 p-4 sm:p-5 rounded-[24px] shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] w-full relative">
+        <div className="bg-card border border-slate-150 p-4 sm:p-5 rounded-[24px] shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] w-full relative">
            <div className="relative w-full">
              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
              <Input 
                type="search" 
                placeholder={`${decodedSubject} বিষয়ের স্পেসিফিক নোট খুঁজুন...`} 
-               className="pl-10 h-12 font-bengali text-sm bg-slate-50/70 hover:bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 rounded-[16px] w-full" 
+               className="pl-10 h-12 font-bengali text-sm bg-muted/70 hover:bg-muted border-slate-200 focus-visible:ring-emerald-500 rounded-[16px] w-full" 
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
              />
@@ -186,7 +193,7 @@ export default function SubjectNotes() {
 
         {/* Dynamic Notes Grid */}
         {filteredNotes.length === 0 ? (
-          <div className="bg-white p-14 text-center rounded-[32px] border border-slate-150 shadow-sm space-y-4 mt-6">
+          <div className="bg-card p-14 text-center rounded-[32px] border border-slate-150 shadow-sm space-y-4 mt-6">
             <BookOpen className="w-14 h-14 text-slate-300 mx-auto" />
             <div className="space-y-1">
               <p className="font-bengali text-base font-bold text-slate-700">কোনো লেকচার নোট উপলব্ধ নেই</p>
@@ -218,7 +225,7 @@ export default function SubjectNotes() {
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
                 >
                   <Card 
-                    className={`group relative overflow-hidden bg-white border border-slate-200 rounded-[24px] shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] hover:shadow-md transition-all duration-300 ${borderTheme}`}
+                    className={`group relative overflow-hidden bg-card border border-slate-200 rounded-[24px] shadow-[0_4px_20px_-8px_rgba(0,0,0,0.05)] hover:shadow-md transition-all duration-300 ${borderTheme}`}
                   >
                     {/* Visual Border Accent of Book Spine */}
                     <div className={`absolute top-0 bottom-0 left-0 w-1 rounded-l-[24px] ${accentColor}`} />
@@ -232,7 +239,7 @@ export default function SubjectNotes() {
                             <div className="space-y-2.5">
                               {/* Meta Labels Line */}
                               <div className="flex flex-wrap items-center gap-2 select-none">
-                                <span className="text-[9px] font-sans font-black uppercase tracking-wider text-slate-400 bg-slate-50 border border-slate-150 px-2 py-0.5 rounded-md">
+                                <span className="text-[9px] font-sans font-black uppercase tracking-wider text-slate-400 bg-muted border border-slate-150 px-2 py-0.5 rounded-md">
                                   LECTURE NOTE
                                 </span>
                                 {note.badges?.map((b: string, idx: number) => (
@@ -241,7 +248,7 @@ export default function SubjectNotes() {
                                     className={`font-bengali text-[10px] sm:text-xs rounded-full px-2.5 py-0.5 font-bold tracking-wide ${
                                       idx === 0 
                                         ? "bg-amber-50 text-amber-600 border border-amber-200/50" 
-                                        : "bg-slate-50 text-slate-500 border border-slate-150"
+                                        : "bg-muted text-slate-500 border border-slate-150"
                                     }`}
                                   >
                                     {b}
@@ -273,7 +280,7 @@ export default function SubjectNotes() {
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-2 text-xs text-slate-400 font-bengali font-semibold bg-slate-50 w-max px-3 py-1.5 rounded-lg border border-slate-100/50">
+                          <div className="flex items-center gap-2 text-xs text-slate-400 font-bengali font-semibold bg-muted w-max px-3 py-1.5 rounded-lg border border-slate-100/50">
                             <Eye className="w-3.5 h-3.5 text-slate-400" /> <span>১২.৫k এর বেশি পঠিত</span>
                           </div>
                         </div>
@@ -286,7 +293,7 @@ export default function SubjectNotes() {
                             size="icon"
                             disabled={saveLoading === note.id}
                             onClick={(e) => handleToggleSaveNote(note, e)}
-                            className={`hidden lg:flex rounded-full h-10 w-10 border border-slate-200 hover:bg-slate-50 ${
+                            className={`hidden lg:flex rounded-full h-10 w-10 border border-slate-200 hover:bg-muted ${
                               isSaved ? "text-amber-500 bg-amber-50/80 border-amber-200" : "text-slate-400 hover:text-slate-500"
                             }`}
                           >
@@ -326,15 +333,15 @@ export default function SubjectNotes() {
             light: {
               bg: "bg-[#FCFBF7]",
               textTitle: "text-slate-950",
-              textBody: "text-slate-800",
+              textBody: "text-foreground",
               textMute: "text-slate-500",
               border: "border-[#EDECDF]",
               headerBg: "bg-[#FCFBF7]/95",
               headerBorder: "border-[#EDECDF]",
               navButtonHover: "hover:bg-slate-200/50",
               introBg: "bg-[#F7F6EE] border-amber-600 text-stone-800",
-              itemBg: "bg-white border-[#ECEBDD]",
-              itemHover: "hover:bg-slate-50/50",
+              itemBg: "bg-card border-[#ECEBDD]",
+              itemHover: "hover:bg-muted/50",
               itemNumberBg: "bg-stone-100 text-stone-500 group-hover:bg-primary/10 group-hover:text-primary",
               footerBg: "bg-[#FAF9F2] border-[#ECEBDD]",
               footerBtn: "bg-[#0F2744] hover:bg-[#1a3a61] text-white"
@@ -427,12 +434,12 @@ export default function SubjectNotes() {
                   </div>
 
                   {/* Settings Controls (Themes & Font Sizes) */}
-                  <div className={`flex items-center gap-2 shrink-0 self-end sm:self-center bg-black/5 dark:bg-white/5 rounded-2xl p-1 border ${tc.border}`}>
+                  <div className={`flex items-center gap-2 shrink-0 self-end sm:self-center bg-black/5 dark:bg-card/5 rounded-2xl p-1 border ${tc.border}`}>
                     {/* Theme buttons */}
                     <div className="flex items-center gap-0.5">
                       <button 
                         onClick={() => setReaderTheme("light")}
-                        className={`h-7 px-3 text-[11px] font-bengali font-bold rounded-xl transition-all ${readerTheme === "light" ? "bg-white text-slate-900 shadow-xs" : "text-slate-550 hover:text-slate-700"}`}
+                        className={`h-7 px-3 text-[11px] font-bengali font-bold rounded-xl transition-all ${readerTheme === "light" ? "bg-card text-slate-900 shadow-xs" : "text-slate-550 hover:text-slate-700"}`}
                       >
                         দিন
                       </button>
@@ -456,13 +463,13 @@ export default function SubjectNotes() {
                     <div className="flex items-center gap-0.5 font-sans">
                       <button 
                         onClick={() => setReaderFontSize("base")}
-                        className={`h-7 w-7 text-xs font-semibold rounded-xl transition-all ${readerFontSize === "base" ? "bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-slate-800"}`}
+                        className={`h-7 w-7 text-xs font-semibold rounded-xl transition-all ${readerFontSize === "base" ? "bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-foreground"}`}
                       >
                         Ab
                       </button>
                       <button 
                         onClick={() => setReaderFontSize("lg")}
-                        className={`h-7 w-7 text-sm font-semibold rounded-xl transition-all ${readerFontSize === "lg" ? "bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-slate-800"}`}
+                        className={`h-7 w-7 text-sm font-semibold rounded-xl transition-all ${readerFontSize === "lg" ? "bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-foreground"}`}
                       >
                         Ab+
                       </button>
@@ -494,19 +501,49 @@ export default function SubjectNotes() {
                         </h2>
                         
                         <div className="space-y-5 w-full">
-                           {chapter.items?.map((item: string, iIdx: number) => {
-                            const cleanItem = item.replace(/👉/g, '').trim();
-                            return (
-                              <div 
-                                key={iIdx} 
-                                className="flex items-start gap-3 w-full"
-                              >
-                                <div className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${tc.textTitle} opacity-40`} />
-                                <p className={`font-bengali ${fontSizeClass} tracking-wide select-none break-words flex-1 transition-all duration-300 ${tc.textBody}`}>
-                                  {cleanItem}
-                                </p>
-                              </div>
-                            );
+                           {chapter.items?.map((item: any, iIdx: number) => {
+                            if (typeof item === 'string') {
+                              const cleanItem = item.replace(/👉/g, '').trim();
+                              return (
+                                <div 
+                                  key={iIdx} 
+                                  className="flex items-start gap-3 w-full"
+                                >
+                                  <div className={`mt-1.5 h-2 w-2 rounded-full shrink-0 ${tc.textTitle} opacity-40`} />
+                                  <p className={`font-bengali ${fontSizeClass} tracking-wide select-none break-words flex-1 transition-all duration-300 ${tc.textBody}`}>
+                                    {cleanItem}
+                                  </p>
+                                </div>
+                              );
+                            }
+
+                            if (item && typeof item === "object") {
+                              if (item.type === "text") {
+                                return (
+                                  <div key={iIdx} className={`font-bengali ${fontSizeClass} tracking-wide whitespace-pre-wrap select-none break-words w-full transition-all duration-300 ${tc.textBody}`}>
+                                    {item.content}
+                                  </div>
+                                );
+                              }
+                              // Basic fallback for other objects in SubjectNotes
+                              if (item.type === "qa") {
+                                return (
+                                  <div key={iIdx} className="bg-emerald-50/40 border border-emerald-100/80 p-5 rounded-xl space-y-2 shadow-sm border-l-4 border-l-emerald-500 w-full mb-4">
+                                     <div className="font-black text-emerald-900 font-bengali text-base sm:text-lg">{item.q}</div>
+                                     <div className="text-foreground font-bengali font-medium leading-relaxed text-sm sm:text-base">{item.a}</div>
+                                  </div>
+                                )
+                              }
+                              if (item.type === "tip") {
+                                return (
+                                  <div key={iIdx} className="bg-amber-50/60 border border-amber-200/80 p-5 rounded-xl space-y-2 text-foreground shadow-sm border-l-4 border-l-amber-500 w-full mb-4">
+                                     <div className="font-bold flex items-center gap-2 select-none text-amber-900 font-bengali text-lg">⚡ {item.title || "টিপস"}</div>
+                                     <div className="font-bengali whitespace-pre-line text-[#1e293b] leading-relaxed text-sm sm:text-base">{item.content}</div>
+                                  </div>
+                                )
+                              }
+                            }
+                            return null;
                           })}
                         </div>
                       </section>
@@ -541,7 +578,7 @@ export default function SubjectNotes() {
       </AnimatePresence>
 
       {/* Bottom Navigation Tab Bar (exactly matching screenshot 3) */}
-      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200/80 py-3.5 px-6 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto md:hidden pb-safe">
+      <div className="fixed bottom-0 inset-x-0 bg-card border-t border-slate-200/80 py-3.5 px-6 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto md:hidden pb-safe">
         <Link 
           to="/notes" 
           className="flex-1 flex flex-col items-center gap-1 transition-all relative text-blue-600 scale-102 cursor-pointer"

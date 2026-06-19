@@ -135,36 +135,36 @@ export default function Leaderboard() {
       <div className="flex bg-slate-100/80 p-1.5 rounded-full mx-auto w-fit mb-4 shadow-inner border border-slate-200">
         <button 
           onClick={() => setTimeRange('daily')} 
-          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='daily' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-slate-800 bg-transparent'}`}>
+          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='daily' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-foreground bg-transparent'}`}>
             আজকে
         </button>
         <button 
           onClick={() => setTimeRange('weekly')} 
-          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='weekly' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-slate-800 bg-transparent'}`}>
+          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='weekly' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-foreground bg-transparent'}`}>
             সাপ্তাহিক
         </button>
         <button 
           onClick={() => setTimeRange('monthly')} 
-          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='monthly' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-slate-800 bg-transparent'}`}>
+          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='monthly' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-foreground bg-transparent'}`}>
             মাসিক
         </button>
         <button 
           onClick={() => setTimeRange('all-time')} 
-          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='all-time' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-slate-800 bg-transparent'}`}>
+          className={`px-5 sm:px-8 py-2.5 rounded-full text-[15px] font-bengali transition-all duration-200 ${timeRange==='all-time' ? 'bg-[#5264F9] text-white shadow-md font-medium' : 'text-slate-500 hover:text-foreground bg-transparent'}`}>
             সর্বোচ্চ
         </button>
       </div>
 
-      <div className="bg-white rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden">
+      <div className="bg-card rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 overflow-hidden">
         
         {/* Header */}
-        <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100/80 bg-slate-50/30">
+        <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-100/80 bg-muted/30">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 border border-indigo-100/50 shadow-sm">
                <Trophy className="w-8 h-8 text-indigo-600" />
             </div>
             <div>
-               <h2 className="text-[22px] font-bold font-bengali text-slate-800 tracking-tight">
+               <h2 className="text-[22px] font-bold font-bengali text-foreground tracking-tight">
                  {getTimeRangeText()} লিডারবোর্ড
                </h2>
                <p className="text-slate-500 font-bengali text-sm mt-1">
@@ -173,7 +173,7 @@ export default function Leaderboard() {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 bg-white border border-slate-200 shadow-sm rounded-xl px-4 py-2.5 cursor-pointer max-w-[200px] w-full md:w-auto">
+          <div className="flex items-center gap-2 bg-card border border-slate-200 shadow-sm rounded-xl px-4 py-2.5 cursor-pointer max-w-[200px] w-full md:w-auto">
             <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
             <select 
               value={selectedClass} 
@@ -197,7 +197,7 @@ export default function Leaderboard() {
         <div className="w-full overflow-x-auto min-h-[400px]">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 bg-white">
+              <tr className="border-b border-slate-100 bg-card">
                 <th className="py-4 px-6 font-semibold text-slate-400 text-[13px] w-20 text-center uppercase tracking-wider">Rank</th>
                 <th className="py-4 px-6 font-semibold text-slate-400 text-[13px] uppercase tracking-wider">Student Name</th>
                 <th className="py-4 px-6 font-semibold text-slate-400 text-[13px] text-right uppercase tracking-wider">Points</th>
@@ -221,7 +221,7 @@ export default function Leaderboard() {
                 </tr>
               ) : (
                 users.map((u, i) => (
-                  <tr key={u.id} className={`border-b border-slate-50 last:border-none hover:bg-slate-50/80 transition-colors ${userData?.uid === u.id ? 'bg-[#fff8f0] hover:bg-[#fff5e6]' : i === 0 ? 'bg-amber-50/30' : ''}`}>
+                  <tr key={u.id} className={`border-b border-slate-50 last:border-none hover:bg-muted/80 transition-colors ${userData?.uid === u.id ? 'bg-[#fff8f0] hover:bg-[#fff5e6]' : i === 0 ? 'bg-amber-50/30' : ''}`}>
                      <td className="py-4 px-6 text-center align-middle">
                        <RankBadge rank={i + 1} />
                      </td>
@@ -231,7 +231,7 @@ export default function Leaderboard() {
                              {u.photoURL ? <img src={u.photoURL} alt={u.fullName} className="w-full h-full object-cover" /> : getInitials(u.fullName || "N A")}
                            </div>
                            <div className="flex items-center gap-2.5">
-                             <span className="font-semibold text-slate-800 text-[15.5px] font-bengali">{u.fullName || "No Name"}</span>
+                             <span className="font-semibold text-foreground text-[15.5px] font-bengali">{u.fullName || "No Name"}</span>
                              {u.isPro && <Crown className="w-4.5 h-4.5 text-amber-500 fill-amber-500 drop-shadow-sm" />}
                              {userData?.uid === u.id && (
                                <span className="bg-slate-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wider shadow-sm">YOU</span>

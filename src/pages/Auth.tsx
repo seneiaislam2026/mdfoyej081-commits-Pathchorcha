@@ -58,9 +58,9 @@ export default function Auth() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center justify-center">
-          <img src="/logo.png" alt="শিক্ষাঙ্গন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
+          <img src="/logo.png" alt="বিদ্যায়ন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
         </div>
       </div>
     );
@@ -216,7 +216,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex font-sans">
+    <div className="min-h-screen bg-background flex font-sans">
       {/* Left Decoration Panel (Hidden on mobile) */}
       <div className="hidden lg:flex w-1/2 bg-primary p-12 flex-col justify-between relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-blue-900 z-0"></div>
@@ -226,7 +226,7 @@ export default function Auth() {
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2">
             <span className="font-bengali font-bold text-[36px] tracking-tight text-white">
-              শিক্ষা<span className="text-secondary">ঙ্গন</span>
+            বিদ্যা<span className="text-secondary">য়ন</span>
             </span>
           </Link>
         </div>
@@ -236,13 +236,13 @@ export default function Auth() {
             লক্ষ্য স্থির করো,<br/>নিয়মিত চর্চা করো,<br/>সাফল্য আসবেই!
           </h1>
           <p className="text-primary-foreground/70 font-bengali text-lg leading-relaxed">
-            ১০ লক্ষের বেশি ছাত্রছাত্রী ইতিমধ্যে শিক্ষাঙ্গন-এ যুক্ত হয়েছে। আজই শুরু করো তোমার প্রস্তুতি।
+            ১০ লক্ষের বেশি ছাত্রছাত্রী ইতিমধ্যে বিদ্যায়ন-এ যুক্ত হয়েছে। আজই শুরু করো তোমার প্রস্তুতি।
           </p>
         </div>
       </div>
 
       {/* Right Auth Panel */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-12 relative bg-slate-50/50 min-h-screen">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 md:p-12 relative bg-muted/50 min-h-screen">
         {/* Subtle decorative background canvas glows */}
         <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-[#00A86B]/5 rounded-full filter blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full filter blur-[100px] pointer-events-none"></div>
@@ -251,7 +251,7 @@ export default function Auth() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="w-full max-w-[400px] bg-white p-6 sm:p-8 rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/90 relative z-10 flex flex-col justify-between"
+          className="w-full max-w-[400px] bg-card p-6 sm:p-8 rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/90 relative z-10 flex flex-col justify-between"
         >
           {/* Centered Artistic Brand Logo and Title */}
           {window.self !== window.top && (
@@ -267,7 +267,7 @@ export default function Auth() {
 <div className='text-center mb-8'>
             <div className="flex flex-col items-center justify-center mb-6">
               <Link to="/" className="inline-flex flex-col items-center group">
-                <div className="w-[124px] h-[124px] sm:w-[140px] sm:h-[140px] bg-white rounded-[28px] sm:rounded-[32px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-3 group-hover:scale-105 transition-transform duration-300 border border-slate-50 relative overflow-hidden">
+                <div className="w-[124px] h-[124px] sm:w-[140px] sm:h-[140px] bg-card rounded-[28px] sm:rounded-[32px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-3 group-hover:scale-105 transition-transform duration-300 border border-slate-50 relative overflow-hidden">
                    <span className="font-bengali font-extrabold text-[30px] sm:text-[34px] tracking-tight">
                      <span className="text-[#0F2744]">শিক্ষা</span>
                      <span className="text-[#ff9800]">ঙ্গন</span>
@@ -300,7 +300,7 @@ export default function Auth() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Styled Mobile Input Field */}
             <div className="space-y-1.5">
-              <Label htmlFor="identifier" className="font-bengali font-bold text-slate-600 text-xs pl-1">
+              <Label htmlFor="identifier" className="font-bengali font-bold text-muted-foreground text-xs pl-1">
                 মোবাইল নম্বর
               </Label>
               <div className="relative group">
@@ -311,7 +311,7 @@ export default function Auth() {
                   id="identifier" 
                   type="tel"
                   placeholder="যেমন: 01XXXXXXXXX" 
-                  className="h-12 pl-11 pr-4 rounded-2xl bg-slate-50/70 border-slate-200 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 font-sans shadow-none transition-all text-slate-800 text-sm"
+                  className="h-12 pl-11 pr-4 rounded-2xl bg-muted/70 border-slate-200 focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/5 font-sans shadow-none transition-all text-foreground text-sm"
                   value={identifier}
                   onChange={(e) => handlePhoneChange(e.target.value)}
                   required
@@ -322,7 +322,7 @@ export default function Auth() {
             {/* Styled Password Input Field */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between pl-1">
-                <Label htmlFor="password" className="font-bengali font-bold text-slate-600 text-xs">
+                <Label htmlFor="password" className="font-bengali font-bold text-muted-foreground text-xs">
                   পাসওয়ার্ড
                 </Label>
                 <button 
@@ -345,7 +345,7 @@ export default function Auth() {
                   id="password" 
                   type="password" 
                   placeholder="••••••••" 
-                  className="h-12 pl-11 pr-4 rounded-2xl bg-slate-50/70 border-slate-200 focus:bg-white focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-none transition-all text-slate-800 text-sm"
+                  className="h-12 pl-11 pr-4 rounded-2xl bg-muted/70 border-slate-200 focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-none transition-all text-foreground text-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -374,7 +374,7 @@ export default function Auth() {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-100"></div>
             </div>
-            <span className="relative bg-white px-3 text-[11px] text-slate-400 font-medium">Login / Registration with</span>
+            <span className="relative bg-card px-3 text-[11px] text-slate-400 font-medium">Login / Registration with</span>
           </div>
 
           {/* Social Sign-In (Beautiful side-by-side Grid of Google & Facebook) */}
@@ -385,7 +385,7 @@ export default function Auth() {
               type="button"
               disabled={loading}
               onClick={handleFacebookLogin}
-              className="h-11 rounded-2xl font-sans text-xs font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all duration-150 flex items-center justify-center gap-1.5 shadow-none"
+              className="h-11 rounded-2xl font-sans text-xs font-semibold text-muted-foreground border border-slate-200 hover:bg-muted transition-all duration-150 flex items-center justify-center gap-1.5 shadow-none"
             >
               <svg className="w-4 h-4 text-[#1877F2] fill-current shrink-0" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -399,7 +399,7 @@ export default function Auth() {
               onClick={handleGoogleLogin} 
               variant="outline" 
               type="button"
-              className="h-11 rounded-2xl font-sans text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-all duration-150 flex items-center justify-center gap-1.5 shadow-none"
+              className="h-11 rounded-2xl font-sans text-xs font-semibold text-slate-700 bg-card border border-slate-200 hover:bg-muted transition-all duration-150 flex items-center justify-center gap-1.5 shadow-none"
             >
                <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -420,10 +420,10 @@ export default function Auth() {
       {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] w-full max-w-md p-8 relative shadow-xl">
+          <div className="bg-card rounded-[32px] w-full max-w-md p-8 relative shadow-xl">
             <button 
               onClick={() => setShowForgotModal(false)}
-              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full p-2"
+              className="absolute top-6 right-6 text-slate-400 hover:text-muted-foreground bg-slate-100 rounded-full p-2"
             >
               <X className="w-5 h-5" />
             </button>
@@ -444,7 +444,7 @@ export default function Auth() {
                     value={forgotIdentifier}
                     onChange={(e) => handleForgotPhoneChange(e.target.value)}
                     required
-                    className="h-12 rounded-2xl bg-slate-50"
+                    className="h-12 rounded-2xl bg-muted"
                   />
                 </div>
               )}
@@ -458,7 +458,7 @@ export default function Auth() {
                     value={forgotOtp}
                     onChange={(e) => setForgotOtp(e.target.value)}
                     required
-                    className="h-12 rounded-2xl bg-slate-50 tracking-widest text-center text-xl"
+                    className="h-12 rounded-2xl bg-muted tracking-widest text-center text-xl"
                   />
                 </div>
               )}
@@ -472,7 +472,7 @@ export default function Auth() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
-                    className="h-12 rounded-2xl bg-slate-50"
+                    className="h-12 rounded-2xl bg-muted"
                   />
                 </div>
               )}

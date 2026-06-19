@@ -42,7 +42,7 @@ const subjectsByGroup: Record<string, {name: string, icon: any, color: string}[]
     { name: "ইতিহাস", icon: <Landmark className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-amber-50 hover:border-amber-200" },
     { name: "ভূগোল", icon: <Globe className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-cyan-50 hover:border-cyan-200" },
     { name: "অর্থনীতি", icon: <TrendingUp className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-fuchsia-50 hover:border-fuchsia-200" },
-    { name: "পৌরনীতি", icon: <Building2 className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-slate-50 hover:border-slate-300" },
+    { name: "পৌরনীতি", icon: <Building2 className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-muted hover:border-slate-300" },
     { name: "যুক্তিবিদ্যা", icon: <Lightbulb className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-indigo-50 hover:border-indigo-200" },
     { name: "সমাজবিজ্ঞান", icon: <Users className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-teal-50 hover:border-teal-200" },
     { name: "ইসলামের ইতিহাস", icon: <BookOpen className="w-[22px] h-[22px]" strokeWidth={2} />, color: "bg-green-50 hover:border-green-200" },
@@ -332,7 +332,7 @@ export const getSubjectDecoration = (name: string) => {
   }
   
   return {
-    leftBg: "bg-slate-50",
+    leftBg: "bg-muted",
     leftText: "text-slate-700",
     leftIn: "?",
     rightIllustration: (
@@ -890,7 +890,7 @@ export default function Exam() {
   const dbSubjectExtracted = dbSubjects.map(s => ({
     name: s.name,
     icon: <BookOpen className="w-[22px] h-[22px]" strokeWidth={2} />,
-    color: "bg-slate-50 hover:border-slate-200"
+    color: "bg-muted hover:border-slate-200"
   })).filter(sub => {
       const normalizedName = sub.name === "English" || sub.name === "English Grammar" ? "ইংরেজি" : sub.name;
       return allowedSubjects.includes(normalizedName) || allowedSubjects.includes(sub.name);
@@ -1084,20 +1084,20 @@ export default function Exam() {
   if (type === 'mock' && !activeSet) {
     if (mockStep === 1) {
       return (
-        <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-8 font-bengali min-h-screen bg-[#F8FAFC]">
+        <div className="w-full max-w-7xl mx-auto pb-32 px-4 sm:px-6 md:px-8 pt-8 font-bengali min-h-screen bg-background">
           {/* Centered High Fidelity Card */}
-          <div className="max-w-xl mx-auto bg-white p-6 sm:p-8 rounded-[32px] border border-slate-100 shadow-[0_4px_30px_rgba(0,0,0,0.015)] space-y-6">
+          <div className="max-w-xl mx-auto bg-card p-6 sm:p-8 rounded-[32px] border border-slate-100 shadow-[0_4px_30px_rgba(0,0,0,0.015)] space-y-6">
             
             {/* Top Back bar */}
             <div className="flex items-center justify-between relative">
               <div className="flex items-center gap-3">
                 <button 
                   onClick={() => navigate("/dashboard")} 
-                  className="h-10 w-10 bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200/50 rounded-full flex items-center justify-center text-slate-700 transition-all shrink-0 cursor-pointer"
+                  className="h-10 w-10 bg-muted hover:bg-slate-100 active:scale-95 border border-slate-200/50 rounded-full flex items-center justify-center text-slate-700 transition-all shrink-0 cursor-pointer"
                 >
                   <ArrowLeft className="w-5 h-5 animate-in fade-in" />
                 </button>
-                <span className="text-[19px] sm:text-xl font-extrabold text-slate-800 font-bengali">টপিক সিলেক্ট করো</span>
+                <span className="text-[19px] sm:text-xl font-extrabold text-foreground font-bengali">টপিক সিলেক্ট করো</span>
               </div>
               <div className="bg-[#e4efe9] text-[#008060] px-3.5 py-1.5 rounded-full text-xs font-black tracking-wide">১/২ স্টেপস</div>
             </div>
@@ -1132,11 +1132,11 @@ export default function Exam() {
                             setMockCustomChapters(prev => { const n = {...prev}; delete n[sub.name]; return n; });
                          }
                       }}
-                      className={`group relative flex items-center justify-between p-4 bg-white border rounded-2xl cursor-pointer select-none transition-all duration-300 ${isSelected ? 'border-[#008060] ring-1 ring-[#008060] shadow-sm bg-emerald-50/5' : 'border-slate-150 hover:border-slate-300 hover:bg-slate-50/40'}`}
+                      className={`group relative flex items-center justify-between p-4 bg-card border rounded-2xl cursor-pointer select-none transition-all duration-300 ${isSelected ? 'border-[#008060] ring-1 ring-[#008060] shadow-sm bg-emerald-50/5' : 'border-slate-150 hover:border-slate-300 hover:bg-muted/40'}`}
                     >
                       {/* Left: Checkmark box and name */}
                       <div className="flex items-center gap-3.5">
-                        <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isSelected ? 'bg-[#008060] border-[#008060] scale-105 shadow-sm' : 'border-slate-300 bg-white group-hover:border-slate-400'}`}>
+                        <div className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all ${isSelected ? 'bg-[#008060] border-[#008060] scale-105 shadow-sm' : 'border-slate-300 bg-card group-hover:border-slate-400'}`}>
                           {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
                         </div>
                         
@@ -1145,7 +1145,7 @@ export default function Exam() {
                         </div>
                         
                         <div>
-                          <span className={`text-[16px] font-extrabold text-slate-800 transition-colors ${isSelected ? 'text-slate-900 font-extrabold' : 'text-slate-700'}`}>{sub.name}</span>
+                          <span className={`text-[16px] font-extrabold text-foreground transition-colors ${isSelected ? 'text-slate-900 font-extrabold' : 'text-slate-700'}`}>{sub.name}</span>
                           <p className="text-[11px] text-slate-400 font-medium">পরীক্ষামুখী বিশেষ অধ্যায়সমূহ</p>
                         </div>
                       </div>
@@ -1162,7 +1162,7 @@ export default function Exam() {
             {/* Expandable Chapters section */}
             {mockCustomSubjects.length > 0 && (
                <div className="animate-in fade-in slide-in-from-bottom-2 space-y-4 pt-4 border-t border-slate-100">
-                  <div className="font-extrabold text-slate-800 text-[16px]">সিলেক্টেড বিষয়ের অধ্যায়সমূহ:</div>
+                  <div className="font-extrabold text-foreground text-[16px]">সিলেক্টেড বিষয়ের অধ্যায়সমূহ:</div>
                   {mockCustomSubjects.map(subject => {
                      const availableChapters = dynamicChaptersMap[subject] && dynamicChaptersMap[subject].length > 0 ? dynamicChaptersMap[subject] : (defaultChaptersMap[subject] || ["সাধারণ প্রশ্ন"]);
                      const subjectChapters = mockCustomChapters[subject] || [];
@@ -1170,9 +1170,9 @@ export default function Exam() {
                      const isAllSelected = availableChapters.length > 0 && subjectChapters.length === availableChapters.length;
                      
                      return (
-                       <div key={subject} className="bg-slate-50/50 rounded-2xl border border-slate-150 overflow-hidden">
+                       <div key={subject} className="bg-muted/50 rounded-2xl border border-slate-150 overflow-hidden">
                           {/* Subject Header */}
-                          <div className="p-3.5 flex items-center gap-3 justify-between bg-slate-50">
+                          <div className="p-3.5 flex items-center gap-3 justify-between bg-muted">
                              <div className="flex items-center gap-2.5">
                                <button 
                                  onClick={() => {
@@ -1183,11 +1183,11 @@ export default function Exam() {
                                       setMockCustomChapters(prev => ({...prev, [subject]: [...availableChapters]}));
                                    }
                                  }}
-                                 className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${isAllSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
+                                 className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-colors ${isAllSelected ? 'bg-[#008060] border-[#008060]' : 'bg-card border-slate-300'}`}
                                >
                                   {isAllSelected && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
                                </button>
-                               <span className="font-extrabold text-slate-800 text-sm">{subject}</span>
+                               <span className="font-extrabold text-foreground text-sm">{subject}</span>
                              </div>
                              
                              <div className="flex items-center gap-2">
@@ -1200,7 +1200,7 @@ export default function Exam() {
                           
                           {/* Chapters Accordion Content */}
                           {isExpanded && (
-                             <div className="px-3 pb-3.5 bg-white space-y-1.5 border-t border-slate-150/40 pt-3 max-h-48 overflow-y-auto">
+                             <div className="px-3 pb-3.5 bg-card space-y-1.5 border-t border-slate-150/40 pt-3 max-h-48 overflow-y-auto">
                                 {availableChapters.map(chap => {
                                    const chapSelected = subjectChapters.includes(chap);
                                    return (
@@ -1214,14 +1214,14 @@ export default function Exam() {
                                                return {...prev, [subject]: updated};
                                            });
                                        }}
-                                       className="flex items-center bg-slate-50/30 border border-slate-100 hover:border-slate-200 p-2.5 rounded-xl hover:bg-slate-50/80 transition-colors cursor-pointer select-none"
+                                       className="flex items-center bg-muted/30 border border-slate-100 hover:border-slate-200 p-2.5 rounded-xl hover:bg-muted/80 transition-colors cursor-pointer select-none"
                                      >
                                         <div
-                                          className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 transition-all ${chapSelected ? 'bg-[#008060] border-[#008060]' : 'bg-white border-slate-300'}`}
+                                          className={`w-4.5 h-4.5 rounded border flex items-center justify-center shrink-0 transition-all ${chapSelected ? 'bg-[#008060] border-[#008060]' : 'bg-card border-slate-300'}`}
                                         >
                                            {chapSelected && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>}
                                         </div>
-                                        <span className={`text-[13.5px] font-bold leading-snug ml-2.5 flex-1 ${chapSelected ? 'text-slate-800' : 'text-slate-500'}`}>{chap}</span>
+                                        <span className={`text-[13.5px] font-bold leading-snug ml-2.5 flex-1 ${chapSelected ? 'text-foreground' : 'text-slate-500'}`}>{chap}</span>
                                      </div>
                                    )
                                 })}
@@ -1236,15 +1236,15 @@ export default function Exam() {
             {/* Custom Questions count selectors */}
             {mockCustomSubjects.length > 0 && (
               <div className="space-y-3 pt-2">
-                 <div className="flex items-center justify-between gap-3 bg-slate-50 border border-slate-150 rounded-2xl p-4.5">
+                 <div className="flex items-center justify-between gap-3 bg-muted border border-slate-150 rounded-2xl p-4.5">
                     <div className="space-y-0.5">
-                      <span className="font-extrabold text-slate-800 text-sm">প্রশ্ন সংখ্যা নির্ধারণ করো</span>
+                      <span className="font-extrabold text-foreground text-sm">প্রশ্ন সংখ্যা নির্ধারণ করো</span>
                       <p className="text-[11px] text-slate-400 font-bold">মোট কয়টি প্রশ্নের উত্তর দিবে</p>
                     </div>
-                    <div className="flex items-center border border-slate-200 bg-white rounded-xl overflow-hidden shadow-xs h-10 px-1">
+                    <div className="flex items-center border border-slate-200 bg-card rounded-xl overflow-hidden shadow-xs h-10 px-1">
                       <button 
                         onClick={() => setMockCustomQCount(prev => Math.max(5, prev - 5))}
-                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-lg active:scale-90 font-extrabold transition-all"
+                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-muted rounded-lg active:scale-90 font-extrabold transition-all"
                       >
                         -
                       </button>
@@ -1252,11 +1252,11 @@ export default function Exam() {
                          type="number" 
                          value={mockCustomQCount} 
                          onChange={(e) => setMockCustomQCount(parseInt(e.target.value) || 25)} 
-                         className="w-12 text-center bg-transparent border-none outline-none font-extrabold text-slate-800 text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                         className="w-12 text-center bg-transparent border-none outline-none font-extrabold text-foreground text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                       <button 
                         onClick={() => setMockCustomQCount(prev => Math.min(100, prev + 5))}
-                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-50 rounded-lg active:scale-90 font-extrabold transition-all"
+                        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-muted rounded-lg active:scale-90 font-extrabold transition-all"
                       >
                         +
                       </button>
@@ -1298,12 +1298,12 @@ export default function Exam() {
       );
     } else if (mockStep === 2) {
       return (
-        <div className="w-full max-w-7xl mx-auto pb-40 relative z-0 min-h-screen bg-[#f8fafc] animate-in fade-in slide-in-from-right-4 font-bengali">
+        <div className="w-full max-w-7xl mx-auto pb-40 relative z-0 min-h-screen bg-background animate-in fade-in slide-in-from-right-4 font-bengali">
           <div className="flex items-center justify-between mb-8 px-4 sm:px-6 pt-6">
             <div className="flex items-center gap-4">
                <button 
                   onClick={() => setMockStep(1)} 
-                  className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-100 hover:bg-slate-50 transition-colors"
+                  className="w-11 h-11 bg-card rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-slate-100 hover:bg-muted transition-colors"
                >
                  <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
                </button>
@@ -1331,7 +1331,7 @@ export default function Exam() {
              {/* Cards */}
              <div className="flex flex-col gap-4">
                 {mockCustomSubjects.map(sub => (
-                   <div key={sub} className="bg-white p-4 sm:p-5 rounded-[20px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
+                   <div key={sub} className="bg-card p-4 sm:p-5 rounded-[20px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] flex items-center justify-between">
                        <div className="flex items-center gap-4 sm:gap-5">
                            <div className="w-16 h-16 rounded-full bg-[#E6F4EA] flex items-center justify-center relative shrink-0">
                                <div className="w-8 h-8 grid grid-cols-2 grid-rows-2 gap-[2px]">
@@ -1346,7 +1346,7 @@ export default function Exam() {
                            </div>
                            <div>
                                <div className="font-extrabold text-[#1E2B4C] text-[16px] sm:text-[17px] mb-2">{sub}</div>
-                               <div className="border border-slate-200 rounded-[10px] flex items-center bg-white overflow-hidden w-fit shadow-sm h-9">
+                               <div className="border border-slate-200 rounded-[10px] flex items-center bg-card overflow-hidden w-fit shadow-sm h-9">
                                    <input 
                                        type="number" 
                                        value={mockQuestionCounts[sub] || 25} 
@@ -1354,8 +1354,8 @@ export default function Exam() {
                                        className="bg-transparent border-none outline-none font-extrabold text-[#008060] text-[16px] w-[46px] text-center h-full appearance-none m-0 p-0"
                                    />
                                    <div className="w-[1px] h-[50%] bg-slate-200"></div>
-                                   <div className="bg-white flex items-center text-slate-600 font-bold px-2.5 h-full text-[13px]">
-                                       মিনিট <ChevronDown className="w-3.5 h-3.5 ml-1 text-slate-800" strokeWidth={3} />
+                                   <div className="bg-card flex items-center text-muted-foreground font-bold px-2.5 h-full text-[13px]">
+                                       মিনিট <ChevronDown className="w-3.5 h-3.5 ml-1 text-foreground" strokeWidth={3} />
                                    </div>
                                </div>
                            </div>
@@ -1375,7 +1375,7 @@ export default function Exam() {
                 ))}
              </div>
 
-             <div className="bg-white rounded-[20px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] p-4 flex items-center justify-between cursor-pointer hover:bg-slate-50 mt-2 transition-colors" onClick={() => {
+             <div className="bg-card rounded-[20px] border border-slate-100 shadow-[0_2px_12px_rgba(0,0,0,0.02)] p-4 flex items-center justify-between cursor-pointer hover:bg-muted mt-2 transition-colors" onClick={() => {
                 setMockStep(1);
                 setShowChaptersAccordion(true);
              }}>
@@ -1394,10 +1394,10 @@ export default function Exam() {
           
           {/* Bottom Card Area */}
           <div className="fixed sm:static bottom-0 left-0 w-full sm:mt-10 p-4 sm:px-6 z-20 flex justify-center pb-6">
-              <div className="w-full max-w-7xl mx-auto bg-white p-4 rounded-[28px] shadow-[0_-8px_30px_rgba(0,0,0,0.04)] sm:shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-slate-100 flex flex-col gap-3.5">
+              <div className="w-full max-w-7xl mx-auto bg-card p-4 rounded-[28px] shadow-[0_-8px_30px_rgba(0,0,0,0.04)] sm:shadow-[0_4px_30px_rgba(0,0,0,0.06)] border border-slate-100 flex flex-col gap-3.5">
                   <div className="bg-[#f8fafc] rounded-[20px] px-4 py-3.5 flex items-center justify-between border border-slate-100/60 relative overflow-hidden h-[68px]">
                        <div className="flex items-center gap-3 relative z-10 pl-1">
-                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-sm border border-slate-100">
+                            <div className="w-8 h-8 rounded-full bg-card flex items-center justify-center shadow-sm border border-slate-100">
                                  <Clock className="w-4 h-4 text-[#008060]" strokeWidth={2.5} />
                             </div>
                             <span className="font-extrabold text-[#1E2B4C] text-[16px]">মোট সময়</span>
@@ -1420,14 +1420,14 @@ export default function Exam() {
                   >
                        <div className="absolute left-6 top-1/2 -translate-y-1/2 flex gap-1.5 opacity-20 pointer-events-none">
                             <div className="flex flex-col gap-1.5">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
                             </div>
                        </div>
 
@@ -1436,14 +1436,14 @@ export default function Exam() {
 
                        <div className="absolute right-6 top-1/2 -translate-y-1/2 flex gap-1.5 opacity-20 transform scale-x-[-1] pointer-events-none">
                             <div className="flex flex-col gap-1.5">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
                             </div>
                             <div className="flex flex-col gap-1.5">
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                 <div className="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
+                                 <div className="w-1.5 h-1.5 rounded-full bg-card"></div>
                             </div>
                        </div>
                   </button>
@@ -1464,7 +1464,7 @@ export default function Exam() {
               {/* Back Button */}
               <button 
                  onClick={() => navigate("/dashboard")} 
-                 className="w-11 h-11 rounded-2xl bg-white border border-slate-100 shadow-sm hover:shadow flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all active:scale-95 cursor-pointer"
+                 className="w-11 h-11 rounded-2xl bg-card border border-slate-100 shadow-sm hover:shadow flex items-center justify-center text-muted-foreground hover:text-slate-900 transition-all active:scale-95 cursor-pointer"
               >
                  <ArrowLeft className="w-5 h-5" />
               </button>
@@ -1473,7 +1473,7 @@ export default function Exam() {
               <div className="w-16 h-1.5 bg-slate-200 rounded-full"></div>
 
               {/* Bell Button */}
-              <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-600 relative">
+              <div className="w-11 h-11 rounded-2xl bg-card border border-slate-100 shadow-sm flex items-center justify-center text-muted-foreground relative">
                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
                  </svg>
@@ -1569,7 +1569,7 @@ export default function Exam() {
                             setActiveSet(set.id);
                          }
                       }}
-                      className="cursor-pointer bg-white border border-[#F1F5F9] hover:border-emerald-200 hover:shadow-md shadow-sm rounded-3xl p-4 flex items-center justify-between group transition-all"
+                      className="cursor-pointer bg-card border border-[#F1F5F9] hover:border-emerald-200 hover:shadow-md shadow-sm rounded-3xl p-4 flex items-center justify-between group transition-all"
                    >
                       <div className="flex items-center gap-4">
                          {/* Mint Green Document Backdrop */}
@@ -1623,14 +1623,14 @@ export default function Exam() {
 
            {/* Mobile Prototype Bottom Navigation Menu */}
            <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none">
-             <div className="pointer-events-auto border-t-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-[32px] p-3 flex justify-around items-center gap-2 max-w-[400px] mx-auto border border-slate-100">
+             <div className="pointer-events-auto border-t-0 bg-card shadow-[0_8px_30px_rgba(0,0,0,0.08)] rounded-[32px] p-3 flex justify-around items-center gap-2 max-w-[400px] mx-auto border border-slate-100">
               <div className="flex flex-col items-center gap-1.5 cursor-pointer text-[#008060]">
                  <div className="px-3 py-1 rounded-xl bg-[#E6F4EA] flex items-center justify-center">
                     <BookOpen className="w-5 h-5" strokeWidth={2.5} />
                  </div>
                  <span className="text-xs font-bengali font-bold select-none">মডেল টেস্ট</span>
               </div>
-              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors" onClick={() => navigate("/leaderboard")}>
+              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-muted-foreground transition-colors" onClick={() => navigate("/leaderboard")}>
                  <div className="p-1">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                        <line x1="18" y1="20" x2="18" y2="10" />
@@ -1640,7 +1640,7 @@ export default function Exam() {
                  </div>
                  <span className="text-xs font-bengali font-medium select-none">পারফরম্যান্স</span>
               </div>
-              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors" onClick={() => navigate("/dashboard")}>
+              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-muted-foreground transition-colors" onClick={() => navigate("/dashboard")}>
                  <div className="p-1">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
@@ -1648,7 +1648,7 @@ export default function Exam() {
                  </div>
                  <span className="text-xs font-bengali font-medium select-none">সেভড</span>
               </div>
-              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-slate-600 transition-colors" onClick={() => navigate("/profile")}>
+              <div className="flex flex-col items-center gap-1 cursor-pointer text-slate-400 hover:text-muted-foreground transition-colors" onClick={() => navigate("/profile")}>
                  <div className="p-1">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -1667,12 +1667,12 @@ export default function Exam() {
       <div className="max-w-4xl mx-auto py-12 px-4 relative z-0">
         <button 
           onClick={() => navigate("/dashboard")} 
-          className="absolute top-4 left-4 sm:top-6 sm:left-4 flex items-center text-slate-600 font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-lg"
+          className="absolute top-4 left-4 sm:top-6 sm:left-4 flex items-center text-muted-foreground font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-card/50 backdrop-blur-sm rounded-lg"
         >
           <ArrowLeft className="w-5 h-5 mr-1.5" /> ফিরে যান
         </button>
         <div className="text-center mb-12 mt-8">
-          <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">{pageTitle}</h2>
+          <h2 className="text-3xl font-bengali font-bold text-foreground mb-4">{pageTitle}</h2>
 
 
 
@@ -1682,9 +1682,9 @@ export default function Exam() {
         </div>
 
         {type === 'mistakes' && (
-          <div className="max-w-xl mx-auto bg-white p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden text-center">
+          <div className="max-w-xl mx-auto bg-card p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden text-center">
              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 to-rose-400"></div>
-             <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6">ভুলগুলোর প্র্যাকটিস</h3>
+             <h3 className="text-2xl font-bengali font-bold text-foreground mb-6">ভুলগুলোর প্র্যাকটিস</h3>
              <p className="font-bengali text-slate-500 mb-8">যে প্রশ্নগুলো আগে পরীক্ষা দিতে গিয়ে ভুল হয়েছে, সেগুলো পুনরায় অনুশীলন করো। সর্বোচ্চ ২০টি প্রশ্ন দেয়া হবে।</p>
              <button 
                 onClick={() => setActiveSet(`mistakes-20`)}
@@ -1727,13 +1727,13 @@ export default function Exam() {
   return (
     <div className={`w-full flex flex-col font-bengali ${!isSubmitted ? 'pb-24' : 'pb-20'}`}>
       {/* Top Section */}
-      <div className="w-full bg-white py-3.5 sm:py-5 px-4 sm:px-8 mb-6 sm:mb-10 text-center relative border-b border-slate-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] sticky top-0 z-50">
+      <div className="w-full bg-card py-3.5 sm:py-5 px-4 sm:px-8 mb-6 sm:mb-10 text-center relative border-b border-slate-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
             <button 
                onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
-               className="w-10 h-10 -ml-2 rounded-full hover:bg-slate-50 flex items-center justify-center transition-colors relative z-10"
+               className="w-10 h-10 -ml-2 rounded-full hover:bg-muted flex items-center justify-center transition-colors relative z-10"
             >
-               <ArrowLeft className="w-6 h-6 text-slate-800" />
+               <ArrowLeft className="w-6 h-6 text-foreground" />
             </button>
             <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full px-12">
               <h2 className="text-[19px] sm:text-[22px] font-bold text-slate-900 leading-tight">
@@ -1761,15 +1761,15 @@ export default function Exam() {
           >
             <h3 className="text-2xl font-bold font-bengali text-[#0e5c2f] mb-3">পরীক্ষা সম্পন্ন হয়েছে!</h3>
             <div className="flex justify-center flex-wrap gap-4 mt-6">
-              <div className="bg-white rounded-2xl p-5 shadow-sm min-w-[140px] border border-[#d1f0df]">
+              <div className="bg-card rounded-2xl p-5 shadow-sm min-w-[140px] border border-[#d1f0df]">
                 <p className="text-sm font-bengali text-slate-500 mb-1">মোট প্রশ্ন</p>
-                <p className="text-4xl font-mono font-bold text-slate-800">{dbQuestions.length}</p>
+                <p className="text-4xl font-mono font-bold text-foreground">{dbQuestions.length}</p>
               </div>
-              <div className="bg-white rounded-2xl p-5 shadow-sm min-w-[140px] border border-[#d1f0df]">
+              <div className="bg-card rounded-2xl p-5 shadow-sm min-w-[140px] border border-[#d1f0df]">
                 <p className="text-sm font-bengali text-slate-500 mb-1">সঠিক উত্তর</p>
                 <p className="text-4xl font-mono font-bold text-[#147e42]">{score / 10}</p>
               </div>
-              <div className="bg-white rounded-2xl p-5 shadow-[0_4px_20px_-4px_rgba(249,115,22,0.3)] min-w-[140px] border border-orange-100 relative overflow-hidden">
+              <div className="bg-card rounded-2xl p-5 shadow-[0_4px_20px_-4px_rgba(249,115,22,0.3)] min-w-[140px] border border-orange-100 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-orange-500"></div>
                 <p className="text-sm font-bengali text-slate-500 mb-1">প্রাপ্ত পয়েন্ট</p>
                 <p className="text-4xl font-mono font-bold text-orange-500">+{score}</p>
@@ -1808,7 +1808,7 @@ export default function Exam() {
          <>
         <div className="space-y-6 sm:space-y-8">
           {dbQuestions.map((q, idx) => (
-            <div key={q.id ? `q_${q.id}_${idx}` : `q_fallback_${idx}`} className="question-block bg-white rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+            <div key={q.id ? `q_${q.id}_${idx}` : `q_fallback_${idx}`} className="question-block bg-card rounded-[24px] sm:rounded-[32px] p-5 sm:p-8 border border-slate-100 shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
                {/* Question Header */}
                <div className="mb-6">
                  <div className="flex items-center gap-3 mb-3">
@@ -1816,7 +1816,7 @@ export default function Exam() {
                      প্রশ্ন {q.questionNumber}
                    </div>
                  </div>
-                 <h2 className="text-[17px] md:text-xl font-bengali font-bold text-slate-800 leading-relaxed md:leading-snug">
+                 <h2 className="text-[17px] md:text-xl font-bengali font-bold text-foreground leading-relaxed md:leading-snug">
                    {cleanOptionText(q.text)}
                  </h2>
                </div>
@@ -1841,8 +1841,8 @@ export default function Exam() {
                    const wrong = isIncorrect(q.id, optionId);
                    const qWasSkipped = !selectedOptions[q.id];
                    
-                   let containerClass = "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50 border-[1.5px] text-slate-700 shadow-sm";
-                   let labelBg = "bg-slate-100 text-slate-600 border border-slate-200";
+                   let containerClass = "bg-card border-slate-200 hover:border-slate-300 hover:bg-muted border-[1.5px] text-slate-700 shadow-sm";
+                   let labelBg = "bg-slate-100 text-muted-foreground border border-slate-200";
                    
                    if (selected && !isSubmitted) {
                      containerClass = "bg-blue-50/50 border-blue-500 border-[1.5px] text-blue-900 shadow-md ring-4 ring-blue-500/10";
@@ -1889,7 +1889,7 @@ export default function Exam() {
                          <motion.div 
                            initial={{ scale: 0 }}
                            animate={{ scale: 1 }}
-                           className="absolute right-4 text-red-500 bg-white rounded-full shadow-sm"
+                           className="absolute right-4 text-red-500 bg-card rounded-full shadow-sm"
                          >
                            <AlertCircle className="w-5 h-5 text-red-500" />
                          </motion.div>
@@ -1912,7 +1912,7 @@ export default function Exam() {
                          <div className="w-10 h-10 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-500 shrink-0 shadow-inner">
                            <Brain className="w-5 h-5" />
                          </div>
-                         <div className="flex-1 text-slate-800">
+                         <div className="flex-1 text-foreground">
                            <h4 className="font-bold text-lg mb-1.5 font-bengali flex items-center">
                              ব্যাখ্যা
                            </h4>
@@ -1923,11 +1923,11 @@ export default function Exam() {
                        </div>
                      ) : (
                        <div className="flex flex-col items-center justify-center text-center py-2">
-                          <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mb-3 shadow-inner">
+                          <div className="w-12 h-12 bg-card rounded-full flex items-center justify-center mb-3 shadow-inner">
                              <Lock className="w-5 h-5 text-slate-400" />
                           </div>
-                          <h4 className="font-bold text-slate-800 mb-2 font-bengali">ব্যাখ্যা দেখতে প্রো সাবস্ক্রিপশন প্রয়োজন</h4>
-                          <p className="text-slate-600 font-bengali text-sm mb-4 max-w-sm">
+                          <h4 className="font-bold text-foreground mb-2 font-bengali">ব্যাখ্যা দেখতে প্রো সাবস্ক্রিপশন প্রয়োজন</h4>
+                          <p className="text-muted-foreground font-bengali text-sm mb-4 max-w-sm">
                             সব প্রশ্নের বিস্তারিত ব্যাখ্যা ও আরও অনেক সুবিধা পেতে আজই প্রো মেম্বারশিপে আপগ্রেড করুন।
                           </p>
                           <Link to="/subscription">

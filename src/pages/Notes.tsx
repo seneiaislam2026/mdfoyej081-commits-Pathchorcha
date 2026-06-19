@@ -1495,7 +1495,7 @@ const COMMERCE_SUBJECTS = [
     id: "english",
     title: "ইংরেজি",
     subjectMatch: "ইংরেজি",
-    bgColor: "bg-slate-50/80",
+    bgColor: "bg-muted/80",
     icon: (
       <div className="relative w-24 h-24 sm:w-28 sm:h-28 mx-auto mb-4 transition-transform group-hover:scale-110 duration-500">
         <div className="absolute inset-0 bg-blue-100/50 rounded-full blur-xl animate-pulse" />
@@ -2037,7 +2037,7 @@ export default function Notes() {
       modal.className = "fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
       
       modal.innerHTML = `
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6 transform transition-all duration-300 scale-100">
+        <div class="bg-card rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6 transform transition-all duration-300 scale-100">
           <div class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 animate-bounce">
             <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -2261,14 +2261,14 @@ export default function Notes() {
   const showLandingGate = chosenSubject === null;
   if (showLandingGate) {
     return (
-      <div className="min-h-screen bg-slate-50/50 pb-28 font-sans antialiased text-slate-800">
+      <div className="min-h-screen bg-muted/50 pb-28 font-sans antialiased text-foreground">
         {/* White header like in image */}
-        <div className="bg-white border-b border-slate-100 overflow-hidden relative shadow-sm">
+        <div className="bg-card border-b border-slate-100 overflow-hidden relative shadow-sm">
           <div className="max-w-[1200px] mx-auto px-5 sm:px-8 py-8 sm:py-10 flex items-center justify-between">
             <div className="relative z-10 space-y-1.5 sm:space-y-2">
               <button 
                 onClick={() => navigate("/dashboard")} 
-                className="w-10 h-10 bg-slate-50 hover:bg-slate-100 rounded-full flex items-center justify-center transition-colors mb-4 border border-slate-200"
+                className="w-10 h-10 bg-muted hover:bg-slate-100 rounded-full flex items-center justify-center transition-colors mb-4 border border-slate-200"
               >
                 <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
               </button>
@@ -2470,7 +2470,7 @@ export default function Notes() {
                   setChosenSubject(sub.subjectMatch);
                   setSelectedSubject(sub.subjectMatch);
                 }}
-                className="bg-white border border-slate-200/60 rounded-[20px] p-5 sm:p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-slate-300 group relative overflow-hidden text-center"
+                className="bg-card border border-slate-200/60 rounded-[20px] p-5 sm:p-6 flex flex-col items-center justify-center cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-slate-300 group relative overflow-hidden text-center"
               >
                 <div
                   className={
@@ -2488,7 +2488,7 @@ export default function Notes() {
         </main>
 
         {/* Bottom Navigation Tab Bar */}
-        <div className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200/80 py-3.5 px-4 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto">
+        <div className="fixed bottom-0 inset-x-0 bg-card border-t border-slate-200/80 py-3.5 px-4 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto">
           <button className="flex-1 flex flex-col items-center gap-1 transition-all relative text-blue-600 scale-102 cursor-pointer">
             <BookOpen className="w-5 h-5 shrink-0" />
             <span className="text-[11px] sm:text-xs font-bengali font-bold">
@@ -2532,9 +2532,9 @@ export default function Notes() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] pb-28 font-sans antialiased text-slate-800">
+    <div className="min-h-screen bg-background pb-28 font-sans antialiased text-foreground">
       {/* Clean Topbar */}
-      <header className="bg-white border-b border-slate-150 sticky top-0 z-50 px-4 sm:px-6 py-4.5 shadow-xs">
+      <header className="bg-card border-b border-slate-150 sticky top-0 z-50 px-4 sm:px-6 py-4.5 shadow-xs">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 w-full">
             <button
@@ -2545,7 +2545,7 @@ export default function Notes() {
                   navigate("/dashboard");
                 }
               }}
-              className="h-10 w-10 bg-slate-50 hover:bg-slate-100 active:scale-95 border border-slate-200/60 rounded-2xl flex items-center justify-center text-[#0F2744] transition-all shrink-0 hover:shadow-xs"
+              className="h-10 w-10 bg-muted hover:bg-slate-100 active:scale-95 border border-slate-200/60 rounded-2xl flex items-center justify-center text-[#0F2744] transition-all shrink-0 hover:shadow-xs"
               aria-label="Back"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -2569,7 +2569,7 @@ export default function Notes() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         {/* Dynamic Notes Grid */}
         {filteredNotes.length === 0 ? (
-          <div className="bg-white p-14 text-center rounded-[32px] border border-slate-150 shadow-sm space-y-4">
+          <div className="bg-card p-14 text-center rounded-[32px] border border-slate-150 shadow-sm space-y-4">
             <BookOpen className="w-14 h-14 text-slate-300 mx-auto" />
             <div className="space-y-1">
               <p className="font-bengali text-base font-bold text-slate-700">
@@ -2689,7 +2689,7 @@ export default function Notes() {
                     className="w-full"
                   >
                     <div
-                      className={`group relative bg-white border border-slate-150/80 rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_44px_rgba(0,0,0,0.035)] transition-all duration-300 pb-5 pt-6 px-6 sm:px-8 overflow-hidden ${themeColors.stripe}`}
+                      className={`group relative bg-card border border-slate-150/80 rounded-[28px] shadow-[0_8px_30px_rgba(0,0,0,0.015)] hover:shadow-[0_12px_44px_rgba(0,0,0,0.035)] transition-all duration-300 pb-5 pt-6 px-6 sm:px-8 overflow-hidden ${themeColors.stripe}`}
                     >
                       {/* Top Flex row containing Icon, Title/Badge and Bookmark */}
                       <div className="flex items-start justify-between gap-4">
@@ -2783,15 +2783,15 @@ export default function Notes() {
               light: {
                 bg: "bg-[#FCFBF7]",
                 textTitle: "text-slate-950",
-                textBody: "text-slate-800",
+                textBody: "text-foreground",
                 textMute: "text-slate-500",
                 border: "border-[#EDECDF]",
                 headerBg: "bg-[#FCFBF7]/95",
                 headerBorder: "border-[#EDECDF]",
                 navButtonHover: "hover:bg-slate-250/50",
                 introBg: "bg-[#F7F6EE] border-amber-600 text-stone-800",
-                itemBg: "bg-white border-[#ECEBDD]",
-                itemHover: "hover:bg-slate-50/50",
+                itemBg: "bg-card border-[#ECEBDD]",
+                itemHover: "hover:bg-muted/50",
                 itemNumberBg:
                   "bg-stone-100 text-stone-500 group-hover:bg-primary/10 group-hover:text-primary",
                 footerBg: "bg-[#FAF9F2] border-[#ECEBDD]",
@@ -2864,7 +2864,7 @@ export default function Notes() {
                         স্ক্রিনশট বা কপি করা সম্পূর্ণ নিষিদ্ধ!
                       </h3>
                       <p className="text-slate-400 font-bengali text-xs md:text-sm mt-2 max-w-sm">
-                        শিক্ষাঙ্গন প্ল্যাটফর্মের গোপনীয়তা ও মেধা সম্পদ রক্ষার
+                        বিদ্যায়ন প্ল্যাটফর্মের গোপনীয়তা ও মেধা সম্পদ রক্ষার
                         স্বার্থে এই পেইজের স্ক্রিনশট বা কপি মেকানিজম ব্লক করা
                         হয়েছে।
                       </p>
@@ -2900,13 +2900,13 @@ export default function Notes() {
 
                     {/* Settings Controls (Themes & Font Sizes & Print) */}
                     <div
-                      className={`flex items-center gap-2.5 shrink-0 self-end sm:self-center bg-black/5 dark:bg-white/5 rounded-2xl p-1 border ${tc.border}`}
+                      className={`flex items-center gap-2.5 shrink-0 self-end sm:self-center bg-black/5 dark:bg-card/5 rounded-2xl p-1 border ${tc.border}`}
                     >
                       {/* Theme buttons */}
                       <div className="flex items-center gap-0.5">
                         <button
                           onClick={() => setReaderTheme("light")}
-                          className={`h-7 px-2 px-3 text-[11px] font-bengali font-bold rounded-xl transition-all ${readerTheme === "light" ? "bg-white text-slate-900 shadow-xs" : "text-slate-550 hover:text-slate-700"}`}
+                          className={`h-7 px-2 px-3 text-[11px] font-bengali font-bold rounded-xl transition-all ${readerTheme === "light" ? "bg-card text-slate-900 shadow-xs" : "text-slate-550 hover:text-slate-700"}`}
                         >
                           দিন
                         </button>
@@ -2930,13 +2930,13 @@ export default function Notes() {
                       <div className="flex items-center gap-0.5 font-sans">
                         <button
                           onClick={() => setReaderFontSize("base")}
-                          className={`h-7 w-7 text-xs font-semibold rounded-xl transition-all ${readerFontSize === "base" ? "bg-amber-450 bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-slate-800"}`}
+                          className={`h-7 w-7 text-xs font-semibold rounded-xl transition-all ${readerFontSize === "base" ? "bg-amber-450 bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-foreground"}`}
                         >
                           Ab
                         </button>
                         <button
                           onClick={() => setReaderFontSize("lg")}
-                          className={`h-7 w-7 text-sm font-semibold rounded-xl transition-all ${readerFontSize === "lg" ? "bg-amber-450 bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-slate-800"}`}
+                          className={`h-7 w-7 text-sm font-semibold rounded-xl transition-all ${readerFontSize === "lg" ? "bg-amber-450 bg-amber-400 text-slate-950 font-black" : "text-slate-550 hover:text-foreground"}`}
                         >
                           Ab+
                         </button>
@@ -2998,7 +2998,7 @@ export default function Notes() {
                                   if (item && typeof item === "object") {
                                     if (item.type === "table") {
                                       return (
-                                        <div key={iIdx} className="overflow-x-auto border border-slate-200 rounded-xl my-4 bg-white/40 shadow-xs backdrop-blur-sm w-full">
+                                        <div key={iIdx} className="overflow-x-auto border border-slate-200 rounded-xl my-4 bg-card/40 shadow-xs backdrop-blur-sm w-full">
                                           <table className="w-full border-collapse min-w-[500px]">
                                             <thead>
                                               <tr className={`${tc.textTitle} border-b border-slate-200/50`}>
@@ -3011,7 +3011,7 @@ export default function Notes() {
                                             </thead>
                                             <tbody className={`divide-y divide-slate-200/40 ${tc.textBody}`}>
                                               {item.rows?.map((row: any[], rIdx: number) => (
-                                                <tr key={rIdx} className="hover:bg-slate-50/20 transition-colors text-sm text-left">
+                                                <tr key={rIdx} className="hover:bg-muted/20 transition-colors text-sm text-left">
                                                   {row?.map((cell: any, dIdx: number) => (
                                                     <td key={dIdx} className="py-3.5 px-4 border-r border-slate-200/20 font-nctb leading-relaxed align-top">
                                                       {typeof cell === "object" ? (
@@ -3020,9 +3020,9 @@ export default function Notes() {
                                                             <div key={i} className="whitespace-pre-wrap">
                                                               {typeof c === "object" ? (
                                                                 c.q && c.a ? (
-                                                                  <div className="bg-slate-50/50 p-2 rounded-lg border border-slate-100">
-                                                                    <div className="font-bold text-slate-800">প্র: {c.q}</div>
-                                                                    <div className="text-slate-600 mt-1">উ: {c.a}</div>
+                                                                  <div className="bg-muted/50 p-2 rounded-lg border border-slate-100">
+                                                                    <div className="font-bold text-foreground">প্র: {c.q}</div>
+                                                                    <div className="text-muted-foreground mt-1">উ: {c.a}</div>
                                                                   </div>
                                                                 ) : JSON.stringify(c)
                                                               ) : c}
@@ -3042,7 +3042,7 @@ export default function Notes() {
 
                                     if (item.type === "tip") {
                                       return (
-                                        <div key={iIdx} className="bg-amber-50/60 border border-amber-200/80 p-5 rounded-xl space-y-2 text-slate-800 shadow-sm border-l-4 border-l-amber-500 w-full">
+                                        <div key={iIdx} className="bg-amber-50/60 border border-amber-200/80 p-5 rounded-xl space-y-2 text-foreground shadow-sm border-l-4 border-l-amber-500 w-full">
                                           <div className="font-bold flex items-center gap-2 select-none text-amber-900 font-nctb text-lg">
                                             ⚡ {item.title || "এক্সক্লুসিভ শিক্ষক টিপস"}
                                           </div>
@@ -3059,7 +3059,7 @@ export default function Notes() {
                                           <div className="font-black text-emerald-900 font-nctb text-base sm:text-lg">
                                             {item.q}
                                           </div>
-                                          <div className="text-slate-800 font-nctb font-medium leading-relaxed text-sm sm:text-base">
+                                          <div className="text-foreground font-nctb font-medium leading-relaxed text-sm sm:text-base">
                                             {item.a}
                                           </div>
                                         </div>
@@ -3068,9 +3068,9 @@ export default function Notes() {
 
                                     if (item.type === "text") {
                                       return (
-                                        <p key={iIdx} className={`font-nctb ${fontSizeClass} tracking-wide select-none break-words w-full transition-all duration-300 ${tc.textBody}`}>
+                                        <div key={iIdx} className={`font-nctb ${fontSizeClass} tracking-wide whitespace-pre-wrap select-none break-words w-full transition-all duration-300 ${tc.textBody}`}>
                                           {item.content}
-                                        </p>
+                                        </div>
                                       );
                                     }
                                   }
@@ -3124,7 +3124,7 @@ export default function Notes() {
       </AnimatePresence>
 
       {/* Bottom Navigation Tab Bar (exactly matching screenshot 3) */}
-      <div className="fixed bottom-0 inset-x-0 bg-white border-t border-slate-200/80 py-3.5 px-4 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto">
+      <div className="fixed bottom-0 inset-x-0 bg-card border-t border-slate-200/80 py-3.5 px-4 flex justify-around items-center z-50 shadow-[0_-4px_24px_rgba(0,0,0,0.03)] rounded-t-[28px] max-w-lg mx-auto">
         <button className="flex-1 flex flex-col items-center gap-1 transition-all relative text-blue-600 scale-102 cursor-pointer">
           <BookOpen className="w-5 h-5 shrink-0" />
           <span className="text-[11px] sm:text-xs font-bengali font-bold">

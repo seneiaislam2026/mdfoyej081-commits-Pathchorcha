@@ -304,10 +304,10 @@ export default function PublicExam() {
 
   if (error || !exam || !exam.active) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-slate-50 font-bengali">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-muted font-bengali">
         <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
-        <h2 className="text-xl font-bold text-slate-800 mb-2">Sorry!</h2>
-        <p className="text-slate-600 mb-6">{error || "This exam is currently closed."}</p>
+        <h2 className="text-xl font-bold text-foreground mb-2">Sorry!</h2>
+        <p className="text-muted-foreground mb-6">{error || "This exam is currently closed."}</p>
         <Button onClick={() => navigate("/")}>Go Home</Button>
       </div>
     );
@@ -320,14 +320,14 @@ export default function PublicExam() {
 
   if (!isStarted) {
     return (
-      <div className="min-h-screen bg-[#F0F2F5] flex flex-col font-bengali relative overflow-hidden">
+      <div className="min-h-screen bg-background flex flex-col font-bengali relative overflow-hidden">
         {/* Subtle background decoration */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/40 via-transparent to-transparent pointer-events-none"></div>
 
         {/* Top Brand Header */}
-        <div className="bg-white px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm relative z-10">
+        <div className="bg-card px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm relative z-10">
            <div className="flex items-center">
-             <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
+             <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-muted border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
              </button>
              <div className="font-bold text-2xl sm:text-[28px] tracking-tight flex items-center !leading-relaxed">
@@ -346,7 +346,7 @@ export default function PublicExam() {
         </div>
 
         <div className="flex-1 flex items-center justify-center p-4 sm:p-6 pb-24 relative z-10 w-full">
-          <Card className="w-full max-w-[460px] border-0 shadow-[0_20px_60px_rgb(0,0,0,0.06)] rounded-[32px] sm:rounded-[40px] bg-white relative z-10">
+          <Card className="w-full max-w-[460px] border-0 shadow-[0_20px_60px_rgb(0,0,0,0.06)] rounded-[32px] sm:rounded-[40px] bg-card relative z-10">
           <CardContent className="p-6 sm:p-10">
             {/* Custom SVG icon */}
             <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-2 relative left-2">
@@ -416,7 +416,7 @@ export default function PublicExam() {
                    <div className="w-full mt-2 relative">
                       <Input 
                         placeholder="আপনার নাম লিখুন..." 
-                        className="h-[52px] bg-white border-0 rounded-xl text-center text-lg shadow-sm focus:ring-0 font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal"
+                        className="h-[52px] bg-card border-0 rounded-xl text-center text-lg shadow-sm focus:ring-0 font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal"
                         value={studentName}
                         onChange={(e) => setStudentName(e.target.value)}
                       />
@@ -437,7 +437,7 @@ export default function PublicExam() {
                   <span className="text-[26px] drop-shadow-md pb-1">🚀</span>
                   <span className="text-[20px] text-white">পরীক্ষা শুরু করুন</span>
                 </div>
-                <div className={`w-[48px] h-[48px] rounded-[20px] flex items-center justify-center shrink-0 mr-0 transition-colors ${(!userData?.fullName && !studentName.trim()) ? 'bg-slate-200 text-slate-400' : 'bg-white text-[#0A2656]'}`}>
+                <div className={`w-[48px] h-[48px] rounded-[20px] flex items-center justify-center shrink-0 mr-0 transition-colors ${(!userData?.fullName && !studentName.trim()) ? 'bg-slate-200 text-slate-400' : 'bg-card text-[#0A2656]'}`}>
                    <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
                 </div>
               </Button>
@@ -450,19 +450,19 @@ export default function PublicExam() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-bengali pb-24">
+    <div className="min-h-screen bg-background font-bengali pb-24">
       {/* Top Brand Header */}
-      <div className="bg-white px-4 sm:px-6 py-3 sm:py-4 flex items-center border-b border-slate-100">
+      <div className="bg-card px-4 sm:px-6 py-3 sm:py-4 flex items-center border-b border-slate-100">
          <div className="font-bold text-2xl sm:text-[28px] tracking-tight flex items-center !leading-relaxed">
             <span className="text-[#1e293b]">শিক্ষা</span><span className="text-[#f59e0b]">ঙ্গন</span>
          </div>
       </div>
 
       {/* Sticky Action Bar */}
-      <header className="bg-white border-y sticky top-0 z-50">
+      <header className="bg-card border-y sticky top-0 z-50">
         <div className="max-w-[800px] mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between overflow-x-auto no-scrollbar">
           
-          <button onClick={() => navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-colors shrink-0 mr-2">
+          <button onClick={() => navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-card border border-slate-200 shadow-sm flex items-center justify-center hover:bg-muted transition-colors shrink-0 mr-2">
             <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
           </button>
           
@@ -500,31 +500,31 @@ export default function PublicExam() {
       <main className="flex-1 w-full max-w-[800px] mx-auto px-2 sm:px-6 mb-8 mt-6">
         
         {isSubmitted && (
-          <div className="mb-8 bg-white border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-sm text-center">
-             <h2 className="text-xl font-bold text-slate-800 mb-6">{studentName}, Final Result</h2>
+          <div className="mb-8 bg-card border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-sm text-center">
+             <h2 className="text-xl font-bold text-foreground mb-6">{studentName}, Final Result</h2>
              
              <div className="flex items-center justify-center gap-4 sm:gap-8 mb-8">
                 <div className="text-center">
                     <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-green-500 flex items-center justify-center mx-auto mb-2 bg-green-50">
                        <span className="text-xl sm:text-3xl font-bold text-green-600">{correctCount}</span>
                     </div>
-                    <span className="text-xs sm:text-[15px] font-medium text-slate-600">Correct</span>
+                    <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Correct</span>
                 </div>
                 <div className="text-center">
                     <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-red-500 flex items-center justify-center mx-auto mb-2 bg-red-50">
                        <span className="text-xl sm:text-3xl font-bold text-red-600">{wrongCount}</span>
                     </div>
-                    <span className="text-xs sm:text-[15px] font-medium text-slate-600">Wrong</span>
+                    <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Wrong</span>
                 </div>
                 <div className="text-center">
-                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-slate-300 flex items-center justify-center mx-auto mb-2 bg-slate-50">
-                       <span className="text-xl sm:text-3xl font-bold text-slate-600">{skippedCount}</span>
+                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-slate-300 flex items-center justify-center mx-auto mb-2 bg-muted">
+                       <span className="text-xl sm:text-3xl font-bold text-muted-foreground">{skippedCount}</span>
                     </div>
-                    <span className="text-xs sm:text-[15px] font-medium text-slate-600">Skipped</span>
+                    <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Skipped</span>
                 </div>
              </div>
 
-             <div className="bg-slate-50 border border-slate-100 rounded-[20px] p-4 inline-flex items-center gap-3 flex-col sm:flex-row shadow-inner">
+             <div className="bg-muted border border-slate-100 rounded-[20px] p-4 inline-flex items-center gap-3 flex-col sm:flex-row shadow-inner">
                 <span className="text-slate-500 font-medium text-sm sm:text-base">Total Score:</span>
                 <span className="text-2xl font-bold text-primary">{score} <span className="text-base text-slate-400">/ {questions.length}</span></span>
              </div>
@@ -539,7 +539,7 @@ export default function PublicExam() {
           </div>
         )}
 
-        <div className="bg-white sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
+        <div className="bg-card sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
           {questions.map((q, idx) => {
             const isQuestionSubmitted = isSubmitted;
             const selected = selectedAnswers[idx];
@@ -581,10 +581,10 @@ export default function PublicExam() {
                        if (isThisCorrect && qWasSkipped) optStyle = "border-orange-500 bg-orange-100 shadow-[0_0_0_1px_#f97316]";
                        else if (isThisCorrect) optStyle = "border-green-500 bg-green-100 shadow-[0_0_0_1px_#22c55e]";
                        else if (isSelected && !isThisCorrect) optStyle = "border-red-500 bg-red-100 shadow-[0_0_0_1px_#ef4444]";
-                       else optStyle = "border-slate-200 bg-slate-50 opacity-60";
+                       else optStyle = "border-slate-200 bg-muted opacity-60";
                     } else {
-                       if (isSelected) optStyle = "border-[#1e293b] bg-slate-50 shadow-[0_0_0_1px_#1e293b]";
-                       else optStyle = "border-slate-200 hover:border-slate-300 bg-white";
+                       if (isSelected) optStyle = "border-[#1e293b] bg-muted shadow-[0_0_0_1px_#1e293b]";
+                       else optStyle = "border-slate-200 hover:border-slate-300 bg-card";
                     }
 
                     let badgeStyle = "";
@@ -595,7 +595,7 @@ export default function PublicExam() {
                        else badgeStyle = "bg-slate-200 text-slate-500 border-slate-200";
                     } else {
                        if (isSelected) badgeStyle = "bg-[#1e293b] text-white border-r-[#1e293b]";
-                       else badgeStyle = "bg-[#f8fafc] text-slate-800 border-slate-200";
+                       else badgeStyle = "bg-[#f8fafc] text-foreground border-slate-200";
                     }
 
                     let textColor = "";
@@ -603,7 +603,7 @@ export default function PublicExam() {
                        if (isThisCorrect && qWasSkipped) textColor = "text-orange-900 font-bold";
                        else if (isThisCorrect) textColor = "text-green-900 font-bold";
                        else if (isSelected && !isThisCorrect) textColor = "text-red-900 font-bold";
-                       else textColor = "text-slate-600 font-medium";
+                       else textColor = "text-muted-foreground font-medium";
                     } else {
                        textColor = isSelected ? 'text-[#1e293b] font-bold' : 'text-[#0f172a] font-medium';
                     }
@@ -631,7 +631,7 @@ export default function PublicExam() {
                 {/* Auto Explanation block if submitted */}
                 {isQuestionSubmitted && q.explanation && (
                   <div className="mt-6 p-5 sm:p-6 bg-indigo-50/50 border border-indigo-100/60 rounded-2xl flex gap-3 sm:gap-4 shadow-sm">
-                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white border border-indigo-200/60 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
+                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-card border border-indigo-200/60 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
                        <Brain className="w-4 h-4 sm:w-5 sm:h-5" />
                      </div>
                      <div className="flex-1 pt-0.5 sm:pt-1">
@@ -657,19 +657,19 @@ export default function PublicExam() {
         )}
 
         {isSubmitted && leaderboard.length > 0 && (
-          <div className="mt-8 mb-8 bg-white rounded-[32px] border border-slate-100 shadow-sm p-6 sm:p-8">
-             <h3 className="text-xl sm:text-2xl font-bold text-slate-800 font-bengali text-center mb-6 flex items-center justify-center gap-2">
+          <div className="mt-8 mb-8 bg-card rounded-[32px] border border-slate-100 shadow-sm p-6 sm:p-8">
+             <h3 className="text-xl sm:text-2xl font-bold text-foreground font-bengali text-center mb-6 flex items-center justify-center gap-2">
                <span>🏆</span> লিডারবোর্ড (Top 10)
              </h3>
              <div className="space-y-3">
                {leaderboard.map((user, idx) => (
-                 <div key={user.id} className={`flex items-center justify-between border rounded-2xl p-4 ${idx === 0 ? 'bg-amber-50/50 border-amber-100' : idx === 1 ? 'bg-slate-50 border-slate-200' : idx === 2 ? 'bg-orange-50/50 border-orange-100' : 'bg-slate-50 border-slate-100'}`}>
+                 <div key={user.id} className={`flex items-center justify-between border rounded-2xl p-4 ${idx === 0 ? 'bg-amber-50/50 border-amber-100' : idx === 1 ? 'bg-muted border-slate-200' : idx === 2 ? 'bg-orange-50/50 border-orange-100' : 'bg-muted border-slate-100'}`}>
                    <div className="flex items-center gap-4 min-w-0">
-                     <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-base ${idx === 0 ? 'bg-amber-100 text-amber-600' : idx === 1 ? 'bg-slate-200 text-slate-600' : idx === 2 ? 'bg-orange-100 text-orange-600' : 'bg-white border text-slate-500'}`}>
+                     <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-base ${idx === 0 ? 'bg-amber-100 text-amber-600' : idx === 1 ? 'bg-slate-200 text-muted-foreground' : idx === 2 ? 'bg-orange-100 text-orange-600' : 'bg-card border text-slate-500'}`}>
                        #{idx + 1}
                      </div>
                      <div className="min-w-0">
-                       <div className="font-bold text-slate-800 text-base sm:text-lg truncate">{user.studentName}</div>
+                       <div className="font-bold text-foreground text-base sm:text-lg truncate">{user.studentName}</div>
                      </div>
                    </div>
                    <div className="text-right shrink-0 pl-4">

@@ -70,17 +70,17 @@ function NoteLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans relative">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center font-sans relative">
         <div className="animate-pulse flex flex-col items-center justify-center mb-8">
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-white rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-slate-50">
+          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border">
              <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
-               <span className="text-[#0F2744]">শিক্ষা</span>
+               <span className="text-primary">শিক্ষা</span>
                <span className="text-[#ff9800]">ঙ্গন</span>
              </span>
           </div>
           <div>
             <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
-              <span className="text-[#0F2744]">Shikkha</span>
+              <span className="text-primary">Shikkha</span>
               <span className="text-[#ff9800]">ngon</span>
             </span>
           </div>
@@ -103,7 +103,7 @@ function NoteLayout() {
 
   return (
     <div 
-      className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans" 
+      className="min-h-screen bg-background flex flex-col font-sans" 
       style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
       onContextMenu={(e) => e.preventDefault()}
     >
@@ -118,7 +118,7 @@ function NoteLayout() {
         
       <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center opacity-[0.03] overflow-hidden">
         <div className="transform -rotate-45 text-4xl sm:text-6xl font-black text-slate-900 whitespace-nowrap">
-          {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'} • {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'} • {user?.phoneNumber || user?.email || 'শিক্ষাঙ্গন'}
+          {user?.phoneNumber || user?.email || 'বিদ্যায়ন'} • {user?.phoneNumber || user?.email || 'বিদ্যায়ন'} • {user?.phoneNumber || user?.email || 'বিদ্যায়ন'}
         </div>
       </div>
 
@@ -138,17 +138,17 @@ function AppLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans relative">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center font-sans relative">
         <div className="animate-pulse flex flex-col items-center justify-center mb-8">
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-white rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-slate-50">
+          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border">
              <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
-               <span className="text-[#0F2744]">শিক্ষা</span>
+               <span className="text-primary">শিক্ষা</span>
                <span className="text-[#ff9800]">ঙ্গন</span>
              </span>
           </div>
           <div>
             <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
-              <span className="text-[#0F2744]">Shikkha</span>
+              <span className="text-primary">Shikkha</span>
               <span className="text-[#ff9800]">ngon</span>
             </span>
           </div>
@@ -182,7 +182,7 @@ function AppLayout() {
   const hideNavbar = location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/notes") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment") || location.pathname.startsWith("/paper") || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans mb-8">
+    <div className="min-h-screen bg-background flex flex-col font-sans mb-8">
       {!hideNavbar && <Navbar />}
       <LocalNotificationSystem />
       <ProApprovedCongrats />

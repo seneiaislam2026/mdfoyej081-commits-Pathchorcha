@@ -185,7 +185,7 @@ export default function Subscription() {
               navigate("/dashboard");
            }
         }} 
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center text-slate-600 font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-white/50 backdrop-blur-sm rounded-lg"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 flex items-center text-muted-foreground font-bengali font-bold hover:text-slate-900 transition-colors z-50 cursor-pointer p-2 bg-card/50 backdrop-blur-sm rounded-lg"
       >
         <ArrowLeft className="w-5 h-5 mr-2" /> ফিরে যান
       </button>
@@ -199,10 +199,10 @@ export default function Subscription() {
           >
             <Crown className="w-12 h-12 text-white" />
           </motion.div>
-          <h1 className="text-3xl md:text-5xl font-bengali font-bold text-slate-800 mb-6">
+          <h1 className="text-3xl md:text-5xl font-bengali font-bold text-foreground mb-6">
             আপনি একজন প্রো (Pro) মেম্বার!
           </h1>
-          <p className="text-lg md:text-xl font-bengali text-slate-600 mb-10">
+          <p className="text-lg md:text-xl font-bengali text-muted-foreground mb-10">
             প্রো ব্যাচ, আনলিমিটেড মক টেস্ট এবং প্রো ব্যাখ্যা সহ সব সুবিধা উপভোগ করুন।
           </p>
           <Button onClick={() => navigate("/dashboard")} className="rounded-full bg-slate-800 hover:bg-slate-700 text-white font-bengali px-8 h-14 text-lg">
@@ -219,32 +219,32 @@ export default function Subscription() {
           >
             <Crown className="w-10 h-10 text-white" />
           </motion.div>
-          <h1 className="text-3xl md:text-5xl font-bengali font-bold text-slate-800 mb-6">
+          <h1 className="text-3xl md:text-5xl font-bengali font-bold text-foreground mb-6">
             প্রো (Pro) মেম্বারশিপে আপগ্রেড করুন
           </h1>
-          <p className="text-lg md:text-xl font-bengali text-slate-600 max-w-2xl mx-auto">
+          <p className="text-lg md:text-xl font-bengali text-muted-foreground max-w-2xl mx-auto">
             মডেল টেস্টের সকল প্রশ্নের প্রো ব্যাখ্যা, আনলিমিটেড মক টেস্ট এবং আরও অনেক এক্সক্লুসিভ ফিচার উপভোগ করুন।
           </p>
         </div>
 
       <div className="grid lg:grid-cols-12 gap-8 items-start">
         {/* Features Column */}
-        <div className="lg:col-span-5 bg-white p-8 rounded-[32px] shadow-sm border border-slate-100 h-full">
-          <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6">ফ্রি অ্যাকাউন্টে কী কী থাকছে?</h3>
+        <div className="lg:col-span-5 bg-card p-8 rounded-[32px] shadow-sm border border-slate-100 h-full">
+          <h3 className="text-2xl font-bengali font-bold text-foreground mb-6">ফ্রি অ্যাকাউন্টে কী কী থাকছে?</h3>
           <ul className="space-y-4 font-bengali mb-8">
-            <li className="flex items-start gap-3 text-slate-600">
+            <li className="flex items-start gap-3 text-muted-foreground">
                <div className="mt-1 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                   <Check className="w-3 h-3 text-green-600" />
                </div>
                <span>মাসিক ১৫টি ফ্রি মক টেস্ট</span>
             </li>
-            <li className="flex items-start gap-3 text-slate-600">
+            <li className="flex items-start gap-3 text-muted-foreground">
                <div className="mt-1 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                   <Check className="w-3 h-3 text-green-600" />
                </div>
                <span>স্মার্ট নোটস পড়া যাবে</span>
             </li>
-            <li className="flex items-start gap-3 text-slate-600">
+            <li className="flex items-start gap-3 text-muted-foreground">
                <div className="mt-1 w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0">
                   <Check className="w-3 h-3 text-green-600" />
                </div>
@@ -260,7 +260,7 @@ export default function Subscription() {
 
           <div className="w-full h-px bg-slate-100 my-8"></div>
 
-          <h3 className="text-2xl font-bengali font-bold text-slate-800 mb-6 flex items-center gap-2">
+          <h3 className="text-2xl font-bengali font-bold text-foreground mb-6 flex items-center gap-2">
              প্রো ফিচারের সুবিধা <Zap className="w-6 h-6 text-[#ffa726]" />
           </h3>
           <ul className="space-y-4 font-bengali">
@@ -270,7 +270,7 @@ export default function Subscription() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
                 key={i} 
-                className="flex items-center gap-3 text-slate-800 font-medium"
+                className="flex items-center gap-3 text-foreground font-medium"
               >
                 <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#ffa726] to-[#e65100] flex items-center justify-center shrink-0 shadow-sm">
                   <Check className="w-4 h-4 text-white" />
@@ -312,7 +312,7 @@ export default function Subscription() {
                   className={`cursor-pointer rounded-2xl border-2 p-4 flex items-center justify-between transition-all ${
                     selectedPlan === plan.id 
                       ? "border-orange-500 bg-orange-50/40 shadow-[0_8px_20px_-8px_rgba(249,115,22,0.2)]" 
-                      : "border-slate-100 bg-white hover:border-orange-200 shadow-sm"
+                      : "border-slate-100 bg-card hover:border-orange-200 shadow-sm"
                   }`}
                 >
                   <div className="flex items-center gap-4">
@@ -321,7 +321,7 @@ export default function Subscription() {
                     </div>
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
-                        <h4 className={`text-base sm:text-lg font-bengali font-bold leading-tight ${selectedPlan === plan.id ? 'text-orange-800' : 'text-slate-800'}`}>{plan.name}</h4>
+                        <h4 className={`text-base sm:text-lg font-bengali font-bold leading-tight ${selectedPlan === plan.id ? 'text-orange-800' : 'text-foreground'}`}>{plan.name}</h4>
                         {plan.popular && (
                           <span className="bg-orange-500 text-white text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded-full font-bengali shadow-sm">জনপ্রিয়</span>
                         )}
@@ -333,7 +333,7 @@ export default function Subscription() {
                   <div className="text-right shrink-0">
                     {plan.id === 'custom' ? (
                       <div className="flex flex-col items-end gap-2">
-                        <div className={`flex items-center gap-1 rounded-xl p-1 pl-2 pr-3 border transition-colors ${selectedPlan === plan.id ? 'bg-white border-orange-300 shadow-inner' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className={`flex items-center gap-1 rounded-xl p-1 pl-2 pr-3 border transition-colors ${selectedPlan === plan.id ? 'bg-card border-orange-300 shadow-inner' : 'bg-muted border-slate-200'}`}>
                           <Input 
                             type="number"
                             min="1"
@@ -346,11 +346,11 @@ export default function Subscription() {
                                setCustomDays(val);
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            className="w-12 h-8 text-center border-none p-0 focus-visible:ring-0 text-base font-sans font-bold shadow-none bg-transparent text-slate-800"
+                            className="w-12 h-8 text-center border-none p-0 focus-visible:ring-0 text-base font-sans font-bold shadow-none bg-transparent text-foreground"
                           />
                           <span className="text-sm font-bengali font-medium text-slate-500">দিন</span>
                         </div>
-                        <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-slate-800'}`}>
+                        <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-foreground'}`}>
                            <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
                            <span className="text-3xl sm:text-4xl font-black">{Math.ceil((80/30) * customDays)}</span>
                         </div>
@@ -362,7 +362,7 @@ export default function Subscription() {
                             ৳{originalPrice}
                           </span>
                         )}
-                        <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-slate-800'}`}>
+                        <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-foreground'}`}>
                            <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
                            <span className="text-3xl sm:text-4xl font-black">{discountedPrice}</span>
                         </div>
@@ -374,7 +374,7 @@ export default function Subscription() {
             })}
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-3xl p-5 flex flex-col gap-4 shadow-sm mt-2">
+          <div className="bg-card border border-slate-100 rounded-3xl p-5 flex flex-col gap-4 shadow-sm mt-2">
              <div className="flex items-center gap-2 text-slate-700">
                <Tag className="w-5 h-5 text-slate-400" />
                <span className="font-bengali font-bold text-sm sm:text-base">কুপন কোড (যদি থাকে)</span>
@@ -384,7 +384,7 @@ export default function Subscription() {
                  placeholder="কুপন কোড লিখুন" 
                  value={couponCode}
                  onChange={(e) => setCouponCode(e.target.value)}
-                 className="flex-1 rounded-2xl bg-slate-50/50 border-slate-200 hover:border-slate-300 font-mono h-14 px-5 text-lg shadow-inner"
+                 className="flex-1 rounded-2xl bg-muted/50 border-slate-200 hover:border-slate-300 font-mono h-14 px-5 text-lg shadow-inner"
                />
                <Button 
                 variant="secondary" 

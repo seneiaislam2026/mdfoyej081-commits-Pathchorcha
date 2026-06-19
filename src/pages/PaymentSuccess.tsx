@@ -94,18 +94,18 @@ export default function PaymentSuccess() {
        {status === 'verifying' && (
          <div className="flex flex-col items-center">
             <Loader2 className="w-16 h-16 text-primary animate-spin mb-6" />
-            <h2 className="text-2xl font-bengali font-bold text-slate-800">পেমেন্ট ভেরিফাই করা হচ্ছে...</h2>
+            <h2 className="text-2xl font-bengali font-bold text-foreground">পেমেন্ট ভেরিফাই করা হচ্ছে...</h2>
             <p className="text-slate-500 font-bengali mt-2">দয়া করে অপেক্ষা করুন</p>
          </div>
        )}
 
        {status === 'success' && (
-         <div className="flex flex-col items-center max-w-md w-full bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+         <div className="flex flex-col items-center max-w-md w-full bg-card p-8 rounded-3xl shadow-sm border border-slate-100">
             <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-6 border border-emerald-100">
                <CheckCircle2 className="w-10 h-10 text-emerald-600 animate-ping-once" />
             </div>
-            <h2 className="text-2xl font-bengali font-bold text-slate-800 mb-4">পেমেন্ট রিকোয়েস্ট সাবমিট হয়েছে!</h2>
-            <p className="text-slate-600 font-bengali text-sm leading-relaxed mb-8">
+            <h2 className="text-2xl font-bengali font-bold text-foreground mb-4">পেমেন্ট রিকোয়েস্ট সাবমিট হয়েছে!</h2>
+            <p className="text-muted-foreground font-bengali text-sm leading-relaxed mb-8">
                আপনার পেমেন্ট রিকোয়েস্টটি সফলভাবে সিস্টেমে যুক্ত হয়েছে। আগামী <strong className="text-emerald-600 font-extrabold">২০ মিনিটের মধ্যেই</strong> আপনার পেমেন্টটি যাচাই করে এসএমএস (SMS) মেসেজের মাধ্যমে জানিয়ে দেওয়া হবে। অনুগ্রহ করে একটু অপেক্ষা করুন।
             </p>
             <Button onClick={() => navigate("/dashboard")} className="w-full h-14 rounded-2xl text-lg font-bengali bg-slate-900 hover:bg-slate-800">
@@ -115,12 +115,12 @@ export default function PaymentSuccess() {
        )}
 
        {status === 'failed' && (
-         <div className="flex flex-col items-center max-w-md w-full bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+         <div className="flex flex-col items-center max-w-md w-full bg-card p-8 rounded-3xl shadow-sm border border-slate-100">
             <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
                <XCircle className="w-10 h-10 text-red-600" />
             </div>
-            <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">পেমেন্ট ব্যর্থ</h2>
-            <p className="text-slate-600 font-bengali mb-8">
+            <h2 className="text-3xl font-bengali font-bold text-foreground mb-4">পেমেন্ট ব্যর্থ</h2>
+            <p className="text-muted-foreground font-bengali mb-8">
                ভেরিফিকেশন ব্যর্থ হয়েছে। {errorMsg}
             </p>
             <Button onClick={() => navigate("/subscription")} className="w-full h-14 rounded-2xl text-lg font-bengali">
