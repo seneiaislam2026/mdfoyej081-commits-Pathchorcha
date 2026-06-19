@@ -128,6 +128,39 @@ export default function Profile() {
     return unsubscribe;
   };
 
+  const [userRank, setUserRank] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!userData?.class) return;
+    
+    const fetchRank = async () => {
+       try {
+          const q = query(
+             collection(db, "users"),
+             where("class", "==", userData.class),
+             orderBy("points", "desc")
+          );
+          const snap = await getDocs(q);
+          const index = snap.docs.findIndex(d => d.id === userData.uid);
+          if (index !== -1) {
+             setUserRank(index + 1);
+          }
+       } catch(error: any) {
+          if (error.code === 'failed-precondition' || (error.message && error.message.includes('index'))) {
+            try {
+               const qAll = query(collection(db, "users"), orderBy("points", "desc"));
+               const snapAll = await getDocs(qAll);
+               const dataAll = snapAll.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+               const filtered = dataAll.filter(u => u.class === userData.class);
+               const index = filtered.findIndex(d => d.id === userData.uid);
+               if (index !== -1) setUserRank(index + 1);
+            } catch(e) {}
+          }
+       }
+    };
+    fetchRank();
+  }, [userData]);
+
   // Convert English number to Bengali Numeral
   const toBn = (num: number | string) => num.toString().replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[parseInt(d)]);
 
@@ -539,7 +572,7 @@ export default function Profile() {
           <div className="bg-[#F8FAFC] p-4 rounded-2xl flex flex-col items-center justify-center text-center">
             <ClipboardList className="w-5 h-5 text-blue-500 mb-1" />
             <span className="text-xs font-bengali text-slate-500">লিডারবোর্ডের র্যাঙ্ক</span>
-            <span className="font-extrabold text-foreground text-lg mt-1 font-sans">-</span>
+            <span className="font-extrabold text-foreground text-lg mt-1 font-sans">{userRank ? toBn(userRank) : '-'}</span>
           </div>
 
           <div className="bg-[#F8FAFC] p-4 rounded-2xl flex flex-col items-center justify-center text-center">

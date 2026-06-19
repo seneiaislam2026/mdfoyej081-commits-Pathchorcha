@@ -38,26 +38,9 @@ export default function Landing() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="flex flex-col items-center justify-center mb-8"
         >
-          {/* Logo Box */}
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 group-hover:scale-105 transition-transform duration-300 border border-slate-50 relative overflow-hidden">
-             <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
-               <span className="text-[#0F2744]">শিক্ষা</span>
-               <span className="text-[#ff9800]">ঙ্গন</span>
-             </span>
-          </div>
-
-          {/* Text below Logo */}
-          <div className="overflow-hidden">
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
-            >
-              <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
-                <span className="text-[#0F2744]">Shikkha</span>
-                <span className="text-[#ff9800]">ngon</span>
-              </span>
-            </motion.div>
+          {/* Logo */}
+          <div className="group-hover:scale-105 transition-transform duration-300">
+             <img src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png" alt="Shikkangon Logo" className="w-[200px] sm:w-[280px] md:w-[320px] object-contain" />
           </div>
         </motion.div>
       </Link>

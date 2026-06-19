@@ -22,6 +22,9 @@ import {
   TrendingUp,
   Sparkles,
   Crown,
+  Flame,
+  Calendar,
+  Award
 } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
 
@@ -381,35 +384,83 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-card border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
-            <div className="w-[38px] h-[38px] rounded-full bg-blue-50 flex items-center justify-center shrink-0 border border-blue-100/50">
-               <CheckCircle2 className="w-5 h-5 text-blue-500" strokeWidth={2.5}/>
-            </div>
-            <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-foreground mb-1.5">{userData?.progress?.totalSolved || 0}</div>
-               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">স্টাডি সম্পন্ন</div>
-            </div>
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
+          {/* Card 1 */}
+          <div className="bg-white rounded-[20px] relative flex flex-col items-center pt-5 pb-3 px-2 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-50 overflow-hidden">
+             {/* Top Bar */}
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-[3px] bg-blue-500 rounded-b-md"></div>
+             
+             {/* Icon Stack */}
+             <div className="relative w-10 h-10 flex items-center justify-center mb-3 mt-1.5">
+                <div className="absolute inset-0 bg-blue-50/80 rounded-full scale-[1.25] opacity-80"></div>
+                <div className="absolute inset-0 bg-blue-100/60 rounded-full scale-[1.12]"></div>
+                <div className="relative z-10 w-full h-full bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center border border-slate-50 border-b-blue-50">
+                   <Check className="w-[18px] h-[18px] text-blue-500" strokeWidth={3}/>
+                </div>
+             </div>
+
+             {/* Number */}
+             <div className="text-[22px] sm:text-[26px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.totalSolved || 0}</div>
+             
+             {/* Small divider */}
+             <div className="w-[16px] sm:w-[20px] h-[2px] bg-blue-500 rounded-full mb-1.5"></div>
+
+             {/* Label */}
+             <div className="text-[10px] sm:text-[12px] font-bengali text-slate-600 font-semibold mb-5 sm:mb-6 text-center leading-tight">মোট সম্পন্ন</div>
+
+             {/* Bottom Wave & Small Icon */}
+             <div className="absolute bottom-0 left-0 w-full h-[40px] sm:h-[48px] bg-gradient-to-t from-blue-50/60 to-transparent flex items-end justify-center pb-2 pointer-events-none">
+                 <div className="w-[140%] h-[200%] absolute bottom-0 left-1/2 -translate-x-1/2 bg-blue-50/50 rounded-[100%] scale-y-50 translate-y-[60%]"></div>
+                 <Award className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] text-blue-400 relative z-10 opacity-80" strokeWidth={2.5}/>
+             </div>
           </div>
 
-          <div className="bg-card border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
-            <div className="w-[38px] h-[38px] rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100/50">
-               <Target className="w-5 h-5 text-emerald-500" strokeWidth={2.5}/>
-            </div>
-            <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-foreground mb-1.5">{userData?.progress?.accuracy || 0}%</div>
-               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">নির্ভুলতা</div>
-            </div>
+          {/* Card 2 */}
+          <div className="bg-white rounded-[20px] relative flex flex-col items-center pt-5 pb-3 px-2 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-50 overflow-hidden">
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-[3px] bg-emerald-500 rounded-b-md"></div>
+             
+             <div className="relative w-10 h-10 flex items-center justify-center mb-3 mt-1.5">
+                <div className="absolute inset-0 bg-emerald-50/80 rounded-full scale-[1.25] opacity-80"></div>
+                <div className="absolute inset-0 bg-emerald-100/60 rounded-full scale-[1.12]"></div>
+                <div className="relative z-10 w-full h-full bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center border border-slate-50 border-b-emerald-50">
+                   <Target className="w-[18px] h-[18px] text-emerald-500" strokeWidth={2.5}/>
+                </div>
+             </div>
+
+             <div className="text-[22px] sm:text-[26px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.accuracy || 0}%</div>
+             
+             <div className="w-[16px] sm:w-[20px] h-[2px] bg-emerald-500 rounded-full mb-1.5"></div>
+
+             <div className="text-[10px] sm:text-[12px] font-bengali text-slate-600 font-semibold mb-5 sm:mb-6 text-center leading-tight">নির্ভুলতা</div>
+
+             <div className="absolute bottom-0 left-0 w-full h-[40px] sm:h-[48px] bg-gradient-to-t from-emerald-50/60 to-transparent flex items-end justify-center pb-2 pointer-events-none">
+                 <div className="w-[140%] h-[200%] absolute bottom-0 left-1/2 -translate-x-1/2 bg-emerald-50/50 rounded-[100%] scale-y-50 translate-y-[60%]"></div>
+                 <BarChart2 className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] text-emerald-400 relative z-10 opacity-80" strokeWidth={2.5}/>
+             </div>
           </div>
 
-          <div className="bg-card border border-slate-100 rounded-[20px] p-4 flex flex-col sm:flex-row items-center sm:items-center sm:justify-start gap-3 shadow-xs">
-            <div className="w-[38px] h-[38px] rounded-full bg-orange-50 flex items-center justify-center shrink-0 border border-orange-100/50">
-               <span className="text-orange-500 text-lg leading-none mt-0.5">🔥</span>
-            </div>
-            <div className="text-center sm:text-left flex-1 min-w-0">
-               <div className="text-[20px] font-extrabold font-sans leading-none text-foreground mb-1.5">{userData?.progress?.streak || 0}</div>
-               <div className="text-[10px] sm:text-[11px] font-bengali text-slate-500 font-semibold truncate leading-tight">দিনের স্ট্রিক</div>
-            </div>
+          {/* Card 3 */}
+          <div className="bg-white rounded-[20px] relative flex flex-col items-center pt-5 pb-3 px-2 shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-50 overflow-hidden">
+             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-[3px] bg-orange-500 rounded-b-md"></div>
+             
+             <div className="relative w-10 h-10 flex items-center justify-center mb-3 mt-1.5">
+                <div className="absolute inset-0 bg-orange-50/80 rounded-full scale-[1.25] opacity-80"></div>
+                <div className="absolute inset-0 bg-orange-100/60 rounded-full scale-[1.12]"></div>
+                <div className="relative z-10 w-full h-full bg-white rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.06)] flex items-center justify-center border border-slate-50 border-b-orange-50">
+                   <Flame className="w-[18px] h-[18px] text-orange-500" strokeWidth={2.5} fill="currentColor"/>
+                </div>
+             </div>
+
+             <div className="text-[22px] sm:text-[26px] font-extrabold font-sans leading-none text-slate-800 mb-1.5">{userData?.progress?.streak || 0}</div>
+             
+             <div className="w-[16px] sm:w-[20px] h-[2px] bg-orange-500 rounded-full mb-1.5"></div>
+
+             <div className="text-[10px] sm:text-[12px] font-bengali text-slate-600 font-semibold mb-5 sm:mb-6 text-center leading-tight">দিনের স্ট্রাইক</div>
+
+             <div className="absolute bottom-0 left-0 w-full h-[40px] sm:h-[48px] bg-gradient-to-t from-orange-50/60 to-transparent flex items-end justify-center pb-2 pointer-events-none">
+                 <div className="w-[140%] h-[200%] absolute bottom-0 left-1/2 -translate-x-1/2 bg-orange-50/50 rounded-[100%] scale-y-50 translate-y-[60%]"></div>
+                 <Calendar className="w-[12px] h-[12px] sm:w-[14px] sm:h-[14px] text-orange-400 relative z-10 opacity-80" strokeWidth={2.5}/>
+             </div>
           </div>
         </div>
       </section>

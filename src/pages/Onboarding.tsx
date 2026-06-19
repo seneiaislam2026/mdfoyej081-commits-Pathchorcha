@@ -159,7 +159,7 @@ export default function Onboarding() {
             >
               <h2 className="text-2xl font-bengali font-bold text-foreground mb-8 text-center flex flex-col gap-2">
                 <span>তোমার নাম কী?</span>
-                <span className="text-lg text-slate-500 font-medium">এবং তোমার শিক্ষাপ্রতিষ্ঠানের নাম</span>
+                <span className="text-lg text-slate-500 font-medium">এবং তোমার শিক্ষাপ্রতিষ্ঠানের নাম (ঐচ্ছিক)</span>
               </h2>
               
               <div className="space-y-6">
@@ -177,14 +177,14 @@ export default function Onboarding() {
                     type="text" 
                     value={institution}
                     onChange={(e) => setInstitution(e.target.value)}
-                    placeholder="শিক্ষাপ্রতিষ্ঠানের নাম" 
+                    placeholder="শিক্ষাপ্রতিষ্ঠানের নাম (ঐচ্ছিক)" 
                     className="w-full h-14 rounded-2xl bg-muted border-slate-200 focus:bg-card focus:border-primary px-4 font-bengali shadow-sm outline-none border-2 transition-all"
                   />
                 </div>
                 
                 <Button 
-                  onClick={() => name.trim() && institution.trim() && setStep("class")}
-                  disabled={!name.trim() || !institution.trim()}
+                  onClick={() => name.trim() && setStep("class")}
+                  disabled={!name.trim()}
                   className="w-full h-14 bg-primary hover:bg-primary/95 text-white rounded-full font-bengali font-bold text-lg shadow-md transition duration-200"
                 >
                   পরবর্তী ধাপ <ArrowRight className="ml-2 w-5 h-5" />

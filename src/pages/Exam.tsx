@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { db } from "../lib/firebase";
 import { collection, query, where, getDocs, doc, updateDoc, increment, writeBatch, addDoc, serverTimestamp, limit } from "firebase/firestore";
-import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2, Trash2, Briefcase, ChevronDown, Check, FileEdit, ArrowRight } from "lucide-react";
+import { CheckCircle2, Lightbulb, Clock, Target, AlertCircle, PlayCircle, ArrowLeft, BookOpen, Atom, Calculator, Users, Laptop, Lock, FileText, Timer, Brain, ChevronRight, Landmark, TestTube, Dna, TrendingUp, Factory, Globe, Building2, Trash2, Briefcase, ChevronDown, Check, FileEdit, ArrowRight, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
@@ -1663,6 +1663,126 @@ export default function Exam() {
        );
     }
 
+    if (type === 'mistakes') {
+       return (
+          <div className="min-h-screen bg-gradient-to-b from-red-50/40 via-white to-white relative pb-20 font-bengali overflow-hidden w-full">
+             {/* Background blobs */}
+             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-red-100/50 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+             <div className="absolute top-[400px] left-0 w-[300px] h-[300px] bg-rose-50/50 rounded-full blur-[60px] -translate-x-1/2 pointer-events-none"></div>
+             
+             {/* Decorative small generic shapes */}
+             <Sparkles className="absolute top-20 right-1/4 w-6 h-6 text-red-200/60 -rotate-12" />
+             <div className="absolute top-40 right-10 w-2 h-2 rounded-full bg-red-200"></div>
+             <div className="absolute top-1/4 left-10 w-3 h-3 rounded-full bg-red-200 opacity-60"></div>
+             <div className="absolute top-80 right-1/3 w-3 h-3 rounded-full bg-rose-200 opacity-50"></div>
+
+             <div className="max-w-4xl mx-auto pt-6 px-4 sm:px-6 relative z-10">
+                {/* Back button */}
+                <button 
+                  onClick={() => navigate("/dashboard")} 
+                  className="flex items-center text-slate-600 font-bengali font-semibold hover:text-slate-900 transition-colors cursor-pointer mb-8 md:mb-12"
+                >
+                  <ArrowLeft className="w-5 h-5 mr-2" /> ফিরে যান
+                </button>
+
+                {/* Hero Section */}
+                <div className="flex flex-col md:flex-row gap-8 md:gap-10 items-center justify-between mb-16">
+                   <div className="w-full md:w-1/2 text-center md:text-left">
+                      <h1 className="text-[2.5rem] sm:text-[3.5rem] md:text-[4rem] font-bengali font-extrabold leading-[1.1] mb-4 tracking-tight">
+                        <span className="text-[#1a2b4b]">ভুলগুলোর</span><br/>
+                        <span className="text-[#f04b5f]">প্র্যাকটিস</span>
+                      </h1>
+                      <p className="font-bengali text-slate-500 text-lg sm:text-xl leading-relaxed max-w-[90%] mx-auto md:mx-0">
+                        আগের ভুল হওয়া প্রশ্নগুলো পুনরায় অনুশীলন করে নিজের দুর্বলতাগুলো কাটিয়ে ওঠো।
+                      </p>
+                   </div>
+                   
+                   {/* Custom Illustration block */}
+                   <div className="w-full md:w-1/2 relative flex items-center justify-center h-64 sm:h-80 drop-shadow-sm mt-4 md:mt-0">
+                       {/* Background abstract shape */}
+                       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] sm:w-[320px] h-[280px] sm:h-[320px] bg-red-50/80 rounded-[4rem] rotate-12 blur-2xl opacity-60"></div>
+                       
+                       {/* Clipboard drawing container */}
+                       <div className="relative z-10 w-[180px] sm:w-[220px]">
+                           {/* Base clipboard */}
+                           <div className="w-full bg-white rounded-3xl shadow-[0_10px_40px_rgba(240,75,95,0.12)] border-t-[10px] border-t-red-100 overflow-hidden relative">
+                              <div className="w-2/5 h-4 bg-[#f04b5f] opacity-80 mx-auto rounded-b-xl mb-8"></div>
+                              
+                              <div className="px-6 pb-10 space-y-6">
+                                 {/* Item 1 */}
+                                 <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-500/20">
+                                       <Check className="w-5 h-5 text-white stroke-[3]" />
+                                    </div>
+                                    <div className="h-3.5 w-full bg-slate-100/80 rounded-full"></div>
+                                 </div>
+                                 {/* Item 2 */}
+                                 <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 shadow-sm shadow-emerald-500/20">
+                                       <Check className="w-5 h-5 text-white stroke-[3]" />
+                                    </div>
+                                    <div className="h-3.5 w-[85%] bg-slate-100/80 rounded-full"></div>
+                                 </div>
+                                 {/* Item 3 */}
+                                 <div className="flex items-center gap-4">
+                                    <div className="w-8 h-8 rounded-full bg-[#f04b5f] flex items-center justify-center shrink-0 shadow-sm shadow-red-500/20">
+                                       <X className="w-5 h-5 text-white stroke-[3]" />
+                                    </div>
+                                    <div className="h-3.5 w-[70%] bg-slate-100/80 rounded-full"></div>
+                                 </div>
+                              </div>
+                           </div>
+                           
+                           {/* Target icon overlapping */}
+                           <div className="absolute -bottom-8 -right-12 sm:-right-16 w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full shadow-[0_15px_35px_rgba(240,75,95,0.15)] border-[6px] border-white flex items-center justify-center z-20">
+                              <div className="w-full h-full rounded-full border-[10px] sm:border-[12px] border-[#f04b5f] flex items-center justify-center bg-transparent">
+                                  <div className="w-[65%] h-[65%] rounded-full border-[8px] sm:border-[10px] border-white flex items-center justify-center bg-[#f04b5f] relative">
+                                      {/* Arrow stick */}
+                                      <div className="absolute w-14 sm:w-16 h-[5px] sm:h-1.5 bg-slate-800 -rotate-45 -translate-x-3 -translate-y-3 sm:-translate-x-4 sm:-translate-y-4 rounded-full"></div>
+                                      <div className="absolute w-4 h-4 sm:w-5 sm:h-5 bg-slate-800 -rotate-45 -translate-x-8 -translate-y-8 sm:-translate-x-10 sm:-translate-y-10 rounded-sm rotate-45 transform origin-center"></div>
+                                      <div className="absolute w-2 h-2 bg-[#f04b5f] rounded-full z-10"></div>
+                                  </div>
+                              </div>
+                           </div>
+                       </div>
+                   </div>
+                </div>
+
+                {/* White Action Card */}
+                <div className="bg-white rounded-[2rem] p-8 sm:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] sm:shadow-[0_20px_50px_rgba(240,75,95,0.06)] relative text-center flex flex-col items-center mb-8 z-20 max-w-3xl mx-auto w-full">
+                  <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6">
+                    <BookOpen className="w-10 h-10 text-[#f04b5f]" strokeWidth={1.5} />
+                    <div className="absolute text-[#f04b5f] -mt-10 ml-4 animate-bounce">
+                        <Lightbulb className="w-6 h-6" strokeWidth={2} />
+                    </div>
+                  </div>
+                  <h2 className="text-[22px] sm:text-[28px] font-bengali font-bold text-[#1a2b4b] mb-4">ভুলগুলোর প্র্যাকটিস</h2>
+                  <p className="text-slate-500 font-bengali text-[15px] sm:text-[17px] max-w-[500px] mx-auto mb-10 leading-[1.7]">
+                     যে প্রশ্নগুলো আগে পরীক্ষায় দিতে গিয়ে ভুল হয়েছে, সেগুলো পুনরায় অনুশীলন করো। সর্বোচ্চ ২০টি প্রশ্ন দেওয়া হবে।
+                  </p>
+                  <button 
+                    onClick={() => setActiveSet(`mistakes-20`)}
+                    className="bg-[#f04b5f] text-white font-bengali font-bold text-lg px-12 py-[18px] rounded-full flex items-center justify-center gap-3 hover:bg-[#e03a4e] transition-all hover:scale-105 active:scale-95 shadow-xl shadow-[#f04b5f]/30 w-full sm:w-auto min-w-[200px]"
+                  >
+                    শুরু করুন <ArrowRight className="w-5 h-5 ml-1" />
+                  </button>
+                </div>
+
+                {/* Bottom Banner */}
+                <div className="bg-red-50/80 rounded-3xl p-5 sm:p-6 flex items-center gap-5 z-20 relative max-w-3xl mx-auto w-full">
+                  <div className="p-3 bg-red-100/80 text-[#f04b5f] rounded-2xl shrink-0">
+                    <Lightbulb className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={1.5} />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="text-[16px] sm:text-[18px] font-bengali font-bold text-[#1a2b4b] mb-1">নিয়মিত অনুশীলন, আসবে সফলতা</h3>
+                    <p className="text-slate-500 font-bengali text-sm sm:text-[15px]">ভুল থেকে শিখুন, নিজেকে আরো ভালো করুন।</p>
+                  </div>
+                </div>
+             </div>
+          </div>
+       );
+    }
+
     return (
       <div className="max-w-4xl mx-auto py-12 px-4 relative z-0">
         <button 
@@ -1673,27 +1793,10 @@ export default function Exam() {
         </button>
         <div className="text-center mb-12 mt-8">
           <h2 className="text-3xl font-bengali font-bold text-foreground mb-4">{pageTitle}</h2>
-
-
-
           <p className="text-slate-500 font-bengali text-lg max-w-xl mx-auto">
             {pageDesc}
           </p>
         </div>
-
-        {type === 'mistakes' && (
-          <div className="max-w-xl mx-auto bg-card p-6 md:p-8 rounded-[32px] border border-slate-100 shadow-sm relative overflow-hidden text-center">
-             <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 to-rose-400"></div>
-             <h3 className="text-2xl font-bengali font-bold text-foreground mb-6">ভুলগুলোর প্র্যাকটিস</h3>
-             <p className="font-bengali text-slate-500 mb-8">যে প্রশ্নগুলো আগে পরীক্ষা দিতে গিয়ে ভুল হয়েছে, সেগুলো পুনরায় অনুশীলন করো। সর্বোচ্চ ২০টি প্রশ্ন দেয়া হবে।</p>
-             <button 
-                onClick={() => setActiveSet(`mistakes-20`)}
-                className="bg-red-500 text-white font-bengali font-bold px-8 py-4 rounded-2xl hover:bg-red-600 transition-colors shadow-md cursor-pointer"
-             >
-                শুরু করুন
-             </button>
-          </div>
-        )}
       </div>
     );
   }

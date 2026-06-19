@@ -267,17 +267,8 @@ export default function Auth() {
 <div className='text-center mb-8'>
             <div className="flex flex-col items-center justify-center mb-6">
               <Link to="/" className="inline-flex flex-col items-center group">
-                <div className="w-[124px] h-[124px] sm:w-[140px] sm:h-[140px] bg-card rounded-[28px] sm:rounded-[32px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-3 group-hover:scale-105 transition-transform duration-300 border border-slate-50 relative overflow-hidden">
-                   <span className="font-bengali font-extrabold text-[30px] sm:text-[34px] tracking-tight">
-                     <span className="text-[#0F2744]">শিক্ষা</span>
-                     <span className="text-[#ff9800]">ঙ্গন</span>
-                   </span>
-                </div>
-                <div>
-                  <span className="font-['Caveat'] text-[40px] sm:text-[46px] font-bold tracking-tight">
-                    <span className="text-[#0F2744]">Shikkha</span>
-                    <span className="text-[#ff9800]">ngon</span>
-                  </span>
+                <div className="w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] bg-card rounded-[32px] sm:rounded-[40px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-3 group-hover:scale-105 transition-transform duration-300 border border-slate-50 relative overflow-hidden">
+                   <img src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png" alt="Shikkangon Logo" className="w-[100px] sm:w-[120px] object-contain" />
                 </div>
               </Link>
             </div>

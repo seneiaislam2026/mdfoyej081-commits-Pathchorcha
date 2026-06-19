@@ -49,7 +49,7 @@ export default function Leaderboard() {
   const { userData } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedClass, setSelectedClass] = useState(userData?.class || "Class 9");
+  const userClass = userData?.class || "Class 9";
   const [timeRange, setTimeRange] = useState("weekly");
 
   const getInitials = (name: string) => {
@@ -83,7 +83,7 @@ export default function Leaderboard() {
       try {
         const q = query(
           collection(db, "users"),
-          where("class", "==", selectedClass),
+          where("class", "==", userClass),
           orderBy("points", "desc"),
           limit(50)
         );
@@ -99,7 +99,7 @@ export default function Leaderboard() {
             const qAll = query(collection(db, "users"), orderBy("points", "desc"), limit(1000));
             const snapshotAll = await getDocs(qAll);
             const dataAll = snapshotAll.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
-            const filtered = dataAll.filter(u => u.class === selectedClass);
+            const filtered = dataAll.filter(u => u.class === userClass);
             setUsers(filtered.slice(0, 50));
           } catch (fallbackError) {
              console.error("Error in fallback fetch", fallbackError);
@@ -112,7 +112,7 @@ export default function Leaderboard() {
       }
     };
     fetchLeaderboard();
-  }, [selectedClass]);
+  }, [userClass]);
 
   const getTimeRangeText = () => {
     if (timeRange === 'daily') return 'আজকের';
@@ -173,23 +173,19 @@ export default function Leaderboard() {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 bg-card border border-slate-200 shadow-sm rounded-xl px-4 py-2.5 cursor-pointer max-w-[200px] w-full md:w-auto">
-            <Calendar className="w-4 h-4 text-slate-400 shrink-0" />
-            <select 
-              value={selectedClass} 
-              onChange={e => setSelectedClass(e.target.value)}
-              className="bg-transparent border-none outline-none font-bengali text-slate-700 font-medium cursor-pointer w-full appearance-none pr-4"
-            >
-              <option value="Class 6">৬ষ্ঠ শ্রেণী (Class 6)</option>
-              <option value="Class 7">৭ম শ্রেণী (Class 7)</option>
-              <option value="Class 8">৮ম শ্রেণী (Class 8)</option>
-              <option value="Class 9">৯ম শ্রেণী (Class 9)</option>
-              <option value="Class 10">১০ম শ্রেণী (Class 10)</option>
-              <option value="SSC">এসএসসি (SSC)</option>
-              <option value="HSC">এইচএসসি (HSC)</option>
-              <option value="Admission">Admission</option>
-              <option value="Job Prep">Job Prep</option>
-            </select>
+          <div className="flex items-center gap-2 bg-indigo-50 border border-indigo-100 shadow-sm rounded-xl px-4 py-2 pointer-events-none">
+            <span className="font-bengali text-indigo-700 font-bold text-[15px]">
+              {userClass === 'Class 6' && '৬ষ্ঠ শ্রেণী'}
+              {userClass === 'Class 7' && '৭ম শ্রেণী'}
+              {userClass === 'Class 8' && '৮ম শ্রেণী'}
+              {userClass === 'Class 9' && '৯ম শ্রেণী'}
+              {userClass === 'Class 10' && '১০ম শ্রেণী'}
+              {userClass === 'SSC' && 'এসএসসি'}
+              {userClass === 'HSC' && 'এইচএসসি'}
+              {userClass === 'Admission' && 'এডমিশন'}
+              {userClass === 'Job Prep' && 'জব প্রিপারেশন'}
+              {!['Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC', 'HSC', 'Admission', 'Job Prep'].includes(userClass) && userClass}
+            </span>
           </div>
         </div>
 

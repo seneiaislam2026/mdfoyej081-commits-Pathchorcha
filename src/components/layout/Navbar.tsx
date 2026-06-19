@@ -68,8 +68,7 @@ export default function Navbar() {
   const [settings, setSettings] = useState<any>(null);
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem('theme') === 'dark' ||
-      (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return localStorage.getItem('theme') === 'dark';
   });
 
   useEffect(() => {
@@ -187,10 +186,7 @@ export default function Navbar() {
       <div className="container mx-auto max-w-[1200px] px-4 flex h-[88px] items-center justify-between">
         <div className="flex items-center gap-2">
           <Link to="/dashboard" className="flex items-center space-x-2">
-            <span className="font-bengali font-bold text-[32px] leading-normal pb-1 tracking-tight">
-              <span className="text-primary">শিক্ষা</span>
-              <span className="text-secondary">ঙ্গন</span>
-            </span>
+            <img src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png" alt="Shikkangon" className="h-[76px] w-auto object-contain" />
           </Link>
         </div>
 
