@@ -1,7 +1,20 @@
-import {StrictMode, Component, ErrorInfo, ReactNode} from 'react';
-import {createRoot} from 'react-dom/client';
+import { StrictMode, Component, ErrorInfo, ReactNode } from 'react';
+import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
+import { registerSW } from 'virtual:pwa-register';
+
+// Auto-update service worker if a new version is available
+const updateSW = registerSW({
+  onNeedRefresh() {
+    updateSW(true).then(() => {
+      window.location.reload();
+    });
+  },
+  onOfflineReady() {
+    console.log("PWA is ready to work offline.");
+  },
+});
 
 class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: ReactNode}) {

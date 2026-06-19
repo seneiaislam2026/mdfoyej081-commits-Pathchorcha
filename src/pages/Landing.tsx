@@ -31,16 +31,23 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-card flex flex-col items-center justify-center font-sans selection:bg-secondary/30 relative">
-      <Link to="/auth" className="flex flex-col items-center justify-center group cursor-pointer z-10 w-full h-full absolute inset-0">
-        <motion.div 
+      <Link
+        to="/auth"
+        className="flex flex-col items-center justify-center group cursor-pointer z-10 w-full h-full absolute inset-0"
+      >
+        <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="flex flex-col items-center justify-center mb-8"
         >
           {/* Logo */}
-          <div className="group-hover:scale-105 transition-transform duration-300">
-             <img src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png" alt="Shikkangon Logo" className="w-[200px] sm:w-[280px] md:w-[320px] object-contain" />
+          <div className="group-hover:scale-105 transition-transform duration-300 flex flex-col items-center justify-center">
+            <img
+              src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"
+              alt="বিদ্যায়ন Logo"
+              className="w-[240px] sm:w-[320px] md:w-[380px] object-contain mix-blend-multiply dark:invert"
+            />
           </div>
         </motion.div>
       </Link>

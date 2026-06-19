@@ -6,19 +6,21 @@ import { Label } from "@/components/ui/label";
 import { ArrowRight, Phone, Mail, X, Lock, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
-import { ConfirmationResult, sendPasswordResetEmail } from 'firebase/auth';
+import { ConfirmationResult, sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const [loginMethod, setLoginMethod] = useState<'email' | 'phone'>('phone');
+  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("phone");
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
   const convertBanglaToEnglishDigits = (str: string) => {
     const banglaDigits = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
-    return str.replace(/[০-৯]/g, (match) => banglaDigits.indexOf(match).toString());
+    return str.replace(/[০-৯]/g, (match) =>
+      banglaDigits.indexOf(match).toString(),
+    );
   };
 
   const handlePhoneChange = (val: string) => {
@@ -32,17 +34,26 @@ export default function Auth() {
     englishVal = englishVal.replace(/[^0-9+]/g, "");
     setForgotIdentifier(englishVal);
   };
-  
+
   // Forgot Password States
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotIdentifier, setForgotIdentifier] = useState("");
-  const [forgotStep, setForgotStep] = useState<'input' | 'otp' | 'new_password'>('input');
+  const [forgotStep, setForgotStep] = useState<
+    "input" | "otp" | "new_password"
+  >("input");
   const [forgotOtp, setForgotOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
-  
-  const { signInWithGoogle, signInWithFacebook, signInOrSignUpWithEmail, user, userData, loading: authLoading } = useAuth();
+
+  const {
+    signInWithGoogle,
+    signInWithFacebook,
+    signInOrSignUpWithEmail,
+    user,
+    userData,
+    loading: authLoading,
+  } = useAuth();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -60,7 +71,11 @@ export default function Auth() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center justify-center">
-          <img src="/logo.png" alt="বিদ্যায়ন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
+          <img
+            src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"
+            alt="বিদ্যায়ন"
+            className="w-[180px] sm:w-[220px] object-contain mb-4 mix-blend-multiply dark:invert"
+          />
         </div>
       </div>
     );
@@ -73,7 +88,7 @@ export default function Auth() {
         setErrorMsg("");
         setLoading(true);
         let phoneNum = identifier.trim().replace(/\s+/g, "");
-        
+
         if (phoneNum.startsWith("+880")) {
           phoneNum = phoneNum.substring(3);
         } else if (phoneNum.startsWith("880")) {
@@ -82,7 +97,9 @@ export default function Auth() {
 
         const phoneRegex = /^01[3-9]\d{8}$/;
         if (!phoneRegex.test(phoneNum)) {
-          throw new Error("দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)");
+          throw new Error(
+            "দয়া করে সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)",
+          );
         }
 
         const loginEmail = `${phoneNum}@pathchorcha.app`;
@@ -94,8 +111,10 @@ export default function Auth() {
         }
       } catch (e: any) {
         console.error(e);
-        if (e.code === 'auth/operation-not-allowed') {
-          setErrorMsg("মোবাইল ও পাসওয়ার্ড লগইন চালু নেই। দয়া করে আপনার Firebase প্রজেক্টের Authentication সেটিংসে গিয়ে 'Email/Password' Provider চালু করুন।");
+        if (e.code === "auth/operation-not-allowed") {
+          setErrorMsg(
+            "মোবাইল ও পাসওয়ার্ড লগইন চালু নেই। দয়া করে আপনার Firebase প্রজেক্টের Authentication সেটিংসে গিয়ে 'Email/Password' Provider চালু করুন।",
+          );
         } else {
           setErrorMsg(e.message || "লগিন বা রেজিস্ট্রেশন ব্যর্থ হয়েছে।");
         }
@@ -134,10 +153,15 @@ export default function Auth() {
       }
     } catch (e: any) {
       console.error(e);
-      if (e.code === 'auth/operation-not-allowed') {
-        setErrorMsg("ফেসবুক লগইন এই মুহূর্তে চালু নেই। অনুগ্রহ করে Firebase কনসোলে গিয়ে Facebook Sign-in Provider চালু করুন।");
+      if (e.code === "auth/operation-not-allowed") {
+        setErrorMsg(
+          "ফেসবুক লগইন এই মুহূর্তে চালু নেই। অনুগ্রহ করে Firebase কনসোলে গিয়ে Facebook Sign-in Provider চালু করুন।",
+        );
       } else {
-        setErrorMsg(e.message || "ফেসবুক লগইন ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।");
+        setErrorMsg(
+          e.message ||
+            "ফেসবুক লগইন ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।",
+        );
       }
     } finally {
       setLoading(false);
@@ -160,52 +184,58 @@ export default function Auth() {
       // Check format
       const phoneRegex = /^01[3-9]\d{8}$/;
       if (!phoneRegex.test(phoneNum)) {
-        throw new Error("দয়া করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)।");
+        throw new Error(
+          "দয়া করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 017XXXXXXXX)।",
+        );
       }
 
-      if (forgotStep === 'input') {
+      if (forgotStep === "input") {
         const res = await fetch("/api/send-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: phoneNum })
+          body: JSON.stringify({ phone: phoneNum }),
         });
         const data = await res.json();
-        
+
         if (data.error && !data.mockOtp) throw new Error(data.error);
         if (data.error && data.mockOtp) {
-          alert(`SMS পাঠানো যায়নি। API Error: ${data.error}\n\n(Test Mode) Your OTP is: ${data.mockOtp}`);
+          alert(
+            `SMS পাঠানো যায়নি। API Error: ${data.error}\n\n(Test Mode) Your OTP is: ${data.mockOtp}`,
+          );
         } else if (data.mockOtp) {
-           alert(`(Test Mode) Your OTP is: ${data.mockOtp}`);
+          alert(`(Test Mode) Your OTP is: ${data.mockOtp}`);
         }
-        
-        setForgotStep('otp');
-      } else if (forgotStep === 'otp') {
+
+        setForgotStep("otp");
+      } else if (forgotStep === "otp") {
         const res = await fetch("/api/verify-otp", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: phoneNum, otp: forgotOtp.trim() })
+          body: JSON.stringify({ phone: phoneNum, otp: forgotOtp.trim() }),
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-        
-        setForgotStep('new_password');
-      } else if (forgotStep === 'new_password') {
+
+        setForgotStep("new_password");
+      } else if (forgotStep === "new_password") {
         const res = await fetch("/api/reset-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phone: phoneNum, newPassword: newPassword })
+          body: JSON.stringify({ phone: phoneNum, newPassword: newPassword }),
         });
         const data = await res.json();
-        
+
         if (res.ok) {
-           alert("পাসওয়ার্ড সফলভাবে পরিবর্তনের রিকুয়েস্ট করা হয়েছে (এটি কাজ করতে Admin SDK প্রয়োজন)। দয়া করে পুরানো পাসওয়ার্ড দিয়েই লগইন করুন আপাতত।");
-           setShowForgotModal(false);
-           setForgotStep('input');
-           setForgotIdentifier("");
-           setForgotOtp("");
-           setNewPassword("");
+          alert(
+            "পাসওয়ার্ড সফলভাবে পরিবর্তনের রিকুয়েস্ট করা হয়েছে (এটি কাজ করতে Admin SDK প্রয়োজন)। দয়া করে পুরানো পাসওয়ার্ড দিয়েই লগইন করুন আপাতত।",
+          );
+          setShowForgotModal(false);
+          setForgotStep("input");
+          setForgotIdentifier("");
+          setForgotOtp("");
+          setNewPassword("");
         } else {
-           throw new Error(data.error || "পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে");
+          throw new Error(data.error || "পাসওয়ার্ড পরিবর্তন ব্যর্থ হয়েছে");
         }
       }
     } catch (err: any) {
@@ -222,21 +252,26 @@ export default function Auth() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-blue-900 z-0"></div>
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-secondary rounded-full opacity-20 blur-[100px] pointer-events-none z-0"></div>
         <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-blue-400 rounded-full opacity-20 blur-[80px] pointer-events-none z-0"></div>
-        
+
         <div className="relative z-10">
           <Link to="/" className="inline-flex items-center gap-2">
             <span className="font-bengali font-bold text-[36px] tracking-tight text-white">
-            বিদ্যা<span className="text-secondary">য়ন</span>
+              বিদ্যা<span className="text-secondary">য়ন</span>
             </span>
           </Link>
         </div>
 
         <div className="relative z-10 text-white max-w-md">
           <h1 className="text-4xl font-bengali font-bold leading-tight mb-6">
-            লক্ষ্য স্থির করো,<br/>নিয়মিত চর্চা করো,<br/>সাফল্য আসবেই!
+            লক্ষ্য স্থির করো,
+            <br />
+            নিয়মিত চর্চা করো,
+            <br />
+            সাফল্য আসবেই!
           </h1>
           <p className="text-primary-foreground/70 font-bengali text-lg leading-relaxed">
-            ১০ লক্ষের বেশি ছাত্রছাত্রী ইতিমধ্যে বিদ্যায়ন-এ যুক্ত হয়েছে। আজই শুরু করো তোমার প্রস্তুতি।
+            ১০ লক্ষের বেশি ছাত্রছাত্রী ইতিমধ্যে বিদ্যায়ন-এ যুক্ত হয়েছে। আজই
+            শুরু করো তোমার প্রস্তুতি।
           </p>
         </div>
       </div>
@@ -247,7 +282,7 @@ export default function Auth() {
         <div className="absolute top-1/4 right-1/4 w-72 h-72 bg-[#00A86B]/5 rounded-full filter blur-[100px] pointer-events-none"></div>
         <div className="absolute bottom-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full filter blur-[100px] pointer-events-none"></div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
@@ -255,31 +290,34 @@ export default function Auth() {
         >
           {/* Centered Artistic Brand Logo and Title */}
           {window.self !== window.top && (
-  <div className='bg-orange-50 border border-orange-200 p-4 rounded-[24px] mb-6 shadow-sm'>
-    <h4 className='text-orange-800 font-bold font-bengali text-sm flex items-center gap-2 mb-1'>
-       <span className='text-lg'>⚠️</span> প্রিভিউ মোড অ্যালার্ট
-    </h4>
-    <p className='text-orange-900 font-bengali text-xs leading-relaxed opacity-90'>
-      লগিন বারবার মুছে গেলে, দয়াকরে উপরের <b>নতুন ট্যাবে</b> আইকনে ক্লিক করে ওয়েবসাইটটি ওপেন করুন। (Open in a new tab)
-    </p>
-  </div>
-)}
-<div className='text-center mb-8'>
+            <div className="bg-orange-50 border border-orange-200 p-4 rounded-[24px] mb-6 shadow-sm">
+              <h4 className="text-orange-800 font-bold font-bengali text-sm flex items-center gap-2 mb-1">
+                <span className="text-lg">⚠️</span> প্রিভিউ মোড অ্যালার্ট
+              </h4>
+              <p className="text-orange-900 font-bengali text-xs leading-relaxed opacity-90">
+                লগিন বারবার মুছে গেলে, দয়াকরে উপরের <b>নতুন ট্যাবে</b> আইকনে
+                ক্লিক করে ওয়েবসাইটটি ওপেন করুন। (Open in a new tab)
+              </p>
+            </div>
+          )}
+          <div className="text-center mb-8">
             <div className="flex flex-col items-center justify-center mb-6">
               <Link to="/" className="inline-flex flex-col items-center group">
-                <div className="w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] bg-card rounded-[32px] sm:rounded-[40px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-3 group-hover:scale-105 transition-transform duration-300 border border-slate-50 relative overflow-hidden">
-                   <img src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png" alt="Shikkangon Logo" className="w-[100px] sm:w-[120px] object-contain" />
-                </div>
+                <img
+                  src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"
+                  alt="বিদ্যায়ন"
+                  className="w-[140px] sm:w-[160px] object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply dark:invert"
+                />
               </Link>
             </div>
-            
+
             <h2 className="text-xl sm:text-2xl font-bengali font-bold text-[#1e293b] tracking-tight">
               লগইন / রেজিস্টার
             </h2>
           </div>
 
           {errorMsg && (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="bg-red-50 text-red-800 p-3 rounded-2xl text-xs font-bengali mb-4 border border-red-100 text-center font-medium"
@@ -291,17 +329,20 @@ export default function Auth() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Styled Mobile Input Field */}
             <div className="space-y-1.5">
-              <Label htmlFor="identifier" className="font-bengali font-bold text-muted-foreground text-xs pl-1">
+              <Label
+                htmlFor="identifier"
+                className="font-bengali font-bold text-muted-foreground text-xs pl-1"
+              >
                 মোবাইল নম্বর
               </Label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
                   <Phone className="w-4 h-4" />
                 </div>
-                <Input 
-                  id="identifier" 
+                <Input
+                  id="identifier"
                   type="tel"
-                  placeholder="যেমন: 01XXXXXXXXX" 
+                  placeholder="যেমন: 01XXXXXXXXX"
                   className="h-12 pl-11 pr-4 rounded-2xl bg-muted/70 border-slate-200 focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/5 font-sans shadow-none transition-all text-foreground text-sm"
                   value={identifier}
                   onChange={(e) => handlePhoneChange(e.target.value)}
@@ -309,20 +350,23 @@ export default function Auth() {
                 />
               </div>
             </div>
-            
+
             {/* Styled Password Input Field */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between pl-1">
-                <Label htmlFor="password" className="font-bengali font-bold text-muted-foreground text-xs">
+                <Label
+                  htmlFor="password"
+                  className="font-bengali font-bold text-muted-foreground text-xs"
+                >
                   পাসওয়ার্ড
                 </Label>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => {
                     setForgotError("");
-                    setForgotStep('input');
+                    setForgotStep("input");
                     setShowForgotModal(true);
-                  }} 
+                  }}
                   className="text-[10px] text-[#0F2744] hover:text-[#0C1F36] font-bengali font-semibold transition-colors"
                 >
                   পাসওয়ার্ড ভুলে গেছেন?
@@ -332,10 +376,10 @@ export default function Auth() {
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 group-focus-within:text-primary transition-colors">
                   <Lock className="w-4 h-4" />
                 </div>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••" 
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
                   className="h-12 pl-11 pr-4 rounded-2xl bg-muted/70 border-slate-200 focus:bg-card focus:border-primary focus:ring-4 focus:ring-primary/5 shadow-none transition-all text-foreground text-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -345,9 +389,9 @@ export default function Auth() {
             </div>
 
             {/* Primary Action Button (Beautiful brand-matching Deep Navy Blue) */}
-            <Button 
-              type="submit" 
-              disabled={loading} 
+            <Button
+              type="submit"
+              disabled={loading}
               className="w-full h-12 mt-4 bg-primary hover:bg-primary/95 text-white rounded-2xl font-bengali font-bold text-sm shadow-sm transition-all duration-200"
             >
               {loading ? (
@@ -365,73 +409,106 @@ export default function Auth() {
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-100"></div>
             </div>
-            <span className="relative bg-card px-3 text-[11px] text-slate-400 font-medium">Login / Registration with</span>
+            <span className="relative bg-card px-3 text-[11px] text-slate-400 font-medium">
+              Login / Registration with
+            </span>
           </div>
 
           {/* Social Sign-In (Beautiful side-by-side Grid of Google & Facebook) */}
           <div className="grid grid-cols-2 gap-3">
             {/* Facebook Button */}
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               type="button"
               disabled={loading}
               onClick={handleFacebookLogin}
               className="h-11 rounded-2xl font-sans text-xs font-semibold text-muted-foreground border border-slate-200 hover:bg-muted transition-all duration-150 flex items-center justify-center gap-1.5 shadow-none"
             >
-              <svg className="w-4 h-4 text-[#1877F2] fill-current shrink-0" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              <svg
+                className="w-4 h-4 text-[#1877F2] fill-current shrink-0"
+                viewBox="0 0 24 24"
+              >
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
               </svg>
               Facebook
             </Button>
 
             {/* Google Button */}
-            <Button 
-              disabled={loading} 
-              onClick={handleGoogleLogin} 
-              variant="outline" 
+            <Button
+              disabled={loading}
+              onClick={handleGoogleLogin}
+              variant="outline"
               type="button"
               className="h-11 rounded-2xl font-sans text-xs font-semibold text-slate-700 bg-card border border-slate-200 hover:bg-muted transition-all duration-150 flex items-center justify-center gap-1.5 shadow-none"
             >
-               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-               </svg>
-               Google
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                />
+              </svg>
+              Google
             </Button>
           </div>
 
           <p className="text-center text-slate-400 font-bengali text-[10px] mt-4 leading-relaxed">
-            লগইন করার মাধ্যমে আপনি আমাদের <Link to="/terms" className="text-primary font-semibold hover:underline">শর্তাবলী</Link> ও <Link to="/privacy" className="text-primary font-semibold hover:underline">গোপনীয়তা নীতিতে</Link> সম্মতি জানাচ্ছেন।
+            লগইন করার মাধ্যমে আপনি আমাদের{" "}
+            <Link
+              to="/terms"
+              className="text-primary font-semibold hover:underline"
+            >
+              শর্তাবলী
+            </Link>{" "}
+            ও{" "}
+            <Link
+              to="/privacy"
+              className="text-primary font-semibold hover:underline"
+            >
+              গোপনীয়তা নীতিতে
+            </Link>{" "}
+            সম্মতি জানাচ্ছেন।
           </p>
         </motion.div>
       </div>
-      
+
       {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-[32px] w-full max-w-md p-8 relative shadow-xl">
-            <button 
+            <button
               onClick={() => setShowForgotModal(false)}
               className="absolute top-6 right-6 text-slate-400 hover:text-muted-foreground bg-slate-100 rounded-full p-2"
             >
               <X className="w-5 h-5" />
             </button>
-            <h3 className="text-2xl font-bengali font-bold text-slate-900 mb-2">পাসওয়ার্ড পুনরুদ্ধার</h3>
+            <h3 className="text-2xl font-bengali font-bold text-slate-900 mb-2">
+              পাসওয়ার্ড পুনরুদ্ধার
+            </h3>
             <p className="text-slate-500 font-bengali mb-6">
-              {forgotStep === 'input' && "আপনার ১১ ডিজিটের মোবাইল নম্বর দিন"}
-              {forgotStep === 'otp' && "আপনার নম্বরে পাঠানো OTP দিন"}
-              {forgotStep === 'new_password' && "নতুন পাসওয়ার্ড সেট করুন"}
+              {forgotStep === "input" && "আপনার ১১ ডিজিটের মোবাইল নম্বর দিন"}
+              {forgotStep === "otp" && "আপনার নম্বরে পাঠানো OTP দিন"}
+              {forgotStep === "new_password" && "নতুন পাসওয়ার্ড সেট করুন"}
             </p>
-            
+
             <form onSubmit={handleForgotSubmit} className="space-y-4">
-              {forgotStep === 'input' && (
+              {forgotStep === "input" && (
                 <div className="space-y-2">
                   <Label className="font-bengali">মোবাইল নম্বর</Label>
-                  <Input 
-                    type="tel" 
-                    placeholder="যেমন: 01XXXXXXXXX" 
+                  <Input
+                    type="tel"
+                    placeholder="যেমন: 01XXXXXXXXX"
                     value={forgotIdentifier}
                     onChange={(e) => handleForgotPhoneChange(e.target.value)}
                     required
@@ -439,13 +516,13 @@ export default function Auth() {
                   />
                 </div>
               )}
-              
-              {forgotStep === 'otp' && (
+
+              {forgotStep === "otp" && (
                 <div className="space-y-2">
                   <Label className="font-bengali">OTP</Label>
-                  <Input 
-                    type="text" 
-                    placeholder="4 ডিজিটের কোড" 
+                  <Input
+                    type="text"
+                    placeholder="4 ডিজিটের কোড"
                     value={forgotOtp}
                     onChange={(e) => setForgotOtp(e.target.value)}
                     required
@@ -453,13 +530,13 @@ export default function Auth() {
                   />
                 </div>
               )}
-              
-              {forgotStep === 'new_password' && (
+
+              {forgotStep === "new_password" && (
                 <div className="space-y-2">
                   <Label className="font-bengali">নতুন পাসওয়ার্ড</Label>
-                  <Input 
-                    type="password" 
-                    placeholder="••••••••" 
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
@@ -467,17 +544,25 @@ export default function Auth() {
                   />
                 </div>
               )}
-              
+
               {forgotError && (
                 <div className="bg-red-50 text-red-700 p-3 rounded-xl text-sm font-bengali border border-red-100">
                   {forgotError}
                 </div>
               )}
-              
-              <Button disabled={forgotLoading} type="submit" className="w-full h-14 bg-primary text-white font-bengali font-bold rounded-xl">
-                {forgotLoading ? "অপেক্ষা করুন..." : 
-                  forgotStep === 'input' ? "OTP পাঠান" : 
-                  forgotStep === 'otp' ? "যাচাই করুন" : "পাসওয়ার্ড আপডেট করুন"}
+
+              <Button
+                disabled={forgotLoading}
+                type="submit"
+                className="w-full h-14 bg-primary text-white font-bengali font-bold rounded-xl"
+              >
+                {forgotLoading
+                  ? "অপেক্ষা করুন..."
+                  : forgotStep === "input"
+                    ? "OTP পাঠান"
+                    : forgotStep === "otp"
+                      ? "যাচাই করুন"
+                      : "পাসওয়ার্ড আপডেট করুন"}
               </Button>
             </form>
           </div>

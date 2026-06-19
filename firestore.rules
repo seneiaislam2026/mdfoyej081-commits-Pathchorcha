@@ -129,5 +129,9 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin() || isTutor();
     }
+
+    match /finance_records/{recordId} {
+      allow read, write: if isAdmin();
+    }
   }
 }

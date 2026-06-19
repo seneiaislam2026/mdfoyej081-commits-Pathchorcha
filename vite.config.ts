@@ -13,8 +13,8 @@ export default defineConfig({
       injectRegister: 'script',
       includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png', 'manifest.json'],
       manifest: {
-        name: 'শিক্ষাঙ্গন',
-        short_name: 'Shikkhangon',
+        name: 'বিদ্যায়ন',
+        short_name: 'Biddayon',
         description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
         theme_color: '#ffffff',
         background_color: '#ffffff',
@@ -23,15 +23,28 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: 'https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png',
+            src: '/icon-192-v2.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
-            src: 'https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png',
+            src: '/icon-192-v2.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: '/icon-512-v2.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/icon-512-v2.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
           }
         ]
       },
