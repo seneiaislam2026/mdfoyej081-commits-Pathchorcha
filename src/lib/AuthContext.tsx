@@ -70,8 +70,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let unsubscribeUserDoc: (() => void) | null = null;
 
+    const cachedUser = localStorage.getItem("cachedUserData");
+    const cachedAuth = localStorage.getItem("cachedAuthUser");
+    if (cachedUser && cachedAuth) {
+       setUserData(JSON.parse(cachedUser));
+       setUser(JSON.parse(cachedAuth));
+       setLoading(false); // fast boot!
+    }
+
     const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        localStorage.setItem("cachedAuthUser", JSON.stringify({ uid: currentUser.uid, email: currentUser.email, phoneNumber: currentUser.phoneNumber }));
+      } else {
+        localStorage.removeItem("cachedAuthUser");
+      }
       
       if (unsubscribeUserDoc) {
         unsubscribeUserDoc();
@@ -149,13 +162,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setLoading(false);
       }
     });
-
-    // Optimistic offline check
-    const cachedUser = localStorage.getItem("cachedUserData");
-    if (cachedUser && !navigator.onLine) {
-       setUserData(JSON.parse(cachedUser));
-       setLoading(false);
-    }
 
     return () => {
       unsubscribe();

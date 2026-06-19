@@ -3199,24 +3199,29 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                    const msgInput = form.elements.namedItem("message") as HTMLTextAreaElement;
                    const phone = phoneInput.value;
                    const message = msgInput.value;
-                   
                    setLoading(true);
                    try {
+                     let cleanPhone = phone.trim().replace(/[^\d+]/g, "");
+                     if (cleanPhone.startsWith("+880")) cleanPhone = cleanPhone.substring(1);
+                     else if (cleanPhone.startsWith("01")) cleanPhone = "88" + cleanPhone;
+
                      const res = await fetch("/api/send-sms", {
                        method: "POST",
                        headers: { "Content-Type": "application/json" },
-                       body: JSON.stringify({ phone, message })
+                       body: JSON.stringify({ phone: cleanPhone, message: message })
                      });
-                     if (res.ok) {
+                     
+                     const data = await res.json();
+                     
+                     if (!res.ok || data.error) {
+                       alert("এসএমএস পাঠাতে সমস্যা হয়েছে: " + (data.error || "Unknown Error"));
+                     } else {
                        alert("এসএমএস সফলভাবে পাঠানো হয়েছে।");
                        msgInput.value = "";
-                     } else {
-                       const data = await res.json();
-                       alert(data.error || "এসএমএস পাঠাতে সমস্যা হয়েছে।");
                      }
                    } catch(err) {
                      console.error(err);
-                     alert("এসএমএস পাঠাতে সমস্যা হয়েছে।");
+                     alert("এসএমএস পাঠাতে সমস্যা হয়েছে। (CORS বা নেটওয়ার্ক এরর)");
                    } finally {
                      setLoading(false);
                    }

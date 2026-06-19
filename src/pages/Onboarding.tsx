@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Book, GraduationCap, ArrowLeft, Trophy, TestTube2, Calculator, Users } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
-import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { doc, updateDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
 type OnboardingStep = "name" | "class" | "subclass" | "group" | "welcome";
@@ -94,7 +94,7 @@ export default function Onboarding() {
         if (selectedGroup) {
           updateData.group = groups.find((g) => g.id === selectedGroup)?.label || '';
         }
-        await updateDoc(doc(db, "users", user.uid), updateData);
+        await setDoc(doc(db, "users", user.uid), updateData, { merge: true });
         if (userData) {
           userData.fullName = name;
           userData.institution = institution;
