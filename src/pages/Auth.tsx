@@ -170,9 +170,11 @@ export default function Auth() {
           body: JSON.stringify({ phone: phoneNum })
         });
         const data = await res.json();
-        if (data.error) throw new Error(data.error);
         
-        if (data.mockOtp) {
+        if (data.error && !data.mockOtp) throw new Error(data.error);
+        if (data.error && data.mockOtp) {
+          alert(`SMS পাঠানো যায়নি। API Error: ${data.error}\n\n(Test Mode) Your OTP is: ${data.mockOtp}`);
+        } else if (data.mockOtp) {
            alert(`(Test Mode) Your OTP is: ${data.mockOtp}`);
         }
         

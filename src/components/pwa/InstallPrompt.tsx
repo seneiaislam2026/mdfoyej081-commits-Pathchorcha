@@ -11,7 +11,7 @@ export const InstallPrompt = () => {
   useEffect(() => {
     // Check if the app is already installed or if it's running standalone
     const isStandalone = window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : false;
-    if (isStandalone) {
+    if (isStandalone || window.navigator.standalone) {
       console.log('App is running in standalone mode, skipping install prompt');
       return;
     }
@@ -27,11 +27,23 @@ export const InstallPrompt = () => {
       console.log('beforeinstallprompt event fired');
       // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
-      // We can also show the prompt immediately when the event fires
+      // Show the prompt immediately when the event fires
       setShowPrompt(true);
     };
 
     window.addEventListener('beforeinstallprompt', handler);
+    
+    // Always show prompt in iframe so they know they can open in a new tab to install
+    if (window.self !== window.top) {
+        setShowPrompt(true);
+    } else {
+        // Standalone context but beforeinstallprompt might not fire immediately.
+        // For iOS, beforeinstallprompt never fires. We show custom instructions.
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        if (isIos) {
+            setTimeout(() => setShowPrompt(true), 3000);
+        }
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
@@ -46,6 +58,12 @@ export const InstallPrompt = () => {
     }
 
     if (!deferredPrompt) {
+      const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+      if (isIos) {
+          alert('Safari ব্রাউজারের নিচে "Share" আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।');
+      } else {
+          alert('আপনার ব্রাউজারের মেনু (⋮) অপশন থেকে "Add to Home screen" বা "Install app" এ ক্লিক করুন।');
+      }
       return;
     }
 
@@ -98,7 +116,7 @@ export const InstallPrompt = () => {
             {/* Brand/Product Header row */}
             <div className="flex items-center gap-3.5">
               <div className="w-14 h-14 shrink-0 relative bg-white flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
-                <img src="/logo.png" alt="শিক্ষাঙ্গন Icon" className="w-full h-full object-contain" />
+                <img src="/icon-192-v2.png" alt="শিক্ষাঙ্গন Icon" className="w-full h-full object-contain" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bengali font-bold text-lg text-slate-800 leading-tight">শিক্ষাঙ্গন অ্যাপ ইনস্টল করুন</h3>

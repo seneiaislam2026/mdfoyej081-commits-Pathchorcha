@@ -1,21 +1,33 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 export default function Landing() {
   const { user, userData, loading } = useAuth();
   const navigate = useNavigate();
+  const [minTimePassed, setMinTimePassed] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) {
-      if (userData?.class) {
-        navigate("/dashboard");
-      } else if (userData) {
-        navigate("/onboarding");
+    const timer = setTimeout(() => {
+      setMinTimePassed(true);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!loading && minTimePassed) {
+      if (user) {
+        if (userData?.class) {
+          navigate("/dashboard");
+        } else if (userData) {
+          navigate("/onboarding");
+        }
+      } else {
+        navigate("/auth");
       }
     }
-  }, [user, userData, loading, navigate]);
+  }, [user, userData, loading, minTimePassed, navigate]);
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans selection:bg-secondary/30 relative">

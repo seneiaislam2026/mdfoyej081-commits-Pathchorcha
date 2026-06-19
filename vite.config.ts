@@ -10,11 +10,33 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png', 'logo.png'],
-      manifest: false, // We already have a manifest.json in public folder, or we can configure it here.
+      injectRegister: 'script',
+      includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png'],
+      manifest: {
+        name: 'শিক্ষাঙ্গন',
+        short_name: 'Shikkhangon',
+        description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/',
+        icons: [
+          {
+            src: '/icon-192-v2.png',
+            sizes: '192x192',
+            type: 'image/png'
+          },
+          {
+            src: '/icon-512-v2.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
+      },
       workbox: {
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024 // 5 MB
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       }
     }),
   ],

@@ -49,12 +49,11 @@ async function startServer() {
       // Try first WITH senderid
       let smsApiUrl = `https://api.greenweb.com.bd/api.php?token=${token}&to=${formattedPhone}&message=${encodeURIComponent(message)}&senderid=${encodeURIComponent(senderid)}`;
       
-      let data = "Simulated Mock Response";
+      let data = "";
+      let isError = false;
+      
       try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 8000);
-        let response = await fetch(smsApiUrl, { signal: controller.signal });
-        clearTimeout(timeoutId);
+        let response = await fetch(smsApiUrl);
         data = await response.text();
         console.log("Greenweb OTP response:", data);
         
@@ -64,12 +63,21 @@ async function startServer() {
           const responseFallback = await fetch(smsApiUrl);
           data = await responseFallback.text();
           console.log("Greenweb OTP fallback response:", data);
+          if (data.toLowerCase().includes("error")) {
+              isError = true;
+          }
         }
       } catch(err) {
-         console.warn("Failed to reach GreenWeb API, falling back to mock OTP sending.", err);
+         console.warn("Failed to reach GreenWeb API.", err);
+         isError = true;
       }
       
-      res.json({ success: true, message: "OTP sent successfully", mockOtp: otp, apiResponse: data });
+      if (isError) {
+         console.error("SMS Sending failed with API error: ", data);
+         return res.json({ success: true, message: "OTP not sent to phone, but continuing in test mode", mockOtp: otp, error: data });
+      }
+      
+      res.json({ success: true, message: "OTP sent successfully", mockOtp: otp });
     } catch (error: any) {
       console.error("SMS error:", error);
       res.status(500).json({ error: "Failed to send OTP" });
