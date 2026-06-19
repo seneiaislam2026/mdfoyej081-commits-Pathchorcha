@@ -98,7 +98,7 @@ export const InstallPrompt = () => {
             {/* Brand/Product Header row */}
             <div className="flex items-center gap-3.5">
               <div className="w-14 h-14 shrink-0 relative bg-white flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
-                <img src="/icon.svg" alt="শিক্ষাঙ্গন Icon" className="w-full h-full object-contain" />
+                <img src="/logo.png" alt="শিক্ষাঙ্গন Icon" className="w-full h-full object-contain" />
               </div>
               <div className="flex-1">
                 <h3 className="font-bengali font-bold text-lg text-slate-800 leading-tight">শিক্ষাঙ্গন অ্যাপ ইনস্টল করুন</h3>

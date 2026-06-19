@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
-import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X, Search, Moon, Menu, Printer } from "lucide-react";
+import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X, Search, Moon, Menu, Printer, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
@@ -18,6 +18,7 @@ import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, or
 import { db } from "../lib/firebase";
 import NotesCreator from "../components/NotesCreator";
 import BoardQuestionsCreator from "../components/BoardQuestionsCreator";
+import FinancialTrackingTab from "../components/FinancialTrackingTab";
 import { 
   ResponsiveContainer, 
   LineChart as RechartsLineChart, 
@@ -50,6 +51,7 @@ const menuItems = [
   { id: "reports", bnLabel: "রিপোর্টকৃত", enLabel: "Reports", icon: <AlertCircle className="w-5 h-5" /> },
   { id: "sms", bnLabel: "এসএমএস", enLabel: "SMS", icon: <MessageCircleQuestion className="w-5 h-5 text-sky-500" /> },
   { id: "analytics", bnLabel: "অ্যানালিটিক্স", enLabel: "Analytics", icon: <BarChart className="w-5 h-5" /> },
+  { id: "finance", bnLabel: "হিসাব নিকাশ", enLabel: "Finance", icon: <DollarSign className="w-5 h-5 text-emerald-500" />, isNew: true },
   { id: "premium_marketing", bnLabel: "প্রো ও মার্কেটিং", enLabel: "Growth & Marketing", icon: <TrendingUp className="w-5 h-5" /> },
   { id: "settings", bnLabel: "সেটিংস", enLabel: "Settings", icon: <Settings className="w-5 h-5" /> },
 ];
@@ -303,6 +305,9 @@ export default function Admin() {
   const [editQuestion, setEditQuestion] = useState<any | null>(null);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [bulkUploadSubject, setBulkUploadSubject] = useState("");
+  const [bulkUploadClassGroup, setBulkUploadClassGroup] = useState("HSC");
+  const [bulkUploadClass, setBulkUploadClass] = useState("HSC");
+  const [bulkUploadType, setBulkUploadType] = useState("mixed");
   const [showCreateCouponModal, setShowCreateCouponModal] = useState(false);
   const [newCouponCode, setNewCouponCode] = useState("");
   const [newCouponMonths, setNewCouponMonths] = useState("1");
@@ -848,11 +853,20 @@ export default function Admin() {
                const finalSubject = bulkUploadSubject || q.subject || (questionSubjectFilter !== "All Subjects" ? questionSubjectFilter : '');
                const finalTitle = rootTitle || q.title || (selectedBankTitle && selectedBankTitle !== 'Uncategorized' ? selectedBankTitle : (finalSubject || 'Uncategorized'));
                
+               let is_cq = q.is_cq || false;
+               let is_k_vandar = q.is_k_vandar || false;
+               let is_kh_vandar = q.is_kh_vandar || false;
+
+               if (bulkUploadType === "cq") is_cq = true;
+               else if (bulkUploadType === "mcq") is_cq = false;
+               else if (bulkUploadType === "k_vandar") { is_cq = true; is_k_vandar = true; }
+               else if (bulkUploadType === "kh_vandar") { is_cq = true; is_kh_vandar = true; }
+
                let formattedOptions = q.options;
                let correctOptionIdx = q.correctOptionIndex !== undefined ? q.correctOptionIndex : undefined;
                let correctOption = q.correctOption;
 
-               if (Array.isArray(q.options) && q.options.length > 0) {
+               if (!is_cq && !is_k_vandar && !is_kh_vandar && Array.isArray(q.options) && q.options.length > 0) {
                  if (typeof q.options[0] === 'string') {
                     const ids = ['A', 'B', 'C', 'D', 'E'];
                     formattedOptions = q.options.map((optLabel: string, index: number) => ({
@@ -883,14 +897,23 @@ export default function Admin() {
                  }
                }
 
-               await addDoc(collection(db, "questions"), {
+               const payload: any = {
                  ...q,
-                 options: formattedOptions || [],
-                 correctOption: correctOption || 'A',
+                 is_cq,
+                 is_k_vandar,
+                 is_kh_vandar,
+                 class: bulkUploadClass,
+                 classGroup: bulkUploadClassGroup,
                  subject: finalSubject,
                  title: finalTitle,
                  createdAt: serverTimestamp()
-               });
+               };
+               if (!is_cq) {
+                 payload.options = formattedOptions || [];
+                 payload.correctOption = correctOption || 'A';
+               }
+
+               await addDoc(collection(db, "questions"), payload);
                count++;
             }));
         }
@@ -3263,6 +3286,8 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                </div>
              )}
           </div>
+        ) : activeTab === "finance" ? (
+          <FinancialTrackingTab />
         ) : activeTab === "premium_marketing" ? (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -4054,6 +4079,21 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               <p className="text-sm text-slate-500 mb-4">Paste your array of questions in JSON format here. You can select a subject below to automatically assign all uploaded questions to that subject.</p>
               
               <div className="mb-4">
+                <label className="text-sm font-bold mb-1 block font-bengali">প্রশ্ন ধরণ (Question Type)</label>
+                <select
+                  className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
+                  value={bulkUploadType}
+                  onChange={(e) => setBulkUploadType(e.target.value)}
+                >
+                  <option value="mixed">মিক্সড (JSON অনুযায়ী নিবে)</option>
+                  <option value="mcq">শুধু MCQ</option>
+                  <option value="cq">শুধু CQ (সৃজনশীল)</option>
+                  <option value="k_vandar">জ্ঞ্যানমূলক ('ক' ভান্ডার)</option>
+                  <option value="kh_vandar">অনুধাবনমূলক ('খ' ভান্ডার)</option>
+                </select>
+              </div>
+
+              <div className="mb-4">
                 <label className="text-sm font-bold mb-1 block font-bengali">বিষয় নির্বাচন করুন (Optional)</label>
                 <select
                   className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
@@ -4065,6 +4105,38 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     <option key={sub} value={sub}>{sub}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="text-sm font-bold mb-1 block font-bengali">ক্লাস গ্রুপ</label>
+                  <select
+                    className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
+                    value={bulkUploadClassGroup}
+                    onChange={(e) => setBulkUploadClassGroup(e.target.value)}
+                  >
+                    <option value="HSC">HSC</option>
+                    <option value="SSC">SSC</option>
+                    <option value="Admission">Admission</option>
+                    <option value="Class 9">Class 9</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm font-bold mb-1 block font-bengali">নির্দিষ্ট ক্লাস / ভার্সিটি</label>
+                  <select
+                    className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
+                    value={bulkUploadClass}
+                    onChange={(e) => setBulkUploadClass(e.target.value)}
+                  >
+                    <option value="HSC">HSC</option>
+                    <option value="SSC">SSC</option>
+                    <option value="DU">DU</option>
+                    <option value="RU">RU</option>
+                    <option value="JU">JU</option>
+                    <option value="CU">CU</option>
+                    <option value="GST">GST</option>
+                  </select>
+                </div>
               </div>
 
               <textarea 

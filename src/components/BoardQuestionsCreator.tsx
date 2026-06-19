@@ -9,17 +9,30 @@ export default function BoardQuestionsCreator() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [uploadMode, setUploadMode] = useState<"manual" | "bulk">("manual");
+  const [bulkJson, setBulkJson] = useState("");
 
   const BOARDS = ["ঢাকা বোর্ড", "রাজশাহী বোর্ড", "যশোর বোর্ড", "কুমিল্লা বোর্ড", "চট্টগ্রাম বোর্ড", "সিলেট বোর্ড", "বরিশাল বোর্ড", "দিনাজপুর বোর্ড", "ময়মনসিংহ বোর্ড"];
   const YEARS = Array.from({ length: 11 }, (_, i) => (new Date().getFullYear() - i).toString());
   const CLASSES = ["৯ম শ্রেনী", "১০ম শ্রেনী", "একাদশ", "দ্বাদশ"];
-  const SUBJECTS = ["Bangla", "English", "General Knowledge", "Physics", "Chemistry", "Biology", "Higher Math", "ICT", "Accounting", "Management"];
+  const SUBJECTS = [
+    "Bangla 1st Paper", "Bangla 2nd Paper", 
+    "English 1st Paper", "English 2nd Paper", 
+    "Physics 1st Paper", "Physics 2nd Paper",
+    "Chemistry 1st Paper", "Chemistry 2nd Paper",
+    "Higher Math 1st Paper", "Higher Math 2nd Paper",
+    "Biology 1st Paper", "Biology 2nd Paper",
+    "ICT", "Accounting 1st Paper", "Accounting 2nd Paper", 
+    "Management 1st Paper", "Management 2nd Paper"
+  ];
+  const FORMATS = ["MCQ", "CQ", "KaBhandar", "KhaBhandar"];
 
   const [formData, setFormData] = useState({
     boardName: BOARDS[0],
     boardYear: YEARS[0],
     classLevel: CLASSES[3],
-    subject: SUBJECTS[3],
+    subject: SUBJECTS[4], // Physics 1st Paper
+    format: FORMATS[0]
   });
 
   const [questions, setQuestions] = useState([
@@ -70,41 +83,76 @@ export default function BoardQuestionsCreator() {
     setSuccess(false);
 
     try {
-      // Validate
-      for (const q of questions) {
-        if (!q.text.trim()) throw new Error("Please fill in all question text fields.");
-        for (const opt of q.options) {
-          if (!opt.label.trim()) throw new Error("Please fill in all option fields.");
+      let questionsToSubmit = [];
+
+      if (uploadMode === "bulk") {
+        if (!bulkJson.trim()) throw new Error("Please paste JSON array of questions.");
+        try {
+          const parsed = JSON.parse(bulkJson);
+          if (!Array.isArray(parsed)) throw new Error("JSON must be an array of questions.");
+          questionsToSubmit = parsed;
+        } catch (jsonErr: any) {
+          throw new Error("Invalid JSON format: " + jsonErr.message);
         }
+      } else {
+        // Validate manual
+        for (const q of questions) {
+          if (!q.text.trim()) throw new Error("Please fill in all question text fields.");
+          for (const opt of q.options) {
+            if (!opt.label.trim()) throw new Error("Please fill in all option fields.");
+          }
+        }
+        questionsToSubmit = questions;
       }
 
-      const promises = questions.map(q => 
-        addDoc(collection(db, "questions"), {
-          text: q.text,
-          options: q.options,
-          correctOption: q.correctOption,
-          explanation: q.explanation,
+      let classGroup = "HSC";
+      let mappedClass = formData.classLevel;
+
+      if (formData.classLevel === "৯ম শ্রেনী" || formData.classLevel === "১০ম শ্রেনী") {
+        classGroup = "SSC";
+        mappedClass = formData.classLevel === "৯ম শ্রেনী" ? "Class 9" : "Class 10";
+      } else if (formData.classLevel === "একাদশ" || formData.classLevel === "দ্বাদশ") {
+        classGroup = "HSC";
+        mappedClass = formData.classLevel === "একাদশ" ? "Class 11" : "Class 12";
+      }
+
+      const promises = questionsToSubmit.map((q, index) => {
+        return addDoc(collection(db, "questions"), {
+          text: q.text || "",
+          options: q.options || [],
+          correctOption: q.correctOption || "A",
+          explanation: q.explanation || "",
           subject: formData.subject,
+          is_cq: formData.format === "CQ",
+          is_k_vandar: formData.format === "KaBhandar",
+          is_kh_vandar: formData.format === "KhaBhandar",
           isBoardQuestion: true,
           boardName: formData.boardName,
           boardYear: formData.boardYear,
           classLevel: formData.classLevel,
-          title: `${formData.boardName} - ${formData.boardYear}`, 
+          classGroup: classGroup,
+          class: mappedClass,
+          title: `${formData.boardName} ${formData.boardYear}`, 
+          question_no: index + 1,
           createdAt: serverTimestamp()
         })
-      );
+      });
 
       await Promise.all(promises);
       
       setSuccess(true);
-      setQuestions([
-        {
-          text: "",
-          options: [{ id: "A", label: "" }, { id: "B", label: "" }, { id: "C", label: "" }, { id: "D", label: "" }],
-          correctOption: "A",
-          explanation: "",
-        }
-      ]);
+      if (uploadMode === "manual") {
+        setQuestions([
+          {
+            text: "",
+            options: [{ id: "A", label: "" }, { id: "B", label: "" }, { id: "C", label: "" }, { id: "D", label: "" }],
+            correctOption: "A",
+            explanation: "",
+          }
+        ]);
+      } else {
+        setBulkJson("");
+      }
       
       setTimeout(() => setSuccess(false), 3000);
       
@@ -144,6 +192,14 @@ export default function BoardQuestionsCreator() {
               </div>
 
               <div>
+                <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">ফরম্যাট</label>
+                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
+                  value={formData.format} onChange={e => setFormData({...formData, format: e.target.value})}>
+                   {FORMATS.map(f => <option key={f} value={f}>{f}</option>)}
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">বোর্ড</label>
                 <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 font-bengali" 
                   value={formData.boardName} onChange={e => setFormData({...formData, boardName: e.target.value})}>
@@ -160,8 +216,33 @@ export default function BoardQuestionsCreator() {
               </div>
             </div>
 
+            <div className="flex gap-4 border-b border-slate-200 pb-4">
+              <label className="flex items-center gap-2 cursor-pointer font-bengali text-sm font-bold text-slate-700">
+                <input 
+                  type="radio" 
+                  name="uploadMode" 
+                  value="manual" 
+                  checked={uploadMode === "manual"} 
+                  onChange={() => setUploadMode("manual")} 
+                  className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                />
+                ম্যানুয়াল এন্ট্রি
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer font-bengali text-sm font-bold text-slate-700">
+                <input 
+                  type="radio" 
+                  name="uploadMode" 
+                  value="bulk" 
+                  checked={uploadMode === "bulk"} 
+                  onChange={() => setUploadMode("bulk")} 
+                  className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300"
+                />
+                Bulk JSON আপলোড
+              </label>
+            </div>
+
             <div className="space-y-6">
-              {questions.map((q, index) => (
+              {uploadMode === "manual" ? questions.map((q, index) => (
                 <div key={index} className="p-5 border border-slate-200 rounded-xl bg-white shadow-sm relative group">
                   {questions.length > 1 && (
                     <button 
@@ -233,7 +314,18 @@ export default function BoardQuestionsCreator() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="p-5 border border-slate-200 rounded-xl bg-white shadow-sm">
+                  <h4 className="font-bold text-slate-800 mb-4 font-bengali">JSON Array ইনপুট দিন</h4>
+                  <textarea 
+                    required
+                    className="w-full min-h-[300px] p-4 text-sm font-mono rounded-lg border border-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 bg-slate-50"
+                    placeholder={`[\n  {\n    "text": "প্রশ্ন ১",\n    "options": [\n      {"id": "A", "label": "অপশন ক"},\n      {"id": "B", "label": "অপশন খ"},\n      {"id": "C", "label": "অপশন গ"},\n      {"id": "D", "label": "অপশন ঘ"}\n    ],\n    "correctOption": "A",\n    "explanation": "ব্যাখ্যা"\n  }\n]`}
+                    value={bulkJson}
+                    onChange={(e) => setBulkJson(e.target.value)}
+                  />
+                </div>
+              )}
             </div>
 
             {error && (
@@ -251,15 +343,19 @@ export default function BoardQuestionsCreator() {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-between items-center border-t border-slate-100 pt-6">
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={addQuestionField}
-                className="font-bengali border-dashed border-2 hover:bg-slate-50 flex items-center gap-2 w-full sm:w-auto"
-              >
-                <Plus className="w-4 h-4" />
-                আরেকটি প্রশ্ন যুক্ত করুন
-              </Button>
+              {uploadMode === "manual" ? (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={addQuestionField}
+                  className="font-bengali border-dashed border-2 hover:bg-slate-50 flex items-center gap-2 w-full sm:w-auto"
+                >
+                  <Plus className="w-4 h-4" />
+                  আরেকটি প্রশ্ন যুক্ত করুন
+                </Button>
+              ) : (
+                <div />
+              )}
               
               <Button 
                 type="submit" 

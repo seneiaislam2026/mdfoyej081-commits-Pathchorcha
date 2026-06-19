@@ -27,6 +27,8 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFail from "./pages/PaymentFail";
 import PaymentCancel from './pages/PaymentCancel';
 import MockPaymentPortal from './pages/MockPaymentPortal';
+import SubjectFormat from './pages/SubjectFormat';
+import SubjectPapers from './pages/SubjectPapers';
 import PublicExam from "./pages/PublicExam";
 import PublicExamsList from "./pages/PublicExamsList";
 import { ArrowLeft } from "lucide-react";
@@ -68,9 +70,20 @@ function NoteLayout() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center justify-center">
-          <img src="/logo.png" alt="শিক্ষাঙ্গন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans relative">
+        <div className="animate-pulse flex flex-col items-center justify-center mb-8">
+          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-white rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-slate-50">
+             <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
+               <span className="text-[#0F2744]">শিক্ষা</span>
+               <span className="text-[#ff9800]">ঙ্গন</span>
+             </span>
+          </div>
+          <div>
+            <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
+              <span className="text-[#0F2744]">Shikkha</span>
+              <span className="text-[#ff9800]">ngon</span>
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -121,13 +134,24 @@ function AppLayout() {
   const { user, loading, userData } = useAuth();
   
   // Do not show back button on dashboard, exam, paper, and question-bank pages
-  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams" || location.pathname === "/subscription" || location.pathname === "/mock-payment";
+  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams" || location.pathname === "/subscription" || location.pathname === "/mock-payment" || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center justify-center">
-          <img src="/logo.png" alt="শিক্ষাঙ্গন" className="w-[180px] sm:w-[220px] object-contain drop-shadow-sm mix-blend-multiply" />
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center font-sans relative">
+        <div className="animate-pulse flex flex-col items-center justify-center mb-8">
+          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-white rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-slate-50">
+             <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
+               <span className="text-[#0F2744]">শিক্ষা</span>
+               <span className="text-[#ff9800]">ঙ্গন</span>
+             </span>
+          </div>
+          <div>
+            <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
+              <span className="text-[#0F2744]">Shikkha</span>
+              <span className="text-[#ff9800]">ngon</span>
+            </span>
+          </div>
         </div>
       </div>
     );
@@ -154,8 +178,8 @@ function AppLayout() {
     }
   };
 
-  const isFullScreenPage = location.pathname.startsWith("/notes") || location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment");
-  const hideNavbar = location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/notes") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment");
+  const isFullScreenPage = location.pathname.startsWith("/notes") || location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment") || location.pathname.startsWith("/paper") || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
+  const hideNavbar = location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/notes") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment") || location.pathname.startsWith("/paper") || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans mb-8">
@@ -202,6 +226,8 @@ export default function App() {
           <Route path="/notes/subject/:subjectName" element={<SubjectNotes />} />
           <Route path="/bank" element={<QuestionBank />} />
           <Route path="/paper" element={<PaperView />} />
+          <Route path="/format" element={<SubjectFormat />} />
+          <Route path="/subject-papers" element={<SubjectPapers />} />
           <Route path="/memorize" element={<Memorize />} />
           
           

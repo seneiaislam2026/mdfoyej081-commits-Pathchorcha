@@ -265,9 +265,17 @@ export default function Auth() {
 <div className='text-center mb-8'>
             <div className="flex flex-col items-center justify-center mb-6">
               <Link to="/" className="inline-flex flex-col items-center group">
-                {/* Large white circle with shadow, matching the previous design */}
-                <div className="relative w-[120px] h-[120px] sm:w-[130px] sm:h-[130px] bg-white rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] group-hover:scale-105 transition-transform duration-300">
-                  <img src="/icon.svg" alt="Logo" className="w-[75%] h-[75%] object-contain" />
+                <div className="w-[124px] h-[124px] sm:w-[140px] sm:h-[140px] bg-white rounded-[28px] sm:rounded-[32px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-3 group-hover:scale-105 transition-transform duration-300 border border-slate-50 relative overflow-hidden">
+                   <span className="font-bengali font-extrabold text-[30px] sm:text-[34px] tracking-tight">
+                     <span className="text-[#0F2744]">শিক্ষা</span>
+                     <span className="text-[#ff9800]">ঙ্গন</span>
+                   </span>
+                </div>
+                <div>
+                  <span className="font-['Caveat'] text-[40px] sm:text-[46px] font-bold tracking-tight">
+                    <span className="text-[#0F2744]">Shikkha</span>
+                    <span className="text-[#ff9800]">ngon</span>
+                  </span>
                 </div>
               </Link>
             </div>

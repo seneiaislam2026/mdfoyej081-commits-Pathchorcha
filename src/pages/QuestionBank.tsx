@@ -436,21 +436,22 @@ export default function QuestionBank() {
           {/* Grid Layout matching the specified subjects and colors */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4 z-10 relative mt-2">
             {[
-              { title: "বাংলা", subtitle: "১ম পত্র", count: "4", bg: "bg-gradient-to-br from-[#87d853] to-[#71c33a]", letter: "অ", icon: BookOpen },
-              { title: "বাংলা", subtitle: "২য় পত্র", count: "149", bg: "bg-gradient-to-br from-[#fda63a] to-[#ff8f00]", letter: "ব", icon: PenTool },
-              { title: "ইংরেজি", subtitle: "১ম পত্র", count: "3", bg: "bg-gradient-to-br from-[#ff6b6b] to-[#fa5252]", letter: "A", icon: Languages },
-              { title: "ইংরেজি", subtitle: "২য় পত্র", count: "149", bg: "bg-gradient-to-br from-[#4ea5ff] to-[#3a8eed]", letter: "a", icon: BookOpen }, // Assuming microphone stands for listening/vocal or alternative Aa
-              { title: "একাউন্টিং", subtitle: "১ম পত্র", count: "3", bg: "bg-gradient-to-br from-[#2ccfb6] to-[#1bb59e]", letter: "এ", icon: TrendingUp },
-              { title: "একাউন্টিং", subtitle: "২য় পত্র", count: "3", bg: "bg-gradient-to-br from-[#a671ff] to-[#8d54ea]", letter: "অ", icon: Calculator },
+              { title: "বাংলা", subtitle: "১ম পত্র", subjectCode: "Bangla 1st Paper", count: "4+", bg: "bg-gradient-to-br from-[#87d853] to-[#71c33a]", letter: "অ", icon: BookOpen },
+              { title: "বাংলা", subtitle: "২য় পত্র", subjectCode: "Bangla 2nd Paper", count: "149+", bg: "bg-gradient-to-br from-[#fda63a] to-[#ff8f00]", letter: "ব", icon: PenTool },
+              { title: "ইংরেজি", subtitle: "১ম পত্র", subjectCode: "English 1st Paper", count: "3+", bg: "bg-gradient-to-br from-[#ff6b6b] to-[#fa5252]", letter: "A", icon: Languages },
+              { title: "ইংরেজি", subtitle: "২য় পত্র", subjectCode: "English 2nd Paper", count: "149+", bg: "bg-gradient-to-br from-[#4ea5ff] to-[#3a8eed]", letter: "a", icon: BookOpen }, 
+              { title: "একাউন্টিং", subtitle: "১ম পত্র", subjectCode: "Accounting 1st Paper", count: "3+", bg: "bg-gradient-to-br from-[#2ccfb6] to-[#1bb59e]", letter: "এ", icon: TrendingUp },
+              { title: "একাউন্টিং", subtitle: "২য় পত্র", subjectCode: "Accounting 2nd Paper", count: "3+", bg: "bg-gradient-to-br from-[#a671ff] to-[#8d54ea]", letter: "অ", icon: Calculator },
+              { title: "পদার্থবিজ্ঞান", subtitle: "১ম পত্র", subjectCode: "Physics 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#4f46e5] to-[#4338ca]", letter: "প", icon: Atom },
+              { title: "রসায়ন", subtitle: "১ম পত্র", subjectCode: "Chemistry 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#e11d48] to-[#be123c]", letter: "র", icon: FlaskConical },
+              { title: "উচ্চতর গণিত", subtitle: "১ম পত্র", subjectCode: "Higher Math 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#0284c7] to-[#0369a1]", letter: "উ", icon: Calculator },
+              { title: "জীববিজ্ঞান", subtitle: "১ম পত্র", subjectCode: "Biology 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#16a34a] to-[#15803d]", letter: "জী", icon: Dna },
+              { title: "ICT", subtitle: "", subjectCode: "ICT", count: "20+", bg: "bg-gradient-to-br from-[#0891b2] to-[#0e7490]", letter: "I", icon: Monitor },
             ].map((subject, idx) => (
                <button 
                   key={idx} 
                   onClick={() => {
-                    if (subject.title === "ইংরেজি") {
-                      navigate(`/paper?title=${encodeURIComponent("Subject-wise Questions")}&subject=${encodeURIComponent(subject.title + " " + subject.subtitle)}&classGroup=${encodeURIComponent(activeClassGroup || "")}`);
-                    } else {
-                      setSelectedSubjectForModal(subject);
-                    }
+                    navigate(`/format?subject=${encodeURIComponent(subject.subjectCode)}&classGroup=${encodeURIComponent(activeClassGroup || "")}`);
                   }}
                   className={`${subject.bg} relative overflow-hidden rounded-[20px] p-4 sm:p-5 text-white flex flex-col justify-between aspect-[1.3/1] shadow-sm hover:shadow-md transition-all active:scale-95 text-left`}
                >
@@ -502,49 +503,7 @@ export default function QuestionBank() {
 
         </div>
 
-        {/* Format Selection Modal */}
-        {selectedSubjectForModal && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
-               onClick={() => setSelectedSubjectForModal(null)}>
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl relative"
-                onClick={e => e.stopPropagation()}
-              >
-                 <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex justify-between items-start">
-                   <div>
-                     <h3 className="font-bengali font-bold text-xl text-slate-800">ফরম্যাট নির্বাচন করুন</h3>
-                     <p className="font-bengali text-sm text-slate-500 mt-1">{selectedSubjectForModal.title} {selectedSubjectForModal.subtitle}</p>
-                   </div>
-                   <button onClick={() => setSelectedSubjectForModal(null)} className="p-2 -mr-2 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-600 transition-colors">
-                     <X className="w-5 h-5" />
-                   </button>
-                 </div>
-                 <div className="p-4 flex flex-col gap-3">
-                    {[
-                       { id: 'MCQ', label: 'MCQ', icon: LayoutList },
-                       { id: 'CQ', label: 'CQ', icon: PenTool },
-                       { id: 'KaBhandar', label: "'ক' ভান্ডার", icon: BookOpen },
-                       { id: 'KhaBhandar', label: "'খ' ভান্ডার", icon: BookOpen }
-                    ].map(format => (
-                       <button
-                          key={format.id}
-                          className="flex items-center gap-3 p-3.5 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 transition-colors text-left"
-                          onClick={() => {
-                             navigate(`/paper?title=${encodeURIComponent("Subject-wise Questions")}&subject=${encodeURIComponent(selectedSubjectForModal.title + " " + selectedSubjectForModal.subtitle)}&format=${format.id}&classGroup=${encodeURIComponent(activeClassGroup || "")}`);
-                          }}
-                       >
-                          <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-emerald-600 shrink-0">
-                             <format.icon className="w-5 h-5" />
-                          </div>
-                          <span className="font-bengali font-bold text-slate-700">{format.label}</span>
-                       </button>
-                    ))}
-                 </div>
-              </motion.div>
-          </div>
-        )}
+
 
       </div>
     );
@@ -553,30 +512,27 @@ export default function QuestionBank() {
     const is9To12Config = activeClassGroup === "Class 9" || activeClassGroup === "SSC" || activeClassGroup === "HSC";
     if (is9To12Config) {
       return (
-        <div className="fixed bottom-20 inset-x-0 mx-auto w-full max-w-sm px-4 z-50 transition-all flex justify-center pb-2">
-          <div className="bg-white border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.06)] rounded-full p-1.5 flex items-center w-full relative">
+        <div className="fixed bottom-0 inset-x-0 w-full z-50 transition-all bg-white border-t border-slate-200">
+          <div className="flex items-center w-full max-w-md mx-auto">
             <button
               onClick={() => { setActiveSubTab("bank"); setQuizStarted(false); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full text-[12px] sm:text-[13px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "bank" ? "text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[11px] sm:text-[12px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "bank" ? "text-[#008060]" : "text-slate-500 hover:text-slate-700"}`}
             >
-              {activeSubTab === "bank" && <motion.div layoutId="pill_active_bg" className="absolute inset-0 bg-[#008060] rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
-              <CheckCircle2 className={`w-4 h-4 shrink-0 ${activeSubTab === "bank" ? "text-white" : "text-slate-400"}`} />
+              <CheckCircle2 className={`w-5 h-5 shrink-0 ${activeSubTab === "bank" ? "text-[#008060] fill-emerald-50" : "text-slate-400"}`} />
               মডেল টেস্ট
             </button>
             <button
               onClick={() => { setActiveSubTab("topics"); setQuizStarted(false); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full text-[12px] sm:text-[13px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "topics" ? "text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[11px] sm:text-[12px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "topics" ? "text-[#008060]" : "text-slate-500 hover:text-slate-700"}`}
             >
-              {activeSubTab === "topics" && <motion.div layoutId="pill_active_bg" className="absolute inset-0 bg-[#008060] rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
-              <LayoutList className={`w-4 h-4 shrink-0 ${activeSubTab === "topics" ? "text-white" : "text-slate-400"}`} />
+              <LayoutList className={`w-5 h-5 shrink-0 ${activeSubTab === "topics" ? "text-[#008060] fill-emerald-50" : "text-slate-400"}`} />
               বিষয় ভিত্তিক
             </button>
             <button
               onClick={() => { setActiveSubTab("institutions"); setQuizStarted(false); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-full text-[12px] sm:text-[13px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "institutions" ? "text-white" : "text-slate-500 hover:text-slate-700 hover:bg-slate-50"}`}
+              className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[11px] sm:text-[12px] font-bengali font-bold transition-all relative z-10 ${activeSubTab === "institutions" ? "text-[#008060]" : "text-slate-500 hover:text-slate-700"}`}
             >
-              {activeSubTab === "institutions" && <motion.div layoutId="pill_active_bg" className="absolute inset-0 bg-[#008060] rounded-full -z-10 shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.6 }} />}
-              <Landmark className={`w-4 h-4 shrink-0 ${activeSubTab === "institutions" ? "text-white" : "text-slate-400"}`} />
+              <Landmark className={`w-5 h-5 shrink-0 ${activeSubTab === "institutions" ? "text-[#008060] fill-emerald-50" : "text-slate-400"}`} />
               প্রতিষ্ঠান ভিত্তিক
             </button>
           </div>
@@ -647,23 +603,10 @@ export default function QuestionBank() {
           <h2 className="text-3xl font-bengali font-bold text-slate-800 mb-4">কী ধরনের প্রশ্ন অনুশীলন করতে চাও?</h2>
           
           <div className="flex items-center justify-center gap-3 mb-6">
-             {isOffline ? (
+             {isOffline && (
                <span className="flex items-center gap-1.5 text-sm bg-orange-100 text-orange-700 font-bengali px-3 py-1 rounded-full shrink-0">
                  <AlertCircle className="w-4 h-4" /> অফলাইন মোড
                </span>
-             ) : (
-               isPWA && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleOfflineSync} 
-                  disabled={isSyncing}
-                  className="font-bengali text-slate-600 rounded-full shrink-0"
-                >
-                  <BookOpen className="w-4 h-4 mr-1.5" />
-                  {isSyncing ? "ডাউনলোড হচ্ছে..." : "অফলাইনের জন্য সেভ করুন"}
-                </Button>
-               )
              )}
           </div>
 

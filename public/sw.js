@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shikkhangon-cache-v10';
+const CACHE_NAME = 'shikkhangon-cache-v11';
 const PRE_CACHE_RESOURCES = [
   '/',
   '/index.html',
