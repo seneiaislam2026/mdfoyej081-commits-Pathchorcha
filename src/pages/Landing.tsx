@@ -50,37 +50,40 @@ export default function Landing() {
 
   const triggerInstall = async () => {
     if (window.self !== window.top) {
-      window.open(
-        "https://biddayan.com/app/biddayan.apk",
-        "_blank",
-        "noopener,noreferrer",
-      );
+      window.open(window.location.href, "_blank");
       return;
     }
 
-    // Direct APK Download unconditionally
-    try {
-      const response = await fetch("https://biddayan.com/app/biddayan.apk");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "Biddayon.apk";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (e) {
-      window.location.href = "https://biddayan.com/app/biddayan.apk";
+    const deferredPrompt = (window as any).deferredPrompt;
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          localStorage.setItem("appInstalled", "true");
+        }
+        (window as any).deferredPrompt = null;
+      } catch (err) {
+        console.error("Install prompt error:", err);
+      }
+    } else {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+         alert("PWA ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
+      } else {
+         alert("আপনি বর্তমানে একটি ইন-অ্যাপ ব্রাউজারে আছেন বা পপ-আপ সাপোর্টেড নয়। এক-ক্লিকে অ্যাপ ইন্সটল করতে লিঙ্কটি কপি করে সরাসরি Google Chrome ব্রাউজারে ওপেন করুন এবং আবার ক্লিক করুন।");
+      }
     }
-
-    localStorage.setItem("appInstalled", "true");
   };
 
   if (loading || user) {
     return (
       <div className="min-h-screen bg-white flex justify-center items-center">
-        <img src={logoUrl} alt="Logo" className="w-40 animate-pulse" />
+        <img
+          src={logoUrl}
+          alt="Logo"
+          className="w-[200px] md:w-[240px] animate-pulse mix-blend-multiply object-contain"
+        />
       </div>
     );
   }
@@ -234,7 +237,11 @@ export default function Landing() {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-6">
         {/* Top Navigation */}
         <nav className="flex justify-between items-center mb-8 lg:mb-16">
-          <img src={logoUrl} alt="বিদ্যায়ন" className="h-[38px] md:h-[45px]" />
+          <img
+            src={logoUrl}
+            alt="বিদ্যায়ন"
+            className="h-[55px] md:h-[70px] mix-blend-multiply object-contain"
+          />
         </nav>
 
         {/* Hero Section */}
@@ -316,7 +323,11 @@ export default function Landing() {
 
                 {/* Mockup Header */}
                 <div className="px-6 pt-12 pb-4 flex justify-between items-center bg-white shadow-sm border-b border-[#F1F5F9] relative z-40">
-                  <img src={logoUrl} alt="Logo" className="h-[22px]" />
+                  <img
+                    src={logoUrl}
+                    alt="Logo"
+                    className="h-[28px] mix-blend-multiply object-contain"
+                  />
                   <div className="flex gap-2 text-[#64748B]">
                     <div className="w-[28px] h-[28px] rounded-full border border-[#E2E8F0] flex items-center justify-center">
                       <Bell className="w-[14px] h-[14px]" />

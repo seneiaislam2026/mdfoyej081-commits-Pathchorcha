@@ -26,7 +26,7 @@ export const InstallPrompt = () => {
       : false;
     const isInstalled = localStorage.getItem("appInstalled") === "true";
 
-    if (!isStandalone && !isInstalled && (window as any).deferredPrompt) {
+    if (!isStandalone && !isInstalled) {
       setShowPrompt(true);
     }
 
@@ -57,20 +57,25 @@ export const InstallPrompt = () => {
   }, []);
 
   const handleInstallClick = async () => {
-    // Direct APK Download unconditionally
-    try {
-      const response = await fetch("https://biddayan.com/app/biddayan.apk");
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "Biddayon.apk";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (e) {
-      window.location.href = "https://biddayan.com/app/biddayan.apk";
+    const deferredPrompt = (window as any).deferredPrompt;
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === "accepted") {
+          localStorage.setItem("appInstalled", "true");
+        }
+        (window as any).deferredPrompt = null;
+      } catch (err) {
+        console.error("Install prompt error:", err);
+      }
+    } else {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+      if (isIOS) {
+         alert("PWA ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
+      } else {
+         alert("আপনি বর্তমানে একটি ইন-অ্যাপ ব্রাউজারে আছেন বা পপ-আপ সাপোর্টেড নয়। এক-ক্লিকে অ্যাপ ইন্সটল করতে লিঙ্কটি কপি করে সরাসরি Google Chrome ব্রাউজারে ওপেন করুন এবং আবার ক্লিক করুন।");
+      }
     }
     setShowPrompt(false);
   };
