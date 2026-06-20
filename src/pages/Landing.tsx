@@ -42,11 +42,27 @@ export default function Landing() {
     }
   }, [user, userData, loading, navigate]);
 
-  useEffect(() => {
-    // Removed auto install popup
-  }, [loading, user]);
-
+  const [isInstallable, setIsInstallable] = useState(!!(window as any).deferredPrompt);
   const [installMessage, setInstallMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handlePrompt = () => {
+      setIsInstallable(true);
+    };
+    
+    window.addEventListener("pwa-prompt-available", handlePrompt);
+    
+    const handleAppInstalled = () => {
+      localStorage.setItem("appInstalled", "true");
+      setIsInstallable(false);
+    };
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    return () => {
+      window.removeEventListener("pwa-prompt-available", handlePrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
 
   const triggerInstall = async () => {
     if (window.self !== window.top) {
@@ -61,6 +77,7 @@ export default function Landing() {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === "accepted") {
           localStorage.setItem("appInstalled", "true");
+          setIsInstallable(false);
         }
         (window as any).deferredPrompt = null;
       } catch (err) {
@@ -71,7 +88,7 @@ export default function Landing() {
       if (isIOS) {
          alert("অ্যাপটি ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
       } else {
-         alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি 'Google Chrome' ব্রাউজার দিয়ে ওয়েবসাইটে প্রবেশ করুন। এরপর পুনরায় ক্লিক করুন।");
+         alert("বিদ্যায়ন অ্যাপটি সরাসরি মোবাইল হোম স্ক্রিনে শর্টকাট অ্যাপ হিসেবে ইন্সটলের জন্য গুগল ক্রোম (Google Chrome) ব্রাউজার দিয়ে প্রবেশ করে উপরের ডানদিকের থ্রি-ডট (triple dots) মেনু থেকে 'Install App' বা 'Add to Home screen' অপশনে ক্লিক করুন।");
       }
     }
   };

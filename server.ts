@@ -29,11 +29,11 @@ async function startServer() {
     return clean;
   };
 
-  // Dynamic Manifest Endpoint
-  app.get(['/manifest.json', '/manifest.webmanifest'], async (req, res) => {
+  // Helper to fetch and serve the PWA Icon from the same domain to comply with strict same-origin CORS policies of PWAs
+  const servePwaIconProxy = async (req: express.Request, res: express.Response, fallbackSize: 192 | 512) => {
     try {
       const response = await fetch('https://firestore.googleapis.com/v1/projects/ai-studio-e2950986-ea1b-49d4-bccf-a9edba1160a7/databases/(default)/documents/settings/general');
-      let pwaIconUrl = '/icon-192-v2.png';
+      let pwaIconUrl = '';
       
       if (response.ok) {
         const data = await response.json();
@@ -42,85 +42,84 @@ async function startServer() {
           pwaIconUrl = iconVal.trim();
         }
       }
-      
-      const manifest = {
-        name: 'বিদ্যায়ন',
-        short_name: 'Biddayon',
-        description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait',
-        start_url: '/',
-        icons: [
-          {
-            src: pwaIconUrl,
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: pwaIconUrl,
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable'
-          },
-          {
-            src: pwaIconUrl,
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: pwaIconUrl,
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable'
-          }
-        ]
-      };
-      res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
-      res.send(JSON.stringify(manifest));
+
+      if (pwaIconUrl) {
+        const imgResponse = await fetch(pwaIconUrl);
+        if (imgResponse.ok) {
+          const contentType = imgResponse.headers.get('content-type') || 'image/png';
+          const buffer = await imgResponse.arrayBuffer();
+          res.setHeader('Content-Type', contentType);
+          res.setHeader('Cache-Control', 'public, max-age=86400');
+          return res.send(Buffer.from(buffer));
+        }
+      }
     } catch (error) {
-      console.error('Error rendering dynamic manifest:', error);
-      res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
-      res.send(JSON.stringify({
-        name: 'বিদ্যায়ন',
-        short_name: 'Biddayon',
-        description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
-        display: 'standalone',
-        orientation: 'portrait',
-        start_url: '/',
-        icons: [
-          {
-            src: '/icon-192-v2.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/icon-192-v2.png',
-            sizes: '192x192',
-            type: 'image/png',
-            purpose: 'maskable'
-          },
-          {
-            src: '/icon-512-v2.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: '/icon-512-v2.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable'
-          }
-        ]
-      }));
+      console.error(`Error proxying PWA icon (${fallbackSize}px):`, error);
     }
+    
+    // Fallback to local 192x192 or 512x512 icon
+    const fallbackFilename = fallbackSize === 192 ? 'icon-192-v2.png' : 'icon-512-v2.png';
+    const fallbackPath = path.join(process.cwd(), 'public', fallbackFilename);
+    if (fs.existsSync(fallbackPath)) {
+      res.setHeader('Content-Type', 'image/png');
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+      return res.sendFile(fallbackPath);
+    } else {
+      res.status(404).end();
+    }
+  };
+
+  app.get('/api/pwa-icon-192.png', (req, res) => {
+    servePwaIconProxy(req, res, 192);
+  });
+
+  app.get('/api/pwa-icon-512.png', (req, res) => {
+    servePwaIconProxy(req, res, 512);
+  });
+
+  // Dynamic Manifest Endpoint
+  app.get(['/manifest.json', '/manifest.webmanifest'], async (req, res) => {
+    const manifest = {
+      name: 'বিদ্যায়ন',
+      short_name: 'Biddayon',
+      description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
+      theme_color: '#ffffff',
+      background_color: '#ffffff',
+      display: 'standalone',
+      orientation: 'portrait',
+      start_url: '/',
+      id: '/',
+      scope: '/',
+      categories: ['education', 'utilities'],
+      icons: [
+        {
+          src: '/api/pwa-icon-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/api/pwa-icon-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'maskable'
+        },
+        {
+          src: '/api/pwa-icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/api/pwa-icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
+        }
+      ]
+    };
+    res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+    res.send(JSON.stringify(manifest));
   });
 
   // Send OTP Route using GreenWeb SMS API
@@ -404,6 +403,7 @@ async function startServer() {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
