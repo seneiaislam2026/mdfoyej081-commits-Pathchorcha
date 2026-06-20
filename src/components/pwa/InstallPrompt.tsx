@@ -11,6 +11,8 @@ export const InstallPrompt = () => {
   const [showChromeSuggestion, setShowChromeSuggestion] = useState(false);
   const [pwaIcon, setPwaIcon] = useState<string>('https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg');
 
+  const [showManualInstallGuide, setShowManualInstallGuide] = useState(false);
+
   useEffect(() => {
     // Check if the app is already installed or if it's running standalone
     const isStandalone = window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : false;
@@ -103,7 +105,7 @@ export const InstallPrompt = () => {
         console.error('Error triggering PWA prompt:', err);
       }
     } else {
-      alert("আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা অ্যাপটি ইতোমধ্যে ইনস্টল হয়ে আছে। দয়া করে ব্রাউজারের থ্রি-ডট (⋮) মেনু থেকে 'Install app' বা 'Add to Home screen' নির্বাচন করুন।");
+      setShowManualInstallGuide(true);
     }
   };
 
@@ -131,6 +133,29 @@ export const InstallPrompt = () => {
                </p>
                <Button onClick={() => setShowChromeSuggestion(false)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bengali h-11 rounded-xl">
                  বুঝতে পেরেছি
+               </Button>
+           </div>
+        </div>
+      )}
+
+      {showManualInstallGuide && (
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4">
+           <div className="bg-white rounded-2xl p-6 text-center max-w-sm w-full mx-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
+               <button 
+                  onClick={() => setShowManualInstallGuide(false)}
+                  className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200"
+               >
+                  <X size={16} />
+               </button>
+               <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Download className="text-blue-500 w-8 h-8" />
+               </div>
+               <h3 className="text-lg font-bold font-bengali text-slate-800 mb-2">ম্যানুয়াল ইনস্টল</h3>
+               <p className="text-slate-500 text-[13px] font-bengali leading-relaxed mb-4 text-justify">
+                 আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা অ্যাপটি ইতোমধ্যে ইনস্টল হয়ে আছে। দয়া করে ব্রাউজারের উপরে ডানদিকে থাকা <b>থ্রি-ডট (⋮)</b> মেনু থেকে <b>"Install app"</b> বা <b>"Add to Home screen"</b> নির্বাচন করুন।
+               </p>
+               <Button onClick={() => setShowManualInstallGuide(false)} className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bengali h-11 rounded-xl">
+                 ঠিক আছে
                </Button>
            </div>
         </div>
