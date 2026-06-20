@@ -143,7 +143,7 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FBFBFC] font-sans overflow-x-hidden selection:bg-[#00B074]/20 relative">
+    <div className="min-h-screen w-full max-w-[100vw] bg-[#FBFBFC] font-sans overflow-x-hidden selection:bg-[#00B074]/20 relative">
       {/* Background decorations reproducing the design */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden h-screen z-0">
         <div className="absolute top-10 right-[15%] w-[500px] h-[500px] bg-green-100/50 rounded-full blur-[100px]"></div>
@@ -270,7 +270,7 @@ export default function Landing() {
             >
               <Link to="/auth" className="w-full sm:w-auto">
                 <button className="w-full sm:w-auto bg-[#00B074] hover:bg-[#009260] text-white px-8 py-4 rounded-xl font-bengali font-semibold text-[17px] transition-transform active:scale-95 shadow-[0_8px_20px_rgba(0,176,116,0.25)] flex items-center justify-center gap-2">
-                  <UserPlus className="w-5 h-5" /> ফ্রি অ্যাকাউন্ট তৈরি করুন
+                  <UserPlus className="w-5 h-5" /> রেজিস্ট্রেশন/লগিন
                 </button>
               </Link>
               <button
@@ -280,84 +280,35 @@ export default function Landing() {
                 <Download className="w-5 h-5" /> অ্যাপ ইনস্টল করুন
               </button>
             </motion.div>
-
-            {/* Social Proof */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col items-center lg:items-start"
-            >
-              <div className="flex -space-x-3 mb-4">
-                <img
-                  className="w-[46px] h-[46px] rounded-full border-[3px] border-[#FBFBFC] object-cover shadow-sm bg-white"
-                  src="https://i.pravatar.cc/100?img=33"
-                  alt="Student"
-                />
-                <img
-                  className="w-[46px] h-[46px] rounded-full border-[3px] border-[#FBFBFC] object-cover shadow-sm bg-white"
-                  src="https://i.pravatar.cc/100?img=47"
-                  alt="Student"
-                />
-                <img
-                  className="w-[46px] h-[46px] rounded-full border-[3px] border-[#FBFBFC] object-cover shadow-sm bg-white"
-                  src="https://i.pravatar.cc/100?img=12"
-                  alt="Student"
-                />
-                <img
-                  className="w-[46px] h-[46px] rounded-full border-[3px] border-[#FBFBFC] object-cover shadow-sm bg-white"
-                  src="https://i.pravatar.cc/100?img=11"
-                  alt="Student"
-                />
-              </div>
-              <div className="flex items-center gap-2.5 mb-1.5">
-                <div className="flex text-[#F59E0B] gap-0.5">
-                  <Star className="w-[22px] h-[22px] fill-current" />
-                  <Star className="w-[22px] h-[22px] fill-current" />
-                  <Star className="w-[22px] h-[22px] fill-current" />
-                  <Star className="w-[22px] h-[22px] fill-current" />
-                  <Star className="w-[22px] h-[22px] fill-current" />
-                </div>
-                <span className="font-bold text-[#0F172A] text-[19px]">
-                  4.8
-                </span>
-                <span className="text-[#64748B] font-bengali text-[15px]">
-                  (50K+ শিক্ষার্থী)
-                </span>
-              </div>
-              <p className="text-[#475569] font-bengali text-[15px]">
-                বাংলাদেশের শিক্ষার্থীদের আস্থার সেরা অ্যাপ
-              </p>
-            </motion.div>
           </div>
 
           {/* Right Content - Phone Mockup & Floating Elements */}
-          <div className="flex-1 w-full flex justify-center relative mt-10 lg:mt-0 select-none hidden md:flex items-center">
+          <div className="flex-1 w-full flex justify-center relative mt-10 lg:mt-0 select-none items-center mb-10 lg:overflow-visible">
             {/* 3D Emulated Objects */}
-            <div className="absolute left-[30px] bottom-[60px] z-20">
+            <div className="absolute left-[30px] bottom-[60px] z-20 hidden lg:block">
               <img
                 src="https://cdn3d.iconscout.com/3d/premium/thumb/books-4690332-3899557.png"
                 alt="books"
                 className="w-[180px] drop-shadow-2xl opacity-90"
               />
             </div>
-            <div className="absolute right-[40px] bottom-[120px] z-20">
+            <div className="absolute right-[40px] bottom-[120px] z-20 hidden lg:block">
               <img
                 src="https://cdn3d.iconscout.com/3d/premium/thumb/trophy-4688921-3899596.png"
                 alt="trophy"
                 className="w-[140px] drop-shadow-2xl opacity-90"
               />
             </div>
-            <div className="absolute right-[10px] bottom-[10px] z-10 w-[120px]">
+            <div className="absolute right-[10px] bottom-[10px] z-10 w-[120px] hidden lg:block">
               <div className="w-16 h-20 bg-green-200 rounded-b-lg rounded-t-3xl overflow-hidden mx-auto shadow-lg relative bottom-0">
                 <div className="w-full h-full border-4 border-green-300 rounded-b-lg rounded-t-3xl bg-[#00B074]"></div>
               </div>
             </div>
 
             {/* Frame/Container for phone */}
-            <div className="relative z-10 w-[350px]">
+            <div className="relative z-10 w-full max-w-[300px] sm:max-w-[350px] px-2 sm:px-0 mx-auto">
               {/* The Phone */}
-              <div className="relative bg-[#ffffff] rounded-[48px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] border-[10px] border-[#1E293B] overflow-hidden w-full h-[730px] pb-10 flex flex-col transform rotate-[-2deg]">
+              <div className="relative bg-[#ffffff] rounded-[48px] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] border-[10px] border-[#1E293B] overflow-hidden w-full h-[600px] sm:h-[730px] pb-10 flex flex-col transform rotate-[-2deg]">
                 {/* Top Notch/Dynamic Island */}
                 <div className="absolute top-0 inset-x-0 w-full flex justify-center z-50">
                   <div className="w-[130px] h-[28px] bg-[#1E293B] rounded-b-[20px]"></div>
@@ -531,14 +482,14 @@ export default function Landing() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="absolute top-[8%] -left-[60px] bg-white pt-5 p-4 pb-3 rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-3 border border-[#F8FAFC] z-20 w-[100px]"
+                className="absolute top-[8%] -left-[25px] sm:-left-[60px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
               >
-                <div className="absolute -top-6 w-[48px] h-[48px] bg-white rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[36px] h-[36px] bg-[#F97316] rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(249,115,22,0.3)]">
-                    <MonitorPlay className="w-[18px] h-[18px] text-white" />
+                <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#F97316] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(249,115,22,0.3)]">
+                    <MonitorPlay className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
                   </div>
                 </div>
-                <span className="text-[12px] font-bengali font-bold text-[#EA580C] text-center mt-3 leading-tight">
+                <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#EA580C] text-center mt-2 sm:mt-3 leading-tight">
                   মডেল
                   <br />
                   টেস্ট
@@ -553,14 +504,14 @@ export default function Landing() {
                   ease: "easeInOut",
                   delay: 1,
                 }}
-                className="absolute top-[40%] -left-[75px] bg-white pt-5 p-4 pb-3 rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-3 border border-[#F8FAFC] z-20 w-[100px]"
+                className="absolute top-[40%] -left-[35px] sm:-left-[75px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
               >
-                <div className="absolute -top-6 w-[48px] h-[48px] bg-white rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[36px] h-[36px] bg-[#A855F7] rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(168,85,247,0.3)]">
-                    <ClipboardList className="w-[18px] h-[18px] text-white" />
+                <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#A855F7] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(168,85,247,0.3)]">
+                    <ClipboardList className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
                   </div>
                 </div>
-                <span className="text-[12px] font-bengali font-bold text-[#9333EA] text-center mt-3 leading-tight">
+                <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#9333EA] text-center mt-2 sm:mt-3 leading-tight">
                   মক
                   <br />
                   টেস্ট
@@ -575,14 +526,14 @@ export default function Landing() {
                   ease: "easeInOut",
                   delay: 0.5,
                 }}
-                className="absolute top-[30%] -right-[60px] bg-white pt-5 p-4 pb-3 rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-3 border border-[#F8FAFC] z-20 w-[100px]"
+                className="absolute top-[30%] -right-[25px] sm:-right-[60px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
               >
-                <div className="absolute -top-6 w-[48px] h-[48px] bg-white rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[36px] h-[36px] bg-[#3B82F6] rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(59,130,246,0.3)]">
-                    <Bot className="w-[18px] h-[18px] text-white" />
+                <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#3B82F6] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(59,130,246,0.3)]">
+                    <Bot className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
                   </div>
                 </div>
-                <span className="text-[12px] font-bengali font-bold text-[#2563EB] text-center mt-3 leading-tight">
+                <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#2563EB] text-center mt-2 sm:mt-3 leading-tight">
                   AI
                   <br />
                   ডাউট সলভিং
@@ -597,14 +548,14 @@ export default function Landing() {
                   ease: "easeInOut",
                   delay: 1.5,
                 }}
-                className="absolute top-[65%] -right-[70px] bg-white pt-5 p-4 pb-3 rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-3 border border-[#F8FAFC] z-20 w-[100px]"
+                className="absolute top-[65%] -right-[35px] sm:-right-[70px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
               >
-                <div className="absolute -top-6 w-[48px] h-[48px] bg-white rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[36px] h-[36px] bg-[#EF4444] rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(239,68,68,0.3)]">
-                    <RefreshCcw className="w-[18px] h-[18px] text-white" />
+                <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#EF4444] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(239,68,68,0.3)]">
+                    <RefreshCcw className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
                   </div>
                 </div>
-                <span className="text-[12px] font-bengali font-bold text-[#DC2626] text-center mt-3 leading-tight">
+                <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#DC2626] text-center mt-2 sm:mt-3 leading-tight">
                   ভুলের
                   <br />
                   প্র্যাকটিস

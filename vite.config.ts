@@ -14,10 +14,10 @@ export default defineConfig({
       includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png', 'manifest.json'],
       manifest: {
         name: 'বিদ্যায়ন',
-        short_name: 'Biddayon',
+        short_name: 'বিদ্যায়ন',
         description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#0F172A',
+        background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -45,6 +45,20 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
+          }
+        ],
+        screenshots: [
+          {
+            src: '/screenshot-wide.svg',
+            sizes: '1280x720',
+            type: 'image/svg+xml',
+            form_factor: 'wide'
+          },
+          {
+            src: '/screenshot-mobile.svg',
+            sizes: '720x1280',
+            type: 'image/svg+xml',
+            form_factor: 'narrow'
           }
         ]
       },
