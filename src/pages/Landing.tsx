@@ -46,6 +46,11 @@ export default function Landing() {
   const [installMessage, setInstallMessage] = useState<string | null>(null);
 
   const triggerInstall = () => {
+    if (window.self !== window.top) {
+      window.open(window.location.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    
     const deferredPrompt = (window as any).deferredPrompt;
     if (deferredPrompt) {
       deferredPrompt.prompt();
@@ -55,6 +60,14 @@ export default function Landing() {
         }
         (window as any).deferredPrompt = null;
       });
+    } else {
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()) || 
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        if(isIos){
+             setInstallMessage('Safari ব্রাউজারের নিচে "Share" আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।');
+        } else {
+             setInstallMessage('আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না। অনুগ্রহ করে ব্রাউজারের মেনু (⋮) অপশন থেকে "Install app" বা "Add to Home screen" নির্বাচন করুন।');
+        }
     }
   };
 

@@ -76,6 +76,12 @@ export const InstallPrompt = () => {
 
   const handleInstallClick = async () => {
     const prompt = deferredPrompt || (window as any).deferredPrompt;
+    
+    if (window.self !== window.top) {
+      window.open(window.location.href, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
     if (prompt) {
       try {
         prompt.prompt();
@@ -89,6 +95,12 @@ export const InstallPrompt = () => {
       } catch (err) {
         console.error('Error triggering PWA prompt:', err);
       }
+    } else {
+        if (isIos) {
+            alert('Safari ব্রাউজারের নিচে "Share" আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।');
+        } else {
+            alert('আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না। অনুগ্রহ করে ব্রাউজারের মেনু (⋮) অপশন থেকে "Install app" বা "Add to Home screen" নির্বাচন করুন।');
+        }
     }
   };
 
