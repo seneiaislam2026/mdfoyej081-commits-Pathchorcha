@@ -94,14 +94,14 @@ export default function Onboarding() {
         <div className="animate-pulse flex flex-col items-center justify-center mb-8">
           <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-slate-50">
              <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
-               <span className="text-[#0F2744]">শিক্ষা</span>
-               <span className="text-[#ff9800]">ঙ্গন</span>
+               <span className="text-[#0F2744]">বিদ্যা</span>
+               <span className="text-[#ff9800]">য়ন</span>
              </span>
           </div>
           <div>
             <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
-              <span className="text-[#0F2744]">Shikkha</span>
-              <span className="text-[#ff9800]">ngon</span>
+              <span className="text-[#0F2744]">Bidda</span>
+              <span className="text-[#ff9800]">yon</span>
             </span>
           </div>
         </div>

@@ -232,6 +232,11 @@ export default function Profile() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 2 * 1024 * 1024) {
+      alert("ফাইল সাইজ ২ মেগাবাইটের বেশি হতে পারবে না (File size cannot exceed 2 MB)");
+      return;
+    }
+
     setUploadingPhoto(true);
 
     const reader = new FileReader();

@@ -11,6 +11,14 @@
     <link rel="apple-touch-icon" href="https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg" />
     <meta name="description" content="বিদ্যায়ন - Biddayon. Bengali Educational Exam Preparation Platform" />
     <title>বিদ্যায়ন</title>
+    <script>
+      window.deferredPrompt = null;
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPrompt = e;
+        window.dispatchEvent(new CustomEvent('pwa-prompt-available', { detail: e }));
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

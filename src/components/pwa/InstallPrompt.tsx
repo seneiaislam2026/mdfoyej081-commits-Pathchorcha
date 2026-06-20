@@ -12,6 +12,13 @@ export const InstallPrompt = () => {
   const [pwaIcon, setPwaIcon] = useState<string>('/icon-192-v2.png');
 
   useEffect(() => {
+    // Check if the app is already installed or if it's running standalone
+    const isStandalone = window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : false;
+    if (isStandalone || (window.navigator as any).standalone) {
+      console.log('App is running in standalone mode, skipping install prompt');
+      return;
+    }
+
     // Synchronous state fetch
     getDoc(doc(db, 'settings', 'general')).then((snap) => {
       if (snap.exists() && snap.data()?.pwaIconUrl) {
@@ -24,43 +31,57 @@ export const InstallPrompt = () => {
       console.warn("Failed to load settings in InstallPrompt:", err);
     });
 
-    // Check if the app is already installed or if it's running standalone
-    const isStandalone = window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : false;
-    if (isStandalone || (window.navigator as any).standalone) {
-      console.log('App is running in standalone mode, skipping install prompt');
-      return;
-    }
-
     // Detect Facebook / Messenger / Instagram in-app browsers
     const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
     const isFb = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1) || (ua.indexOf("Instagram") > -1);
     setIsInAppBrowser(isFb);
 
+    // Initial check of global window property
+    if ((window as any).deferredPrompt) {
+      setDeferredPrompt((window as any).deferredPrompt);
+      setShowPrompt(true);
+    }
+
     const handler = (e: any) => {
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      console.log('beforeinstallprompt event fired');
+      console.log('beforeinstallprompt event fired inside component');
       // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
+      (window as any).deferredPrompt = e;
       // Show the prompt immediately when the event fires
       setShowPrompt(true);
     };
 
+    const handleCustomPrompt = (e: any) => {
+      if (e.detail) {
+        setDeferredPrompt(e.detail);
+        setShowPrompt(true);
+      }
+    };
+
     window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('pwa-prompt-available' as any, handleCustomPrompt);
     
     // Always show prompt in iframe so they know they can open in a new tab to install
     if (window.self !== window.top) {
         setShowPrompt(true);
     } else {
-        // Show fallback only on iOS because iOS doesn't support beforeinstallprompt
-        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-        if (isIos) {
-            setTimeout(() => setShowPrompt(true), 3000);
-        }
+        // Always show prompt on load as a fallback after 2.5 seconds so customers don't miss installation guides
+        const timer = setTimeout(() => {
+          setShowPrompt(true);
+        }, 2500);
+
+        return () => {
+          window.removeEventListener('beforeinstallprompt', handler);
+          window.removeEventListener('pwa-prompt-available' as any, handleCustomPrompt);
+          clearTimeout(timer);
+        };
     }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('pwa-prompt-available' as any, handleCustomPrompt);
     };
   }, []);
 
@@ -90,6 +111,7 @@ export const InstallPrompt = () => {
       
       if (outcome === 'accepted') {
         console.log('User accepted the install prompt');
+        alert("বিদ্যায়ন অ্যাপটি আপনার ফোনে ইনস্টল হচ্ছে। অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন, ফোনের হোম স্ক্রিনে এটি যুক্ত হয়ে যাবে!");
         setShowPrompt(false);
       } else {
         console.log('User dismissed the install prompt');
