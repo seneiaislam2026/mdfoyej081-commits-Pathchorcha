@@ -75,42 +75,21 @@ export const InstallPrompt = () => {
   }, []);
 
   const handleInstallClick = async () => {
-    if (window.self !== window.top) {
-      // Inside an iframe, can't install, open in new tab instead
-      alert("অ্যাপটি সরাসরি ইন্সটল করার জন্য একটি নতুন ট্যাবে খোলা হচ্ছে। অনুগ্রহ করে সেখানে 'Install' বাটনে ক্লিক করুন।");
-      window.open(window.location.href, '_blank', 'noopener,noreferrer');
-      return;
-    }
-
-    if (!deferredPrompt) {
-      if (isIos) {
-          alert('Safari ব্রাউজারের নিচে "Share" আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।');
-      } else {
-          alert('আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা এখনো সচল হয়নি। অনুগ্রহ করে ব্রাউজারের মেনু (⋮) অপশন থেকে "Install app" বা "Add to Home screen" নির্বাচন করুন।');
+    const prompt = deferredPrompt || (window as any).deferredPrompt;
+    if (prompt) {
+      try {
+        prompt.prompt();
+        const { outcome } = await prompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+          setShowPrompt(false);
+        }
+        setDeferredPrompt(null);
+        (window as any).deferredPrompt = null;
+      } catch (err) {
+        console.error('Error triggering PWA prompt:', err);
       }
-      return;
     }
-
-    try {
-      // Show the install prompt
-      deferredPrompt.prompt();
-
-      // Wait for the user to respond to the prompt
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-        alert("বিদ্যায়ন অ্যাপটি আপনার ফোনে ইনস্টল হচ্ছে। অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন, ফোনের হোম স্ক্রিনে এটি যুক্ত হয়ে যাবে!");
-        setShowPrompt(false);
-      } else {
-        console.log('User dismissed the install prompt');
-      }
-    } catch (err) {
-      console.error('Error triggering PWA prompt:', err);
-    }
-    
-    // We've used the prompt, and can't use it again, throw it away
-    setDeferredPrompt(null);
   };
 
   const handleClose = () => {
@@ -160,7 +139,7 @@ export const InstallPrompt = () => {
             {/* Description and layout content details */}
             <div className="flex-1">
               <p className="font-bengali text-sm text-slate-500 mb-4 leading-relaxed">
-                এটি একটি প্রোগ্রেসিভ ওয়েব অ্যাপ (PWA)। ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই আইকন এবং সুবিধা পাবেন।
+                ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই আইকন এবং সুবিধা পাবেন।
               </p>
               
               {window.self !== window.top ? (
@@ -168,16 +147,6 @@ export const InstallPrompt = () => {
                   <p className="text-orange-800 text-xs font-bengali">
                     ⚠️ আপনি এখন প্রিভিউ মোডে আছেন। সরাসরি ইনস্টল করতে, উপরের শেয়ার বাটন থেকে অথবা লিংক কপি করে নতুন ট্যাবে/ব্রাউজারে ওপেন করুন।
                   </p>
-                </div>
-              ) : null}
-
-              {isIos && !isInAppBrowser ? (
-                <div className="bg-emerald-50/70 border border-emerald-100 p-3.5 rounded-2xl mb-4 text-xs text-slate-700 font-bengali">
-                  <p className="font-bold text-emerald-800 mb-1.5 flex items-center gap-1">📱 আইফোন ব্যবহারকারীদের জন্য নির্দেশনা:</p>
-                  <ol className="list-decimal pl-4.5 space-y-1 text-slate-600">
-                    <li>প্রথমে নিচে থাকা <span className="font-bold text-emerald-800">"Share" (শেয়ার)</span> আইকনে ক্লিক করুন।</li>
-                    <li>মেনুটি একটু স্ক্রল করে নিচে <span className="font-bold text-emerald-800">"Add to Home Screen" (হোম স্ক্রিনে যোগ করুন)</span> এ ক্লিক করুন।</li>
-                  </ol>
                 </div>
               ) : null}
 
