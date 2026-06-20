@@ -4,15 +4,19 @@ import App from "./App.tsx";
 import "./index.css";
 import { registerSW } from 'virtual:pwa-register';
 
-// Auto-update service worker if a new version is available
+// Safely register service worker. We handle updates gracefully without auto-reloading to prevent infinite loops.
 const updateSW = registerSW({
   onNeedRefresh() {
-    console.log("New update available. Auto-reload is disabled to prevent infinite refresh loops.");
-    // We intentionally removed updateSW(true) and window.location.reload() here.
+    console.log("New update available for PWA.");
+    // In a production app, you might show a toast here like "Update available. Click to reload".
+    // For now, we omit window.location.reload() to prevent endless loops.
   },
   onOfflineReady() {
     console.log("PWA is ready to work offline.");
   },
+  onRegisterError(error) {
+    console.error("SW Registration Error:", error);
+  }
 });
 
 // Request Push Notification permission

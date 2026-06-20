@@ -18,14 +18,14 @@ export const InstallPrompt = () => {
       setShowPrompt(true);
     };
 
-    window.addEventListener('pwa-prompt-available', handlePwaPrompt);
-    
+    window.addEventListener("pwa-prompt-available", handlePwaPrompt);
+
     // Also check if app is already installed
     const isStandalone = window.matchMedia
       ? window.matchMedia("(display-mode: standalone)").matches
       : false;
     const isInstalled = localStorage.getItem("appInstalled") === "true";
-    
+
     if (!isStandalone && !isInstalled && (window as any).deferredPrompt) {
       setShowPrompt(true);
     }
@@ -52,41 +52,27 @@ export const InstallPrompt = () => {
     window.addEventListener("appinstalled", handleAppInstalled);
     return () => {
       window.removeEventListener("appinstalled", handleAppInstalled);
-      window.removeEventListener('pwa-prompt-available', handlePwaPrompt);
+      window.removeEventListener("pwa-prompt-available", handlePwaPrompt);
     };
   }, []);
 
   const handleInstallClick = async () => {
-    const deferredPrompt = (window as any).deferredPrompt;
-    if (deferredPrompt) {
-      // Show the install prompt
-      deferredPrompt.prompt();
-      // Wait for the user to respond to the prompt
-      const { outcome } = await deferredPrompt.userChoice;
-      console.log(`User response to the install prompt: ${outcome}`);
-      // We've used the prompt, and can't use it again, throw it away
-      (window as any).deferredPrompt = null;
-      setShowPrompt(false);
-    } else {
-      // Fallback if beforeinstallprompt is not available but they click install
-      // Sometimes it's nice to give instructions for iOS or just hide the button
-      // For now we'll do the APK download fallback if they really want an app
-      try {
-        const response = await fetch("https://biddayan.com/app/biddayan.apk");
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "Biddayon.apk";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } catch (e) {
-        window.location.href = "https://biddayan.com/app/biddayan.apk";
-      }
-      setShowPrompt(false);
+    // Direct APK Download unconditionally
+    try {
+      const response = await fetch("https://biddayan.com/app/biddayan.apk");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "Biddayon.apk";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      window.location.href = "https://biddayan.com/app/biddayan.apk";
     }
+    setShowPrompt(false);
   };
 
   const handleClose = () => {
