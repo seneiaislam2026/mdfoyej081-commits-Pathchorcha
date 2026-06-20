@@ -50,7 +50,7 @@ export default function Landing() {
 
   const triggerInstall = async () => {
     if (window.self !== window.top) {
-      window.open(window.location.href, "_blank");
+      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি 'Google Chrome' ব্রাউজার দিয়ে ওয়েবসাইটে প্রবেশ করুন। এরপর পুনরায় ক্লিক করুন।");
       return;
     }
 

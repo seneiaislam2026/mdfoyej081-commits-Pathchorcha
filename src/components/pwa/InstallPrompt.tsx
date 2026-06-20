@@ -57,6 +57,11 @@ export const InstallPrompt = () => {
   }, []);
 
   const handleInstallClick = async () => {
+    if (window.self !== window.top) {
+      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি 'Google Chrome' ব্রাউজার দিয়ে ওয়েবসাইটে প্রবেশ করুন। এরপর পুনরায় ক্লিক করুন।");
+      return;
+    }
+
     const deferredPrompt = (window as any).deferredPrompt;
     if (deferredPrompt) {
       try {
