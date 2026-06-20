@@ -55,6 +55,10 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module',
       }
     }),
   ],

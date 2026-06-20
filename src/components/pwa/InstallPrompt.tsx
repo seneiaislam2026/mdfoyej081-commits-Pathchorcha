@@ -10,7 +10,7 @@ export const InstallPrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInAppBrowser, setIsInAppBrowser] = useState(false);
   const [isIos, setIsIos] = useState(false);
-  const [pwaIcon, setPwaIcon] = useState<string>('/icon-192-v2.png');
+  const [pwaIcon, setPwaIcon] = useState<string>('https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg');
 
   useEffect(() => {
     // Check if the app is already installed or if it's running standalone
@@ -49,13 +49,9 @@ export const InstallPrompt = () => {
     }
 
     const handler = (e: any) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      console.log('beforeinstallprompt event fired inside component');
-      // Stash the event so it can be triggered later.
       setDeferredPrompt(e);
       (window as any).deferredPrompt = e;
-      // Show the prompt immediately when the event fires
       setShowPrompt(true);
     };
 
@@ -69,26 +65,8 @@ export const InstallPrompt = () => {
     window.addEventListener('beforeinstallprompt', handler);
     window.addEventListener('pwa-prompt-available' as any, handleCustomPrompt);
     
-    // Always show prompt in iframe so they know they can open in a new tab to install
-    if (window.self !== window.top) {
-        setShowPrompt(true);
-    } else {
-        // If the platform is iOS or Facebook, which NEVER supports beforeinstallprompt natively,
-        // we show the instructions after a short delay (4 seconds) so they can install manually.
-        // For Chrome, Android, Edge, etc., we NEVER show the popup prematurely before the event fires,
-        // which completely avoids "Add to Home Screen" instruction fallbacks when clicking "Install"!
-        if (iosCheck || isFb) {
-          const timer = setTimeout(() => {
-            setShowPrompt(true);
-          }, 4000);
-
-          return () => {
-            window.removeEventListener('beforeinstallprompt', handler);
-            window.removeEventListener('pwa-prompt-available' as any, handleCustomPrompt);
-            clearTimeout(timer);
-          };
-        }
-    }
+    // Show prompt immediately 
+    setShowPrompt(true);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
@@ -99,6 +77,7 @@ export const InstallPrompt = () => {
   const handleInstallClick = async () => {
     if (window.self !== window.top) {
       // Inside an iframe, can't install, open in new tab instead
+      alert("অ্যাপটি সরাসরি ইন্সটল করার জন্য একটি নতুন ট্যাবে খোলা হচ্ছে। অনুগ্রহ করে সেখানে 'Install' বাটনে ক্লিক করুন।");
       window.open(window.location.href, '_blank', 'noopener,noreferrer');
       return;
     }
@@ -142,6 +121,7 @@ export const InstallPrompt = () => {
     <AnimatePresence>
       {showPrompt && (
         <motion.div
+          key="pwa-install-prompt"
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
@@ -162,12 +142,12 @@ export const InstallPrompt = () => {
             {/* Brand/Product Header row */}
             <div className="flex items-center gap-3.5">
               <div className="w-14 h-14 shrink-0 relative bg-card flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
-                <img 
-                  src={pwaIcon || "/icon-192-v2.png"} 
+                  <img 
+                  src={pwaIcon || "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"} 
                   alt="বিদ্যায়ন Icon" 
                   className="w-full h-full object-contain" 
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/icon-192-v2.png';
+                    (e.target as HTMLImageElement).src = 'https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg';
                   }}
                 />
               </div>
