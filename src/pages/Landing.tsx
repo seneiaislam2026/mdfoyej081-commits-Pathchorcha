@@ -88,7 +88,7 @@ export default function Landing() {
       if (isIOS) {
          alert("অ্যাপটি ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
       } else {
-         alert("বিদ্যায়ন অ্যাপটি সরাসরি মোবাইল হোম স্ক্রিনে শর্টকাট অ্যাপ হিসেবে ইন্সটলের জন্য গুগল ক্রোম (Google Chrome) ব্রাউজার দিয়ে প্রবেশ করে উপরের ডানদিকের থ্রি-ডট (triple dots) মেনু থেকে 'Install App' বা 'Add to Home screen' অপশনে ক্লিক করুন।");
+         alert("বিদ্যায়ন অরিজিনাল অ্যাপটি (PWA) ইন্সটল করার জন্য দয়া করে ক্রোম (Google Chrome) ব্রাউজারের থ্রি-ডট (triple dots) মেনু থেকে 'Install App' অপশনে ক্লিক করুন।");
       }
     }
   };

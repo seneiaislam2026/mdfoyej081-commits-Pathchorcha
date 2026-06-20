@@ -11,8 +11,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'script',
-      includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png', 'manifest.json'],
+      includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png'],
       manifest: {
+        id: '/',
         name: 'বিদ্যায়ন',
         short_name: 'বিদ্যায়ন',
         description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
@@ -20,7 +21,9 @@ export default defineConfig({
         background_color: '#FFFFFF',
         display: 'standalone',
         orientation: 'portrait',
+        scope: '/',
         start_url: '/',
+        categories: ['education', 'productivity'],
         icons: [
           {
             src: '/icon-192-v2.png',
