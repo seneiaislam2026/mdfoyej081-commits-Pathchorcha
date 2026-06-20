@@ -6,12 +6,8 @@ import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 
 export const InstallPrompt = () => {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [showChromeSuggestion, setShowChromeSuggestion] = useState(false);
   const [pwaIcon, setPwaIcon] = useState<string>('https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg');
-
-  const [showManualInstallGuide, setShowManualInstallGuide] = useState(false);
 
   useEffect(() => {
     // Check if the app is already installed or if it's running standalone
@@ -34,79 +30,28 @@ export const InstallPrompt = () => {
       console.warn("Failed to load settings in InstallPrompt:", err);
     });
 
-    // Detect unsupported browsers
-    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
-    const isFb = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1);
-    const isMessenger = ua.indexOf("Messenger") > -1;
-    const isInstagram = ua.indexOf("Instagram") > -1;
-    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-    const isUnsupported = isFb || isMessenger || isInstagram || isSafari;
-
-    if (isUnsupported && !sessionStorage.getItem('intentTriggered')) {
-      sessionStorage.setItem('intentTriggered', 'true');
-      
-      // Automatically try to open in Chrome
-      window.location.href = "intent://biddayan.com/#Intent;scheme=https;package=com.android.chrome;end";
-      
-      // If Chrome is not available, intent fails, so we show the suggestion modal after a short delay
-      setTimeout(() => {
-        setShowChromeSuggestion(true);
-      }, 1500);
-    }
-
-    // Initial check of global window property
-    if ((window as any).deferredPrompt) {
-      setDeferredPrompt((window as any).deferredPrompt);
-    }
-
-    const handler = (e: any) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      (window as any).deferredPrompt = e;
-    };
-
-    window.addEventListener('beforeinstallprompt', handler);
-    window.addEventListener('appinstalled', () => {
-        // Hide button/card after successful installation
-        localStorage.setItem('appInstalled', 'true');
-        setShowPrompt(false);
-    });
-    
     // Show prompt immediately 
     setShowPrompt(true);
 
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handler);
-    };
   }, []);
 
-  const handleInstallClick = async () => {
+  const handleInstallClick = () => {
     if (window.self !== window.top) {
       // In iframe preview mode, open in new tab
-      alert("অ্যাপটি ইনস্টল করার জন্য এটি একটি নতুন ট্যাবে খোলা হচ্ছে।");
-      window.open(window.location.href, '_blank', 'noopener,noreferrer');
+      window.open('https://biddayan.com/app/biddayan.apk', '_blank', 'noopener,noreferrer');
       return;
     }
 
-    const prompt = deferredPrompt || (window as any).deferredPrompt;
-
-    if (prompt) {
-      try {
-        prompt.prompt();
-        const { outcome } = await prompt.userChoice;
-        if (outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-          localStorage.setItem('appInstalled', 'true');
-          setShowPrompt(false);
-        }
-        setDeferredPrompt(null);
-        (window as any).deferredPrompt = null;
-      } catch (err) {
-        console.error('Error triggering PWA prompt:', err);
-      }
-    } else {
-      setShowManualInstallGuide(true);
-    }
+    // Direct APK Download
+    const link = document.createElement('a');
+    link.href = 'https://biddayan.com/app/biddayan.apk';
+    link.download = 'biddayan.apk';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    localStorage.setItem('appInstalled', 'true');
+    setShowPrompt(false);
   };
 
   const handleClose = () => {
@@ -115,52 +60,6 @@ export const InstallPrompt = () => {
 
   return (
     <AnimatePresence>
-      {showChromeSuggestion && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4">
-           <div className="bg-white rounded-2xl p-6 text-center max-w-sm w-full mx-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
-               <button 
-                  onClick={() => setShowChromeSuggestion(false)}
-                  className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200"
-               >
-                  ✕
-               </button>
-               <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/><line x1="10.88" y1="21.94" x2="15.46" y2="14"/></svg>
-               </div>
-               <h3 className="text-xl font-bold font-bengali text-slate-800 mb-2">Google Chrome আবশ্যক</h3>
-               <p className="text-slate-500 text-sm font-bengali leading-relaxed mb-6">
-                 সেরা অভিজ্ঞতার জন্য Google Chrome ব্যবহার করুন।
-               </p>
-               <Button onClick={() => setShowChromeSuggestion(false)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bengali h-11 rounded-xl">
-                 বুঝতে পেরেছি
-               </Button>
-           </div>
-        </div>
-      )}
-
-      {showManualInstallGuide && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4">
-           <div className="bg-white rounded-2xl p-6 text-center max-w-sm w-full mx-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
-               <button 
-                  onClick={() => setShowManualInstallGuide(false)}
-                  className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200"
-               >
-                  <X size={16} />
-               </button>
-               <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Download className="text-blue-500 w-8 h-8" />
-               </div>
-               <h3 className="text-lg font-bold font-bengali text-slate-800 mb-2">ম্যানুয়াল ইনস্টল</h3>
-               <p className="text-slate-500 text-[13px] font-bengali leading-relaxed mb-4 text-justify">
-                 আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা অ্যাপটি ইতোমধ্যে ইনস্টল হয়ে আছে। দয়া করে ব্রাউজারের উপরে ডানদিকে থাকা <b>থ্রি-ডট (⋮)</b> মেনু থেকে <b>"Install app"</b> বা <b>"Add to Home screen"</b> নির্বাচন করুন।
-               </p>
-               <Button onClick={() => setShowManualInstallGuide(false)} className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bengali h-11 rounded-xl">
-                 ঠিক আছে
-               </Button>
-           </div>
-        </div>
-      )}
-
       {showPrompt && (
         <motion.div
           key="pwa-install-prompt"

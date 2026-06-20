@@ -1,23 +1,19 @@
-const CACHE_NAME = 'biddayon-pwa-cache-v1';
+const CACHE_NAME = 'biddayon-pwa-cache-v2';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/icon-192-v2.png',
-  '/icon-512-v2.png'
+  '/manifest.json'
 ];
 
 // Install a service worker
 self.addEventListener('install', event => {
-  // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache).catch(err => console.log('Cache addAll failed', err));
       })
   );
-  // Force the waiting service worker to become the active service worker.
   self.skipWaiting();
 });
 

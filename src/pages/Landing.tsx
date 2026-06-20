@@ -45,42 +45,22 @@ export default function Landing() {
   }, [loading, user]);
 
   const [installMessage, setInstallMessage] = useState<string | null>(null);
-  const [showManualInstallGuide, setShowManualInstallGuide] = useState(false);
 
   const triggerInstall = () => {
     if (window.self !== window.top) {
-      alert("অ্যাপটি ইনস্টল করার জন্য এটি একটি নতুন ট্যাবে খোলা হচ্ছে।");
-      window.open(window.location.href, '_blank', 'noopener,noreferrer');
+      window.open('https://biddayan.com/app/biddayan.apk', '_blank', 'noopener,noreferrer');
       return;
     }
     
-    // Detect unsupported browsers
-    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
-    const isFb = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1);
-    const isMessenger = ua.indexOf("Messenger") > -1;
-    const isInstagram = ua.indexOf("Instagram") > -1;
-    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
-    const isUnsupported = isFb || isMessenger || isInstagram || isSafari;
-
-    if (isUnsupported) {
-       // Try to open in Chrome
-       window.location.href = "intent://" + window.location.host + window.location.pathname + "#Intent;scheme=https;package=com.android.chrome;end";
-       return;
-    }
-
-    const deferredPrompt = (window as any).deferredPrompt;
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-          localStorage.setItem('appInstalled', 'true');
-        }
-        (window as any).deferredPrompt = null;
-      });
-    } else {
-      setShowManualInstallGuide(true);
-    }
+    // Direct APK Download
+    const link = document.createElement('a');
+    link.href = 'https://biddayan.com/app/biddayan.apk';
+    link.download = 'biddayan.apk';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    localStorage.setItem('appInstalled', 'true');
   };
 
   if (loading || user) {
@@ -199,29 +179,6 @@ export default function Landing() {
         <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-slate-900 border border-slate-700 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 max-w-sm w-[90%] mx-auto animate-in slide-in-from-bottom-5">
            <p className="font-bengali text-sm flex-1 leading-relaxed">{installMessage}</p>
            <button onClick={() => setInstallMessage(null)} className="text-slate-400 hover:text-white p-2">✕</button>
-        </div>
-      )}
-
-      {showManualInstallGuide && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-4">
-           <div className="bg-white rounded-2xl p-6 text-center max-w-sm w-full mx-auto shadow-2xl relative animate-in zoom-in-95 duration-200">
-               <button 
-                  onClick={() => setShowManualInstallGuide(false)}
-                  className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200"
-               >
-                  <X size={16} />
-               </button>
-               <div className="w-16 h-16 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Download className="text-blue-500 w-8 h-8" />
-               </div>
-               <h3 className="text-lg font-bold font-bengali text-slate-800 mb-2">ম্যানুয়াল ইনস্টল</h3>
-               <p className="text-slate-500 text-[13px] font-bengali leading-relaxed mb-4 text-justify">
-                 আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা অ্যাপটি ইতোমধ্যে ইনস্টল হয়ে আছে। দয়া করে ব্রাউজারের উপরে ডানদিকে থাকা <b>থ্রি-ডট (⋮)</b> মেনু থেকে <b>"Install app"</b> বা <b>"Add to Home screen"</b> নির্বাচন করুন।
-               </p>
-               <button onClick={() => setShowManualInstallGuide(false)} className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bengali h-11 rounded-xl">
-                 ঠিক আছে
-               </button>
-           </div>
         </div>
       )}
 
