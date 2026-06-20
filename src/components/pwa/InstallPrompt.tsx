@@ -80,8 +80,9 @@ export const InstallPrompt = () => {
 
   const handleInstallClick = async () => {
     if (window.self !== window.top) {
-      // In iframe preview mode, just try redirecting to apk
-      window.location.href = "https://biddayan.com/app/biddayan.apk";
+      // In iframe preview mode, open in new tab
+      alert("অ্যাপটি ইনস্টল করার জন্য এটি একটি নতুন ট্যাবে খোলা হচ্ছে।");
+      window.open(window.location.href, '_blank', 'noopener,noreferrer');
       return;
     }
 
@@ -102,16 +103,7 @@ export const InstallPrompt = () => {
         console.error('Error triggering PWA prompt:', err);
       }
     } else {
-        // APK fallback
-        const link = document.createElement('a');
-        link.href = 'https://biddayan.com/app/biddayan.apk';
-        link.download = 'biddayan.apk';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        localStorage.setItem('appInstalled', 'true');
-        setShowPrompt(false);
+      alert("আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা অ্যাপটি ইতোমধ্যে ইনস্টল হয়ে আছে। দয়া করে ব্রাউজারের থ্রি-ডট (⋮) মেনু থেকে 'Install app' বা 'Add to Home screen' নির্বাচন করুন।");
     }
   };
 

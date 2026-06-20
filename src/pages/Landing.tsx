@@ -47,8 +47,8 @@ export default function Landing() {
 
   const triggerInstall = () => {
     if (window.self !== window.top) {
-      // In iframe preview mode, just try redirecting to apk
-      window.location.href = "https://biddayan.com/app/biddayan.apk";
+      alert("অ্যাপটি ইনস্টল করার জন্য এটি একটি নতুন ট্যাবে খোলা হচ্ছে।");
+      window.open(window.location.href, '_blank', 'noopener,noreferrer');
       return;
     }
     
@@ -62,17 +62,7 @@ export default function Landing() {
 
     if (isUnsupported) {
        // Try to open in Chrome
-       window.location.href = "intent://biddayan.com/#Intent;scheme=https;package=com.android.chrome;end";
-       
-       // Fallback to downloading APK after a short delay if intent doesn't work
-       setTimeout(() => {
-          const link = document.createElement('a');
-          link.href = 'https://biddayan.com/app/biddayan.apk';
-          link.download = 'biddayan.apk';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-       }, 2000);
+       window.location.href = "intent://" + window.location.host + window.location.pathname + "#Intent;scheme=https;package=com.android.chrome;end";
        return;
     }
 
@@ -87,15 +77,7 @@ export default function Landing() {
         (window as any).deferredPrompt = null;
       });
     } else {
-        // APK fallback
-        const link = document.createElement('a');
-        link.href = 'https://biddayan.com/app/biddayan.apk';
-        link.download = 'biddayan.apk';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        localStorage.setItem('appInstalled', 'true');
+      alert("আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা অ্যাপটি ইতোমধ্যে ইনস্টল হয়ে আছে। দয়া করে ব্রাউজারের থ্রি-ডট (⋮) মেনু থেকে 'Install app' বা 'Add to Home screen' নির্বাচন করুন।");
     }
   };
 
