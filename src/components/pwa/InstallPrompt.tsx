@@ -63,40 +63,24 @@ export const InstallPrompt = () => {
       return;
     }
 
-    const deferredPrompt = (window as any).deferredPrompt;
-    if (deferredPrompt) {
-      try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === "accepted") {
-          console.log("User accepted the install prompt");
-          localStorage.setItem("appInstalled", "true");
-          setShowPrompt(false);
-        }
-        (window as any).deferredPrompt = null;
-      } catch (err) {
-        console.error("Error triggering PWA prompt:", err);
-      }
-    } else {
-      // Direct APK Download with exact name
-      try {
-        const response = await fetch("https://biddayan.com/app/biddayan.apk");
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "Biddayon.apk";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      } catch (e) {
-        window.location.href = "https://biddayan.com/app/biddayan.apk";
-      }
-
-      localStorage.setItem("appInstalled", "true");
-      setShowPrompt(false);
+    // Direct APK Download with exact name unconditionally
+    try {
+      const response = await fetch("https://biddayan.com/app/biddayan.apk");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "Biddayon.apk";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      window.location.href = "https://biddayan.com/app/biddayan.apk";
     }
+
+    localStorage.setItem("appInstalled", "true");
+    setShowPrompt(false);
   };
 
   const handleClose = () => {
