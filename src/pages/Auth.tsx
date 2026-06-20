@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../lib/AuthContext";
 import { ConfirmationResult, sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -56,6 +56,20 @@ export default function Auth() {
   } = useAuth();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [logoUrl, setLogoUrl] = useState("https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png");
+
+  useEffect(() => {
+    getDoc(doc(db, "settings", "general")).then((snap) => {
+      if (snap.exists() && snap.data()?.pwaIconUrl) {
+        const url = snap.data().pwaIconUrl.trim();
+        if (url !== "") {
+          setLogoUrl(url);
+        }
+      }
+    }).catch(err => {
+      console.warn("Failed to load settings in Auth page:", err);
+    });
+  }, []);
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -72,9 +86,9 @@ export default function Auth() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center justify-center">
           <img
-            src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"
+            src={logoUrl}
             alt="বিদ্যায়ন"
-            className="w-[180px] sm:w-[220px] object-contain mb-4 mix-blend-multiply dark:invert"
+            className="w-[180px] sm:w-[220px] object-contain mb-4"
           />
         </div>
       </div>
@@ -304,9 +318,9 @@ export default function Auth() {
             <div className="flex flex-col items-center justify-center mb-6">
               <Link to="/" className="inline-flex flex-col items-center group">
                 <img
-                  src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"
+                  src={logoUrl}
                   alt="বিদ্যায়ন"
-                  className="w-[140px] sm:w-[160px] object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply dark:invert"
+                  className="w-[140px] sm:w-[160px] object-contain group-hover:scale-105 transition-transform duration-300"
                 />
               </Link>
             </div>

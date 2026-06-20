@@ -296,9 +296,9 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <Link to="/dashboard" className="flex items-center group">
               <img
-                src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"
+                src={settings?.pwaIconUrl || "https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"}
                 alt="বিদ্যায়ন"
-                className="h-[56px] sm:h-[68px] w-auto object-contain group-hover:scale-105 transition-transform duration-300 mix-blend-multiply dark:invert"
+                className="h-[64px] sm:h-[76px] w-auto object-contain group-hover:scale-105 transition-transform duration-300 mr-4 sm:mr-8"
               />
             </Link>
           </div>

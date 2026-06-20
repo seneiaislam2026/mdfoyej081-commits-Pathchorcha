@@ -133,6 +133,32 @@ function AppLayout() {
   const navigate = useNavigate();
   const { user, loading, userData } = useAuth();
   
+  const [pwaIcon, setPwaIcon] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    // Dynamic PWA Header & Icon Injection
+    import('firebase/firestore').then(({ doc, getDoc }) => {
+      import('./lib/firebase').then(({ db }) => {
+        getDoc(doc(db, 'settings', 'general')).then((snap) => {
+          if (snap.exists() && snap.data()?.pwaIconUrl) {
+            const iconUrl = snap.data().pwaIconUrl;
+            setPwaIcon(iconUrl);
+            
+            // Update apple-touch-icon
+            const appleIcon = document.querySelector('link[rel="apple-touch-icon"]');
+            if (appleIcon) (appleIcon as HTMLLinkElement).href = iconUrl;
+            
+            // Update shortcuts icons
+            const favicons = document.querySelectorAll('link[rel="icon"]');
+            favicons.forEach(fav => {
+              (fav as HTMLLinkElement).href = iconUrl;
+            });
+          }
+        });
+      });
+    });
+  }, []);
+
   // Do not show back button on dashboard, exam, paper, and question-bank pages
   const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams" || location.pathname === "/subscription" || location.pathname === "/mock-payment" || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
 

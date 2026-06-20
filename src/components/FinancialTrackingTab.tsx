@@ -24,24 +24,42 @@ export default function FinancialTrackingTab() {
     return () => unsubscribe();
   }, []);
 
+  const translateBanglaDigits = (str: string) => {
+    const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return str.replace(/[০-৯]/g, (d) => String(banglaDigits.indexOf(d)));
+  };
+
   const handleAdd = async (e: any) => {
     e.preventDefault();
-    if (!amount || !category || !date) return;
+    if (!amount || !category || !date) {
+      alert("অনুগ্রহ করে সব তথ্য সঠিকভাবে পূরণ করুন।");
+      return;
+    }
     
     setLoading(true);
     try {
+      const sanitizedAmountStr = translateBanglaDigits(amount.trim());
+      const parsedAmount = parseFloat(sanitizedAmountStr);
+      
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        alert("অনুগ্রহ করে একটি সঠিক পরিমাণ (সংখ্যা) প্রদান করুন।");
+        setLoading(false);
+        return;
+      }
+
       await addDoc(collection(db, "finance_records"), {
-        amount: parseFloat(amount),
+        amount: parsedAmount,
         type,
-        category,
+        category: category.trim(),
         date,
         createdAt: serverTimestamp()
       });
       setAmount("");
       setCategory("");
-    } catch (err) {
+      alert("রেকর্ডটি সফলভাবে যুক্ত করা হয়েছে!");
+    } catch (err: any) {
       console.error(err);
-      alert("Failed to add record.");
+      alert("রেকর্ড যুক্ত করতে ব্যর্থ হয়েছে: " + (err.message || err));
     }
     setLoading(false);
   };
@@ -52,9 +70,13 @@ export default function FinancialTrackingTab() {
     }
   };
 
-  // Calculate totals
-  const totalIncome = records.filter(r => r.type === "income").reduce((acc, curr) => acc + curr.amount, 0);
-  const totalExpense = records.filter(r => r.type === "expense").reduce((acc, curr) => acc + curr.amount, 0);
+  // Calculate totals robustly to avoid any NaN or crashed outputs
+  const totalIncome = records
+    .filter(r => r.type === "income")
+    .reduce((acc, curr) => acc + (typeof curr.amount === "number" && !isNaN(curr.amount) ? curr.amount : 0), 0);
+  const totalExpense = records
+    .filter(r => r.type === "expense")
+    .reduce((acc, curr) => acc + (typeof curr.amount === "number" && !isNaN(curr.amount) ? curr.amount : 0), 0);
   const balance = totalIncome - totalExpense;
 
   // Group by month for chart
@@ -204,7 +226,7 @@ export default function FinancialTrackingTab() {
                 <div>
                   <label className="text-xs font-bold text-slate-500 uppercase mb-1 block">পরিমাণ (Amount)</label>
                   <Input 
-                    type="number" 
+                    type="text" 
                     required 
                     value={amount} 
                     onChange={e => setAmount(e.target.value)} 

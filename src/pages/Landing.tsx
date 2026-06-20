@@ -2,11 +2,27 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { db } from "../lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Landing() {
   const { user, userData, loading } = useAuth();
   const navigate = useNavigate();
   const [minTimePassed, setMinTimePassed] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png");
+
+  useEffect(() => {
+    getDoc(doc(db, "settings", "general")).then((snap) => {
+      if (snap.exists() && snap.data()?.pwaIconUrl) {
+        const url = snap.data().pwaIconUrl.trim();
+        if (url !== "") {
+          setLogoUrl(url);
+        }
+      }
+    }).catch(err => {
+      console.warn("Failed to load settings in Landing page:", err);
+    });
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -44,9 +60,9 @@ export default function Landing() {
           {/* Logo */}
           <div className="group-hover:scale-105 transition-transform duration-300 flex flex-col items-center justify-center">
             <img
-              src="https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"
+              src={logoUrl}
               alt="বিদ্যায়ন Logo"
-              className="w-[240px] sm:w-[320px] md:w-[380px] object-contain mix-blend-multiply dark:invert"
+              className="w-[240px] sm:w-[320px] md:w-[380px] object-contain"
             />
           </div>
         </motion.div>

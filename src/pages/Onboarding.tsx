@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Book, GraduationCap, ArrowLeft, Trophy, TestTube2, Calculator, Users } from "lucide-react";
 import { useAuth } from "../lib/AuthContext";
-import { doc, updateDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, updateDoc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
 type OnboardingStep = "name" | "class" | "subclass" | "group" | "welcome";
@@ -34,32 +34,61 @@ const groups = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<OnboardingStep>("name");
   const { user, userData, loading } = useAuth();
   
+  const [step, setStep] = useState<OnboardingStep>("name");
+  const [checking, setChecking] = useState(true);
+  const [name, setName] = useState("");
+  const [institution, setInstitution] = useState("");
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => {
     if (loading) return;
-    // If user already has a class, they shouldn't be here.
+
+    if (user) {
+      // Direct, fresh check of Firestore document to avoid showing "name" step on fast updates
+      getDoc(doc(db, "users", user.uid)).then((snap) => {
+        if (snap.exists()) {
+          const d = snap.data();
+          if (d?.class) {
+            navigate("/dashboard", { replace: true });
+            return;
+          }
+          if (d?.fullName && d.fullName !== "Student" && d.fullName !== "") {
+            setName(d.fullName);
+            if (d.institution) setInstitution(d.institution);
+            setStep("class");
+          }
+        }
+        setChecking(false);
+      }).catch((err) => {
+        console.error("Failed to check user doc in onboarding:", err);
+        setChecking(false);
+      });
+    } else {
+      setChecking(false);
+    }
+  }, [user, loading, navigate]);
+  
+  // Keep step and fields in-sync with real-time userData if it updates asynchronously
+  useEffect(() => {
+    if (loading) return;
     if (userData?.class) {
       navigate("/dashboard", { replace: true });
-    } else if (userData?.fullName && userData.fullName !== "Student" && userData.fullName !== "") {
-      // If we already have a name but no class yet, set states and skip the name step
+    } else if (userData?.fullName && userData.fullName !== "Student" && userData.fullName !== "" && step === "name") {
       setName(userData.fullName);
       if (userData.institution) setInstitution(userData.institution);
       setStep("class");
     }
   }, [userData, navigate, loading]);
 
-  const [name, setName] = useState(() => {
-    const val = userData?.fullName || "";
-    return val === "Student" ? "" : val;
-  });
-  const [institution, setInstitution] = useState(userData?.institution || "");
-  const [selectedClass, setSelectedClass] = useState<string | null>(null);
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  // Avoid flashing the onboarding name step if checking, loading, or user has class
+  const hasClass = !!userData?.class;
+  const isOnNameStepButHasName = step === "name" && !!(userData?.fullName && userData.fullName !== "Student" && userData.fullName !== "");
 
-  if (loading) {
+  if (loading || checking || hasClass || isOnNameStepButHasName) {
     return (
       <div className="min-h-screen bg-card flex flex-col items-center justify-center font-sans relative">
         <div className="animate-pulse flex flex-col items-center justify-center mb-8">

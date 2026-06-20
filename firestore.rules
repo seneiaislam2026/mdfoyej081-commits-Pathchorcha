@@ -102,6 +102,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /system/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /payment_requests/{txnId} {
       allow create: if isSignedIn() && incoming().uid == request.auth.uid;
       allow read: if isSignedIn() && (resource.data.uid == request.auth.uid || isAdmin());

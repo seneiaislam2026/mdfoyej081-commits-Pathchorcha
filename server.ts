@@ -29,6 +29,100 @@ async function startServer() {
     return clean;
   };
 
+  // Dynamic Manifest Endpoint
+  app.get(['/manifest.json', '/manifest.webmanifest'], async (req, res) => {
+    try {
+      const response = await fetch('https://firestore.googleapis.com/v1/projects/ai-studio-e2950986-ea1b-49d4-bccf-a9edba1160a7/databases/(default)/documents/settings/general');
+      let pwaIconUrl = '/icon-192-v2.png';
+      
+      if (response.ok) {
+        const data = await response.json();
+        const iconVal = data.fields?.pwaIconUrl?.stringValue;
+        if (iconVal && iconVal.trim() !== '') {
+          pwaIconUrl = iconVal.trim();
+        }
+      }
+      
+      const manifest = {
+        name: 'বিদ্যায়ন',
+        short_name: 'Biddayon',
+        description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/',
+        icons: [
+          {
+            src: pwaIconUrl,
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: pwaIconUrl,
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: pwaIconUrl,
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: pwaIconUrl,
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ]
+      };
+      res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+      res.send(JSON.stringify(manifest));
+    } catch (error) {
+      console.error('Error rendering dynamic manifest:', error);
+      res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+      res.send(JSON.stringify({
+        name: 'বিদ্যায়ন',
+        short_name: 'Biddayon',
+        description: 'Bengali Educational Exam Preparation Platform for HSC & SSC',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
+        display: 'standalone',
+        orientation: 'portrait',
+        start_url: '/',
+        icons: [
+          {
+            src: '/icon-192-v2.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/icon-192-v2.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: '/icon-512-v2.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: '/icon-512-v2.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ]
+      }));
+    }
+  });
+
   // Send OTP Route using GreenWeb SMS API
   app.post("/api/send-otp", async (req, res) => {
     try {

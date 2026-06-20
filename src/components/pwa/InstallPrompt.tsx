@@ -2,13 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { X, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { db } from '../../lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInAppBrowser, setIsInAppBrowser] = useState(false);
+  const [pwaIcon, setPwaIcon] = useState<string>('/icon-192-v2.png');
 
   useEffect(() => {
+    // Synchronous state fetch
+    getDoc(doc(db, 'settings', 'general')).then((snap) => {
+      if (snap.exists() && snap.data()?.pwaIconUrl) {
+        const url = snap.data().pwaIconUrl.trim();
+        if (url !== "") {
+          setPwaIcon(url);
+        }
+      }
+    }).catch(err => {
+      console.warn("Failed to load settings in InstallPrompt:", err);
+    });
+
     // Check if the app is already installed or if it's running standalone
     const isStandalone = window.matchMedia ? window.matchMedia('(display-mode: standalone)').matches : false;
     if (isStandalone || (window.navigator as any).standalone) {
@@ -37,10 +52,11 @@ export const InstallPrompt = () => {
     if (window.self !== window.top) {
         setShowPrompt(true);
     } else {
-        // Standalone context but beforeinstallprompt might not fire immediately.
-        // Show the prompt manually after 3 seconds as a fallback so they get instructions
-        // on how to install manually if the native prompt isn't supported or is delayed.
-        setTimeout(() => setShowPrompt(true), 3000);
+        // Show fallback only on iOS because iOS doesn't support beforeinstallprompt
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        if (isIos) {
+            setTimeout(() => setShowPrompt(true), 3000);
+        }
     }
 
     return () => {
@@ -114,7 +130,14 @@ export const InstallPrompt = () => {
             {/* Brand/Product Header row */}
             <div className="flex items-center gap-3.5">
               <div className="w-14 h-14 shrink-0 relative bg-card flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
-                <img src="/icon-192-v2.png" alt="বিদ্যায়ন Icon" className="w-full h-full object-contain" />
+                <img 
+                  src={pwaIcon || "/icon-192-v2.png"} 
+                  alt="বিদ্যায়ন Icon" 
+                  className="w-full h-full object-contain" 
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/icon-192-v2.png';
+                  }}
+                />
               </div>
               <div className="flex-1">
                 <h3 className="font-bengali font-bold text-lg text-foreground leading-tight">বিদ্যায়ন অ্যাপ ইনস্টল করুন</h3>

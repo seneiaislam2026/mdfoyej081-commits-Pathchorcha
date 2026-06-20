@@ -19,6 +19,7 @@ import { db } from "../lib/firebase";
 import NotesCreator from "../components/NotesCreator";
 import BoardQuestionsCreator from "../components/BoardQuestionsCreator";
 import FinancialTrackingTab from "../components/FinancialTrackingTab";
+import { EventExamTab } from "../components/EventExamTab";
 import { 
   ResponsiveContainer, 
   LineChart as RechartsLineChart, 
@@ -46,6 +47,7 @@ const menuItems = [
   { id: "subjects", bnLabel: "বিষয়", enLabel: "Subjects", icon: <BookOpen className="w-5 h-5" /> },
   { id: "chapters", bnLabel: "অধ্যায়", enLabel: "Chapters", icon: <Layers className="w-5 h-5" /> },
   { id: "exams", bnLabel: "পরীক্ষা", enLabel: "Exams", icon: <Target className="w-5 h-5" /> },
+  { id: "event_exam", bnLabel: "ইভেন্ট এক্সাম", enLabel: "Event Exam", icon: <Trophy className="w-5 h-5 text-rose-500" />, isNew: true },
   { id: "leaderboard", bnLabel: "লিডারবোর্ড", enLabel: "Leaderboard", icon: <Trophy className="w-5 h-5" /> },
   { id: "doubts", bnLabel: "শিক্ষার্থীর প্রশ্ন", enLabel: "Doubts", icon: <MessageCircleQuestion className="w-5 h-5 font-bold" /> },
   { id: "reports", bnLabel: "রিপোর্টকৃত", enLabel: "Reports", icon: <AlertCircle className="w-5 h-5" /> },
@@ -288,6 +290,7 @@ export default function Admin() {
     alertBannerActive: false,
     alertBannerMessage: "",
     discountPercentage: 0,
+    pwaIconUrl: "",
     subscriptionPlans: [
       { id: "1-month", name: "১ মাস", price: 50, duration: "মাসিক", popular: false, color: "from-blue-200 to-blue-300" },
       { id: "3-months", name: "৩ মাস", price: 120, duration: "ত্রৈমাসিক", popular: true, color: "from-[#ffa726] to-[#ffb74d]" },
@@ -2530,6 +2533,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               </Card>
             )}
           </div>
+        ) : activeTab === "event_exam" ? (
+          <div className="space-y-6 overflow-hidden">
+            <EventExamTab />
+          </div>
         ) : activeTab === "exams" ? (
           <div className="space-y-6 overflow-hidden">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -2575,9 +2582,10 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                           </Badge>
                           <Badge variant="outline" className={`text-[10px] font-bengali font-semibold ${
                             exam.type === "model_test" ? "bg-purple-50 border-purple-100/60 text-purple-700" :
-                            exam.type === "live_model_test" ? "bg-amber-50 border-amber-100/60 text-amber-700" : "bg-teal-50 border-teal-100/60 text-teal-700"
+                            exam.type === "live_model_test" ? "bg-amber-50 border-amber-100/60 text-amber-700" : 
+                            exam.type === "event_exam" ? "bg-rose-50 border-rose-100/60 text-rose-700" : "bg-teal-50 border-teal-100/60 text-teal-700"
                           }`}>
-                            {exam.type === "model_test" ? "মডেল টেস্ট" : exam.type === "live_model_test" ? "লাইভ মডেল টেস্ট" : "পাবলিক এক্সাম"}
+                            {exam.type === "model_test" ? "মডেল টেস্ট" : exam.type === "live_model_test" ? "লাইভ মডেল টেস্ট" : exam.type === "event_exam" ? "ইভেন্ট এক্সাম" : "পাবলিক এক্সাম"}
                           </Badge>
                         </div>
                       </div>
@@ -2862,6 +2870,23 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                          />
                        </div>
                      )}
+                     
+                     <div className="border-t pt-6">
+                        <div className="flex-1 mb-4">
+                          <p className="font-bold">PWA App Icon URL</p>
+                          <p className="text-sm text-muted-foreground">Upload the icon url meant for installed app.</p>
+                        </div>
+                        <div className="space-y-2">
+                           <Input 
+                             value={settingsData.pwaIconUrl || ""} 
+                             onChange={(e) => setSettingsData({ ...settingsData, pwaIconUrl: e.target.value })}
+                             placeholder="https://i.ibb.co/..."
+                           />
+                           {settingsData.pwaIconUrl && (
+                             <img src={settingsData.pwaIconUrl} alt="PWA Icon" className="w-16 h-16 object-contain border rounded-xl" />
+                           )}
+                        </div>
+                     </div>
 
                      <div className="border-t pt-6">
                         <div className="flex items-center justify-between mb-4">
@@ -4214,6 +4239,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                     <option value="public">পাবলিক এক্সাম (Live Exam)</option>
                     <option value="live_model_test">লাইভ মডেল টেস্ট (Live Model Test)</option>
                     <option value="model_test">মডেল টেস্ট (Regular Model Test)</option>
+                    <option value="event_exam">ইভেন্ট এক্সাম (Event Exam)</option>
                   </select>
                 </div>
                 <div>
