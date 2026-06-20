@@ -9,6 +9,7 @@ export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInAppBrowser, setIsInAppBrowser] = useState(false);
+  const [isIos, setIsIos] = useState(false);
   const [pwaIcon, setPwaIcon] = useState<string>('/icon-192-v2.png');
 
   useEffect(() => {
@@ -18,6 +19,11 @@ export const InstallPrompt = () => {
       console.log('App is running in standalone mode, skipping install prompt');
       return;
     }
+
+    // Determine if iOS
+    const iosCheck = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()) || 
+                     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    setIsIos(iosCheck);
 
     // Synchronous state fetch
     getDoc(doc(db, 'settings', 'general')).then((snap) => {
@@ -67,16 +73,21 @@ export const InstallPrompt = () => {
     if (window.self !== window.top) {
         setShowPrompt(true);
     } else {
-        // Always show prompt on load as a fallback after 2.5 seconds so customers don't miss installation guides
-        const timer = setTimeout(() => {
-          setShowPrompt(true);
-        }, 2500);
+        // If the platform is iOS or Facebook, which NEVER supports beforeinstallprompt natively,
+        // we show the instructions after a short delay (4 seconds) so they can install manually.
+        // For Chrome, Android, Edge, etc., we NEVER show the popup prematurely before the event fires,
+        // which completely avoids "Add to Home Screen" instruction fallbacks when clicking "Install"!
+        if (iosCheck || isFb) {
+          const timer = setTimeout(() => {
+            setShowPrompt(true);
+          }, 4000);
 
-        return () => {
-          window.removeEventListener('beforeinstallprompt', handler);
-          window.removeEventListener('pwa-prompt-available' as any, handleCustomPrompt);
-          clearTimeout(timer);
-        };
+          return () => {
+            window.removeEventListener('beforeinstallprompt', handler);
+            window.removeEventListener('pwa-prompt-available' as any, handleCustomPrompt);
+            clearTimeout(timer);
+          };
+        }
     }
 
     return () => {
@@ -93,11 +104,10 @@ export const InstallPrompt = () => {
     }
 
     if (!deferredPrompt) {
-      const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
       if (isIos) {
           alert('Safari ব্রাউজারের নিচে "Share" আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।');
       } else {
-          alert('আপনার ব্রাউজারের মেনু (⋮) অপশন থেকে "Add to Home screen" বা "Install app" এ ক্লিক করুন।');
+          alert('আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না অথবা এখনো সচল হয়নি। অনুগ্রহ করে ব্রাউজারের মেনু (⋮) অপশন থেকে "Install app" বা "Add to Home screen" নির্বাচন করুন।');
       }
       return;
     }
@@ -181,10 +191,20 @@ export const InstallPrompt = () => {
                 </div>
               ) : null}
 
+              {isIos && !isInAppBrowser ? (
+                <div className="bg-emerald-50/70 border border-emerald-100 p-3.5 rounded-2xl mb-4 text-xs text-slate-700 font-bengali">
+                  <p className="font-bold text-emerald-800 mb-1.5 flex items-center gap-1">📱 আইফোন ব্যবহারকারীদের জন্য নির্দেশনা:</p>
+                  <ol className="list-decimal pl-4.5 space-y-1 text-slate-600">
+                    <li>প্রথমে নিচে থাকা <span className="font-bold text-emerald-800">"Share" (শেয়ার)</span> আইকনে ক্লিক করুন।</li>
+                    <li>মেনুটি একটু স্ক্রল করে নিচে <span className="font-bold text-emerald-800">"Add to Home Screen" (হোম স্ক্রিনে যোগ করুন)</span> এ ক্লিক করুন।</li>
+                  </ol>
+                </div>
+              ) : null}
+
               {isInAppBrowser ? (
                 <div className="bg-red-50 border border-red-200 p-3 rounded-xl mb-4">
                   <p className="text-red-800 text-[13px] font-bengali font-medium mb-1">
-                    ⚠️ মেসেঞ্জার থেকে সরাসরি অ্যাপ ইনস্টল করা যাবে কাম্য নয়!
+                    ⚠️ মেসেঞ্জার/ফেসবুক থেকে সরাসরি অ্যাপ ইনস্টল করা সম্ভব নয়!
                   </p>
                   <p className="text-red-700 text-xs font-bengali">
                     উপরে ডানদিকের মেনু <span className="font-bold whitespace-nowrap">( ⋮ )</span> থেকে <span className="font-bold">"Open in Chrome"</span> বা <span className="font-bold">"Open in system browser"</span> এ ক্লিক করুন। তারপর খুব সহজেই ইনস্টল করতে পারবেন।
