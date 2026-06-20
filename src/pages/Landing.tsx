@@ -47,27 +47,55 @@ export default function Landing() {
 
   const triggerInstall = () => {
     if (window.self !== window.top) {
-      window.open(window.location.href, '_blank', 'noopener,noreferrer');
+      // In iframe preview mode, just try redirecting to apk
+      window.location.href = "https://biddayan.com/app/biddayan.apk";
       return;
     }
     
+    // Detect unsupported browsers
+    const ua = navigator.userAgent || navigator.vendor || (window as any).opera;
+    const isFb = (ua.indexOf("FBAN") > -1) || (ua.indexOf("FBAV") > -1);
+    const isMessenger = ua.indexOf("Messenger") > -1;
+    const isInstagram = ua.indexOf("Instagram") > -1;
+    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    const isUnsupported = isFb || isMessenger || isInstagram || isSafari;
+
+    if (isUnsupported) {
+       // Try to open in Chrome
+       window.location.href = "intent://biddayan.com/#Intent;scheme=https;package=com.android.chrome;end";
+       
+       // Fallback to downloading APK after a short delay if intent doesn't work
+       setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = 'https://biddayan.com/app/biddayan.apk';
+          link.download = 'biddayan.apk';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+       }, 2000);
+       return;
+    }
+
     const deferredPrompt = (window as any).deferredPrompt;
     if (deferredPrompt) {
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then((choiceResult: any) => {
         if (choiceResult.outcome === 'accepted') {
           console.log('User accepted the install prompt');
+          localStorage.setItem('appInstalled', 'true');
         }
         (window as any).deferredPrompt = null;
       });
     } else {
-        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase()) || 
-                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-        if(isIos){
-             setInstallMessage('Safari ব্রাউজারের নিচে "Share" আইকনে ক্লিক করে "Add to Home Screen" নির্বাচন করুন।');
-        } else {
-             setInstallMessage('আপনার ব্রাউজারটি সরাসরি ইনস্টলেশন সমর্থন করছে না। অনুগ্রহ করে ব্রাউজারের মেনু (⋮) অপশন থেকে "Install app" বা "Add to Home screen" নির্বাচন করুন।');
-        }
+        // APK fallback
+        const link = document.createElement('a');
+        link.href = 'https://biddayan.com/app/biddayan.apk';
+        link.download = 'biddayan.apk';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        localStorage.setItem('appInstalled', 'true');
     }
   };
 
