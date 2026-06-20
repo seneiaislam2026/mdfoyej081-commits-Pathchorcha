@@ -11,6 +11,6 @@
   
   <!-- Transparent background table-less typography branding centered perfectly -->
   <text x="256" y="295" class="bengali-text" font-size="115" text-anchor="middle" letter-spacing="-1">
-    <tspan fill="#051D3B">শিক্ষা</tspan><tspan fill="#EC9D00">ঙ্গন</tspan>
+    <tspan fill="#00B074">বিদ্যা</tspan><tspan fill="#051D3B">য়ন</tspan>
   </text>
 </svg>

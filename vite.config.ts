@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'script',
+      injectRegister: false,
       includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png'],
       manifest: {
         id: '/',
