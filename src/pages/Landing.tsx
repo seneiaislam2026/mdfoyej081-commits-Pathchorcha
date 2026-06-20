@@ -69,9 +69,9 @@ export default function Landing() {
     } else {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       if (isIOS) {
-         alert("PWA ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
+         alert("অ্যাপটি ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
       } else {
-         alert("আপনি বর্তমানে একটি ইন-অ্যাপ ব্রাউজারে আছেন বা পপ-আপ সাপোর্টেড নয়। এক-ক্লিকে অ্যাপ ইন্সটল করতে লিঙ্কটি কপি করে সরাসরি Google Chrome ব্রাউজারে ওপেন করুন এবং আবার ক্লিক করুন।");
+         alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি 'Google Chrome' ব্রাউজার দিয়ে ওয়েবসাইটে প্রবেশ করুন। এরপর পুনরায় ক্লিক করুন।");
       }
     }
   };
