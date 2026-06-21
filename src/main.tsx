@@ -6,6 +6,7 @@ import { registerSW } from 'virtual:pwa-register';
 
 // Safely register service worker. Force update and reload to ensure users get the latest version.
 const updateSW = registerSW({
+  immediate: true,
   onNeedRefresh() {
     console.log("New update available for PWA. Reloading...");
     updateSW(true).then(() => {
