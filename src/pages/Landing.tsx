@@ -263,13 +263,15 @@ export default function Landing() {
   const isLikelyLoggedIn = hasAuthSession || !!user;
   if (isLikelyLoggedIn && (loading || (user && !userData))) {
     return (
-      <div className="min-h-screen bg-white flex justify-center items-center" id="div-loading-screen">
-        <TransparentLogo
-          src={logoUrl}
-          alt="Logo"
-          className="w-[240px] md:w-[320px] animate-pulse object-contain"
-          id="img-loading-logo"
-        />
+      <div className="min-h-screen bg-white flex flex-col justify-center items-center" id="div-loading-screen">
+        <div className="h-[140px] md:h-[180px] overflow-hidden flex items-center justify-center">
+          <TransparentLogo
+            src={logoUrl}
+            alt="Logo"
+            className="h-[250px] md:h-[320px] -my-[55px] md:-my-[70px] animate-pulse object-contain"
+            id="img-loading-logo"
+          />
+        </div>
       </div>
     );
   }
@@ -533,11 +535,13 @@ export default function Landing() {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-6">
         {/* Top Navigation */}
         <nav className="flex justify-between items-center mb-8 lg:mb-16">
-          <TransparentLogo
-            src={logoUrl}
-            alt="বিদ্যায়ন"
-            className="h-[110px] sm:h-[140px] md:h-[170px] lg:h-[200px] w-auto object-contain"
-          />
+          <div className="h-[75px] sm:h-[95px] md:h-[115px] lg:h-[135px] overflow-hidden flex items-center">
+            <TransparentLogo
+              src={logoUrl}
+              alt="বিদ্যায়ন"
+              className="h-[130px] sm:h-[165px] md:h-[200px] lg:h-[235px] -my-7 sm:-my-9.5 md:-my-11.5 lg:-my-13.5 w-auto object-contain"
+            />
+          </div>
         </nav>
 
         {/* Hero Section */}
@@ -620,11 +624,13 @@ export default function Landing() {
 
                 {/* Mockup Header */}
                 <div className="px-6 pt-12 pb-4 flex justify-between items-center bg-white shadow-sm border-b border-[#F1F5F9] relative z-40">
-                  <TransparentLogo
-                    src={logoUrl}
-                    alt="Logo"
-                    className="h-[28px] object-contain"
-                  />
+                  <div className="h-[30px] overflow-hidden flex items-center">
+                    <TransparentLogo
+                      src={logoUrl}
+                      alt="Logo"
+                      className="h-[52px] -my-3 object-contain"
+                    />
+                  </div>
                   <div className="flex gap-2 text-[#64748B]">
                     <div className="w-[28px] h-[28px] rounded-full border border-[#E2E8F0] flex items-center justify-center">
                       <Bell className="w-[14px] h-[14px]" />

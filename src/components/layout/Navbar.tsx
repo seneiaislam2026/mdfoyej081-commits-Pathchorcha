@@ -295,11 +295,11 @@ export default function Navbar() {
       <header className="sticky top-0 z-50 w-full bg-card border-b border-slate-100 dark:border-border">
         <div className="w-full max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-10 flex min-h-[68px] sm:min-h-[80px] py-0.5 flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link to="/dashboard" className="flex items-center group py-0">
+            <Link to="/dashboard" className="flex items-center group py-0 overflow-hidden h-[58px] sm:h-[70px]">
               <TransparentLogo
                 src={settings?.pwaIconUrl || "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"}
                 alt="বিদ্যায়ন"
-                className="h-[68px] sm:h-[80px] w-auto object-contain group-hover:scale-105 transition-all duration-300 mr-4 sm:mr-8 block relative z-10"
+                className="h-[108px] sm:h-[130px] -my-6 sm:-my-7.5 w-auto object-contain group-hover:scale-105 transition-all duration-300 mr-4 sm:mr-8 block relative z-[1]"
               />
             </Link>
           </div>

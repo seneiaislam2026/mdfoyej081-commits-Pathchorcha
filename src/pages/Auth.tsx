@@ -85,11 +85,11 @@ export default function Auth() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center justify-center">
+        <div className="animate-pulse flex flex-col items-center justify-center h-[140px] sm:h-[180px] overflow-hidden">
           <TransparentLogo
             src={logoUrl}
             alt="বিদ্যায়ন"
-            className="w-[240px] sm:w-[320px] object-contain mb-4"
+            className="h-[250px] sm:h-[320px] -my-13.5 sm:-my-17.5 object-contain"
           />
         </div>
       </div>
@@ -315,18 +315,18 @@ export default function Auth() {
               </p>
             </div>
           )}
-          <div className="text-center">
-            <div className="flex flex-col items-center justify-center -mb-5 sm:-mb-7">
-              <Link to="/" className="inline-flex flex-col items-center group">
+          <div className="text-center flex flex-col items-center justify-center pb-1">
+            <div className="h-[100px] sm:h-[120px] overflow-hidden flex items-center justify-center mb-1">
+              <Link to="/" className="inline-flex flex-col items-center justify-center group h-full">
                 <TransparentLogo
                   src={logoUrl}
                   alt="বিদ্যায়ন"
-                  className="w-[200px] sm:w-[260px] object-contain group-hover:scale-105 transition-transform duration-300"
+                  className="h-[180px] sm:h-[220px] -my-10 sm:-my-12.5 w-auto object-contain group-hover:scale-105 transition-all duration-300"
                 />
               </Link>
             </div>
 
-            <h2 className="text-lg sm:text-xl font-bengali font-bold text-[#1e293b] tracking-tight -mt-1 sm:-mt-2">
+            <h2 className="text-lg sm:text-xl font-bengali font-bold text-[#1e293b] tracking-tight mt-0.5">
               লগইন / রেজিস্টার
             </h2>
           </div>
