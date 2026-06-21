@@ -11,7 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'script',
-      includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png'],
+      manifestFilename: 'manifest.json',
+      includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png', 'screenshot-wide.png', 'screenshot-mobile.png'],
       manifest: {
         id: '/',
         name: 'বিদ্যায়ন',
@@ -52,15 +53,15 @@ export default defineConfig({
         ],
         screenshots: [
           {
-            src: '/screenshot-wide.svg',
+            src: '/screenshot-wide.png',
             sizes: '1280x720',
-            type: 'image/svg+xml',
+            type: 'image/png',
             form_factor: 'wide'
           },
           {
-            src: '/screenshot-mobile.svg',
+            src: '/screenshot-mobile.png',
             sizes: '720x1280',
-            type: 'image/svg+xml',
+            type: 'image/png',
             form_factor: 'narrow'
           }
         ]
