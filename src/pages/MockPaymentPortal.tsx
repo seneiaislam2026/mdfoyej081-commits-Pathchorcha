@@ -503,7 +503,7 @@ export default function MockPaymentPortal() {
                   ⚡️ আগামী <strong className="text-emerald-600 font-extrabold text-sm">২০ মিনিটের মধ্যে</strong> আপনার পেমেন্টটি যাচাই সম্পন্ন করে আপনাকে নিশ্চিতকরণ মেসেজের (SMS) মাধ্যমে জানিয়ে দেওয়া হবে।
                 </p>
                 <p className="text-[11px] text-slate-500 italic">
-                  বিদ্যায়ন (Biddayon) পরিবারের সাথে থাকার জন্য আপনাকে এবং আপনার শুভকামনাকে আন্তরিক ধন্যবাদ!
+                  বিদ্যায়ন (Biddayan)-এর সাথে থাকার জন্য আপনাকে এবং আপনার শুভকামনাকে আন্তরিক ধন্যবাদ!
                 </p>
               </div>
             </div>

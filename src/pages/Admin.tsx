@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { LayoutDashboard, Users, FileQuestion, BookOpen, Layers, Target, BarChart, Settings, Plus, Upload, MoreVertical, LogOut, Check, Gift, Crown, Trophy, Link as LinkIcon, Copy, MessageCircleQuestion, AlertCircle, User, Trash2, Send, TrendingUp, Calendar, Clock, Bell, LineChart, Edit, RotateCcw, X, Search, Moon, Menu, Printer, DollarSign } from "lucide-react";
@@ -60,7 +60,7 @@ const menuItems = [
 
 export const formatEmail = (email: string) => {
   if (!email) return "";
-  if (email.includes("@pathchola.com") || email.includes("@biddayon.com") || email.includes("@pathchorcha")) {
+  if (email.includes("@pathchola.com") || email.includes("@biddayan.com") || email.includes("@pathchorcha")) {
      return email.split("@")[0];
   }
   return email;
@@ -358,6 +358,8 @@ export default function Admin() {
   useEffect(() => {
     if (activeTab === "students" || activeTab === "dashboard") {
       fetchUsers();
+      fetchAnalytics();
+      fetchPaymentRequests();
     }
     if (activeTab === "settings") {
       fetchSettings();
@@ -1516,6 +1518,73 @@ export default function Admin() {
 
   const topTutors = [...users].filter(u => u.isTutor).sort((a, b) => (b.points || 0) - (a.points || 0));
 
+  const toBengaliNumber = (num: number) => {
+    const bnNo = ["০", "১", "২", "৩", "৪", "৫", "৬", "৭", "৮", "৯"];
+    return num.toString().replace(/\d/g, (d) => bnNo[parseInt(d)]);
+  };
+
+  const dynamicTrends = useMemo(() => {
+    const monthsName = ["জানু", "ফের", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"];
+    const now = new Date();
+    const list: any[] = [];
+    
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const mIdx = d.getMonth();
+      const yr = d.getFullYear();
+      
+      const studentsCumulative = users.filter(usr => {
+        if (!usr.createdAt) return true;
+        const usrDate = usr.createdAt.seconds ? new Date(usr.createdAt.seconds * 1000) : new Date(usr.createdAt);
+        return usrDate <= new Date(yr, mIdx + 1, 0);
+      }).length;
+
+      const monthEarnings = paymentRequests.filter(req => {
+        if (req.status !== "approved" && req.status !== "success") return false;
+        if (!req.createdAt) return false;
+        const reqDate = req.createdAt.seconds ? new Date(req.createdAt.seconds * 1000) : new Date(req.createdAt);
+        return reqDate.getMonth() === mIdx && reqDate.getFullYear() === yr;
+      }).reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+
+      const examsCount = Number(analyticsData?.examsCount || 0);
+
+      list.push({
+        name: monthsName[mIdx],
+        student: studentsCumulative || 5,
+        testCount: Math.ceil((examsCount || 10) * (6 - i) / 12) || i + 1,
+        income: monthEarnings || 0
+      });
+    }
+    return list;
+  }, [users, paymentRequests, analyticsData]);
+
+  const dynamicEnrollmentData = useMemo(() => {
+    const proCount = users.filter(u => u.isPro).length;
+    const generalCount = users.filter(u => !u.isPro).length;
+    const pendingCount = users.filter(u => !u.class && !u.group).length;
+
+    const totalCalculated = Math.max(users.length, 1);
+    const activePct = Math.round((proCount / totalCalculated) * 100);
+    const inactivePct = Math.round(((generalCount - pendingCount) / totalCalculated) * 100);
+    const pendingPct = Math.max(100 - activePct - inactivePct, 0);
+
+    return {
+      pieData: [
+        { name: "একটিভ প্রিমিয়াম", value: Math.max(proCount, proCount > 0 ? proCount : 1) },
+        { name: "সাধারণ শিক্ষার্থী", value: Math.max(generalCount - pendingCount, generalCount - pendingCount > 0 ? generalCount - pendingCount : 1) },
+        { name: "অনবোর্ডিং পেন্ডিং", value: Math.max(pendingCount, pendingCount > 0 ? pendingCount : 1) }
+      ],
+      counts: {
+        proCount,
+        generalCount: Math.max(generalCount - pendingCount, 0),
+        pendingCount,
+        activePct,
+        inactivePct,
+        pendingPct
+      }
+    };
+  }, [users]);
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-background gap-6 -mt-2 -mx-4 px-4 py-4 md:-mx-8 md:px-8">
       {/* Premium Admin Sidebar */}
@@ -1527,7 +1596,7 @@ export default function Admin() {
           </div>
           <div>
             <h2 className="text-xl font-bold tracking-tight text-foreground font-bengali flex items-center gap-1 leading-none">
-              শিক্ষা<span className="text-amber-500">অঙ্গন</span>
+              বিদ্যা<span className="text-amber-500">য়ন</span>
             </h2>
             <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider mt-1.5 font-mono">Admin Portal</p>
           </div>
@@ -1567,7 +1636,7 @@ export default function Admin() {
 
                 {/* Optional "New" Badge */}
                 {item.isNew && (
-                  <span className="ml-auto px-2 py-0.5 text-[9px] font-bold tracking-tight bg-blue-50 text-blue-600 font-mono rounded-md uppercase border border-blue-100 animate-pulse">
+                  <span className="ml-auto px-2 py-0.5 text-[9px] font-bold tracking-tight bg-blue-550 text-white font-mono rounded-md uppercase animate-pulse">
                     New
                   </span>
                 )}
@@ -1600,7 +1669,7 @@ export default function Admin() {
         {/* Quick Logout Button */}
         <div className="pt-4 mt-4 border-t border-slate-50">
           <Button 
-onClick={async () => { const { auth } = await import('../lib/firebase'); await auth.signOut(); navigate('/'); }}
+            onClick={async () => { const { auth } = await import('../lib/firebase'); await auth.signOut(); navigate('/'); }}
             variant="ghost" 
             className="w-full text-red-650 hover:text-red-700 hover:bg-red-50/50 rounded-2xl flex justify-start pl-4 cursor-pointer font-bold"
           >
@@ -1646,7 +1715,7 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
 
             {/* Profile info */}
             <div className="flex items-center gap-3 pl-3 border-l border-slate-100">
-              <div className="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100 overflow-hidden flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-indigo-550 border border-indigo-100 overflow-hidden flex items-center justify-center">
                 {userData?.photoURL ? (
                   <img src={userData.photoURL} alt="Admin" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                 ) : (
@@ -1687,11 +1756,11 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট শিক্ষার্থী</div>
                   <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight">
-                    {users.length && users.length > 0 ? users.length.toLocaleString('en-US') : "12,845"}
+                    {toBengaliNumber(users.length)} জন
                   </div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
-                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ১২.৫%</span>
-                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">সরাসরি</span>
+                    <span className="text-slate-400 font-bengali">ডাটাবেজ থেকে</span>
                   </div>
                 </div>
                 <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500 shrink-0">
@@ -1703,10 +1772,12 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট কোর্স</div>
-                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight">256</div>
+                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight">
+                    {toBengaliNumber(analyticsData?.subjectsCount || subjects.length || 0)} টি
+                  </div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
-                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ৮.৩%</span>
-                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">সক্রিয়</span>
+                    <span className="text-slate-400 font-bengali">বিষয় ও নোটস</span>
                   </div>
                 </div>
                 <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 shrink-0">
@@ -1719,11 +1790,11 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট পরীক্ষা</div>
                   <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight">
-                    1,128
+                    {toBengaliNumber(analyticsData?.examsCount || publicExams.length || 0)} টি
                   </div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
-                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ১৫.৭%</span>
-                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">অংশগ্রহণযোগ্য</span>
+                    <span className="text-slate-400 font-bengali">মডেল টেস্ট</span>
                   </div>
                 </div>
                 <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
@@ -1735,14 +1806,16 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
               <div className="bg-card border border-slate-100/60 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-between">
                 <div>
                   <div className="text-[13px] font-semibold text-slate-400 font-bengali">মোট আয়</div>
-                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight flex items-baseline">৳ ২৪,৮৫,৩২০</div>
+                  <div className="text-2xl md:text-3xl font-black text-foreground mt-2 tracking-tight flex items-baseline">
+                    ৳ {toBengaliNumber(paymentRequests.filter(r => r.status === 'approved' || r.status === 'success').reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0))}
+                  </div>
                   <div className="flex items-center gap-1.5 mt-2.5 text-[11px] text-[#10B981] font-semibold">
-                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">↑ ১৮.৬%</span>
-                    <span className="text-slate-400 font-bengali">গত ৩০ দিনে</span>
+                    <span className="bg-[#10B981]/15 px-2 py-0.5 rounded-full text-[10px]">অনুমোদিত</span>
+                    <span className="text-slate-400 font-bengali">পেমেন্ট রিসিভ</span>
                   </div>
                 </div>
-                <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-500 shrink-0">
-                  <Crown className="w-7 h-7 text-purple-550" />
+                <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-550 shrink-0">
+                  <Crown className="w-7 h-7" />
                 </div>
               </div>
             </div>
@@ -2845,6 +2918,99 @@ onClick={async () => { const { auth } = await import('../lib/firebase'); await a
                           <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-card after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                      </div>
+                      {/* Temporary Free Access Option */}
+                      <div className="border-t pt-6">
+                        <div className="flex items-center justify-between gap-4 mb-4">
+                          <div className="flex-1">
+                            <p className="font-bold font-bengali">সব সুবিধা সাময়িকভাবে ফ্রি করুন (Temporary Free Access)</p>
+                            <p className="text-sm text-muted-foreground font-bengali">নির্দিষ্ট সময়ের জন্য সব প্রো ফিচার ও সুবিধা সকল শিক্ষার্থীর জন্য সম্পূর্ণ ফ্রি করুন।</p>
+                          </div>
+                          <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                            <input 
+                              type="checkbox" 
+                              className="sr-only peer"
+                              checked={settingsData.freeForAllActive || false}
+                              onChange={(e) => {
+                                const active = e.target.checked;
+                                let until = 0;
+                                if (active) {
+                                  const currentUntil = settingsData.freeForAllUntil ? Number(settingsData.freeForAllUntil) : 0;
+                                  if (currentUntil < Date.now()) {
+                                    until = Date.now() + 3 * 24 * 60 * 60 * 1000; // default 3 days
+                                  } else {
+                                    until = currentUntil;
+                                  }
+                                }
+                                setSettingsData({ ...settingsData, freeForAllActive: active, freeForAllUntil: until });
+                              }}
+                            />
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary/20 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-card after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                          </label>
+                        </div>
+
+                        {settingsData.freeForAllActive && (
+                          <div className="space-y-4 bg-amber-50/50 border border-amber-100 p-4 rounded-2xl">
+                            <p className="text-sm font-semibold text-amber-800 font-bengali leading-snug">
+                              🎁 বর্তমানে শিক্ষার্থীর জন্য ফ্রি সুবিধা সক্রিয় আছে। কত দিন ফ্রি সুবিধা দিতে চান তা সিলেক্ট করুন:
+                            </p>
+                            
+                            <div className="flex flex-wrap items-center gap-2">
+                              {[1, 3, 5, 7, 15, 30].map((days) => {
+                                const currentDur = settingsData.freeForAllUntil ? (Number(settingsData.freeForAllUntil) - Date.now()) / (24 * 60 * 60 * 1000) : 0;
+                                const isCurrent = Math.round(currentDur) === days;
+
+                                return (
+                                  <button
+                                    key={days}
+                                    type="button"
+                                    onClick={() => {
+                                      const expiry = Date.now() + days * 24 * 60 * 60 * 1000;
+                                      setSettingsData({ ...settingsData, freeForAllActive: true, freeForAllUntil: expiry });
+                                    }}
+                                    className={`px-3 py-1.5 rounded-xl border text-xs font-semibold font-bengali transition-all ${
+                                      isCurrent
+                                        ? "bg-amber-600 text-white border-amber-600 shadow-sm"
+                                        : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                                    }`}
+                                  >
+                                    {days} দিন
+                                  </button>
+                                );
+                              })}
+                              
+                              <div className="flex items-center gap-2 ml-1">
+                                <span className="text-xs text-slate-500 font-bengali font-bold">কাস্টম দিন:</span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  placeholder="যেমন: ১০"
+                                  className="w-20 h-8 text-xs font-bold text-center border rounded-xl bg-white"
+                                  onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    if (val > 0) {
+                                      const expiry = Date.now() + val * 24 * 60 * 60 * 1000;
+                                      setSettingsData({ ...settingsData, freeForAllActive: true, freeForAllUntil: expiry });
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            {settingsData.freeForAllUntil > 0 && (
+                              <div className="text-xs font-bold font-bengali bg-white border border-rose-100 p-3 rounded-xl text-rose-700 space-y-1">
+                                <p className="flex items-center gap-1">
+                                  <span>⏳ ফ্রি সুবিধা শেষ হওয়ার ডেডলাইন:</span>
+                                  <span className="underline">{new Date(Number(settingsData.freeForAllUntil)).toLocaleString("bn-BD")}</span>
+                                </p>
+                                <p className="text-[10px] font-normal text-slate-500 leading-normal">
+                                  (এই সময়ের মধ্যে সব সাধারণ শিক্ষার্থীরা আনলিমিটেড মক টেস্ট, AI ডাউট সলভ এবং অন্যান্য প্রো সুবিধার পূর্ণ অ্যাক্সেস পাবেন)
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
                      <div className="border-t pt-6 flex items-center justify-between gap-4">
                         <div className="flex-1">
                           <p className="font-bold">Alert Banner</p>

@@ -13,7 +13,8 @@ const defaultPlans = [
   {
     id: "1-month",
     name: "১ মাস",
-    price: 80,
+    originalPrice: 149,
+    price: 110,
     duration: "মাসিক",
     popular: false,
     color: "from-blue-200 to-blue-300"
@@ -21,7 +22,8 @@ const defaultPlans = [
   {
     id: "3-months",
     name: "৩ মাস",
-    price: 220,
+    originalPrice: 399,
+    price: 290,
     duration: "ত্রৈমাসিক",
     popular: true,
     color: "from-[#ffa726] to-[#ffb74d]"
@@ -29,10 +31,20 @@ const defaultPlans = [
   {
     id: "6-months",
     name: "৬ মাস",
-    price: 430,
+    originalPrice: 699,
+    price: 495,
     duration: "ষাণ্মাসিক",
     popular: false,
     color: "from-emerald-200 to-emerald-300"
+  },
+  {
+    id: "1-year",
+    name: "১ বছর",
+    originalPrice: 1299,
+    price: 890,
+    duration: "বার্ষিক",
+    popular: false,
+    color: "from-purple-200 to-[#e879f9]"
   },
   {
     id: "custom",
@@ -40,7 +52,7 @@ const defaultPlans = [
     price: 0,
     duration: "দিন হিসেবে",
     popular: false,
-    color: "from-purple-200 to-purple-300"
+    color: "from-pink-200 to-pink-300"
   }
 ];
 
@@ -150,6 +162,7 @@ export default function Subscription() {
       let durationDays = 30;
       if (selectedPlan === "3-months") durationDays = 90;
       else if (selectedPlan === "6-months") durationDays = 180;
+      else if (selectedPlan === "1-year") durationDays = 365;
       else if (selectedPlan === "custom") durationDays = customDays;
       
       const proUntilMillis = Date.now() + durationDays * 24 * 60 * 60 * 1000;
@@ -299,9 +312,9 @@ export default function Subscription() {
 
           <div className="flex flex-col gap-3">
             {plans.map((plan) => {
-              const hasDiscount = discountPercentage > 0 && plan.id !== 'custom';
-              const originalPrice = plan.price;
-              const discountedPrice = hasDiscount ? Math.round(originalPrice * (1 - discountPercentage / 100)) : originalPrice;
+              const hasDiscount = plan.originalPrice !== undefined || (discountPercentage > 0 && plan.id !== 'custom');
+              const originalPrice = plan.originalPrice ?? plan.price;
+              const discountedPrice = plan.originalPrice !== undefined ? plan.price : (hasDiscount ? Math.round(originalPrice * (1 - discountPercentage / 100)) : originalPrice);
 
               return (
                 <motion.div
@@ -352,7 +365,7 @@ export default function Subscription() {
                         </div>
                         <div className={`flex items-start tracking-tight ${selectedPlan === plan.id ? 'text-orange-600' : 'text-foreground'}`}>
                            <span className={`text-base font-medium mt-1 mr-0.5 ${selectedPlan === plan.id ? 'text-orange-400' : 'text-slate-400'}`}>৳</span>
-                           <span className="text-3xl sm:text-4xl font-black">{Math.ceil((80/30) * customDays)}</span>
+                           <span className="text-3xl sm:text-4xl font-black">{Math.ceil((110/30) * customDays)}</span>
                         </div>
                       </div>
                     ) : (
@@ -378,7 +391,7 @@ export default function Subscription() {
              <div className="flex items-center gap-2 text-slate-700">
                <Tag className="w-5 h-5 text-slate-400" />
                <span className="font-bengali font-bold text-sm sm:text-base">কুপন কোড (যদি থাকে)</span>
-             </div>
+              </div>
              <div className="flex flex-col sm:flex-row gap-3">
                <Input 
                  placeholder="কুপন কোড লিখুন" 
@@ -404,10 +417,11 @@ export default function Subscription() {
                  plan={selectedPlan} 
                  amount={
                    selectedPlan === 'custom' 
-                     ? Math.ceil((80/30) * customDays) 
+                     ? Math.ceil((110/30) * customDays) 
                      : (() => {
                          const plan = plans.find(p => p.id === selectedPlan);
                          if (!plan) return 0;
+                         if (plan.originalPrice !== undefined) return plan.price;
                          const hasDiscount = discountPercentage > 0 && plan.id !== 'custom';
                          return hasDiscount ? Math.round(plan.price * (1 - discountPercentage / 100)) : plan.price;
                        })()

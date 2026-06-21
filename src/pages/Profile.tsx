@@ -484,7 +484,7 @@ export default function Profile() {
                 {userData?.email
                   ? userData.email.includes("@pathchorcha") ||
                     userData.email.includes("@pathchola.com") ||
-                    userData.email.includes("@biddayon.com")
+                    userData.email.includes("@biddayan.com")
                     ? userData.email.split("@")[0]
                     : userData.email
                   : "mdfoyej081@gmail.com"}

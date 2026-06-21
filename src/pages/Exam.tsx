@@ -1734,7 +1734,7 @@ export default function Exam() {
                            </div>
                            
                            {/* Target icon overlapping */}
-                           <div className="absolute -bottom-8 -right-12 sm:-right-16 w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full shadow-[0_15px_35px_rgba(240,75,95,0.15)] border-[6px] border-white flex items-center justify-center z-20">
+                           <div className="absolute top-[48%] -right-10 sm:-right-14 -translate-y-1/2 w-24 h-24 sm:w-32 sm:h-32 bg-white rounded-full shadow-[0_15px_35px_rgba(240,75,95,0.15)] border-[6px] border-white flex items-center justify-center z-20">
                               <div className="w-full h-full rounded-full border-[10px] sm:border-[12px] border-[#f04b5f] flex items-center justify-center bg-transparent">
                                   <div className="w-[65%] h-[65%] rounded-full border-[8px] sm:border-[10px] border-white flex items-center justify-center bg-[#f04b5f] relative">
                                       {/* Arrow stick */}

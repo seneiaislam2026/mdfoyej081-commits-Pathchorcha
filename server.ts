@@ -40,7 +40,7 @@ async function startServer() {
       
       otpStore.set(phone, { otp, expires: expirationTime });
       
-      const message = `শিক্ষাঙ্গন (Shikshangon) অ্যাপে আপনার পাসওয়ার্ড রিসেট ওটিপি: ${otp}`;
+      const message = `বিদ্যায়ন (Biddayan) অ্যাপে আপনার পাসওয়ার্ড রিসেট ওটিপি: ${otp}`;
       const formattedPhone = formatPhoneForGreenweb(phone);
       
       const token = process.env.GREENWEB_SMS_TOKEN || "T445ZnbHEELavHNv3Tdw";
@@ -284,8 +284,8 @@ async function startServer() {
   // Vite middleware for development
   const isDev = process.env.NODE_ENV !== "production" && process.env.VITE_DEV !== "false";
 
-  console.log(`[Shikkhangon Server] NODE_ENV: ${process.env.NODE_ENV}, Port: ${PORT}, isDev: ${isDev}`);
-  console.log(`[Shikkhangon Server] Entrypoint script: ${process.argv[1]}`);
+  console.log(`[Biddayan Server] NODE_ENV: ${process.env.NODE_ENV}, Port: ${PORT}, isDev: ${isDev}`);
+  console.log(`[Biddayan Server] Entrypoint script: ${process.argv[1]}`);
 
   if (isDev) {
     console.log("Starting server in development mode with Vite live compiler...");

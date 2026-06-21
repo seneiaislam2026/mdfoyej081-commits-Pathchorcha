@@ -66,6 +66,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [previewClass, setPreviewClass] = useState<string | null>(null);
+  const [globalSettings, setGlobalSettings] = useState<any>(null);
+
+  useEffect(() => {
+    const settingsRef = doc(db, "settings", "general");
+    const unsubSettings = onSnapshot(settingsRef, (snap) => {
+      if (snap.exists()) {
+        setGlobalSettings(snap.data());
+      }
+    });
+    return () => unsubSettings();
+  }, []);
+
+  const isFreeAccessActive = globalSettings?.freeForAllActive && 
+    globalSettings?.freeForAllUntil && 
+    (typeof globalSettings.freeForAllUntil === "number" 
+      ? globalSettings.freeForAllUntil 
+      : (globalSettings.freeForAllUntil.toMillis ? globalSettings.freeForAllUntil.toMillis() : new Date(globalSettings.freeForAllUntil).getTime())) > Date.now();
+
+  const effectiveUserData = userData ? {
+    ...userData,
+    isPro: isFreeAccessActive ? true : userData.isPro
+  } : null;
 
   useEffect(() => {
     let unsubscribeUserDoc: (() => void) | null = null;
@@ -96,10 +118,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Track Device Information
         try {
-          let deviceId = localStorage.getItem("shikkha_device_id");
+          let deviceId = localStorage.getItem("biddayan_device_id");
           if (!deviceId) {
             deviceId = crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2);
-            localStorage.setItem("shikkha_device_id", deviceId);
+            localStorage.setItem("biddayan_device_id", deviceId);
           }
           
           const ua = navigator.userAgent;
@@ -363,7 +385,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, previewClass, setPreviewClass, signInWithGoogle, signInWithFacebook, signInOrSignUpWithEmail, setupRecaptcha, signInWithPhone, verifyPhoneCode, signOut }}>
+    <AuthContext.Provider value={{ user, userData: effectiveUserData, loading, previewClass, setPreviewClass, signInWithGoogle, signInWithFacebook, signInOrSignUpWithEmail, setupRecaptcha, signInWithPhone, verifyPhoneCode, signOut }}>
       {children}
     </AuthContext.Provider>
   );

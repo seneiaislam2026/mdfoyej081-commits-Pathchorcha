@@ -1,5 +1,5 @@
 {
-  "name": "শিক্ষাঙ্গন",
+  "name": "বিদ্যায়ন",
   "description": "Bengali Educational Exam Preparation Platform",
   "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

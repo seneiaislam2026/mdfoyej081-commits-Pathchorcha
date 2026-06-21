@@ -354,12 +354,12 @@ export default function Onboarding() {
                 className="w-24 h-24 mx-auto bg-gradient-to-br from-primary to-blue-800 rounded-3xl flex items-center justify-center p-0.5 shadow-lg shadow-primary/20 mb-8 transform -rotate-12 hover:rotate-0 transition-transform"
               >
                 <div className="w-full h-full border-2 border-white/30 rounded-[22px] flex items-center justify-center bg-transparent relative overflow-hidden">
-                   <span className="font-bengali font-bold text-4xl text-white tracking-tight">শি<span className="text-secondary">ক্ষা</span></span>
+                   <span className="font-bengali font-bold text-3xl text-white tracking-tight">বিদ্যা<span className="text-secondary">য়ন</span></span>
                 </div>
               </motion.div>
 
               <h2 className="text-3xl md:text-4xl font-bengali font-bold text-slate-900 mb-4 tracking-tight">
-                স্বাগতম <span className="text-primary">Biddayon</span> পরিবারে
+                স্বাগতম আমাদের <span className="text-primary">বিদ্যায়ন</span> পরিবারে
               </h2>
               
               <div className="inline-flex gap-2 mb-8 bg-muted px-6 py-3 rounded-full border border-slate-100 shadow-sm font-bengali">

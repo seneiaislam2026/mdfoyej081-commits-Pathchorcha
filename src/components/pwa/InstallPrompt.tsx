@@ -13,6 +13,12 @@ export const InstallPrompt = () => {
   const [installGuide, setInstallGuide] = useState<"ios" | "android" | "iframe" | null>(null);
 
   useEffect(() => {
+    // If inside an iframe (like AI Studio preview), do not show the custom prompt
+    if (window.self !== window.top) {
+      setShowPrompt(false);
+      return;
+    }
+
     // Listen for the custom event dispatched from index.html
     const handlePwaPrompt = (e: any) => {
       e.preventDefault();

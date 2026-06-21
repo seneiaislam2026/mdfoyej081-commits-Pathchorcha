@@ -75,6 +75,7 @@ export default function PaymentSuccess() {
       let durationDays = 30;
       if (plan === "3-months") durationDays = 90;
       else if (plan === "6-months") durationDays = 180;
+      else if (plan === "1-year" || plan === "12-months") durationDays = 365;
       else if (plan === "custom" && customDays) durationDays = customDays;
       
       const proUntilMillis = Date.now() + durationDays * 24 * 60 * 60 * 1000;
