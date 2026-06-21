@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { Trophy, Gift, Search, RefreshCw, UserCheck, X } from 'lucide-react';
+import { Trophy, Gift, Search, RefreshCw, UserCheck, X, Download } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import confetti from 'canvas-confetti';
@@ -122,6 +122,31 @@ export function EventExamTab() {
     frame();
   };
 
+  const handleDownload = () => {
+    if (participants.length === 0) return;
+    
+    // Add UTF-8 BOM so Excel opens Bengali perfectly
+    const BOM = "\uFEFF";
+    let csvContent = BOM + "Rank (অবস্থান),Student Name (শিক্ষার্থীর নাম),Exam Title (পরীক্ষার নাম),Score (প্রাপ্ত নম্বর),Total Questions (মোট প্রশ্ন),Percentage (শতকরা হার %)\n";
+    
+    participants.forEach((p, index) => {
+      const percentage = p.total > 0 ? Math.round((p.score / p.total) * 100) : 0;
+      const sanitizedName = `"${(p.studentName || '').replace(/"/g, '""')}"`;
+      const sanitizedTitle = `"${(p.examTitle || '').replace(/"/g, '""')}"`;
+      csvContent += `${index + 1},${sanitizedName},${sanitizedTitle},${p.score},${p.total},${percentage}%\n`;
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `event_exam_leaderboard_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredParticipants = participants.filter(p => 
     p.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     p.examTitle.toLowerCase().includes(searchTerm.toLowerCase())
@@ -139,6 +164,15 @@ export function EventExamTab() {
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button onClick={fetchParticipants} variant="outline" size="sm">
             <RefreshCw className="w-4 h-4 mr-2" /> রিফ্রেশ
+          </Button>
+          <Button 
+            onClick={handleDownload} 
+            disabled={participants.length === 0}
+            variant="outline" 
+            size="sm"
+            className="border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 font-bengali"
+          >
+            <Download className="w-4 h-4 mr-2" /> ডাউনলোড (মার্ক সহ)
           </Button>
           <Button 
             onClick={spinForWinner} 

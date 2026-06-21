@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/AuthContext";
 import { motion } from "framer-motion";
+import { db } from "../lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { TransparentLogo } from "../components/ui/TransparentLogo";
 import {
   Download,
   UserPlus,
@@ -146,9 +149,30 @@ export default function Landing() {
   const { user, userData, loading } = useAuth();
   const navigate = useNavigate();
   const [logoUrl, setLogoUrl] = useState(
-    "https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png",
+    "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg",
   );
   const [showAutoInstall, setShowAutoInstall] = useState(false);
+  const [hasAuthSession] = useState<boolean>(() => {
+    try {
+      const keys = Object.keys(localStorage);
+      return keys.some(key => key.startsWith("firebase:authUser"));
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    getDoc(doc(db, "settings", "general")).then((snap) => {
+      if (snap.exists() && snap.data()?.pwaIconUrl) {
+        const url = snap.data().pwaIconUrl.trim();
+        if (url !== "") {
+          setLogoUrl(url);
+        }
+      }
+    }).catch(err => {
+      console.warn("Failed to load settings in Landing page:", err);
+    });
+  }, []);
 
   // ONLY auto-redirect if they are logged in
   useEffect(() => {
@@ -167,12 +191,15 @@ export default function Landing() {
   const [installGuide, setInstallGuide] = useState<"ios" | "android" | "iframe" | null>(null);
 
   useEffect(() => {
+    let t: any;
     // Check if prompt is already available (stored globally before mount)
     if ((window as any).deferredPrompt) {
       setIsInstallable(true);
       const dismissed = sessionStorage.getItem("pwaPromptDismissed");
       if (!dismissed && !localStorage.getItem("appInstalled")) {
-        setShowAutoInstall(true);
+        t = setTimeout(() => {
+          setShowAutoInstall(true);
+        }, 3000);
       }
     }
 
@@ -180,7 +207,9 @@ export default function Landing() {
       setIsInstallable(true);
       const dismissed = sessionStorage.getItem("pwaPromptDismissed");
       if (!dismissed && !localStorage.getItem("appInstalled")) {
-        setShowAutoInstall(true);
+        t = setTimeout(() => {
+          setShowAutoInstall(true);
+        }, 3000);
       }
     };
     
@@ -196,6 +225,7 @@ export default function Landing() {
     return () => {
       window.removeEventListener("pwa-prompt-available", handlePrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
+      if (t) clearTimeout(t);
     };
   }, []);
 
@@ -229,13 +259,15 @@ export default function Landing() {
   };
 
   // Optimize: prevent blocking loading screen when auth completes but Firestore snapshot is slow/denied
-  if (loading || (user && !userData)) {
+  // If there's no stored session, render immediately for 100% stable, lightning fast loads
+  const isLikelyLoggedIn = hasAuthSession || !!user;
+  if (isLikelyLoggedIn && (loading || (user && !userData))) {
     return (
       <div className="min-h-screen bg-white flex justify-center items-center" id="div-loading-screen">
-        <img
+        <TransparentLogo
           src={logoUrl}
           alt="Logo"
-          className="w-[200px] md:w-[240px] animate-pulse mix-blend-multiply object-contain"
+          className="w-[240px] md:w-[320px] animate-pulse object-contain"
           id="img-loading-logo"
         />
       </div>
@@ -414,9 +446,9 @@ export default function Landing() {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-md p-1.5">
                   <img
-                    src="https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"
+                    src="https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"
                     alt="বিদ্যায়ন"
-                    className="w-full h-full object-contain rounded-xl"
+                    className="w-full h-full object-contain rounded-xl mix-blend-multiply"
                   />
                 </div>
                 <div>
@@ -501,10 +533,10 @@ export default function Landing() {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-6">
         {/* Top Navigation */}
         <nav className="flex justify-between items-center mb-8 lg:mb-16">
-          <img
+          <TransparentLogo
             src={logoUrl}
             alt="বিদ্যায়ন"
-            className="h-[55px] md:h-[70px] mix-blend-multiply object-contain"
+            className="h-[110px] sm:h-[140px] md:h-[170px] lg:h-[200px] w-auto object-contain"
           />
         </nav>
 
@@ -561,14 +593,14 @@ export default function Landing() {
               <img
                 src="https://cdn3d.iconscout.com/3d/premium/thumb/books-4690332-3899557.png"
                 alt="books"
-                className="w-[180px] drop-shadow-2xl opacity-90"
+                className="w-[180px] h-[180px] object-contain drop-shadow-2xl opacity-90"
               />
             </div>
             <div className="absolute right-[40px] bottom-[120px] z-20 hidden lg:block">
               <img
                 src="https://cdn3d.iconscout.com/3d/premium/thumb/trophy-4688921-3899596.png"
                 alt="trophy"
-                className="w-[140px] drop-shadow-2xl opacity-90"
+                className="w-[140px] h-[140px] object-contain drop-shadow-2xl opacity-90"
               />
             </div>
             <div className="absolute right-[10px] bottom-[10px] z-10 w-[120px] hidden lg:block">
@@ -588,10 +620,10 @@ export default function Landing() {
 
                 {/* Mockup Header */}
                 <div className="px-6 pt-12 pb-4 flex justify-between items-center bg-white shadow-sm border-b border-[#F1F5F9] relative z-40">
-                  <img
+                  <TransparentLogo
                     src={logoUrl}
                     alt="Logo"
-                    className="h-[28px] mix-blend-multiply object-contain"
+                    className="h-[28px] object-contain"
                   />
                   <div className="flex gap-2 text-[#64748B]">
                     <div className="w-[28px] h-[28px] rounded-full border border-[#E2E8F0] flex items-center justify-center">

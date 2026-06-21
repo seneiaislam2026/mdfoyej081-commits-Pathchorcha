@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { TransparentLogo } from "../ui/TransparentLogo";
 import {
   Search,
   Bell,
@@ -292,13 +293,13 @@ export default function Navbar() {
         </div>
       )}
       <header className="sticky top-0 z-50 w-full bg-card border-b border-slate-100 dark:border-border">
-        <div className="container mx-auto max-w-[1200px] px-4 flex h-[88px] items-center justify-between">
+        <div className="w-full max-w-[1240px] mx-auto px-5 sm:px-8 lg:px-10 flex min-h-[68px] sm:min-h-[80px] py-0.5 flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link to="/dashboard" className="flex items-center group">
-              <img
-                src={settings?.pwaIconUrl || "https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png"}
+            <Link to="/dashboard" className="flex items-center group py-0">
+              <TransparentLogo
+                src={settings?.pwaIconUrl || "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"}
                 alt="বিদ্যায়ন"
-                className="h-[64px] sm:h-[76px] w-auto object-contain group-hover:scale-105 transition-transform duration-300 mr-4 sm:mr-8"
+                className="h-[68px] sm:h-[80px] w-auto object-contain group-hover:scale-105 transition-all duration-300 mr-4 sm:mr-8 block relative z-10"
               />
             </Link>
           </div>

@@ -1940,37 +1940,37 @@ export default function Notes() {
   // Security Focus & Key blocker for Screenshot/Printscreen/Copying Prevention
   useEffect(() => {
     if (!readingNote) {
-      setIsBlurred(false);
       return;
     }
 
-    const handleBlur = () => {
-      setIsBlurred(true);
-    };
-
-    const handleFocus = () => {
-      setIsBlurred(false);
-    };
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
-        (e.ctrlKey &&
-          (e.key === "c" || e.key === "s" || e.key === "p" || e.key === "u")) ||
+        (e.ctrlKey && (e.key === "c" || e.key === "s" || e.key === "p" || e.key === "u" || e.key === "P" || e.key === "C" || e.key === "S")) ||
+        (e.metaKey && (e.key === "p" || e.key === "P" || e.key === "s" || e.key === "S" || e.key === "c" || e.key === "C")) ||
         e.key === "PrintScreen" ||
         e.key === "F12"
       ) {
         e.preventDefault();
+        e.stopPropagation();
       }
     };
 
-    window.addEventListener("blur", handleBlur);
-    window.addEventListener("focus", handleFocus);
-    window.addEventListener("keydown", handleKeyDown);
+    const handleBeforePrint = (e: Event) => {
+      e.preventDefault();
+    };
+
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("beforeprint", handleBeforePrint, true);
+    window.addEventListener("copy", handleCopy, true);
 
     return () => {
-      window.removeEventListener("blur", handleBlur);
-      window.removeEventListener("focus", handleFocus);
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("beforeprint", handleBeforePrint, true);
+      window.removeEventListener("copy", handleCopy, true);
     };
   }, [readingNote]);
 
@@ -2856,23 +2856,7 @@ export default function Notes() {
                   transition={{ type: "spring", damping: 30, stiffness: 200 }}
                   className={`w-full max-w-3xl min-h-screen shadow-2xl flex flex-col relative overflow-y-auto overflow-x-hidden ${tc.bg}`}
                 >
-                  {/* Secure Overlay blur blocker */}
-                  {isBlurred && (
-                    <div className="absolute inset-0 bg-slate-950/95 z-999 flex flex-col items-center justify-center p-6 text-center select-none animate-fade-in">
-                      <span className="text-5xl mb-4">🛡️</span>
-                      <h3 className="text-white font-bengali font-bold text-xl md:text-2xl">
-                        স্ক্রিনশট বা কপি করা সম্পূর্ণ নিষিদ্ধ!
-                      </h3>
-                      <p className="text-slate-400 font-bengali text-xs md:text-sm mt-2 max-w-sm">
-                        বিদ্যায়ন প্ল্যাটফর্মের গোপনীয়তা ও মেধা সম্পদ রক্ষার
-                        স্বার্থে এই পেইজের স্ক্রিনশট বা কপি মেকানিজম ব্লক করা
-                        হয়েছে।
-                      </p>
-                      <p className="text-amber-500 font-bold text-[11px] uppercase tracking-widest mt-4">
-                        Screen capture protected
-                      </p>
-                    </div>
-                  )}
+                  {/* Content Protected against printing and copy */}
 
                   {/* E-Reader Fixed Header */}
                   <header

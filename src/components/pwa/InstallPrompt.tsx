@@ -8,7 +8,7 @@ import { doc, getDoc } from "firebase/firestore";
 export const InstallPrompt = () => {
   const [showPrompt, setShowPrompt] = useState(false);
   const [pwaIcon, setPwaIcon] = useState<string>(
-    "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg",
+    "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg",
   );
   const [installGuide, setInstallGuide] = useState<"ios" | "android" | "iframe" | null>(null);
 
@@ -22,18 +22,23 @@ export const InstallPrompt = () => {
     // Listen for the custom event dispatched from index.html
     const handlePwaPrompt = (e: any) => {
       e.preventDefault();
-      setShowPrompt(true);
+      const isDismissed = localStorage.getItem("pwaPromptDismissed") === "true";
+      if (!isDismissed) {
+        setShowPrompt(true);
+      }
     };
 
     window.addEventListener("pwa-prompt-available", handlePwaPrompt);
 
-    // Also check if app is already installed
+    // Also check if app is already installed and direct installation is available
     const isStandalone = window.matchMedia
       ? window.matchMedia("(display-mode: standalone)").matches
       : false;
     const isInstalled = localStorage.getItem("appInstalled") === "true";
+    const isDismissed = localStorage.getItem("pwaPromptDismissed") === "true";
+    const hasDeferred = !!(window as any).deferredPrompt;
 
-    if (!isStandalone && !isInstalled) {
+    if (!isStandalone && !isInstalled && !isDismissed && hasDeferred) {
       setShowPrompt(true);
     }
 
@@ -93,7 +98,13 @@ export const InstallPrompt = () => {
   };
 
   const handleClose = () => {
+    localStorage.setItem("pwaPromptDismissed", "true");
     setShowPrompt(false);
+  };
+
+  const handleCloseGuide = () => {
+    localStorage.setItem("pwaPromptDismissed", "true");
+    setInstallGuide(null);
   };
 
   return (
@@ -121,17 +132,17 @@ export const InstallPrompt = () => {
             <div className="flex flex-col gap-4 pt-1">
               {/* Brand/Product Header row */}
               <div className="flex items-center gap-3.5">
-                <div className="w-14 h-14 shrink-0 relative bg-card flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
+                <div className="w-14 h-14 shrink-0 relative bg-card flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] p-2">
                   <img
                     src={
                       pwaIcon ||
-                      "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"
+                      "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"
                     }
                     alt="বিদ্যায়ন Icon"
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-contain mix-blend-multiply"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
-                        "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg";
+                        "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg";
                     }}
                   />
                 </div>
@@ -173,7 +184,7 @@ export const InstallPrompt = () => {
             {/* Header */}
             <div className="bg-slate-900 text-white p-6 relative">
               <button
-                onClick={() => setInstallGuide(null)}
+                onClick={handleCloseGuide}
                 className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
               >
                 ✕
@@ -181,9 +192,9 @@ export const InstallPrompt = () => {
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-md p-1.5">
                   <img
-                    src="https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"
+                    src="https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"
                     alt="বিদ্যায়ন"
-                    className="w-full h-full object-contain rounded-xl"
+                    className="w-full h-full object-contain rounded-xl mix-blend-multiply"
                   />
                 </div>
                 <div>
@@ -255,7 +266,7 @@ export const InstallPrompt = () => {
             {/* Footer */}
             <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
               <button
-                onClick={() => setInstallGuide(null)}
+                onClick={handleCloseGuide}
                 className="px-5 py-2 bg-slate-800 text-white font-bengali font-bold text-sm rounded-xl hover:bg-slate-700 transition-colors"
               >
                 বুঝেছি

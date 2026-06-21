@@ -9,6 +9,7 @@ import { useAuth } from "../lib/AuthContext";
 import { ConfirmationResult, sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
+import { TransparentLogo } from "../components/ui/TransparentLogo";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -56,7 +57,7 @@ export default function Auth() {
   } = useAuth();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [logoUrl, setLogoUrl] = useState("https://i.ibb.co/5WR6skVX/file-000000004c047209a4e27202c54ddd8d-1.png");
+  const [logoUrl, setLogoUrl] = useState("https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg");
 
   useEffect(() => {
     getDoc(doc(db, "settings", "general")).then((snap) => {
@@ -85,10 +86,10 @@ export default function Auth() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <div className="animate-pulse flex flex-col items-center justify-center">
-          <img
+          <TransparentLogo
             src={logoUrl}
             alt="বিদ্যায়ন"
-            className="w-[180px] sm:w-[220px] object-contain mb-4"
+            className="w-[240px] sm:w-[320px] object-contain mb-4"
           />
         </div>
       </div>
@@ -300,11 +301,11 @@ export default function Auth() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="w-full max-w-[400px] bg-card p-6 sm:p-8 rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/90 relative z-10 flex flex-col justify-between"
+          className="w-full max-w-[400px] bg-card p-6 sm:p-8 rounded-[32px] shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/90 relative z-10 flex flex-col gap-3"
         >
           {/* Centered Artistic Brand Logo and Title */}
           {window.self !== window.top && (
-            <div className="bg-orange-50 border border-orange-200 p-4 rounded-[24px] mb-6 shadow-sm">
+            <div className="bg-orange-50 border border-orange-200 p-4 rounded-[24px] shadow-sm">
               <h4 className="text-orange-800 font-bold font-bengali text-sm flex items-center gap-2 mb-1">
                 <span className="text-lg">⚠️</span> প্রিভিউ মোড অ্যালার্ট
               </h4>
@@ -314,18 +315,18 @@ export default function Auth() {
               </p>
             </div>
           )}
-          <div className="text-center mb-8">
-            <div className="flex flex-col items-center justify-center mb-6">
+          <div className="text-center">
+            <div className="flex flex-col items-center justify-center -mb-5 sm:-mb-7">
               <Link to="/" className="inline-flex flex-col items-center group">
-                <img
+                <TransparentLogo
                   src={logoUrl}
                   alt="বিদ্যায়ন"
-                  className="w-[140px] sm:w-[160px] object-contain group-hover:scale-105 transition-transform duration-300"
+                  className="w-[200px] sm:w-[260px] object-contain group-hover:scale-105 transition-transform duration-300"
                 />
               </Link>
             </div>
 
-            <h2 className="text-xl sm:text-2xl font-bengali font-bold text-[#1e293b] tracking-tight">
+            <h2 className="text-lg sm:text-xl font-bengali font-bold text-[#1e293b] tracking-tight -mt-1 sm:-mt-2">
               লগইন / রেজিস্টার
             </h2>
           </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { db } from "../lib/firebase";
 import { collection, query, where, getDocs, doc, updateDoc, increment, writeBatch, addDoc, serverTimestamp, limit } from "firebase/firestore";
@@ -1038,6 +1038,34 @@ export default function Exam() {
        handleSubmit();
     }
   }, [activeSet, remainingTime, isSubmitted]);
+
+  // Auto-submit when user exits browser or switches tab
+  const handleSubmitRef = useRef(handleSubmit);
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
+
+  useEffect(() => {
+    if (!activeSet || isSubmitted) return;
+
+    const handleVisibilityAndExit = () => {
+      if (document.visibilityState === "hidden") {
+        handleSubmitRef.current();
+      }
+    };
+
+    const handlePageHide = () => {
+      handleSubmitRef.current();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityAndExit);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityAndExit);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [activeSet, isSubmitted]);
 
   // Handle active set timer
   useEffect(() => {

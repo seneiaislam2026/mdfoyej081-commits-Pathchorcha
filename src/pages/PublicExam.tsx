@@ -13,6 +13,7 @@ interface PublicExamData {
   title: string;
   duration: number;
   active: boolean;
+  type?: string;
   questions?: any[];
 }
 
@@ -40,6 +41,8 @@ export default function PublicExam() {
   const [expandedExplanation, setExpandedExplanation] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+
+  const isEventExam = exam?.type === "event_exam";
 
   useEffect(() => {
     const fetchExam = async () => {
@@ -290,6 +293,34 @@ export default function PublicExam() {
     }
   };
 
+  // Auto-submit when user exits browser or switches tab
+  const handleSubmitRef = React.useRef(handleSubmit);
+  useEffect(() => {
+    handleSubmitRef.current = handleSubmit;
+  }, [handleSubmit]);
+
+  useEffect(() => {
+    if (!isStarted || isSubmitted) return;
+
+    const handleVisibilityAndExit = () => {
+      if (document.visibilityState === "hidden") {
+        handleSubmitRef.current();
+      }
+    };
+
+    const handlePageHide = () => {
+      handleSubmitRef.current();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityAndExit);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityAndExit);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [isStarted, isSubmitted]);
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -468,11 +499,18 @@ export default function PublicExam() {
           
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 flex-nowrap">
              {isSubmitted ? (
-               <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-green-50 text-green-700 font-semibold rounded-full text-[13px] sm:text-sm border border-green-200 shadow-sm whitespace-nowrap">
-                 <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                 <span className="font-bengali font-bold hidden sm:inline">স্কোর:</span>
-                 <span className="font-mono font-bold text-[14px] sm:text-[15px]">{score}/{questions.length}</span>
-               </div>
+               !isEventExam ? (
+                 <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-green-50 text-green-700 font-semibold rounded-full text-[13px] sm:text-sm border border-green-200 shadow-sm whitespace-nowrap">
+                   <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                   <span className="font-bengali font-bold hidden sm:inline">স্কোর:</span>
+                   <span className="font-mono font-bold text-[14px] sm:text-[15px]">{score}/{questions.length}</span>
+                 </div>
+               ) : (
+                 <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-rose-50 text-rose-700 font-semibold rounded-full text-[12px] sm:text-xs border border-rose-200 shadow-sm whitespace-nowrap font-bengali">
+                   <CheckCircle2 className="w-3.5 h-3.5 text-rose-500" />
+                   সফলভাবে জমা হয়েছে
+                 </div>
+               )
              ) : (
                <>
                  <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-indigo-50 text-indigo-700 font-semibold rounded-full text-[12px] sm:text-[13px] border border-indigo-100/50 shadow-sm whitespace-nowrap tracking-tight">
@@ -503,31 +541,45 @@ export default function PublicExam() {
           <div className="mb-8 bg-card border border-slate-100 rounded-[32px] p-6 sm:p-8 shadow-sm text-center">
              <h2 className="text-xl font-bold text-foreground mb-6">{studentName}, Final Result</h2>
              
-             <div className="flex items-center justify-center gap-4 sm:gap-8 mb-8">
-                <div className="text-center">
-                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-green-500 flex items-center justify-center mx-auto mb-2 bg-green-50">
-                       <span className="text-xl sm:text-3xl font-bold text-green-600">{correctCount}</span>
-                    </div>
-                    <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Correct</span>
+             {isEventExam ? (
+                <div className="max-w-md mx-auto my-6 p-6 bg-rose-50/40 border border-rose-100/60 rounded-3xl text-center">
+                   <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <CheckCircle2 className="w-8 h-8" />
+                   </div>
+                   <h3 className="text-lg font-bold font-bengali text-rose-950 mb-2">পরীক্ষা সফলভাবে সম্পন্ন হয়েছে!</h3>
+                   <p className="text-sm font-bengali text-slate-600 leading-relaxed">
+                      যেহেতু এটি একটি <strong>ইভেন্ট এক্সাম (Event Exam)</strong>, তাই পরীক্ষার ফলাফল এবং সঠিক উত্তরপত্র তাৎক্ষণিকভাবে দেখানো হবে না। ইভেন্ট শেষে লিডারবোর্ড ও নম্বর প্রকাশ করা হবে।
+                   </p>
                 </div>
-                <div className="text-center">
-                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-red-500 flex items-center justify-center mx-auto mb-2 bg-red-50">
-                       <span className="text-xl sm:text-3xl font-bold text-red-600">{wrongCount}</span>
-                    </div>
-                    <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Wrong</span>
-                </div>
-                <div className="text-center">
-                    <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-slate-300 flex items-center justify-center mx-auto mb-2 bg-muted">
-                       <span className="text-xl sm:text-3xl font-bold text-muted-foreground">{skippedCount}</span>
-                    </div>
-                    <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Skipped</span>
-                </div>
-             </div>
+             ) : (
+                <>
+                   <div className="flex items-center justify-center gap-4 sm:gap-8 mb-8">
+                      <div className="text-center">
+                          <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-green-500 flex items-center justify-center mx-auto mb-2 bg-green-50">
+                             <span className="text-xl sm:text-3xl font-bold text-green-600">{correctCount}</span>
+                          </div>
+                          <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Correct</span>
+                      </div>
+                      <div className="text-center">
+                          <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-red-500 flex items-center justify-center mx-auto mb-2 bg-red-50">
+                             <span className="text-xl sm:text-3xl font-bold text-red-600">{wrongCount}</span>
+                          </div>
+                          <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Wrong</span>
+                      </div>
+                      <div className="text-center">
+                          <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-full border-[3px] sm:border-4 border-slate-300 flex items-center justify-center mx-auto mb-2 bg-muted">
+                             <span className="text-xl sm:text-3xl font-bold text-muted-foreground">{skippedCount}</span>
+                          </div>
+                          <span className="text-xs sm:text-[15px] font-medium text-muted-foreground">Skipped</span>
+                      </div>
+                   </div>
 
-             <div className="bg-muted border border-slate-100 rounded-[20px] p-4 inline-flex items-center gap-3 flex-col sm:flex-row shadow-inner">
-                <span className="text-slate-500 font-medium text-sm sm:text-base">Total Score:</span>
-                <span className="text-2xl font-bold text-primary">{score} <span className="text-base text-slate-400">/ {questions.length}</span></span>
-             </div>
+                   <div className="bg-muted border border-slate-100 rounded-[20px] p-4 inline-flex items-center gap-3 flex-col sm:flex-row shadow-inner">
+                      <span className="text-slate-500 font-medium text-sm sm:text-base">Total Score:</span>
+                      <span className="text-2xl font-bold text-primary">{score} <span className="text-base text-slate-400">/ {questions.length}</span></span>
+                   </div>
+                </>
+             )}
              <div className="mt-8 flex justify-center">
                 <Button
                    onClick={() => navigate("/")}
@@ -556,7 +608,7 @@ export default function PublicExam() {
              <div key={idx} className="p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
                 <div className="mb-4 flex items-center justify-between">
                    <div className="flex items-center gap-3">
-                     {isQuestionSubmitted && (
+                     {isQuestionSubmitted && !isEventExam && (
                        <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${iconBg} shadow-sm`}>
                           {isSkipped ? <AlertCircle className="w-4 h-4" /> : isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
                        </div>
@@ -564,6 +616,11 @@ export default function PublicExam() {
                      <span className="inline-block px-4 py-1.5 bg-[#1e293b] text-white rounded-full text-[13px] font-bold shadow-sm">
                        প্রশ্ন {idx + 1}
                      </span>
+                     {isQuestionSubmitted && isEventExam && selected && (
+                       <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-100/50 font-bengali">
+                         উত্তর দেওয়া হয়েছে
+                       </span>
+                     )}
                    </div>
                 </div>
                 <h3 className="text-[18px] sm:text-[20px] leading-relaxed text-[#0f172a] font-medium mb-6 whitespace-pre-line">
@@ -578,10 +635,15 @@ export default function PublicExam() {
                     
                     let optStyle = "";
                     if (isQuestionSubmitted) {
-                       if (isThisCorrect && qWasSkipped) optStyle = "border-orange-500 bg-orange-100 shadow-[0_0_0_1px_#f97316]";
-                       else if (isThisCorrect) optStyle = "border-green-500 bg-green-100 shadow-[0_0_0_1px_#22c55e]";
-                       else if (isSelected && !isThisCorrect) optStyle = "border-red-500 bg-red-100 shadow-[0_0_0_1px_#ef4444]";
-                       else optStyle = "border-slate-200 bg-muted opacity-60";
+                       if (isEventExam) {
+                          if (isSelected) optStyle = "border-slate-800 bg-[#f8fafc] shadow-[0_0_0_1px_#1e293b]";
+                          else optStyle = "border-slate-200 bg-muted/50 opacity-60";
+                       } else {
+                          if (isThisCorrect && qWasSkipped) optStyle = "border-orange-500 bg-orange-100 shadow-[0_0_0_1px_#f97316]";
+                          else if (isThisCorrect) optStyle = "border-green-500 bg-green-100 shadow-[0_0_0_1px_#22c55e]";
+                          else if (isSelected && !isThisCorrect) optStyle = "border-red-500 bg-red-100 shadow-[0_0_0_1px_#ef4444]";
+                          else optStyle = "border-slate-200 bg-muted opacity-60";
+                       }
                     } else {
                        if (isSelected) optStyle = "border-[#1e293b] bg-muted shadow-[0_0_0_1px_#1e293b]";
                        else optStyle = "border-slate-200 hover:border-slate-300 bg-card";
@@ -589,10 +651,15 @@ export default function PublicExam() {
 
                     let badgeStyle = "";
                     if (isQuestionSubmitted) {
-                       if (isThisCorrect && qWasSkipped) badgeStyle = "bg-orange-600 text-white border-r-orange-600";
-                       else if (isThisCorrect) badgeStyle = "bg-green-600 text-white border-r-green-600";
-                       else if (isSelected && !isThisCorrect) badgeStyle = "bg-red-600 text-white border-r-red-600";
-                       else badgeStyle = "bg-slate-200 text-slate-500 border-slate-200";
+                       if (isEventExam) {
+                          if (isSelected) badgeStyle = "bg-[#1e293b] text-white border-r-[#1e293b]";
+                          else badgeStyle = "bg-slate-200 text-slate-400 border-slate-200";
+                       } else {
+                          if (isThisCorrect && qWasSkipped) badgeStyle = "bg-orange-600 text-white border-r-orange-600";
+                          else if (isThisCorrect) badgeStyle = "bg-green-600 text-white border-r-green-600";
+                          else if (isSelected && !isThisCorrect) badgeStyle = "bg-red-600 text-white border-r-red-600";
+                          else badgeStyle = "bg-slate-200 text-slate-500 border-slate-200";
+                       }
                     } else {
                        if (isSelected) badgeStyle = "bg-[#1e293b] text-white border-r-[#1e293b]";
                        else badgeStyle = "bg-[#f8fafc] text-foreground border-slate-200";
@@ -600,10 +667,14 @@ export default function PublicExam() {
 
                     let textColor = "";
                     if (isQuestionSubmitted) {
-                       if (isThisCorrect && qWasSkipped) textColor = "text-orange-900 font-bold";
-                       else if (isThisCorrect) textColor = "text-green-900 font-bold";
-                       else if (isSelected && !isThisCorrect) textColor = "text-red-900 font-bold";
-                       else textColor = "text-muted-foreground font-medium";
+                       if (isEventExam) {
+                          textColor = isSelected ? "text-[#1e293b] font-bold" : "text-slate-400 font-medium";
+                       } else {
+                          if (isThisCorrect && qWasSkipped) textColor = "text-orange-900 font-bold";
+                          else if (isThisCorrect) textColor = "text-green-900 font-bold";
+                          else if (isSelected && !isThisCorrect) textColor = "text-red-900 font-bold";
+                          else textColor = "text-muted-foreground font-medium";
+                       }
                     } else {
                        textColor = isSelected ? 'text-[#1e293b] font-bold' : 'text-[#0f172a] font-medium';
                     }
@@ -629,7 +700,7 @@ export default function PublicExam() {
                 </div>
                 
                 {/* Auto Explanation block if submitted */}
-                {isQuestionSubmitted && q.explanation && (
+                {isQuestionSubmitted && q.explanation && !isEventExam && (
                   <div className="mt-6 p-5 sm:p-6 bg-indigo-50/50 border border-indigo-100/60 rounded-2xl flex gap-3 sm:gap-4 shadow-sm">
                      <div className="w-8 h-8 sm:w-10 sm:h-10 bg-card border border-indigo-200/60 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
                        <Brain className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -656,7 +727,7 @@ export default function PublicExam() {
         </div>
         )}
 
-        {isSubmitted && leaderboard.length > 0 && (
+        {isSubmitted && leaderboard.length > 0 && !isEventExam && (
           <div className="mt-8 mb-8 bg-card rounded-[32px] border border-slate-100 shadow-sm p-6 sm:p-8">
              <h3 className="text-xl sm:text-2xl font-bold text-foreground font-bengali text-center mb-6 flex items-center justify-center gap-2">
                <span>🏆</span> লিডারবোর্ড (Top 10)
