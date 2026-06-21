@@ -10,6 +10,7 @@ export const InstallPrompt = () => {
   const [pwaIcon, setPwaIcon] = useState<string>(
     "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg",
   );
+  const [installGuide, setInstallGuide] = useState<"ios" | "android" | "iframe" | null>(null);
 
   useEffect(() => {
     // Listen for the custom event dispatched from index.html
@@ -58,7 +59,7 @@ export const InstallPrompt = () => {
 
   const handleInstallClick = async () => {
     if (window.self !== window.top) {
-      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি 'Google Chrome' ব্রাউজার দিয়ে ওয়েবসাইটে প্রবেশ করুন। এরপর পুনরায় ক্লিক করুন।");
+      setInstallGuide("iframe");
       return;
     }
 
@@ -77,9 +78,9 @@ export const InstallPrompt = () => {
     } else {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       if (isIOS) {
-         alert("অ্যাপটি ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
+        setInstallGuide("ios");
       } else {
-         alert("বিদ্যায়ন অরিজিনাল অ্যাপটি (PWA) ইন্সটল করার জন্য দয়া করে ক্রোম (Google Chrome) ব্রাউজারের থ্রি-ডট (triple dots) মেনু থেকে 'Install App' অপশনে ক্লিক করুন।");
+        setInstallGuide("android");
       }
     }
     setShowPrompt(false);
@@ -90,73 +91,173 @@ export const InstallPrompt = () => {
   };
 
   return (
-    <AnimatePresence>
-      {showPrompt && (
-        <motion.div
-          key="pwa-install-prompt"
-          initial={{ opacity: 0, y: 100 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 100 }}
-          transition={{ type: "spring", damping: 25, stiffness: 200 }}
-          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-[380px] z-[9999] bg-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-5 overflow-hidden"
-        >
-          {/* Decorative background glow */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
-
-          <button
-            onClick={handleClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-muted-foreground transition-colors p-1"
+    <>
+      <AnimatePresence>
+        {showPrompt && (
+          <motion.div
+            key="pwa-install-prompt"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-8 md:w-[380px] z-[9999] bg-card rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 p-5 overflow-hidden"
           >
-            <X size={18} />
-          </button>
+            {/* Decorative background glow */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="flex flex-col gap-4 pt-1">
-            {/* Brand/Product Header row */}
-            <div className="flex items-center gap-3.5">
-              <div className="w-14 h-14 shrink-0 relative bg-card flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
-                <img
-                  src={
-                    pwaIcon ||
-                    "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"
-                  }
-                  alt="বিদ্যায়ন Icon"
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src =
-                      "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg";
-                  }}
-                />
+            <button
+              onClick={handleClose}
+              className="absolute top-4 right-4 text-slate-400 hover:text-muted-foreground transition-colors p-1"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="flex flex-col gap-4 pt-1">
+              {/* Brand/Product Header row */}
+              <div className="flex items-center gap-3.5">
+                <div className="w-14 h-14 shrink-0 relative bg-card flex items-center justify-center rounded-full shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden p-2">
+                  <img
+                    src={
+                      pwaIcon ||
+                      "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"
+                    }
+                    alt="বিদ্যায়ন Icon"
+                    className="w-full h-full object-contain"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg";
+                    }}
+                  />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bengali font-bold text-lg text-foreground leading-tight">
+                    বিদ্যায়ন Official App
+                  </h3>
+                  <span className="text-[10px] font-sans font-bold tracking-wider text-amber-500 uppercase">
+                    OFFICIAL MOBILE APP
+                  </span>
+                </div>
               </div>
+
+              {/* Description and layout content details */}
               <div className="flex-1">
-                <h3 className="font-bengali font-bold text-lg text-foreground leading-tight">
-                  বিদ্যায়ন Official App
-                </h3>
-                <span className="text-[10px] font-sans font-bold tracking-wider text-amber-500 uppercase">
-                  OFFICIAL MOBILE APP
-                </span>
+                <p className="font-bengali text-sm text-slate-500 mb-4 leading-relaxed">
+                  ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই
+                  আইকন এবং সুবিধা পাবেন।
+                </p>
+
+                <div className="flex gap-3">
+                  <Button
+                    onClick={handleInstallClick}
+                    className="flex-1 text-white rounded-xl shadow-sm font-bengali font-bold h-10 bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    ইনস্টল অ্যাপ
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {installGuide && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[24px] w-full max-w-sm overflow-hidden shadow-2xl relative border border-slate-100 flex flex-col pointer-events-auto">
+            {/* Header */}
+            <div className="bg-slate-900 text-white p-6 relative">
+              <button
+                onClick={() => setInstallGuide(null)}
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              >
+                ✕
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-md p-1.5">
+                  <img
+                    src="https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"
+                    alt="বিদ্যায়ন"
+                    className="w-full h-full object-contain rounded-xl"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bengali font-bold text-lg leading-tight">বিদ্যায়ন</h3>
+                  <span className="text-[10px] tracking-wider text-green-400 font-bold uppercase">INSTALL APP</span>
+                </div>
               </div>
             </div>
 
-            {/* Description and layout content details */}
-            <div className="flex-1">
-              <p className="font-bengali text-sm text-slate-500 mb-4 leading-relaxed">
-                ব্রাউজার থেকে এটি ইনস্টল করলে আপনার ফোনে সরাসরি আসল অ্যাপের মতোই
-                আইকন এবং সুবিধা পাবেন।
-              </p>
+            {/* Content */}
+            <div className="p-6">
+              {installGuide === "iframe" && (
+                <div className="space-y-4 font-bengali">
+                  <p className="text-slate-600 leading-relaxed text-sm">
+                    অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি যেকোনো ব্রাউজার দিয়ে আমাদের ওয়েবসাইটটিতে প্রবেশ করুন।
+                  </p>
+                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-sm text-blue-700 font-semibold text-center select-all">
+                    biddayan.com
+                  </div>
+                </div>
+              )}
 
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleInstallClick}
-                  className="flex-1 text-white rounded-xl shadow-sm font-bengali font-bold h-10 bg-blue-600 hover:bg-blue-700"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  ইনস্টল অ্যাপ
-                </Button>
-              </div>
+              {installGuide === "ios" && (
+                <div className="space-y-4 font-bengali">
+                  <h4 className="font-bold text-slate-800 text-[15px]">আইফোনে (Safari) ডাউনলোড করার নিয়ম:</h4>
+                  <ol className="space-y-3.5 text-slate-600 text-[14px]">
+                    <li className="flex gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">১</span>
+                      <span>সাফারি (Safari) ব্রাউজারের নিচে থাকা <span className="font-bold text-blue-600">"Share" (শেয়ার)</span> আইকনে ক্লিক করুন।</span>
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">২</span>
+                      <span>তালিকায় নিচের দিকে স্ক্রল করে <span className="font-bold text-blue-600">"Add to Home Screen"</span> অপশনটি সিলেক্ট করুন।</span>
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">৩</span>
+                      <span>এখন উপরে ডানদিকে থাকা <span className="font-bold text-blue-600">"Add"</span> বাটনে ট্যাপ করুন।</span>
+                    </li>
+                  </ol>
+                </div>
+              )}
+
+              {installGuide === "android" && (
+                <div className="space-y-4 font-bengali">
+                  <h4 className="font-bold text-slate-800 text-[15px]">অ্যান্ড্রয়েডে ডাউনলোড করার নিয়ম:</h4>
+                  <div className="space-y-3">
+                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-700 leading-relaxed text-[13px]">
+                      📢 আপনি যদি Facebook, Messenger, বা অন্য কোনো অ্যাপের ভেতর থেকে ব্রাউজ করে থাকেন, তবে অফলাইনে ব্যবহারের জন্য দয়া করে প্রথম পদক্ষেপটি অনুসরণ করুন।
+                    </div>
+                    <ol className="space-y-3.5 text-slate-600 text-[14px]">
+                      <li className="flex gap-2.5">
+                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">১</span>
+                        <span>ফোনের আসল <span className="font-bold text-blue-600">Google Chrome</span> ব্রাউজার দিয়ে <span className="font-bold">biddayan.com</span> এ প্রবেশ করুন।</span>
+                      </li>
+                      <li className="flex gap-2.5">
+                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">২</span>
+                        <span>ব্রাউজারের উপরে ডানদিকের বা নিচে থাকা <span className="font-bold text-blue-600">থ্রি-ডট (⋮)</span> মেনু বাটনে ডাবল ক্লিক করুন।</span>
+                      </li>
+                      <li className="flex gap-2.5">
+                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">৩</span>
+                        <span>মেনু তালিকা থেকে <span className="font-bold text-blue-600">"Install app"</span> অথবা <span className="font-bold text-blue-600">"Add to Home Screen"</span> অপশনে চাপ দিন।</span>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setInstallGuide(null)}
+                className="px-5 py-2 bg-slate-800 text-white font-bengali font-bold text-sm rounded-xl hover:bg-slate-700 transition-colors"
+              >
+                বুঝেছি
+              </button>
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
-    </AnimatePresence>
+    </>
   );
 };

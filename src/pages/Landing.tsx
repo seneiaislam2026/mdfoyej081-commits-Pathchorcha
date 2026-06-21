@@ -21,7 +21,126 @@ import {
   Target,
   Flame,
   X,
+  Brain,
+  Check,
+  Database,
 } from "lucide-react";
+
+// Helper function to render gorgeous, glossy gradient icons that match the design exactly
+const getFeatureIcon = (title: string, size: "small" | "large" = "large") => {
+  const isLarge = size === "large";
+  const boxClass = isLarge 
+    ? "w-[68px] h-[68px] rounded-[22px] border border-white/40 shrink-0 flex items-center justify-center relative shadow-lg"
+    : "w-[52px] h-[52px] rounded-[16px] border border-white/50 shrink-0 flex items-center justify-center relative shadow-md";
+
+  const shinyClass = isLarge
+    ? "absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-white/30 backdrop-blur-[1px]"
+    : "absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-white/30 backdrop-blur-[0.5px]";
+
+  const innerClass = isLarge
+    ? "w-9 h-9 bg-white rounded-[10px] flex items-center justify-center relative shadow-sm p-1.5"
+    : "w-7 h-7 bg-white rounded-[7px] flex items-center justify-center relative shadow-sm p-1";
+
+  if (title.includes("মক টেস্ট")) {
+    return (
+      <div className={`${boxClass} bg-gradient-to-br from-[#EC4899] to-[#8B5CF6] shadow-[0_8px_20px_rgba(139,92,246,0.35)]`}>
+        <div className={shinyClass}></div>
+        <div className={`${isLarge ? "w-9 h-9 px-1.5 gap-2" : "w-7 h-7 px-1 gap-1"} bg-white rounded-[8px] sm:rounded-[10px] flex flex-col justify-center shadow-sm`}>
+          <div className={`${isLarge ? "h-1" : "h-[3px]"} bg-slate-100 rounded-full relative overflow-hidden`}>
+            <div className={`absolute right-0.5 top-0 bottom-0 ${isLarge ? "w-1.5" : "w-1"} rounded-full bg-purple-500`}></div>
+          </div>
+          <div className={`${isLarge ? "h-1" : "h-[3px]"} bg-slate-100 rounded-full relative overflow-hidden`}>
+            <div className={`absolute left-0.5 top-0 bottom-0 ${isLarge ? "w-1.5" : "w-1"} rounded-full bg-[#EC4899]`}></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (title.includes("মডেল টেস্ট")) {
+    return (
+      <div className={`${boxClass} bg-gradient-to-br from-[#FF9031] to-[#EF3A3A] shadow-[0_8px_20px_rgba(249,115,22,0.35)]`}>
+        <div className={shinyClass}></div>
+        <div className={`${innerClass} flex flex-col justify-center gap-1`}>
+          <div className={`${isLarge ? "w-3" : "w-2"} h-[3px] bg-orange-400 rounded-full shrink-0 align-self-start self-start mb-0.5`}></div>
+          <div className={`w-full ${isLarge ? "h-[3px]" : "h-[2px]"} bg-slate-200 rounded-full`}></div>
+          <div className={`w-full ${isLarge ? "h-[3px]" : "h-[2px]"} bg-slate-200 rounded-full`}></div>
+          <div className={`absolute ${isLarge ? "-bottom-1 -right-1 w-5 h-5" : "-bottom-0.5 -right-0.5 w-3.5 h-3.5"} rounded-full bg-orange-500 flex items-center justify-center border-2 border-white shadow-sm`}>
+            <Check className={`${isLarge ? "w-3 h-3" : "w-2 h-2"} text-white stroke-[4]`} />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (title.includes("ডাউট") || title.toLowerCase().includes("ai") || title.includes("টউট")) {
+    return (
+      <div className={`${boxClass} bg-gradient-to-br from-[#0EA5E9] to-[#3B82F6] shadow-[0_8px_20px_rgba(59,130,246,0.35)]`}>
+        <div className={shinyClass}></div>
+        <div className={innerClass}>
+          <Brain className={`${isLarge ? "w-5 h-5" : "w-4 h-4"} text-[#0EA5E9]`} />
+          <div className={`absolute ${isLarge ? "-bottom-1 -right-1 w-5 h-5 text-[10px]" : "-bottom-0.5 -right-0.5 w-3.5 h-3.5 text-[7px]"} rounded-full bg-[#0EA5E9] flex items-center justify-center border-2 border-white font-bold text-white leading-none`}>
+            ?
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (title.includes("ভুল")) {
+    return (
+      <div className={`${boxClass} bg-gradient-to-br from-[#FE4E41] to-[#EC4899] shadow-[0_8px_20px_rgba(239,68,68,0.35)]`}>
+        <div className={shinyClass}></div>
+        <div className={innerClass}>
+          <RefreshCcw className={`${isLarge ? "w-5 h-5" : "w-3.5 h-3.5"} text-rose-500`} />
+        </div>
+      </div>
+    );
+  }
+
+  if (title.includes("নোট")) {
+    return (
+      <div className={`${boxClass} bg-gradient-to-br from-[#10B981] to-[#059669] shadow-[0_8px_20px_rgba(16,185,129,0.35)]`}>
+        <div className={shinyClass}></div>
+        <div className={innerClass}>
+          <BookOpen className={`${isLarge ? "w-5 h-5" : "w-4 h-4"} text-emerald-600`} />
+        </div>
+      </div>
+    );
+  }
+
+  if (title.includes("মেমোরাইজিং") || title.includes("স্মার্ট")) {
+    return (
+      <div className={`${boxClass} bg-gradient-to-br from-[#A855F7] to-[#6366F1] shadow-[0_8px_20px_rgba(168,85,247,0.35)]`}>
+        <div className={shinyClass}></div>
+        <div className={innerClass}>
+          <Lightbulb className={`${isLarge ? "w-[22px] h-[22px]" : "w-4 h-4"} text-purple-600`} />
+        </div>
+      </div>
+    );
+  }
+
+  if (title.includes("প্রশ্ন ব্যাংক") || title.includes("ব্যাংক")) {
+    return (
+      <div className={`${boxClass} bg-gradient-to-br from-[#F59E0B] to-[#D97706] shadow-[0_8px_20px_rgba(245,158,11,0.35)]`}>
+        <div className={shinyClass}></div>
+        <div className={innerClass}>
+          <Database className={`${isLarge ? "w-5 h-5" : "w-4 h-4"} text-amber-600`} />
+        </div>
+      </div>
+    );
+  }
+
+  // Fallback / default
+  return (
+    <div className={`${boxClass} bg-gradient-to-br from-[#3B82F6] to-[#4F46E5] shadow-[0_8px_20px_rgba(59,130,246,0.35)]`}>
+      <div className={shinyClass}></div>
+      <div className={innerClass}>
+        <Check className={`${isLarge ? "w-5 h-5" : "w-4 h-4"} text-blue-600`} />
+      </div>
+    </div>
+  );
+};
 
 export default function Landing() {
   const { user, userData, loading } = useAuth();
@@ -36,7 +155,8 @@ export default function Landing() {
     if (!loading && user) {
       if (userData?.class) {
         navigate("/dashboard");
-      } else if (userData) {
+      } else {
+        // Safe redirect to onboarding if userData is missing, loading, or has no class to avoid landing page infinite loading loops
         navigate("/onboarding");
       }
     }
@@ -44,10 +164,24 @@ export default function Landing() {
 
   const [isInstallable, setIsInstallable] = useState(!!(window as any).deferredPrompt);
   const [installMessage, setInstallMessage] = useState<string | null>(null);
+  const [installGuide, setInstallGuide] = useState<"ios" | "android" | "iframe" | null>(null);
 
   useEffect(() => {
+    // Check if prompt is already available (stored globally before mount)
+    if ((window as any).deferredPrompt) {
+      setIsInstallable(true);
+      const dismissed = sessionStorage.getItem("pwaPromptDismissed");
+      if (!dismissed && !localStorage.getItem("appInstalled")) {
+        setShowAutoInstall(true);
+      }
+    }
+
     const handlePrompt = () => {
       setIsInstallable(true);
+      const dismissed = sessionStorage.getItem("pwaPromptDismissed");
+      if (!dismissed && !localStorage.getItem("appInstalled")) {
+        setShowAutoInstall(true);
+      }
     };
     
     window.addEventListener("pwa-prompt-available", handlePrompt);
@@ -55,6 +189,7 @@ export default function Landing() {
     const handleAppInstalled = () => {
       localStorage.setItem("appInstalled", "true");
       setIsInstallable(false);
+      setShowAutoInstall(false);
     };
     window.addEventListener("appinstalled", handleAppInstalled);
 
@@ -66,7 +201,7 @@ export default function Landing() {
 
   const triggerInstall = async () => {
     if (window.self !== window.top) {
-      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি 'Google Chrome' ব্রাউজার দিয়ে ওয়েবসাইটে প্রবেশ করুন। এরপর পুনরায় ক্লিক করুন।");
+      setInstallGuide("iframe");
       return;
     }
 
@@ -86,20 +221,22 @@ export default function Landing() {
     } else {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       if (isIOS) {
-         alert("অ্যাপটি ইন্সটল করতে Safari ব্রাউজারের নিচে 'Share' আইকনে ক্লিক করে 'Add to Home Screen' নির্বাচন করুন।");
+        setInstallGuide("ios");
       } else {
-         alert("বিদ্যায়ন অরিজিনাল অ্যাপটি (PWA) ইন্সটল করার জন্য দয়া করে ক্রোম (Google Chrome) ব্রাউজারের থ্রি-ডট (triple dots) মেনু থেকে 'Install App' অপশনে ক্লিক করুন।");
+        setInstallGuide("android");
       }
     }
   };
 
-  if (loading || user) {
+  // Optimize: prevent blocking loading screen when auth completes but Firestore snapshot is slow/denied
+  if (loading || (user && !userData)) {
     return (
-      <div className="min-h-screen bg-white flex justify-center items-center">
+      <div className="min-h-screen bg-white flex justify-center items-center" id="div-loading-screen">
         <img
           src={logoUrl}
           alt="Logo"
           className="w-[200px] md:w-[240px] animate-pulse mix-blend-multiply object-contain"
+          id="img-loading-logo"
         />
       </div>
     );
@@ -152,13 +289,22 @@ export default function Landing() {
       arrowColor: "text-green-500",
     },
     {
-      title: "মেমোরাইজিং কার্ড",
+      title: "মেমোরাইজিং পার্ট",
       desc: "গুরুত্বপূর্ণ তথ্য কার্ড সেভ করে সহজে\nমনে রাখুন",
       icon: <Lightbulb className="w-5 h-5 text-purple-600" />,
       iconBg: "bg-[#A855F7]",
       iconInner: <Lightbulb className="w-5 h-5 text-white" />,
       lightBg: "bg-[#F3E8FF]",
       arrowColor: "text-purple-600",
+    },
+    {
+      title: "প্রশ্ন ব্যাংক",
+      desc: "বিগত বছরের প্রশ্নসহ হাজারো প্রশ্ন\nঅনুশীলন ও সমাধান করুন",
+      icon: <Database className="w-5 h-5 text-amber-500" />,
+      iconBg: "bg-[#F59E0B]",
+      iconInner: <Database className="w-5 h-5 text-white" />,
+      lightBg: "bg-[#FFFBBB]",
+      arrowColor: "text-amber-500",
     },
   ];
 
@@ -202,7 +348,10 @@ export default function Landing() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6 animate-in fade-in duration-300">
           <div className="bg-white rounded-[28px] w-full max-w-sm overflow-hidden shadow-2xl relative animate-in slide-in-from-bottom-10 pointer-events-auto">
             <button
-              onClick={() => setShowAutoInstall(false)}
+              onClick={() => {
+                setShowAutoInstall(false);
+                sessionStorage.setItem("pwaPromptDismissed", "true");
+              }}
               className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full hover:bg-slate-200 z-10"
             >
               ✕
@@ -251,6 +400,104 @@ export default function Landing() {
         </div>
       )}
 
+      {installGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-[24px] w-full max-w-sm overflow-hidden shadow-2xl relative border border-slate-100 flex flex-col pointer-events-auto">
+            {/* Header */}
+            <div className="bg-slate-900 text-white p-6 relative">
+              <button
+                onClick={() => setInstallGuide(null)}
+                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              >
+                ✕
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-md p-1.5">
+                  <img
+                    src="https://i.ibb.co/wFXWcZXP/file-00000000bc2872099134372cd3b088f3.jpg"
+                    alt="বিদ্যায়ন"
+                    className="w-full h-full object-contain rounded-xl"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bengali font-bold text-lg leading-tight">বিদ্যায়ন</h3>
+                  <span className="text-[10px] tracking-wider text-green-400 font-bold uppercase">INSTALL APP</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6">
+              {installGuide === "iframe" && (
+                <div className="space-y-4 font-bengali">
+                  <p className="text-slate-600 leading-relaxed text-sm">
+                    অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি যেকোনো ব্রাউজার দিয়ে আমাদের ওয়েবসাইটটিতে প্রবেশ করুন।
+                  </p>
+                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-sm text-blue-700 font-semibold text-center select-all">
+                    biddayan.com
+                  </div>
+                </div>
+              )}
+
+              {installGuide === "ios" && (
+                <div className="space-y-4 font-bengali">
+                  <h4 className="font-bold text-slate-800 text-[15px]">আইফোনে (Safari) ডাউনলোড করার নিয়ম:</h4>
+                  <ol className="space-y-3.5 text-slate-600 text-[14px]">
+                    <li className="flex gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">১</span>
+                      <span>সাফারি (Safari) ব্রাউজারের নিচে থাকা <span className="font-bold text-blue-600">"Share" (শেয়ার)</span> আইকনে ক্লিক করুন।</span>
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">২</span>
+                      <span>তালিকায় নিচের দিকে স্ক্রল করে <span className="font-bold text-blue-600">"Add to Home Screen"</span> অপশনটি সিলেক্ট করুন।</span>
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">৩</span>
+                      <span>এখন উপরে ডানদিকে থাকা <span className="font-bold text-blue-600">"Add"</span> বাটনে ট্যাপ করুন।</span>
+                    </li>
+                  </ol>
+                </div>
+              )}
+
+              {installGuide === "android" && (
+                <div className="space-y-4 font-bengali">
+                  <h4 className="font-bold text-slate-800 text-[15px]">অ্যান্ড্রয়েডে ডাউনলোড করার নিয়ম:</h4>
+                  <div className="space-y-3">
+                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-700 leading-relaxed text-[13px]">
+                      📢 আপনি যদি Facebook, Messenger, বা অন্য কোনো অ্যাপের ভেতর থেকে ব্রাউজ করে থাকেন, তবে অফলাইনে ব্যবহারের জন্য দয়া করে প্রথম পদক্ষেপটি অনুসরণ করুন।
+                    </div>
+                    <ol className="space-y-3.5 text-slate-600 text-[14px]">
+                      <li className="flex gap-2.5">
+                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">১</span>
+                        <span>ফোনের আসল <span className="font-bold text-blue-600">Google Chrome</span> ব্রাউজার দিয়ে <span className="font-bold">biddayan.com</span> এ প্রবেশ করুন।</span>
+                      </li>
+                      <li className="flex gap-2.5">
+                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">২</span>
+                        <span>ব্রাউজারের উপরে ডানদিকের বা নিচে থাকা <span className="font-bold text-blue-600">থ্রি-ডট (⋮)</span> মেনু বাটনে ডাবল ক্লিক করুন।</span>
+                      </li>
+                      <li className="flex gap-2.5">
+                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">৩</span>
+                        <span>মেনু তালিকা থেকে <span className="font-bold text-blue-600">"Install app"</span> অথবা <span className="font-bold text-blue-600">"Add to Home Screen"</span> অপশনে চাপ দিন।</span>
+                      </li>
+                    </ol>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
+              <button
+                onClick={() => setInstallGuide(null)}
+                className="px-5 py-2 bg-slate-800 text-white font-bengali font-bold text-sm rounded-xl hover:bg-slate-700 transition-colors"
+              >
+                বুঝেছি
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pt-6">
         {/* Top Navigation */}
         <nav className="flex justify-between items-center mb-8 lg:mb-16">
@@ -269,7 +516,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-[56px] lg:text-[76px] font-bold font-bengali text-[#0F172A] leading-[1.1] mb-6 tracking-tight"
+              className="text-[42px] sm:text-[56px] lg:text-[76px] font-bold font-bengali text-[#0F172A] leading-[1.1] mb-6 tracking-tight"
             >
               এক অ্যাপেই
               <br />
@@ -292,12 +539,13 @@ export default function Landing() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto mb-14"
             >
-              <Link to="/auth" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto bg-[#00B074] hover:bg-[#009260] text-white px-8 py-4 rounded-xl font-bengali font-semibold text-[17px] transition-transform active:scale-95 shadow-[0_8px_20px_rgba(0,176,116,0.25)] flex items-center justify-center gap-2">
+              <Link to="/auth" className="w-full sm:w-auto" id="link-hero-auth">
+                <button id="btn-register-login" className="w-full sm:w-auto bg-[#00B074] hover:bg-[#009260] text-white px-8 py-4 rounded-xl font-bengali font-semibold text-[17px] transition-transform active:scale-95 shadow-[0_8px_20px_rgba(0,176,116,0.25)] flex items-center justify-center gap-2">
                   <UserPlus className="w-5 h-5" /> রেজিস্ট্রেশন/লগিন
                 </button>
               </Link>
               <button
+                id="btn-hero-install-app"
                 onClick={triggerInstall}
                 className="w-full sm:w-auto bg-white border border-[#E2E8F0] shadow-sm text-[#1E293B] hover:text-[#00B074] px-8 py-4 rounded-xl font-bengali font-semibold text-[17px] transition-colors active:bg-[#F8FAFC] flex items-center justify-center gap-2"
               >
@@ -362,7 +610,7 @@ export default function Landing() {
                 </div>
 
                 {/* Mockup Content */}
-                <div className="flex-1 bg-[#FAFAFA] p-[22px] overflow-hidden flex flex-col gap-6">
+                <div className="flex-1 bg-[#FAFAFA] p-4 sm:p-[22px] overflow-y-auto flex flex-col gap-4 sm:gap-6 scrollbar-thin">
                   <div>
                     <div className="flex items-center gap-2 mb-4">
                       <h4 className="text-[14px] font-bengali font-bold text-[#00B074]">
@@ -371,9 +619,7 @@ export default function Landing() {
                     </div>
                     <div className="grid grid-cols-4 gap-x-2 gap-y-4">
                       <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#F3E8FF] rounded-[16px] flex items-center justify-center text-purple-600 shadow-[0_2px_10px_rgba(168,85,247,0.1)] border border-white">
-                          <ClipboardList className="w-6 h-6" />
-                        </div>
+                        {getFeatureIcon("মক টেস্ট", "small")}
                         <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
                           মক টেস্ট
                           <br />
@@ -381,9 +627,7 @@ export default function Landing() {
                         </span>
                       </div>
                       <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#FFEDD5] rounded-[16px] flex items-center justify-center text-orange-500 shadow-[0_2px_10px_rgba(249,115,22,0.1)] border border-white">
-                          <MonitorPlay className="w-6 h-6" />
-                        </div>
+                        {getFeatureIcon("মডেল টেস্ট", "small")}
                         <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
                           মডেল
                           <br />
@@ -391,9 +635,7 @@ export default function Landing() {
                         </span>
                       </div>
                       <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#DBEAFE] rounded-[16px] flex items-center justify-center text-blue-500 shadow-[0_2px_10px_rgba(59,130,246,0.1)] border border-white">
-                          <Bot className="w-6 h-6" />
-                        </div>
+                        {getFeatureIcon("ডাউট সলভিং", "small")}
                         <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
                           ডাউট
                           <br />
@@ -401,9 +643,7 @@ export default function Landing() {
                         </span>
                       </div>
                       <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#FEE2E2] rounded-[16px] flex items-center justify-center text-red-500 shadow-[0_2px_10px_rgba(239,68,68,0.1)] border border-white">
-                          <RefreshCcw className="w-6 h-6" />
-                        </div>
+                        {getFeatureIcon("ভুলের প্র্যাকটিস", "small")}
                         <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
                           ভুলের
                           <br />
@@ -411,41 +651,21 @@ export default function Landing() {
                         </span>
                       </div>
                       <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#DCFCE7] rounded-[16px] flex items-center justify-center text-green-500 shadow-[0_2px_10px_rgba(34,197,94,0.1)] border border-white">
-                          <BookOpen className="w-6 h-6" />
-                        </div>
-                        <span className="text-[10px] font-bengali font-semibold text-[#475569]">
+                        {getFeatureIcon("নোটস", "small")}
+                        <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
                           নোটস
                         </span>
                       </div>
                       <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#F3E8FF] rounded-[16px] flex items-center justify-center text-purple-600 shadow-[0_2px_10px_rgba(168,85,247,0.1)] border border-white">
-                          <Lightbulb className="w-6 h-6" />
-                        </div>
+                        {getFeatureIcon("মেমোরাইজিং পার্ট", "small")}
                         <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
                           মেমোরাইজিং
-                          <br />
-                          কার্ড
                         </span>
                       </div>
                       <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#DBEAFE] rounded-[16px] flex items-center justify-center text-blue-500 shadow-[0_2px_10px_rgba(59,130,246,0.1)] border border-white">
-                          <ClipboardList className="w-6 h-6" />
-                        </div>
+                        {getFeatureIcon("প্রশ্ন ব্যাংক", "small")}
                         <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
-                          প্রশ্ন
-                          <br />
-                          ব্যাংক
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-center gap-1.5">
-                        <div className="w-[52px] h-[52px] bg-[#FEE2E2] rounded-[16px] flex items-center justify-center text-red-500 shadow-[0_2px_10px_rgba(239,68,68,0.1)] border border-white">
-                          <RefreshCcw className="w-6 h-6" />
-                        </div>
-                        <span className="text-[10px] font-bengali font-semibold text-[#475569] text-center leading-[1.2]">
-                          ভুলের
-                          <br />
-                          প্র্যাকটিস
+                          প্রশ্ন ব্যাংক
                         </span>
                       </div>
                     </div>
@@ -502,19 +722,29 @@ export default function Landing() {
                 </div>
               </div>
 
-              {/* Floating Mockup Cards */}
+              {/* Floating Mockup Cards - Visible on Mobile and Desktop with responsive styling */}
               <motion.div
                 animate={{ y: [-8, 8, -8] }}
+                style={{ willChange: "transform", transform: "translateZ(0)" }}
                 transition={{
                   duration: 5,
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
                 className="absolute top-[8%] -left-[25px] sm:-left-[60px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
+                id="card-feat-model"
               >
                 <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#F97316] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(249,115,22,0.3)]">
-                    <MonitorPlay className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-gradient-to-br from-[#FF9031] to-[#EF3A3A] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(249,115,22,0.3)] relative overflow-visible">
+                    <div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-white/30"></div>
+                    <div className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px] bg-white rounded-[4px] sm:rounded-[5px] flex flex-col justify-center gap-0.5 px-0.5 relative shadow-xs shrink-0">
+                      <div className="w-[4px] sm:w-[6px] h-[1.5px] sm:h-[2px] bg-orange-400 rounded-full mb-0.5"></div>
+                      <div className="w-[8px] sm:w-[10px] h-[1.5px] bg-slate-200"></div>
+                      <div className="w-[8px] sm:w-[10px] h-[1.5px] bg-slate-200"></div>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-orange-500 flex items-center justify-center border-[0.5px] border-white">
+                        <Check className="w-[4px] sm:w-[5px] h-[4px] sm:h-[5px] text-white stroke-[4]" />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#EA580C] text-center mt-2 sm:mt-3 leading-tight">
@@ -526,6 +756,7 @@ export default function Landing() {
 
               <motion.div
                 animate={{ y: [8, -8, 8] }}
+                style={{ willChange: "transform", transform: "translateZ(0)" }}
                 transition={{
                   duration: 6,
                   repeat: Infinity,
@@ -533,10 +764,19 @@ export default function Landing() {
                   delay: 1,
                 }}
                 className="absolute top-[40%] -left-[35px] sm:-left-[75px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
+                id="card-feat-mock"
               >
                 <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#A855F7] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(168,85,247,0.3)]">
-                    <ClipboardList className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-gradient-to-br from-[#EC4899] to-[#8B5CF6] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(168,85,247,0.3)] relative overflow-visible">
+                    <div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-white/30"></div>
+                    <div className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px] bg-white rounded-[4px] sm:rounded-[5px] flex flex-col justify-center gap-0.5 px-0.5 shadow-xs shrink-0">
+                      <div className="h-[1px] sm:h-[1.5px] bg-slate-100 rounded-full relative overflow-hidden">
+                        <div className="absolute right-0.2 top-0 bottom-0 w-[2px] sm:w-[3px] rounded-full bg-purple-500"></div>
+                      </div>
+                      <div className="h-[1px] sm:h-[1.5px] bg-slate-100 rounded-full relative overflow-hidden">
+                        <div className="absolute left-0.2 top-0 bottom-0 w-[2px] sm:w-[3px] rounded-full bg-[#EC4899]"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#9333EA] text-center mt-2 sm:mt-3 leading-tight">
@@ -548,6 +788,7 @@ export default function Landing() {
 
               <motion.div
                 animate={{ y: [-5, 5, -5] }}
+                style={{ willChange: "transform", transform: "translateZ(0)" }}
                 transition={{
                   duration: 4.5,
                   repeat: Infinity,
@@ -555,10 +796,17 @@ export default function Landing() {
                   delay: 0.5,
                 }}
                 className="absolute top-[30%] -right-[25px] sm:-right-[60px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
+                id="card-feat-ai"
               >
                 <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#3B82F6] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(59,130,246,0.3)]">
-                    <Bot className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-gradient-to-br from-[#0EA5E9] to-[#3B82F6] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(59,130,246,0.3)] relative overflow-visible">
+                    <div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-white/30"></div>
+                    <div className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px] bg-white rounded-[4px] sm:rounded-[5px] flex items-center justify-center shadow-xs shrink-0 relative p-[2px]">
+                      <Brain className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#0EA5E9]" />
+                      <div className="absolute -bottom-0.5 -right-0.5 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#0EA5E9] flex items-center justify-center border-[0.5px] border-white font-bold text-white text-[4px] sm:text-[5px] leading-none">
+                        ?
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#2563EB] text-center mt-2 sm:mt-3 leading-tight">
@@ -579,11 +827,14 @@ export default function Landing() {
                 className="absolute top-[65%] -right-[35px] sm:-right-[70px] bg-white pt-4 sm:pt-5 p-2 sm:p-4 pb-2 sm:pb-3 rounded-[14px] sm:rounded-[20px] shadow-[0_15px_40px_rgba(0,0,0,0.1)] flex flex-col items-center gap-1 sm:gap-3 border border-[#F8FAFC] z-20 w-[70px] sm:w-[100px]"
               >
                 <div className="absolute -top-4 sm:-top-6 w-[36px] sm:w-[48px] h-[36px] sm:h-[48px] bg-white rounded-[10px] sm:rounded-[14px] shadow-sm flex items-center justify-center border border-slate-50">
-                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-[#EF4444] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(239,68,68,0.3)]">
-                    <RefreshCcw className="w-[12px] sm:w-[18px] h-[12px] sm:h-[18px] text-white" />
+                  <div className="w-[26px] sm:w-[36px] h-[26px] sm:h-[36px] bg-gradient-to-br from-[#FE4E41] to-[#EC4899] rounded-[8px] sm:rounded-[10px] flex items-center justify-center shadow-[0_4px_10px_rgba(239,68,68,0.3)] relative overflow-visible">
+                    <div className="absolute top-0.5 right-0.5 w-1 h-1 rounded-full bg-white/30"></div>
+                    <div className="w-[14px] h-[14px] sm:w-[18px] sm:h-[18px] bg-white rounded-[4px] sm:rounded-[5px] flex items-center justify-center shadow-xs shrink-0">
+                      <RefreshCcw className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-rose-500" />
+                    </div>
                   </div>
                 </div>
-                <span className="text-[10px] sm:text-[12px] font-bengali font-bold text-[#DC2626] text-center mt-2 sm:mt-3 leading-tight">
+                <span className="text-[12px] font-bengali font-bold text-[#DC2626] text-center mt-3 leading-tight">
                   ভুলের
                   <br />
                   প্র্যাকটিস
@@ -615,19 +866,7 @@ export default function Landing() {
                 className="bg-white border border-[#E2E8F0] rounded-[24px] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.06)] transition-all flex flex-col h-full hover:-translate-y-1 group"
               >
                 <div className="flex items-center gap-5 mb-4">
-                  <div
-                    className={`w-[52px] h-[52px] rounded-2xl ${feature.lightBg} border border-white flex items-center justify-center shadow-sm shrink-0`}
-                  >
-                    {feature.iconBg ? (
-                      <div
-                        className={`w-[36px] h-[36px] rounded-[10px] ${feature.iconBg} flex items-center justify-center`}
-                      >
-                        {feature.iconInner}
-                      </div>
-                    ) : (
-                      feature.icon
-                    )}
-                  </div>
+                  {getFeatureIcon(feature.title, "large")}
                   <h3
                     className={`text-[22px] font-bengali font-bold leading-tight ${feature.arrowColor}`}
                   >
