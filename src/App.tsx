@@ -150,8 +150,44 @@ function AppLayout() {
     });
   }, []);
 
+  const lowerPath = location.pathname.toLowerCase();
+  
+  const isPublicPath = 
+    location.pathname === "/" ||
+    lowerPath.startsWith("/auth") ||
+    lowerPath.startsWith("/login") ||
+    lowerPath.startsWith("/onboarding") ||
+    lowerPath.startsWith("/memorize") ||
+    lowerPath.startsWith("/public-exam") ||
+    lowerPath.startsWith("/exam") ||
+    lowerPath.startsWith("/quiz") ||
+    lowerPath.startsWith("/qsbank") ||
+    lowerPath.startsWith("/modeltest");
+
   // Do not show back button on dashboard, exam, paper, and question-bank pages
-  const hideGlobalBackButton = location.pathname === "/dashboard" || location.pathname === "/" || location?.pathname?.startsWith("/exam") || location.pathname === "/paper" || location.pathname === "/bank" || location.pathname === "/question-bank" || location.pathname?.startsWith("/notes") || location.pathname === "/leaderboard" || location.pathname === "/profile" || location.pathname === "/admin" || location.pathname === "/tutor" || location.pathname === "/doubts" || location.pathname === "/memorize" || location.pathname === "/public-exams" || location.pathname === "/subscription" || location.pathname === "/mock-payment" || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
+  const hideGlobalBackButton = 
+    location.pathname === "/dashboard" || 
+    location.pathname === "/" || 
+    lowerPath.startsWith("/exam") || 
+    lowerPath.startsWith("/quiz") || 
+    lowerPath.startsWith("/qsbank") || 
+    lowerPath.startsWith("/modeltest") || 
+    lowerPath.startsWith("/public-exam") || 
+    location.pathname === "/paper" || 
+    location.pathname === "/bank" || 
+    location.pathname === "/question-bank" || 
+    lowerPath.startsWith("/notes") || 
+    location.pathname === "/leaderboard" || 
+    location.pathname === "/profile" || 
+    location.pathname === "/admin" || 
+    location.pathname === "/tutor" || 
+    location.pathname === "/doubts" || 
+    location.pathname === "/memorize" || 
+    location.pathname === "/public-exams" || 
+    location.pathname === "/subscription" || 
+    location.pathname === "/mock-payment" || 
+    lowerPath.startsWith("/format") || 
+    lowerPath.startsWith("/subject-papers");
 
   if (loading) {
     return (
@@ -165,7 +201,7 @@ function AppLayout() {
     );
   }
 
-  if (!user && location.pathname !== '/memorize') {
+  if (!user && !isPublicPath) {
     return <Navigate to="/auth" replace />;
   }
 
@@ -186,9 +222,8 @@ function AppLayout() {
     }
   };
 
-  const lowerPath = location.pathname.toLowerCase();
-  const isFullScreenPage = lowerPath.startsWith("/notes") || lowerPath.startsWith("/exam") || lowerPath.startsWith("/doubts") || lowerPath.startsWith("/tutor") || lowerPath.startsWith("/bank") || lowerPath.startsWith("/memorize") || lowerPath.startsWith("/mock-payment") || lowerPath.startsWith("/paper") || lowerPath.startsWith("/format") || lowerPath.startsWith("/subject-papers");
-  const hideNavbar = lowerPath.startsWith("/exam") || lowerPath.startsWith("/doubts") || lowerPath.startsWith("/tutor") || lowerPath.startsWith("/notes") || lowerPath.startsWith("/bank") || lowerPath.startsWith("/memorize") || lowerPath.startsWith("/mock-payment") || lowerPath.startsWith("/paper") || lowerPath.startsWith("/format") || lowerPath.startsWith("/subject-papers");
+  const isFullScreenPage = lowerPath.startsWith("/notes") || lowerPath.startsWith("/exam") || lowerPath.startsWith("/quiz") || lowerPath.startsWith("/qsbank") || lowerPath.startsWith("/modeltest") || lowerPath.startsWith("/public-exam") || lowerPath.startsWith("/doubts") || lowerPath.startsWith("/tutor") || lowerPath.startsWith("/bank") || lowerPath.startsWith("/memorize") || lowerPath.startsWith("/mock-payment") || lowerPath.startsWith("/paper") || lowerPath.startsWith("/format") || lowerPath.startsWith("/subject-papers");
+  const hideNavbar = lowerPath.startsWith("/exam") || lowerPath.startsWith("/quiz") || lowerPath.startsWith("/qsbank") || lowerPath.startsWith("/modeltest") || lowerPath.startsWith("/public-exam") || lowerPath.startsWith("/doubts") || lowerPath.startsWith("/tutor") || lowerPath.startsWith("/notes") || lowerPath.startsWith("/bank") || lowerPath.startsWith("/memorize") || lowerPath.startsWith("/mock-payment") || lowerPath.startsWith("/paper") || lowerPath.startsWith("/format") || lowerPath.startsWith("/subject-papers");
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans mb-8">

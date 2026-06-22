@@ -238,7 +238,7 @@ export default function PublicExam() {
     
     try {
       await addDoc(collection(db, "public_exam_results"), {
-        examId: id,
+        examId: exam?.id || id,
         examTitle: exam?.title || "",
         studentName: studentName.trim() || userData?.fullName || "শিক্ষার্থী",
         mobileNumber: isEventExam ? mobileNumber : "",
