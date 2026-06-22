@@ -14,6 +14,7 @@ interface ExamParticipant {
   total: number;
   submittedAt: any;
   examId: string;
+  mobileNumber?: string;
 }
 
 export function EventExamTab() {
@@ -56,7 +57,8 @@ export function EventExamTab() {
             score: data.score || 0,
             total: data.total || 0,
             submittedAt: data.submittedAt,
-            examId: data.examId
+            examId: data.examId,
+            mobileNumber: data.mobileNumber || ""
           });
         });
       }
@@ -127,13 +129,14 @@ export function EventExamTab() {
     
     // Add UTF-8 BOM so Excel opens Bengali perfectly
     const BOM = "\uFEFF";
-    let csvContent = BOM + "Rank (অবস্থান),Student Name (শিক্ষার্থীর নাম),Exam Title (পরীক্ষার নাম),Score (প্রাপ্ত নম্বর),Total Questions (মোট প্রশ্ন),Percentage (শতকরা হার %)\n";
+    let csvContent = BOM + "Rank (অবস্থান),Student Name (শিক্ষার্থীর নাম),Mobile Number (মোবাইল নম্বর),Exam Title (পরীক্ষার নাম),Score (প্রাপ্ত নম্বর),Total Questions (মোট প্রশ্ন),Percentage (শতকরা হার %)\n";
     
     participants.forEach((p, index) => {
       const percentage = p.total > 0 ? Math.round((p.score / p.total) * 100) : 0;
       const sanitizedName = `"${(p.studentName || '').replace(/"/g, '""')}"`;
+      const sanitizedMobile = `"${(p.mobileNumber || '').replace(/"/g, '""')}"`;
       const sanitizedTitle = `"${(p.examTitle || '').replace(/"/g, '""')}"`;
-      csvContent += `${index + 1},${sanitizedName},${sanitizedTitle},${p.score},${p.total},${percentage}%\n`;
+      csvContent += `${index + 1},${sanitizedName},${sanitizedMobile},${sanitizedTitle},${p.score},${p.total},${percentage}%\n`;
     });
     
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -217,10 +220,17 @@ export function EventExamTab() {
                 {filteredParticipants.map((participant, index) => (
                   <tr key={participant.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                     <td className="p-3 font-bengali font-medium flex items-center gap-2">
-                       <div className="w-6 h-6 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold">
+                       <div className="w-6 h-6 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold shrink-0">
                          {index + 1}
                        </div>
-                       {participant.studentName}
+                       <div>
+                         <div className="text-slate-900 dark:text-white font-bold">{participant.studentName}</div>
+                         {participant.mobileNumber && (
+                           <div className="text-xs text-slate-500 font-mono font-medium mt-0.5">
+                             📲 {participant.mobileNumber}
+                           </div>
+                         )}
+                       </div>
                     </td>
                     <td className="p-3 text-slate-500 font-bengali">{participant.examTitle}</td>
                     <td className="p-3 text-center">
@@ -257,7 +267,10 @@ export function EventExamTab() {
                 <Gift className="w-12 h-12 text-rose-500" />
               </div>
               
-              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">{winner?.studentName}</h3>
+              <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{winner?.studentName}</h3>
+              {winner?.mobileNumber && (
+                <p className="text-base text-rose-600 font-mono font-bold mb-3">📲 {winner.mobileNumber}</p>
+              )}
               
               <div className="flex items-center justify-center gap-3 mt-4">
                 <div className="bg-white dark:bg-card px-4 py-2 rounded-lg shadow-sm border border-slate-100 dark:border-slate-800">
