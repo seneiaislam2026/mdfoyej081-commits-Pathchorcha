@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Clock, BookOpen, User, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, XCircle, ChevronDown, ChevronUp, Timer, FileText, Brain } from "lucide-react";
+import { Clock, BookOpen, User, CheckCircle2, AlertCircle, ArrowLeft, ArrowRight, XCircle, ChevronDown, ChevronUp, Timer, FileText, Brain, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -376,16 +376,22 @@ export default function PublicExam() {
 
   if (!isStarted) {
     return (
-      <div className="min-h-screen bg-background flex flex-col font-bengali relative overflow-hidden">
+      <div className="min-h-screen bg-[#F3F6FC] flex items-center justify-center p-3 sm:p-6 font-bengali relative overflow-hidden">
         {/* Subtle background decoration */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100/40 via-transparent to-transparent pointer-events-none"></div>
+        <div className="absolute top-10 left-10 w-24 h-24 rounded-full bg-blue-200/20 blur-xl pointer-events-none animate-pulse"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 rounded-full bg-indigo-200/20 blur-xl pointer-events-none animate-pulse"></div>
 
-        {/* Top Brand Header */}
-        <div className="bg-card px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm relative z-10">
-            <div className="flex items-center">
-              <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-muted border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
-                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+        <Card className="w-full max-w-[480px] border-0 shadow-[0_16px_50px_rgba(15,39,68,0.06)] rounded-[32px] sm:rounded-[36px] bg-white relative z-10 overflow-hidden">
+          <CardContent className="p-5 sm:p-8 flex flex-col">
+            {/* Top Brand Header inside card */}
+            <div className="flex items-center justify-between w-full mb-6">
+              <button 
+                onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} 
+                className="w-11 h-11 rounded-full bg-white border border-slate-200/80 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-all cursor-pointer hover:border-slate-300"
+              >
+                <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />
               </button>
+              
               <Link to="/" className="flex items-center h-[52px] sm:h-[62px] overflow-visible">
                 <TransparentLogo
                   src="https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"
@@ -393,22 +399,21 @@ export default function PublicExam() {
                   className="h-[64px] sm:h-[76px] -my-1.5 w-auto object-contain block relative"
                 />
               </Link>
-            </div>
-           {userData?.uid && (
-             <Link to="/profile" className="w-[38px] h-[38px] rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0 bg-blue-100 flex items-center justify-center hover:shadow-md transition-shadow">
-               {userData.photoURL ? (
-                 <img src={userData.photoURL} alt={userData.fullName} className="w-full h-full object-cover" />
-               ) : (
-                 <User className="w-5 h-5 text-blue-600" />
-               )}
-             </Link>
-           )}
-        </div>
 
-        <div className="flex-1 flex items-center justify-center p-4 sm:p-6 pb-24 relative z-10 w-full">
-          <Card className="w-full max-w-[460px] border-0 shadow-[0_20px_60px_rgb(0,0,0,0.06)] rounded-[32px] sm:rounded-[40px] bg-card relative z-10">
-          <CardContent className="p-6 sm:p-10">
-            {/* Custom SVG icon */}
+              {userData?.uid ? (
+                <Link to="/profile" className="w-11 h-11 rounded-full overflow-hidden border border-slate-200 shadow-sm shrink-0 bg-blue-50 flex items-center justify-center hover:shadow-md transition-shadow">
+                  {userData.photoURL ? (
+                    <img src={userData.photoURL} alt={userData.fullName} className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-5 h-5 text-blue-600" />
+                  )}
+                </Link>
+              ) : (
+                <div className="w-11 h-11"></div>
+              )}
+            </div>
+
+            {/* Custom SVG exam illustration */}
             <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" className="mx-auto mb-2 relative left-2">
               <circle cx="70" cy="75" r="45" fill="#F0F5FF"/>
               
@@ -443,95 +448,113 @@ export default function PublicExam() {
               </g>
             </svg>
 
-            <h2 className="text-[22px] sm:text-[26px] font-bold text-center text-[#0F2744] mb-4 leading-[1.35] px-2 uppercase tracking-tight">
+            {/* Exam Title */}
+            <h2 className="text-[23px] sm:text-[26px] font-extrabold text-center text-[#0F2744] mb-4 leading-snug px-1 tracking-tight">
               {exam.title}
             </h2>
 
-            <div className="flex flex-row items-center justify-center text-[#0F2744] gap-4 sm:gap-6 mb-8 text-[15px] sm:text-[16px] font-bold">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-[#F0F5FF] flex items-center justify-center">
-                  <Clock className="w-3.5 h-3.5 text-[#0F2744]" strokeWidth={2.5}/> 
-                </div>
+            {/* Exam metadata row */}
+            <div className="flex flex-row items-center justify-center text-[#0F2744] gap-4 sm:gap-5 mb-6 text-[15px] sm:text-[16px] font-bold">
+              <div className="flex items-center gap-1.5 matches-clock text-[#1E40AF]">
+                <Clock className="w-5 h-5 text-[#2563EB]" strokeWidth={2.5}/> 
                 <span>সময়: {enToBnNumber(exam.duration)} মিনিট</span>
               </div>
               <div className="w-[1.5px] h-5 bg-slate-200"></div>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-[#F0F5FF] flex items-center justify-center">
-                  <FileText className="w-3.5 h-3.5 text-[#0F2744]" strokeWidth={2.5}/> 
-                </div>
+              <div className="flex items-center gap-1.5 matches-file text-[#1E40AF]">
+                <FileText className="w-5 h-5 text-[#2563EB]" strokeWidth={2.5}/> 
                 <span>মোট নম্বর: {enToBnNumber(questions.length)}</span>
               </div>
             </div>
             
-            <div className="space-y-6">
-              <div className="bg-[#F4F6FB] rounded-[24px] p-5 flex flex-col items-center">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="w-7 h-7 rounded-full bg-[#E5EDF9] flex items-center justify-center shrink-0">
-                     <User className="w-3.5 h-3.5 text-[#475569]" strokeWidth={2.5}/>
-                  </div>
-                  <span className="text-[#64748B] text-[15px] font-semibold">পরীক্ষার্থী</span>
+            {/* Main Interactive Fields */}
+            <div className="space-y-5">
+              
+              {/* Candidate Info Card */}
+              <div className="bg-[#EDF4FF] border border-[#DDECFF] rounded-[24px] p-4.5 flex items-center gap-3.5 shadow-xs relative">
+                <div className="w-12 h-12 rounded-full bg-[#D6E7FF] flex items-center justify-center text-blue-600 shrink-0">
+                  <User className="w-6 h-6" strokeWidth={2.5}/>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-slate-400 text-[12px] font-bold uppercase tracking-wider block">পরীক্ষার্থী</span>
+                  {!userData?.fullName && !studentName ? (
+                     <div className="w-full mt-1.5">
+                        <Input 
+                          placeholder="আপনার নাম লিখুন..." 
+                          className="h-[38px] bg-white border border-blue-100 rounded-xl px-3 text-sm shadow-xs focus-visible:ring-1 focus-visible:ring-blue-400 font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal"
+                          value={studentName}
+                          onChange={(e) => setStudentName(e.target.value)}
+                        />
+                     </div>
+                  ) : (
+                     <span className="text-[19px] sm:text-[21px] font-extrabold text-[#0B1D33] tracking-tight truncate block leading-tight mt-0.5 animate-fade-in">
+                       {userData?.fullName || studentName}
+                     </span>
+                  )}
                 </div>
 
-                {!userData?.fullName ? (
-                   <div className="w-full mt-2 relative">
-                      <Input 
-                        placeholder="আপনার নাম লিখুন..." 
-                        className="h-[52px] bg-card border-0 rounded-xl text-center text-lg shadow-sm focus:ring-0 font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal"
-                        value={studentName}
-                        onChange={(e) => setStudentName(e.target.value)}
-                      />
-                   </div>
-                ) : (
-                   <div className="text-[24px] font-bold text-[#0F2744] mt-1 tracking-tight">
-                     {userData.fullName}
-                   </div>
-                )}
+                {/* Achievement Badge */}
+                <div className="shrink-0 pl-1">
+                  <svg width="44" height="44" viewBox="0 0 48 48" fill="none" className="shrink-0 select-none">
+                    <path d="M18 30 L13 43 L21 40 L24 31.5" fill="#5F88FC" />
+                    <path d="M30 30 L35 43 L27 40 L24 31.5" fill="#5F88FC" />
+                    <path d="M19.5 30 L16 43 L21 40" fill="#3B82F6" />
+                    <path d="M28.5 30 L32 43 L27 40" fill="#3B82F6" />
+                    
+                    <circle cx="24" cy="22" r="14" fill="#4B77FF" />
+                    <circle cx="24" cy="22" r="12" fill="#3B66FF" />
+                    <path d="M24 14 L26.5 19.5 L32.5 20.2 L28 24.3 L29.3 30.2 L24 27.2 L18.7 30.2 L20 24.3 L15.5 20.2 L21.5 19.5 Z" fill="white" />
+                  </svg>
+                </div>
               </div>
 
-              {isEventExam && (
-                <div className="bg-[#FFF8F5] rounded-[24px] p-5 flex flex-col items-center border border-orange-100">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <div className="w-7 h-7 rounded-full bg-[#FFEDE5] flex items-center justify-center shrink-0">
-                       <svg className="w-3.5 h-3.5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                       </svg>
-                    </div>
-                    <span className="text-orange-950 text-[15px] font-bold font-bengali">মোবাইল নম্বর</span>
-                  </div>
-                  <div className="w-full mt-1 relative">
-                     <Input 
-                       type="tel"
-                       placeholder="আপনার ১১ ডিজিটের মোবাইল নম্বর লিখুন..." 
-                       className="h-[52px] bg-card border border-orange-200 focus:border-orange-400 rounded-xl text-center text-lg shadow-sm font-mono font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal placeholder:font-bengali"
-                       value={mobileNumber}
-                       onChange={(e) => {
-                         const val = e.target.value.replace(/[^0-9]/g, '');
-                         if (val.length <= 11) {
-                           setMobileNumber(val);
-                         }
-                       }}
-                     />
-                  </div>
+              {/* Mobile Number Container */}
+              <div className="bg-[#FFF4ED] border border-[#FFE1CE] rounded-[24px] p-4 sm:p-5 shadow-xs relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-16 h-16 bg-[#FFEFE5] rounded-full blur-xl pointer-events-none"></div>
+                <div className="flex items-center gap-2 mb-3.5 pl-1 relative z-10">
+                   <Phone className="w-5 h-5 text-orange-500" strokeWidth={2.5} />
+                   <span className="text-[#803105] text-[15px] sm:text-[16px] font-extrabold tracking-tight">মোবাইল নম্বর</span>
                 </div>
-              )}
+                <div className="relative z-10">
+                   <Phone className="w-4 h-4 text-slate-400 absolute left-4.5 top-1/2 -translate-y-1/2" />
+                   <Input 
+                     type="tel"
+                     placeholder="আপনার ১১ ডিজিটের মোবাইল নম্বর" 
+                     className="pl-12 pr-14 h-[50px] sm:h-[56px] bg-white border border-[#FFEADB]/40 rounded-full text-base sm:text-lg font-mono font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal placeholder:font-bengali shadow-xs focus-visible:ring-2 focus-visible:ring-orange-500/40"
+                     value={mobileNumber}
+                     onChange={(e) => {
+                       const val = e.target.value.replace(/[^0-9]/g, '');
+                       if (val.length <= 11) {
+                         setMobileNumber(val);
+                       }
+                     }}
+                   />
+                   <button 
+                     onClick={handleStart}
+                     disabled={(!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
+                     className={`w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 transition-all shadow-sm ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-[#FF5500] text-white hover:bg-[#E04B00] hover:scale-105 active:scale-95 cursor-pointer'}`}
+                   >
+                     <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+                   </button>
+                </div>
+              </div>
 
+              {/* Start Button */}
               <Button 
                 onClick={handleStart} 
-                className={`w-full h-[64px] rounded-[24px] font-bold transition-all flex items-center justify-between px-2 drop-shadow-xl border border-white/5 ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-300 shadow-none text-slate-500 cursor-not-allowed hover:bg-slate-300' : 'bg-gradient-to-r from-[#03112B] to-[#0D2452] hover:from-[#020B1D] hover:to-[#051C3F] shadow-[0_8px_24px_rgba(5,28,63,0.3)] text-white'}`}
+                className={`w-full h-[62px] sm:h-[68px] rounded-[24px] font-bold font-bengali transition-all flex items-center justify-between px-3.5 sm:px-4.5 border border-white/10 ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-300 shadow-none text-slate-400 cursor-not-allowed hover:bg-slate-300' : 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] hover:from-[#4F46E5] hover:to-[#7C3AED] shadow-[0_10px_25px_rgba(99,102,241,0.3)] text-white hover:scale-[1.01] active:scale-95'}`}
                 disabled={(!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
               >
-                <div className="flex items-center gap-3 pl-4 sm:pl-6">
-                  <span className="text-[26px] drop-shadow-md pb-1">🚀</span>
-                  <span className="text-[20px] text-white">পরীক্ষা শুরু করুন</span>
+                <div className="flex items-center gap-3 pl-2 sm:pl-3">
+                  <span className="text-[26px] sm:text-[30px] animate-bounce">🚀</span>
+                  <span className="text-[19px] sm:text-[21px] text-white font-extrabold tracking-tight">পরীক্ষা শুরু করুন</span>
                 </div>
-                <div className={`w-[48px] h-[48px] rounded-[20px] flex items-center justify-center shrink-0 mr-0 transition-colors ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-200 text-slate-400' : 'bg-card text-[#0A2656]'}`}>
-                   <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
+                <div className={`w-[40px] h-[40px] sm:w-[46px] sm:h-[46px] rounded-full flex items-center justify-center shrink-0 mr-0 transition-all ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-200 text-slate-400' : 'bg-white text-[#6366F1] shadow-xs cursor-pointer'}`}>
+                   <ArrowRight className="w-5 h-5" strokeWidth={3} />
                 </div>
               </Button>
             </div>
           </CardContent>
         </Card>
-        </div>
       </div>
     );
   }
