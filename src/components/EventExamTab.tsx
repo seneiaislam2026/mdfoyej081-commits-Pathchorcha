@@ -32,9 +32,18 @@ export function EventExamTab() {
       const eventExamsQuery = query(examsRef, where("type", "==", "event_exam"));
       const eventExamsSnapshot = await getDocs(eventExamsQuery);
       
-      const eventExamIds = eventExamsSnapshot.docs.map(doc => doc.id);
+      // Extract both true Firestore cases and lowercase variants to cover case-insensitive submissions
+      const queryExamIds: string[] = [];
+      eventExamsSnapshot.docs.forEach(doc => {
+        const oId = doc.id;
+        const lId = oId.toLowerCase();
+        queryExamIds.push(oId);
+        if (oId !== lId && !queryExamIds.includes(lId)) {
+          queryExamIds.push(lId);
+        }
+      });
       
-      if (eventExamIds.length === 0) {
+      if (queryExamIds.length === 0) {
         setParticipants([]);
         setLoading(false);
         return;
@@ -43,8 +52,8 @@ export function EventExamTab() {
       let allResults: ExamParticipant[] = [];
       const MAX_IN = 10;
       
-      for (let i = 0; i < eventExamIds.length; i += MAX_IN) {
-        const chunk = eventExamIds.slice(i, i + MAX_IN);
+      for (let i = 0; i < queryExamIds.length; i += MAX_IN) {
+        const chunk = queryExamIds.slice(i, i + MAX_IN);
         const resultsQuery = query(collection(db, "public_exam_results"), where("examId", "in", chunk));
         const resultsSnapshot = await getDocs(resultsQuery);
         

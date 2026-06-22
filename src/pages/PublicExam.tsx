@@ -187,13 +187,29 @@ export default function PublicExam() {
       try {
         setIsCheckingMobile(true);
         const { collection, getDocs, query, where } = await import("firebase/firestore");
-        const q = query(
+        const checkExamId = exam?.id || id;
+        
+        // Robust case-insensitive check by querying both variants
+        const qOriginal = query(
           collection(db, "public_exam_results"),
-          where("examId", "==", id),
+          where("examId", "==", checkExamId),
           where("mobileNumber", "==", cleanNum)
         );
-        const snap = await getDocs(q);
-        if (!snap.empty) {
+        const snapOriginal = await getDocs(qOriginal);
+        
+        let hasTaken = !snapOriginal.empty;
+        
+        if (!hasTaken && checkExamId && checkExamId.toLowerCase() !== checkExamId) {
+          const qLower = query(
+            collection(db, "public_exam_results"),
+            where("examId", "==", checkExamId.toLowerCase()),
+            where("mobileNumber", "==", cleanNum)
+          );
+          const snapLower = await getDocs(qLower);
+          hasTaken = !snapLower.empty;
+        }
+
+        if (hasTaken) {
           alert("দুঃখিত! এই মোবাইল নম্বরটি দিয়ে ইতিমধ্যে একবার পরীক্ষায় অংশ নেওয়া হয়েছে। একটি ইভেন্টে এক নম্বর দিয়ে একবারই কুইজ দেওয়া যাবে।");
           return;
         }
@@ -241,7 +257,7 @@ export default function PublicExam() {
         examId: exam?.id || id,
         examTitle: exam?.title || "",
         studentName: studentName.trim() || userData?.fullName || "শিক্ষার্থী",
-        mobileNumber: isEventExam ? mobileNumber : "",
+        mobileNumber: mobileNumber || "",
         score: s,
         correct: c,
         wrong: w,
