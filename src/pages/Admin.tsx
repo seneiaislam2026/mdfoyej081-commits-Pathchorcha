@@ -1346,9 +1346,18 @@ export default function Admin() {
   };
 
   const copyExamLink = (id: string, type?: string) => {
-    const isQuiz = type === "event_exam";
     const domain = "https://www.biddayan.com";
-    const url = isQuiz ? `${domain}/Quiz/${id}` : `${domain}/Exam/${id}`;
+    let path = "Exam";
+    
+    if (type === "event_exam") {
+      path = "Quiz";
+    } else if (type === "question_bank" || type === "qs_bank" || type === "qsbank") {
+      path = "Qsbank";
+    } else if (type === "model_test" || type === "live_model_test") {
+      path = "Modeltest";
+    }
+    
+    const url = `${domain}/${path}/${id}`;
     navigator.clipboard.writeText(url);
     alert("Exam Link Copied: " + url);
   };
