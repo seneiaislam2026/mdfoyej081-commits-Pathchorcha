@@ -175,21 +175,33 @@ export default function PublicExam() {
       setLoadingLeaderboard(true);
       const q = query(
         collection(db, "public_exam_results"),
-        where("examId", "==", id),
-        orderBy("score", "desc"),
-        limit(10)
+        where("examId", "==", id)
       );
       const tempSnaps = await getDocs(q);
       const board: any[] = [];
       tempSnaps.forEach((doc) => {
         board.push({ id: doc.id, ...doc.data() });
       });
-      setLeaderboard(board);
+      board.sort((a, b) => {
+        const scoreDiff = (b.score || 0) - (a.score || 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        const timeA = a.submittedAt?.seconds || 0;
+        const timeB = b.submittedAt?.seconds || 0;
+        return timeA - timeB;
+      });
+      setLeaderboard(board.slice(0, 10));
     } catch (e) {
       console.error(e);
     } finally {
       setLoadingLeaderboard(false);
     }
+  };
+
+  const maskMobileNumber = (num: string) => {
+    if (!num) return "";
+    const clean = num.trim();
+    if (clean.length < 11) return clean;
+    return enToBnNumber(clean.substring(0, 3) + "******" + clean.substring(9));
   };
 
   const handleStart = async () => {
@@ -500,7 +512,7 @@ export default function PublicExam() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-slate-400 text-[12px] font-bold uppercase tracking-wider block">পরীক্ষার্থী</span>
-                  {!userData?.fullName && !studentName ? (
+                  {!userData?.fullName ? (
                      <div className="w-full mt-1.5">
                         <Input 
                           placeholder="আপনার নাম লিখুন..." 
@@ -845,7 +857,7 @@ export default function PublicExam() {
         </div>
         )}
 
-        {isSubmitted && leaderboard.length > 0 && !isEventExam && (
+        {isSubmitted && leaderboard.length > 0 && (
           <div className="mt-8 mb-8 bg-card rounded-[32px] border border-slate-100 shadow-sm p-6 sm:p-8">
              <h3 className="text-xl sm:text-2xl font-bold text-foreground font-bengali text-center mb-6 flex items-center justify-center gap-2">
                <span>🏆</span> লিডারবোর্ড (Top 10)
@@ -855,14 +867,19 @@ export default function PublicExam() {
                  <div key={user.id} className={`flex items-center justify-between border rounded-2xl p-4 ${idx === 0 ? 'bg-amber-50/50 border-amber-100' : idx === 1 ? 'bg-muted border-slate-200' : idx === 2 ? 'bg-orange-50/50 border-orange-100' : 'bg-muted border-slate-100'}`}>
                    <div className="flex items-center gap-4 min-w-0">
                      <div className={`w-10 h-10 shrink-0 rounded-full flex items-center justify-center font-bold text-base ${idx === 0 ? 'bg-amber-100 text-amber-600' : idx === 1 ? 'bg-slate-200 text-muted-foreground' : idx === 2 ? 'bg-orange-100 text-orange-600' : 'bg-card border text-slate-500'}`}>
-                       #{idx + 1}
+                       #{enToBnNumber(idx + 1)}
                      </div>
                      <div className="min-w-0">
                        <div className="font-bold text-foreground text-base sm:text-lg truncate">{user.studentName}</div>
+                       {user.mobileNumber && (
+                         <div className="text-xs text-slate-500 font-semibold mt-0.5">
+                           মোবাইল: {maskMobileNumber(user.mobileNumber)}
+                         </div>
+                       )}
                      </div>
                    </div>
                    <div className="text-right shrink-0 pl-4">
-                     <div className="font-bold text-lg text-primary">{user.score} <span className="text-sm text-slate-400 font-normal">/ {user.total}</span></div>
+                     <div className="font-bold text-lg text-primary">{enToBnNumber(user.score)} <span className="text-sm text-slate-400 font-normal">/ {enToBnNumber(user.total)}</span></div>
                    </div>
                  </div>
                ))}
