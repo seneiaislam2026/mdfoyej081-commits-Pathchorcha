@@ -43,6 +43,7 @@ export default function PublicExam() {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [mobileNumber, setMobileNumber] = useState("");
+  const [isCheckingMobile, setIsCheckingMobile] = useState(false);
 
   const isEventExam = exam?.type === "event_exam";
 
@@ -191,16 +192,39 @@ export default function PublicExam() {
     }
   };
 
-  const handleStart = () => {
+  const handleStart = async () => {
     const finalName = studentName.trim() || userData?.fullName;
     if (!finalName) {
       alert("আপনার নাম প্রদান করুন।");
       return;
     }
-    if (isEventExam && (!mobileNumber || mobileNumber.trim().length < 11)) {
-      alert("অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর প্রদান করুন।");
-      return;
+    if (isEventExam) {
+      const cleanNum = mobileNumber.trim();
+      if (!cleanNum || cleanNum.length < 11) {
+        alert("অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর প্রদান করুন।");
+        return;
+      }
+
+      try {
+        setIsCheckingMobile(true);
+        const { collection, getDocs, query, where } = await import("firebase/firestore");
+        const q = query(
+          collection(db, "public_exam_results"),
+          where("examId", "==", id),
+          where("mobileNumber", "==", cleanNum)
+        );
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          alert("দুঃখিত! এই মোবাইল নম্বরটি দিয়ে ইতিমধ্যে একবার পরীক্ষায় অংশ নেওয়া হয়েছে। একটি ইভেন্টে এক নম্বর দিয়ে একবারই কুইজ দেওয়া যাবে।");
+          return;
+        }
+      } catch (err) {
+        console.error("Error checking mobile duplicate:", err);
+      } finally {
+        setIsCheckingMobile(false);
+      }
     }
+
     if (!studentName.trim() && finalName) {
       setStudentName(finalName);
     }
@@ -521,6 +545,7 @@ export default function PublicExam() {
                      placeholder="আপনার ১১ ডিজিটের মোবাইল নম্বর" 
                      className="pl-12 pr-14 h-[50px] sm:h-[56px] bg-white border border-[#FFEADB]/40 rounded-full text-base sm:text-lg font-mono font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal placeholder:font-bengali shadow-xs focus-visible:ring-2 focus-visible:ring-orange-500/40"
                      value={mobileNumber}
+                     disabled={isCheckingMobile}
                      onChange={(e) => {
                        const val = e.target.value.replace(/[^0-9]/g, '');
                        if (val.length <= 11) {
@@ -530,8 +555,8 @@ export default function PublicExam() {
                    />
                    <button 
                      onClick={handleStart}
-                     disabled={(!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
-                     className={`w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 transition-all shadow-sm ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-[#FF5500] text-white hover:bg-[#E04B00] hover:scale-105 active:scale-95 cursor-pointer'}`}
+                     disabled={isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
+                     className={`w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 transition-all shadow-sm ${(isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-[#FF5500] text-white hover:bg-[#E04B00] hover:scale-105 active:scale-95 cursor-pointer'}`}
                    >
                      <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
                    </button>
@@ -541,14 +566,16 @@ export default function PublicExam() {
               {/* Start Button */}
               <Button 
                 onClick={handleStart} 
-                className={`w-full h-[62px] sm:h-[68px] rounded-[24px] font-bold font-bengali transition-all flex items-center justify-between px-3.5 sm:px-4.5 border border-white/10 ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-300 shadow-none text-slate-400 cursor-not-allowed hover:bg-slate-300' : 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] hover:from-[#4F46E5] hover:to-[#7C3AED] shadow-[0_10px_25px_rgba(99,102,241,0.3)] text-white hover:scale-[1.01] active:scale-95'}`}
-                disabled={(!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
+                className={`w-full h-[62px] sm:h-[68px] rounded-[24px] font-bold font-bengali transition-all flex items-center justify-between px-3.5 sm:px-4.5 border border-white/10 ${(isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-300 shadow-none text-slate-400 cursor-not-allowed hover:bg-slate-300' : 'bg-gradient-to-r from-[#6366F1] to-[#8B5CF6] hover:from-[#4F46E5] hover:to-[#7C3AED] shadow-[0_10px_25px_rgba(99,102,241,0.3)] text-white hover:scale-[1.01] active:scale-95'}`}
+                disabled={isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
               >
                 <div className="flex items-center gap-3 pl-2 sm:pl-3">
                   <span className="text-[26px] sm:text-[30px] animate-bounce">🚀</span>
-                  <span className="text-[19px] sm:text-[21px] text-white font-extrabold tracking-tight">পরীক্ষা শুরু করুন</span>
+                  <span className="text-[19px] sm:text-[21px] text-white font-extrabold tracking-tight">
+                    {isCheckingMobile ? "যাচাই করা হচ্ছে..." : "পরীক্ষা শুরু করুন"}
+                  </span>
                 </div>
-                <div className={`w-[40px] h-[40px] sm:w-[46px] sm:h-[46px] rounded-full flex items-center justify-center shrink-0 mr-0 transition-all ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-200 text-slate-400' : 'bg-white text-[#6366F1] shadow-xs cursor-pointer'}`}>
+                <div className={`w-[40px] h-[40px] sm:w-[46px] sm:h-[46px] rounded-full flex items-center justify-center shrink-0 mr-0 transition-all ${(isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-200 text-slate-400' : 'bg-white text-[#6366F1] shadow-xs cursor-pointer'}`}>
                    <ArrowRight className="w-5 h-5" strokeWidth={3} />
                 </div>
               </Button>
