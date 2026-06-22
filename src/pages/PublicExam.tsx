@@ -41,6 +41,7 @@ export default function PublicExam() {
   const [expandedExplanation, setExpandedExplanation] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
+  const [mobileNumber, setMobileNumber] = useState("");
 
   const isEventExam = exam?.type === "event_exam";
 
@@ -177,6 +178,10 @@ export default function PublicExam() {
       alert("আপনার নাম প্রদান করুন।");
       return;
     }
+    if (isEventExam && (!mobileNumber || mobileNumber.trim().length < 11)) {
+      alert("অনুগ্রহ করে একটি সঠিক ১১ ডিজিটের মোবাইল নম্বর প্রদান করুন।");
+      return;
+    }
     if (!studentName.trim() && finalName) {
       setStudentName(finalName);
     }
@@ -214,6 +219,7 @@ export default function PublicExam() {
         examId: id,
         examTitle: exam?.title || "",
         studentName: studentName.trim() || userData?.fullName || "শিক্ষার্থী",
+        mobileNumber: isEventExam ? mobileNumber : "",
         score: s,
         correct: c,
         wrong: w,
@@ -459,16 +465,43 @@ export default function PublicExam() {
                 )}
               </div>
 
+              {isEventExam && (
+                <div className="bg-[#FFF8F5] rounded-[24px] p-5 flex flex-col items-center border border-orange-100">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <div className="w-7 h-7 rounded-full bg-[#FFEDE5] flex items-center justify-center shrink-0">
+                       <svg className="w-3.5 h-3.5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                       </svg>
+                    </div>
+                    <span className="text-orange-950 text-[15px] font-bold font-bengali">মোবাইল নম্বর</span>
+                  </div>
+                  <div className="w-full mt-1 relative">
+                     <Input 
+                       type="tel"
+                       placeholder="আপনার ১১ ডিজিটের মোবাইল নম্বর লিখুন..." 
+                       className="h-[52px] bg-card border border-orange-200 focus:border-orange-400 rounded-xl text-center text-lg shadow-sm font-mono font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal placeholder:font-bengali"
+                       value={mobileNumber}
+                       onChange={(e) => {
+                         const val = e.target.value.replace(/[^0-9]/g, '');
+                         if (val.length <= 11) {
+                           setMobileNumber(val);
+                         }
+                       }}
+                     />
+                  </div>
+                </div>
+              )}
+
               <Button 
                 onClick={handleStart} 
-                className={`w-full h-[64px] rounded-[24px] font-bold transition-all flex items-center justify-between px-2 drop-shadow-xl border border-white/5 ${(!userData?.fullName && !studentName.trim()) ? 'bg-slate-300 shadow-none' : 'bg-gradient-to-r from-[#03112B] to-[#0D2452] hover:from-[#020B1D] hover:to-[#051C3F] shadow-[0_8px_24px_rgba(5,28,63,0.3)]'}`}
-                disabled={!userData?.fullName && !studentName.trim()}
+                className={`w-full h-[64px] rounded-[24px] font-bold transition-all flex items-center justify-between px-2 drop-shadow-xl border border-white/5 ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-300 shadow-none text-slate-500 cursor-not-allowed hover:bg-slate-300' : 'bg-gradient-to-r from-[#03112B] to-[#0D2452] hover:from-[#020B1D] hover:to-[#051C3F] shadow-[0_8px_24px_rgba(5,28,63,0.3)] text-white'}`}
+                disabled={(!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
               >
                 <div className="flex items-center gap-3 pl-4 sm:pl-6">
                   <span className="text-[26px] drop-shadow-md pb-1">🚀</span>
                   <span className="text-[20px] text-white">পরীক্ষা শুরু করুন</span>
                 </div>
-                <div className={`w-[48px] h-[48px] rounded-[20px] flex items-center justify-center shrink-0 mr-0 transition-colors ${(!userData?.fullName && !studentName.trim()) ? 'bg-slate-200 text-slate-400' : 'bg-card text-[#0A2656]'}`}>
+                <div className={`w-[48px] h-[48px] rounded-[20px] flex items-center justify-center shrink-0 mr-0 transition-colors ${((!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-200 text-slate-400' : 'bg-card text-[#0A2656]'}`}>
                    <ArrowRight className="w-6 h-6" strokeWidth={2.5} />
                 </div>
               </Button>
@@ -482,56 +515,68 @@ export default function PublicExam() {
 
   return (
     <div className="min-h-screen bg-background font-bengali pb-24">
-      {/* Top Brand Header */}
-      <div className="bg-card px-4 sm:px-6 py-3 sm:py-4 flex items-center border-b border-slate-100">
-         <div className="font-bold text-2xl sm:text-[28px] tracking-tight flex items-center !leading-relaxed">
-            <span className="text-[#1e293b]">শিক্ষা</span><span className="text-[#f59e0b]">ঙ্গন</span>
-         </div>
-      </div>
-
       {/* Sticky Action Bar */}
-      <header className="bg-card border-y sticky top-0 z-50">
-        <div className="max-w-[800px] mx-auto px-2 sm:px-4 h-14 sm:h-16 flex items-center justify-between overflow-x-auto no-scrollbar">
+      <header className="bg-slate-50/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 py-4 sm:py-5 px-4 sm:px-6">
+        <div className="max-w-[700px] mx-auto flex items-center justify-between gap-2">
           
-          <button onClick={() => navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-card border border-slate-200 shadow-sm flex items-center justify-center hover:bg-muted transition-colors shrink-0 mr-2">
-            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+          {/* Left Arrow Back Button (Mockup match) */}
+          <button 
+            onClick={() => {
+              if (isSubmitted) {
+                navigate("/");
+              } else if (confirm("আপনি কি নিশ্চিতভাবে পরীক্ষা বাতিল করতে চান?")) {
+                navigate("/");
+              }
+            }} 
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition-all shrink-0 cursor-pointer shadow-[0_3px_10px_rgba(0,0,0,0.04)]"
+            aria-label="ফিরে যান"
+          >
+            <ArrowLeft className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-800" strokeWidth={2.5} />
           </button>
           
-          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0 flex-nowrap">
-             {isSubmitted ? (
-               !isEventExam ? (
-                 <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-green-50 text-green-700 font-semibold rounded-full text-[13px] sm:text-sm border border-green-200 shadow-sm whitespace-nowrap">
-                   <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                   <span className="font-bengali font-bold hidden sm:inline">স্কোর:</span>
-                   <span className="font-mono font-bold text-[14px] sm:text-[15px]">{score}/{questions.length}</span>
-                 </div>
-               ) : (
-                 <div className="flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 bg-rose-50 text-rose-700 font-semibold rounded-full text-[12px] sm:text-xs border border-rose-200 shadow-sm whitespace-nowrap font-bengali">
-                   <CheckCircle2 className="w-3.5 h-3.5 text-rose-500" />
-                   সফলভাবে জমা হয়েছে
-                 </div>
-               )
-             ) : (
-               <>
-                 <div className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-indigo-50 text-indigo-700 font-semibold rounded-full text-[12px] sm:text-[13px] border border-indigo-100/50 shadow-sm whitespace-nowrap tracking-tight">
-                   <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-70" />
-                   <span className="font-bengali font-bold hidden xs:inline">বাকি:</span>
-                   <span className="font-mono font-bold">{remainingQuestions}</span>
-                 </div>
-    
-                 <div className="flex items-center gap-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-orange-50 text-orange-700 font-bold rounded-full text-[13px] sm:text-sm border border-orange-100/50 shadow-sm font-mono whitespace-nowrap">
-                   <Timer className="w-[14px] h-[14px] text-orange-500 animate-pulse" />
-                   {formatTime(timeLeft)}
-                 </div>
-               </>
-             )}
-             
-             {!isSubmitted && (
-               <Button variant="default" className="font-bengali font-bold rounded-full h-[32px] sm:h-[38px] px-3 sm:px-5 shadow-none text-[13px] sm:text-sm whitespace-nowrap ml-1 sm:ml-0 transition-all bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:text-red-700" onClick={handleSubmit}>
-                  শেষ করুন
-               </Button>
-             )}
+          {/* Violet capsule (Mockup match) */}
+          <div className="bg-[#F1EEFB] border border-[#E9E4F8] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#5A45D4] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#836CE7] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(131,108,231,0.2)] flex-shrink-0">
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+            </div>
+            <div className="flex items-center justify-center gap-1 font-bold font-sans text-[13px] sm:text-[16px] text-[#5A45D4] leading-none mb-px">
+              {isSubmitted ? (
+                <span>{questions.length}</span>
+              ) : (
+                <span>{Object.keys(selectedAnswers).length}/{questions.length}</span>
+              )}
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#836CE7] opacity-80" strokeWidth={2.5} />
+            </div>
           </div>
+
+          {/* Orange capsule (Mockup match) */}
+          <div className="bg-[#FFF6ED] border border-[#FFEADA] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#EA580C] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#FB923C] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(251,146,60,0.2)] flex-shrink-0">
+              <Timer className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse" strokeWidth={2.5} />
+            </div>
+            <div className="flex items-center justify-center gap-1 font-bold font-mono text-[13px] sm:text-[16px] text-[#EA580C] leading-none mb-px">
+              <span>{isSubmitted ? "00:00" : formatTime(timeLeft)}</span>
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FB923C] opacity-80" strokeWidth={2.5} />
+            </div>
+          </div>
+
+          {/* Magenta "শেষ করুন" Button (Mockup match) */}
+          {!isSubmitted ? (
+            <button 
+              onClick={handleSubmit} 
+              className="bg-gradient-to-r from-[#FF1E6C] to-[#E60050] hover:from-[#E60050] hover:to-[#CC0040] text-white rounded-full pl-3.5 pr-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 font-bengali font-bold text-xs sm:text-[15px] shadow-[0_4px_12px_rgba(230,0,80,0.22)] transition-all transform active:scale-95 cursor-pointer border border-[#FF3D83]/10 shrink-0"
+            >
+              <span className="leading-none mb-px">শেষ করুন</span>
+              <div className="w-[24px] h-[24px] sm:w-[30px] sm:h-[30px] rounded-full bg-white flex items-center justify-center text-[#FF1E6C] shadow-inner">
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={3} />
+              </div>
+            </button>
+          ) : (
+            <div className="bg-[#E2E8F0] text-slate-500 rounded-full px-3.5 py-1.5 font-bengali font-bold text-xs sm:text-sm shadow-sm select-none shrink-0 text-center flex items-center justify-center">
+              মূল্যায়ন সম্পন্ন
+            </div>
+          )}
+          
         </div>
       </header>
 

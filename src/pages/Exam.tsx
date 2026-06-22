@@ -1856,29 +1856,71 @@ export default function Exam() {
 
   // Screen 3: Exam Player
   return (
-    <div className={`w-full flex flex-col font-bengali ${!isSubmitted ? 'pb-24' : 'pb-20'}`}>
-      {/* Top Section */}
-      <div className="w-full bg-card py-3.5 sm:py-5 px-4 sm:px-8 mb-6 sm:mb-10 text-center relative border-b border-slate-100 shadow-[0_2px_15px_rgba(0,0,0,0.03)] sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <button 
-               onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
-               className="w-10 h-10 -ml-2 rounded-full hover:bg-muted flex items-center justify-center transition-colors relative z-10"
-            >
-               <ArrowLeft className="w-6 h-6 text-foreground" />
-            </button>
-            <div className="absolute left-1/2 -translate-x-1/2 text-center pointer-events-none w-full px-12">
-              <h2 className="text-[19px] sm:text-[22px] font-bold text-slate-900 leading-tight">
-                {type === 'mock' ? 'মক পরীক্ষা' : type === 'mistakes' ? 'ভুলগুলোর প্র্যাকটিস' : 'মডেল টেস্ট'}
-              </h2>
-              {remainingTime !== null && (
-                <p className="text-slate-500 font-medium text-[13.5px] sm:text-[14px] mt-0.5">
-                  সময়: <span className="font-mono font-bold text-slate-700">{initialTimeText}</span>
-                </p>
-              )}
+    <div className={`w-full flex flex-col font-bengali ${!isSubmitted ? 'pb-10' : 'pb-20'}`}>
+      {/* Sticky Action Bar matching mockup */}
+      <header className="bg-slate-50/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 py-4 sm:py-5 px-4 sm:px-6 w-full mb-6">
+        <div className="max-w-[700px] mx-auto flex items-center justify-between gap-2">
+          
+          {/* Left Arrow Back Button (Mockup match) */}
+          <button 
+            onClick={() => {
+              if (isSubmitted) {
+                setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null);
+              } else if (confirm("আপনি কি নিশ্চিতভাবে পরীক্ষা বাতিল করতে চান?")) {
+                setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null);
+              }
+            }} 
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition-all shrink-0 cursor-pointer shadow-[0_3px_10px_rgba(0,0,0,0.04)]"
+            aria-label="ফিরে যান"
+          >
+            <ArrowLeft className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-800" strokeWidth={2.5} />
+          </button>
+          
+          {/* Violet capsule (Mockup match) */}
+          <div className="bg-[#F1EEFB] border border-[#E9E4F8] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#5A45D4] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#836CE7] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(131,108,231,0.2)] flex-shrink-0">
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
             </div>
-            <div className="w-10 h-10"></div>
+            <div className="flex items-center justify-center gap-1 font-bold font-sans text-[13px] sm:text-[16px] text-[#5A45D4] leading-none mb-px">
+              {isSubmitted ? (
+                <span>{dbQuestions.length}</span>
+              ) : (
+                <span>{Object.keys(selectedOptions).length}/{dbQuestions.length}</span>
+              )}
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#836CE7] opacity-80" strokeWidth={2.5} />
+            </div>
+          </div>
+
+          {/* Orange capsule (Mockup match) */}
+          <div className="bg-[#FFF6ED] border border-[#FFEADA] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#EA580C] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#FB923C] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(251,146,60,0.2)] flex-shrink-0">
+              <Timer className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse" strokeWidth={2.5} />
+            </div>
+            <div className="flex items-center justify-center gap-1 font-bold font-mono text-[13px] sm:text-[16px] text-[#EA580C] leading-none mb-px">
+              <span>{isSubmitted ? "00:00" : timeLeft}</span>
+              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FB923C] opacity-80" strokeWidth={2.5} />
+            </div>
+          </div>
+
+          {/* Magenta "শেষ করুন" Button (Mockup match) */}
+          {!isSubmitted ? (
+            <button 
+              onClick={() => { handleSubmit(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+              className="bg-gradient-to-r from-[#FF1E6C] to-[#E60050] hover:from-[#E60050] hover:to-[#CC0040] text-white rounded-full pl-3.5 pr-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 font-bengali font-bold text-xs sm:text-[15px] shadow-[0_4px_12px_rgba(230,0,80,0.22)] transition-all transform active:scale-95 cursor-pointer border border-[#FF3D83]/10 shrink-0"
+            >
+              <span className="leading-none mb-px">শেষ করুন</span>
+              <div className="w-[24px] h-[24px] sm:w-[30px] sm:h-[30px] rounded-full bg-white flex items-center justify-center text-[#FF1E6C] shadow-inner">
+                <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" strokeWidth={3} />
+              </div>
+            </button>
+          ) : (
+            <div className="bg-[#E2E8F0] text-slate-500 rounded-full px-3.5 py-1.5 font-bengali font-bold text-xs sm:text-sm shadow-sm select-none shrink-0 text-center flex items-center justify-center">
+              মূল্যায়ন সম্পন্ন
+            </div>
+          )}
+          
         </div>
-      </div>
+      </header>
 
       <div className="w-full max-w-4xl mx-auto px-4 sm:px-6">
         {/* Main Question Area */}
@@ -2076,34 +2118,7 @@ export default function Exam() {
           ))}
         </div>
 
-        {!isSubmitted && (
-         <div className="fixed bottom-0 left-0 w-full z-50 bg-[#005B4F] shadow-[0_-4px_10px_rgba(0,0,0,0.1)] text-white">
-           <div className="w-full max-w-7xl mx-auto flex items-center justify-between h-[60px] px-2 pb-1">
-              <div 
-                className="flex flex-col items-center justify-center min-w-[70px] cursor-pointer" 
-                onClick={() => { setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null); }}
-              >
-                 <div className="w-5 h-5 text-white flex items-center justify-center mb-1">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                 </div>
-                 <span className="font-mono text-[11px] font-bold leading-none">{timeLeft}</span>
-              </div>
-              
-              <div className="flex-1 flex justify-center border-l border-r border-[#1a6d63] h-[40px] items-center">
-                 <button 
-                   onClick={() => { handleSubmit(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                   className="w-full h-full font-bengali font-bold text-[16px] text-white tracking-wide active:scale-95 transition-transform"
-                 >
-                    সাবমিট করো
-                 </button>
-              </div>
 
-              <div className="font-mono text-[14px] font-bold min-w-[70px] text-center flex items-center justify-center">
-                 {Object.keys(selectedOptions).length}/{dbQuestions.length}
-              </div>
-           </div>
-         </div>
-        )}
          </>
         )}
         </div>
