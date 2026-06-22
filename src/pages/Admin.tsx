@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc, writeBatch } from "firebase/firestore";
+import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, orderBy, limit, deleteDoc, writeBatch, setDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import NotesCreator from "../components/NotesCreator";
 import BoardQuestionsCreator from "../components/BoardQuestionsCreator";
@@ -324,6 +324,7 @@ export default function Admin() {
   const [newExamClass, setNewExamClass] = useState("সকল ক্লাস");
   const [newExamType, setNewExamType] = useState("public"); // "public" or "live_model_test"
   const [newExamScheduledDate, setNewExamScheduledDate] = useState("");
+  const [newExamCustomId, setNewExamCustomId] = useState("");
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [questionSearch, setQuestionSearch] = useState("");
   const [subjectBankFilter, setSubjectBankFilter] = useState("Bangla 1st Paper");
@@ -1146,20 +1147,36 @@ export default function Admin() {
       }
     }
 
+    const cleanCustomId = newExamCustomId.trim().replace(/[^a-zA-Z0-9\-_]/g, "");
+
     setExamsLoading(true);
     try {
       if (editingExamId) {
-        await updateDoc(doc(db, "public_exams", editingExamId), {
+        const docData: any = {
           title: newExamTitle,
           duration,
           questions: parsedQuestions.length > 0 ? parsedQuestions : undefined,
           targetClass: newExamClass,
           type: newExamType,
           scheduledDate: newExamScheduledDate || null,
-        });
-        alert("Public exam updated successfully.");
+        };
+
+        if (cleanCustomId && cleanCustomId !== editingExamId) {
+          const existingExam = publicExams.find(e => e.id === editingExamId) || {};
+          await setDoc(doc(db, "public_exams", cleanCustomId), {
+            ...existingExam,
+            ...docData,
+            id: cleanCustomId
+          });
+          await deleteDoc(doc(db, "public_exams", editingExamId));
+          alert("Public exam updated and ID changed successfully.");
+        } else {
+          await updateDoc(doc(db, "public_exams", editingExamId), docData);
+          alert("Public exam updated successfully.");
+        }
       } else {
-        await addDoc(collection(db, "public_exams"), {
+        const finalDocId = cleanCustomId || Math.random().toString(36).substring(2, 8);
+        await setDoc(doc(db, "public_exams", finalDocId), {
           title: newExamTitle,
           duration,
           active: true,
@@ -1169,7 +1186,7 @@ export default function Admin() {
           scheduledDate: newExamScheduledDate || null,
           createdAt: serverTimestamp()
         });
-        alert("Public exam created successfully.");
+        alert("Public exam created successfully with ID: " + finalDocId);
       }
       fetchPublicExams();
       setShowCreateExamModal(false);
@@ -1180,6 +1197,7 @@ export default function Admin() {
       setNewExamClass("সকল ক্লাস");
       setNewExamType("public");
       setNewExamScheduledDate("");
+      setNewExamCustomId("");
     } catch (error) {
       console.error("Error saving exam:", error);
       alert("Failed to save public exam.");
@@ -1342,6 +1360,7 @@ export default function Admin() {
     setNewExamClass(exam.targetClass || "সকল ক্লাস");
     setNewExamType(exam.type || "public");
     setNewExamScheduledDate(exam.scheduledDate || "");
+    setNewExamCustomId(exam.id || "");
     setShowCreateExamModal(true);
   };
 
@@ -2634,6 +2653,7 @@ export default function Admin() {
                 setNewExamDuration("25");
                 setNewExamQuestionsJSON("");
                 setNewExamScheduledDate("");
+                setNewExamCustomId("");
                 setShowCreateExamModal(true);
               }} disabled={examsLoading} className="font-bengali">
                 <Plus className="w-4 h-4 mr-2" /> 
@@ -4378,6 +4398,16 @@ export default function Admin() {
                   onChange={(e) => setNewExamTitle(e.target.value)}
                   className="font-bengali bg-card"
                 />
+              </div>
+              <div>
+                <label className="text-sm font-bold mb-1 block font-bengali">পরীক্ষার আইডি/কোড (ইংরেজি বর্ণে সংক্ষিপ্ত, যেমন: Even-1)</label>
+                <Input 
+                  placeholder="যেমন: Even-1, Model-5, Bangla-test"
+                  value={newExamCustomId}
+                  onChange={(e) => setNewExamCustomId(e.target.value)}
+                  className="font-mono bg-card"
+                />
+                <p className="text-xs text-slate-500 mt-1">ফাঁকা রাখলে স্বয়ংক্রিয়ভাবে একটি সংক্ষিপ্ত কোড যুক্ত হবে।</p>
               </div>
               <div>
                 <label className="text-sm font-bold mb-1 block font-bengali">সময় (Minutes)</label>

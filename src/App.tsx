@@ -186,8 +186,9 @@ function AppLayout() {
     }
   };
 
-  const isFullScreenPage = location.pathname.startsWith("/notes") || location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment") || location.pathname.startsWith("/paper") || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
-  const hideNavbar = location.pathname.startsWith("/exam") || location.pathname.startsWith("/doubts") || location.pathname.startsWith("/tutor") || location.pathname.startsWith("/notes") || location.pathname.startsWith("/bank") || location.pathname.startsWith("/memorize") || location.pathname.startsWith("/mock-payment") || location.pathname.startsWith("/paper") || location.pathname.startsWith("/format") || location.pathname.startsWith("/subject-papers");
+  const lowerPath = location.pathname.toLowerCase();
+  const isFullScreenPage = lowerPath.startsWith("/notes") || lowerPath.startsWith("/exam") || lowerPath.startsWith("/doubts") || lowerPath.startsWith("/tutor") || lowerPath.startsWith("/bank") || lowerPath.startsWith("/memorize") || lowerPath.startsWith("/mock-payment") || lowerPath.startsWith("/paper") || lowerPath.startsWith("/format") || lowerPath.startsWith("/subject-papers");
+  const hideNavbar = lowerPath.startsWith("/exam") || lowerPath.startsWith("/doubts") || lowerPath.startsWith("/tutor") || lowerPath.startsWith("/notes") || lowerPath.startsWith("/bank") || lowerPath.startsWith("/memorize") || lowerPath.startsWith("/mock-payment") || lowerPath.startsWith("/paper") || lowerPath.startsWith("/format") || lowerPath.startsWith("/subject-papers");
 
   return (
     <div className="min-h-screen bg-background flex flex-col font-sans mb-8">
@@ -229,40 +230,40 @@ export default function App() {
           <Route path="/quiz/:id" element={<PublicExam />} />
           <Route path="/qsbank/:id" element={<PublicExam />} />
           <Route path="/modeltest/:id" element={<PublicExam />} />
-          <Route path="/public-exams" element={<PublicExamsList />} />
-          <Route path="/Exam" element={<PublicExamsList />} />
-          <Route path="/Quiz" element={<PublicExamsList />} />
-          <Route path="/Qsbank" element={<PublicExamsList />} />
-          <Route path="/Modeltest" element={<PublicExamsList />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/login" element={<Login />} />
-        
-        {/* Authenticated Routes with Navbar */}
-        <Route element={<AppLayout />}>
-          <Route path="/home" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/notes" element={<Notes />} />
-          <Route path="/notes/subject/:subjectName" element={<SubjectNotes />} />
-          <Route path="/bank" element={<QuestionBank />} />
-          <Route path="/paper" element={<PaperView />} />
-          <Route path="/format" element={<SubjectFormat />} />
-          <Route path="/subject-papers" element={<SubjectPapers />} />
-          <Route path="/memorize" element={<Memorize />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/login" element={<Login />} />
           
-          
-          <Route path="/exam" element={<Exam />} />
-          <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/tutor" element={<AITutor />} />
-          <Route path="/doubts" element={<Doubts />} />
-          <Route path="/subscription" element={<Subscription />} />
-          <Route path="/payment-success" element={<PaymentSuccess />} />
-          <Route path="/payment-fail" element={<PaymentFail />} />
-          <Route path='/payment-cancel' element={<PaymentCancel />} />
-          <Route path='/mock-payment' element={<MockPaymentPortal />} />
-        </Route>
+          {/* Authenticated Routes with Navbar */}
+          <Route element={<AppLayout />}>
+            <Route path="/home" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/notes" element={<Notes />} />
+            <Route path="/notes/subject/:subjectName" element={<SubjectNotes />} />
+            <Route path="/bank" element={<QuestionBank />} />
+            <Route path="/paper" element={<PaperView />} />
+            <Route path="/format" element={<SubjectFormat />} />
+            <Route path="/subject-papers" element={<SubjectPapers />} />
+            <Route path="/memorize" element={<Memorize />} />
+            
+            <Route path="/public-exams" element={<PublicExamsList />} />
+            <Route path="/Quiz" element={<PublicExamsList />} />
+            <Route path="/Qsbank" element={<PublicExamsList />} />
+            
+            <Route path="/exam" element={<Exam />} />
+            <Route path="/Exam" element={<Exam />} />
+            <Route path="/Modeltest" element={<Exam />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/tutor" element={<AITutor />} />
+            <Route path="/doubts" element={<Doubts />} />
+            <Route path="/subscription" element={<Subscription />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-fail" element={<PaymentFail />} />
+            <Route path='/payment-cancel' element={<PaymentCancel />} />
+            <Route path='/mock-payment' element={<MockPaymentPortal />} />
+          </Route>
         {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

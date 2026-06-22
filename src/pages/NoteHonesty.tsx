@@ -10,9 +10,69 @@ export default function NoteHonesty() {
   const { userData } = useAuth();
   const [isSaved, setIsSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isBlurred, setIsBlurred] = useState(false);
   
   const noteId = "sototar-puroshkar";
   const noteTitle = "সততার পুরস্কার";
+
+  // Focus and Blur Security Mechanism
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey && (e.key === "c" || e.key === "s" || e.key === "p" || e.key === "u" || e.key === "P" || e.key === "C" || e.key === "S")) ||
+        (e.metaKey && (e.key === "p" || e.key === "P" || e.key === "s" || e.key === "S" || e.key === "c" || e.key === "C")) ||
+        e.key === "PrintScreen" ||
+        e.key === "F12"
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    const handleBeforePrint = (e: Event) => {
+      e.preventDefault();
+    };
+
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+    };
+
+    const handleBlur = () => {
+      setTimeout(() => {
+        if (!document.hasFocus()) {
+          setIsBlurred(true);
+        }
+      }, 150);
+    };
+
+    const handleFocus = () => {
+      setIsBlurred(false);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsBlurred(true);
+      } else {
+        setIsBlurred(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("beforeprint", handleBeforePrint, true);
+    window.addEventListener("copy", handleCopy, true);
+    window.addEventListener("blur", handleBlur, true);
+    window.addEventListener("focus", handleFocus, true);
+    document.addEventListener("visibilitychange", handleVisibilityChange, true);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("beforeprint", handleBeforePrint, true);
+      window.removeEventListener("copy", handleCopy, true);
+      window.removeEventListener("blur", handleBlur, true);
+      window.removeEventListener("focus", handleFocus, true);
+      document.removeEventListener("visibilitychange", handleVisibilityChange, true);
+    };
+  }, []);
 
   useEffect(() => {
     if (userData?.uid) {
@@ -57,10 +117,38 @@ export default function NoteHonesty() {
   };
 
   return (
-    <div className="w-full flex justify-center pb-10 px-0 sm:px-4">
+    <div 
+      className="w-full flex justify-center pb-10 px-0 sm:px-4 select-none relative"
+      style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {/* Security Overlay for focus loss */}
+      {isBlurred && (
+        <div className="absolute inset-x-4 top-24 sm:top-36 flex items-center justify-center z-50 p-4 text-center pointer-events-auto">
+          <div className="bg-card border border-border p-8 rounded-[28px] max-w-sm shadow-2xl space-y-4 ring-1 ring-black/5 animate-in fade-in zoom-in-95 duration-250">
+            <div className="bg-destructive/15 text-destructive w-14 h-14 rounded-full flex items-center justify-center mx-auto shadow-inner">
+              <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m0-6V9m0 12a9 9 0 110-18 9 9 0 010 18z" />
+              </svg>
+            </div>
+            <h3 className="font-bengali font-bold text-xl text-slate-900">নিরাপত্তা সতর্কতা</h3>
+            <p className="font-bengali text-sm text-slate-500 leading-relaxed">
+              বিদ্যায়ন অ্যাপের লেকচার নোটগুলোর কপিরাইট সুরক্ষিত রাখতে স্ক্রিনশট বা অন্য কোনোভাবে কপি করা সম্পূর্ণ নিষিদ্ধ। অনুগ্রহ করে অ্যাপে ফোকাস করুন।
+            </p>
+          </div>
+        </div>
+      )}
       
 
-      <div className="bg-card w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative">
+      <div className={`bg-card w-full max-w-[794px] min-h-[1123px] shadow-2xl shadow-slate-300/50 border border-slate-200 sm:mt-8 p-8 sm:p-12 font-bengali relative transition-all duration-300 ${isBlurred ? 'filter blur-2xl select-none pointer-events-none opacity-20' : ''}`}>
+        {/* Anti-screenshot Watermark overlay */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden select-none opacity-[0.03] grid grid-cols-3 grid-rows-6 gap-4 z-10 p-10">
+          {Array.from({ length: 18 }).map((_, i) => (
+            <div key={i} className="text-slate-900 font-sans text-xs sm:text-sm font-bold rotate-[-25deg] flex items-center justify-center whitespace-nowrap uppercase tracking-wider">
+              {userData?.email || "BIDDAYAN SECURE NOTES"}
+            </div>
+          ))}
+        </div>
         <div className="flex justify-end mb-2">
             <Button 
                 variant="outline"
