@@ -1365,7 +1365,7 @@ export default function Admin() {
   };
 
   const copyExamLink = (id: string, type?: string) => {
-    const domain = "https://www.biddayan.com";
+    const domain = window.location.origin;
     let path = "Exam";
     
     if (type === "event_exam") {

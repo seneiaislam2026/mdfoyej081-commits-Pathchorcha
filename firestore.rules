@@ -86,7 +86,7 @@ service cloud.firestore {
     }
 
     match /public_exam_results/{resultId} {
-      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow create: if true;
       allow read, write: if isAdmin();
       allow delete: if isAdmin();
     }
