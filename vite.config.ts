@@ -12,42 +12,46 @@ export default defineConfig({
       registerType: 'autoUpdate', // স্বয়ংক্রিয়ভাবে নতুন আপডেট আসলে ব্যাকগ্রাউন্ডে আপডেট হবে
       injectRegister: 'script',
       manifestFilename: 'manifest.json',
-      includeAssets: ['icon-192-v2.png', 'icon-512-v2.png', 'logo.png', 'screenshot-wide.png', 'screenshot-mobile.png'],
+      includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'logo.png', 'screenshot-wide.png', 'screenshot-mobile.png'],
       
       // ম্যানিফেস্ট ফাইল - যা মোবাইল বা ডেসকটপে ইনস্টল অপশন যুক্ত করে (বিদ্যায়ন অ্যাপের জন্য)
       manifest: {
         id: '/',
         name: 'বিদ্যায়ন',
-        short_name: 'বিদ্যায়ন',
-        description: 'বিদ্যায়ন - HSC ও SSC পরীক্ষার জন্য বাংলা শিক্ষামূলক প্রস্তুতি প্ল্যাটফর্ম।',
+        short_name: 'Biddayan',
+        description: 'HSC ও SSC পরীক্ষার জন্য বাংলা শিক্ষামূলক প্রস্তুতি প্ল্যাটফর্ম',
+        lang: 'bn',
+        dir: 'ltr',
         theme_color: '#0F172A',
         background_color: '#FFFFFF',
         display: 'standalone',
+        display_override: ['window-controls-overlay', 'standalone'],
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
         categories: ['education', 'productivity'],
+        prefer_related_applications: false,
         icons: [
           {
-            src: '/icon-192-v2.png',
+            src: '/icons/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icon-192-v2.png',
+            src: '/icons/icon-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'maskable'
           },
           {
-            src: '/icon-512-v2.png',
+            src: '/icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icon-512-v2.png',
+            src: '/icons/icon-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'

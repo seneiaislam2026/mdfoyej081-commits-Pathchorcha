@@ -1,36 +1,61 @@
 {
   "name": "বিদ্যায়ন",
-  "short_name": "বিদ্যায়ন",
-  "description": "অনলাইন পরীক্ষা ও প্রস্তুতিমূলক অ্যাপ। নোট, মক টেস্ট এবং AI সহায়ক ডাউট সলভিং টুলস।",
+  "short_name": "Biddayan",
+  "description": "HSC ও SSC পরীক্ষার জন্য বাংলা শিক্ষামূলক প্রস্তুতি প্ল্যাটফর্ম",
+  "lang": "bn",
+  "dir": "ltr",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0F172A",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "background_color": "#FFFFFF",
   "theme_color": "#0F172A",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "/icon-192-v2.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/icon-512-v2.png",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
-    {
-      "src": "/screenshot-mobile.png",
-      "sizes": "1080x2400",
-      "type": "image/png",
-      "form_factor": "narrow"
-    },
     {
       "src": "/screenshot-wide.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "1080x2400",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }

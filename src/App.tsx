@@ -72,17 +72,8 @@ function NoteLayout() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center font-sans relative">
         <div className="animate-pulse flex flex-col items-center justify-center mb-8">
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border">
-             <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
-               <span className="text-primary">বিদ্যা</span>
-               <span className="text-[#ff9800]">য়ন</span>
-             </span>
-          </div>
-          <div>
-            <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
-              <span className="text-primary">Bidda</span>
-              <span className="text-[#ff9800]">yon</span>
-            </span>
+          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border overflow-hidden p-4">
+             <img src="/logo.png" alt="Logo" className="w-[140px] h-[140px] sm:w-[170px] sm:h-[170px] object-contain rounded-3xl" referrerPolicy="no-referrer" />
           </div>
         </div>
       </div>
@@ -166,17 +157,8 @@ function AppLayout() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center font-sans relative">
         <div className="animate-pulse flex flex-col items-center justify-center mb-8">
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border">
-             <span className="font-bengali font-extrabold text-[42px] sm:text-[52px] tracking-tight">
-               <span className="text-primary">বিদ্যা</span>
-               <span className="text-[#ff9800]">য়ন</span>
-             </span>
-          </div>
-          <div>
-            <span className="font-['Caveat'] text-[64px] sm:text-[76px] font-bold tracking-tight">
-              <span className="text-primary">Bidda</span>
-              <span className="text-[#ff9800]">yon</span>
-            </span>
+          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border overflow-hidden p-4">
+             <img src="/logo.png" alt="Logo" className="w-[140px] h-[140px] sm:w-[170px] sm:h-[170px] object-contain rounded-3xl" referrerPolicy="no-referrer" />
           </div>
         </div>
       </div>

@@ -32,6 +32,7 @@ export default function SubjectNotes() {
   // Focus and Blur Security Mechanism
   useEffect(() => {
     if (!readingNote) {
+      setIsBlurred(false);
       return;
     }
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -54,14 +55,40 @@ export default function SubjectNotes() {
       e.preventDefault();
     };
 
+    const handleBlur = () => {
+      setTimeout(() => {
+        if (!document.hasFocus()) {
+          setIsBlurred(true);
+        }
+      }, 150);
+    };
+
+    const handleFocus = () => {
+      setIsBlurred(false);
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsBlurred(true);
+      } else {
+        setIsBlurred(false);
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("beforeprint", handleBeforePrint, true);
     window.addEventListener("copy", handleCopy, true);
+    window.addEventListener("blur", handleBlur, true);
+    window.addEventListener("focus", handleFocus, true);
+    document.addEventListener("visibilitychange", handleVisibilityChange, true);
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("beforeprint", handleBeforePrint, true);
       window.removeEventListener("copy", handleCopy, true);
+      window.removeEventListener("blur", handleBlur, true);
+      window.removeEventListener("focus", handleFocus, true);
+      document.removeEventListener("visibilitychange", handleVisibilityChange, true);
     };
   }, [readingNote]);
 
@@ -481,8 +508,23 @@ export default function SubjectNotes() {
                 </header>
 
                 {/* Reader Core Content Body */}
-                <div className="p-5 sm:p-8 md:p-10 flex-1 w-full max-w-2xl mx-auto space-y-6 sm:space-y-8 select-none overflow-x-hidden break-words">
-                  
+                <div className={`p-5 sm:p-8 md:p-10 flex-1 w-full max-w-2xl mx-auto space-y-6 sm:space-y-8 select-none overflow-x-hidden break-words transition-all duration-300 relative ${isBlurred ? 'filter blur-2xl select-none pointer-events-none opacity-20' : ''}`}>
+                  {/* Security Overlay for focus loss */}
+                  {isBlurred && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-md z-50 p-4 text-center pointer-events-auto">
+                      <div className="bg-card border border-border p-6 rounded-2xl max-w-sm shadow-xl space-y-3">
+                        <div className="bg-destructive/15 text-destructive w-12 h-12 rounded-full flex items-center justify-center mx-auto">
+                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-6V9m0 12a9 9 0 110-18 9 9 0 010 18z" />
+                          </svg>
+                        </div>
+                        <h3 className="font-bengali font-bold text-lg">নিরাপত্তা সতর্কতা</h3>
+                        <p className="font-bengali text-xs text-muted-foreground leading-relaxed">
+                          বিদ্যায়ন অ্যাপের লেকচার নোটগুলোর কপিরাইট সুরক্ষিত রাখতে স্ক্রিনশট বা অন্য কোনোভাবে কপি করা সম্পূর্ণ নিষিদ্ধ। অনুগ্রহ করে অ্যাপে ফোকাস করুন।
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   {/* Note Banner Info */}
                   <div className="space-y-4">
                     <h1 className={`font-bengali font-extrabold text-2xl sm:text-3xl lg:text-4xl leading-tight transition-colors duration-300 ${tc.textTitle}`}>

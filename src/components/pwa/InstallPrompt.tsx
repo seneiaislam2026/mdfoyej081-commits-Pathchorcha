@@ -125,6 +125,7 @@ export const InstallPrompt = () => {
             <button
               onClick={handleClose}
               className="absolute top-4 right-4 text-slate-400 hover:text-muted-foreground transition-colors p-1"
+              aria-label="বন্ধ করুন"
             >
               <X size={18} />
             </button>
@@ -186,6 +187,7 @@ export const InstallPrompt = () => {
               <button
                 onClick={handleCloseGuide}
                 className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                aria-label="বন্ধ করুন"
               >
                 ✕
               </button>
