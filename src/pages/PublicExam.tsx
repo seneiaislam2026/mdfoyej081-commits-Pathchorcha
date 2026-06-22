@@ -304,7 +304,8 @@ export default function PublicExam() {
           "progress.totalSolved": newTotalSolved,
           "progress.accuracy": newAccuracy,
           "progress.totalCorrect": increment(c),
-          "progress.totalTimeSpent": increment(timeSpentMins)
+          "progress.totalTimeSpent": increment(timeSpentMins),
+          updatedAt: serverTimestamp()
         });
 
         const batch = writeBatch(db);

@@ -86,8 +86,8 @@ service cloud.firestore {
     }
 
     match /public_exam_results/{resultId} {
-      allow create: if true;
-      allow read, write: if isAdmin();
+      allow create, read: if true;
+      allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 

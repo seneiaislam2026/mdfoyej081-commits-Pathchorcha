@@ -28,37 +28,54 @@ export function EventExamTab() {
   const fetchParticipants = async () => {
     setLoading(true);
     try {
-      const examsRef = collection(db, "public_exams");
-      const eventExamsQuery = query(examsRef, where("type", "==", "event_exam"));
-      const eventExamsSnapshot = await getDocs(eventExamsQuery);
+      // 1. Fetch public exams of type 'event_exam' or containing 'mega/event' in their titles to gather search keys
+      const examsSnapshot = await getDocs(collection(db, "public_exams"));
+      const eventExamIds = new Set<string>();
       
-      // Extract both true Firestore cases and lowercase variants to cover case-insensitive submissions
-      const queryExamIds: string[] = [];
-      eventExamsSnapshot.docs.forEach(doc => {
-        const oId = doc.id;
-        const lId = oId.toLowerCase();
-        queryExamIds.push(oId);
-        if (oId !== lId && !queryExamIds.includes(lId)) {
-          queryExamIds.push(lId);
+      examsSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const type = data.type || "";
+        const title = (data.title || "").toLowerCase();
+        
+        if (
+          type === "event_exam" || 
+          title.includes("mega") || 
+          title.includes("মেগা") || 
+          title.includes("event") || 
+          title.includes("ইভেন্ট")
+        ) {
+          eventExamIds.add(doc.id.trim());
+          eventExamIds.add(doc.id.trim().toLowerCase());
         }
       });
-      
-      if (queryExamIds.length === 0) {
-        setParticipants([]);
-        setLoading(false);
-        return;
-      }
 
-      let allResults: ExamParticipant[] = [];
-      const MAX_IN = 10;
+      // 2. Fetch all public exam results
+      const resultsSnapshot = await getDocs(collection(db, "public_exam_results"));
       
-      for (let i = 0; i < queryExamIds.length; i += MAX_IN) {
-        const chunk = queryExamIds.slice(i, i + MAX_IN);
-        const resultsQuery = query(collection(db, "public_exam_results"), where("examId", "in", chunk));
-        const resultsSnapshot = await getDocs(resultsQuery);
+      const allResults: ExamParticipant[] = [];
+      resultsSnapshot.docs.forEach(doc => {
+        const data = doc.data();
+        const examId = (data.examId || "").trim();
+        const examTitle = (data.examTitle || "").toLowerCase();
+        const mobile = (data.mobileNumber || "").trim();
         
-        resultsSnapshot.docs.forEach(doc => {
-          const data = doc.data();
+        // Match either by registered event exam ID or matching mega/event text key or if mobile is present for guest event tracking
+        const isMegaEvent = 
+          eventExamIds.has(examId) || 
+          eventExamIds.has(examId.toLowerCase()) ||
+          examTitle.includes("mega") ||
+          examTitle.includes("মেগা") ||
+          examTitle.includes("event") ||
+          examTitle.includes("ইভেন্ট") ||
+          examTitle.includes("quiz") ||
+          examTitle.includes("কুইজ") ||
+          examTitle.includes("test") ||
+          examTitle.includes("টেস্ট") ||
+          examTitle.includes("live") ||
+          examTitle.includes("লাইভ") ||
+          mobile.length >= 11;
+
+        if (isMegaEvent) {
           allResults.push({
             id: doc.id,
             studentName: data.studentName || "অজ্ঞাত",
@@ -66,13 +83,23 @@ export function EventExamTab() {
             score: data.score || 0,
             total: data.total || 0,
             submittedAt: data.submittedAt,
-            examId: data.examId,
+            examId: data.examId || "",
             mobileNumber: data.mobileNumber || ""
           });
-        });
-      }
+        }
+      });
       
-      setParticipants(allResults.sort((a, b) => b.score - a.score));
+      // Sort first by score descending, and if they are equal, by submission date/time descending (if available)
+      setParticipants(
+        allResults.sort((a, b) => {
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+          const timeA = a.submittedAt?.seconds || 0;
+          const timeB = b.submittedAt?.seconds || 0;
+          return timeB - timeA;
+        })
+      );
     } catch (e) {
       console.error("Error fetching event exam participants:", e);
     } finally {
