@@ -1858,8 +1858,8 @@ export default function Exam() {
   return (
     <div className={`w-full flex flex-col font-bengali ${!isSubmitted ? 'pb-10' : 'pb-20'}`}>
       {/* Sticky Action Bar matching mockup */}
-      <header className="bg-slate-50/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 py-4 sm:py-5 px-4 sm:px-6 w-full mb-6">
-        <div className="max-w-[700px] mx-auto flex items-center justify-between gap-2">
+      <header className="bg-slate-50/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 py-3 sm:py-5 px-3 sm:px-6 w-full mb-6">
+        <div className="max-w-[700px] mx-auto flex items-center justify-between gap-1 sm:gap-2">
           
           {/* Left Arrow Back Button (Mockup match) */}
           <button 
@@ -1870,35 +1870,35 @@ export default function Exam() {
                 setActiveSet(null); setIsSubmitted(false); setSelectedOptions({}); setRemainingTime(null);
               }
             }} 
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition-all shrink-0 cursor-pointer shadow-[0_3px_10px_rgba(0,0,0,0.04)]"
+            className="w-8.5 h-8.5 sm:w-11 sm:h-11 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition-all shrink-0 cursor-pointer shadow-[0_3px_10px_rgba(0,0,0,0.04)]"
             aria-label="ফিরে যান"
           >
-            <ArrowLeft className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-800" strokeWidth={2.5} />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-800" strokeWidth={2.5} />
           </button>
           
           {/* Violet capsule (Mockup match) */}
-          <div className="bg-[#F1EEFB] border border-[#E9E4F8] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#5A45D4] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
-            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#836CE7] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(131,108,231,0.2)] flex-shrink-0">
-              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+          <div className="bg-[#F1EEFB] border border-[#E9E4F8] rounded-full pr-2.5 pl-0.5 py-0.5 sm:py-1.5 flex items-center justify-center gap-1 sm:gap-2.5 text-[#5A45D4] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[24px] h-[24px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#836CE7] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(131,108,231,0.2)] flex-shrink-0">
+              <FileText className="w-3 h-3 sm:w-4 sm:h-4" strokeWidth={2.5} />
             </div>
-            <div className="flex items-center justify-center gap-1 font-bold font-sans text-[13px] sm:text-[16px] text-[#5A45D4] leading-none mb-px">
+            <div className="flex items-center justify-center gap-0.5 sm:gap-1 font-bold font-sans text-[11px] sm:text-[16px] text-[#5A45D4] leading-none mb-px">
               {isSubmitted ? (
                 <span>{dbQuestions.length}</span>
               ) : (
                 <span>{Object.keys(selectedOptions).length}/{dbQuestions.length}</span>
               )}
-              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#836CE7] opacity-80" strokeWidth={2.5} />
+              <ChevronDown className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#836CE7] opacity-80" strokeWidth={2.5} />
             </div>
           </div>
 
           {/* Orange capsule (Mockup match) */}
-          <div className="bg-[#FFF6ED] border border-[#FFEADA] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#EA580C] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
-            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#FB923C] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(251,146,60,0.2)] flex-shrink-0">
-              <Timer className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse" strokeWidth={2.5} />
+          <div className="bg-[#FFF6ED] border border-[#FFEADA] rounded-full pr-2.5 pl-0.5 py-0.5 sm:py-1.5 flex items-center justify-center gap-1 sm:gap-2.5 text-[#EA580C] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[24px] h-[24px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#FB923C] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(251,146,60,0.2)] flex-shrink-0">
+              <Timer className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse" strokeWidth={2.5} />
             </div>
-            <div className="flex items-center justify-center gap-1 font-bold font-mono text-[13px] sm:text-[16px] text-[#EA580C] leading-none mb-px">
+            <div className="flex items-center justify-center gap-0.5 sm:gap-1 font-bold font-mono text-[11px] sm:text-[16px] text-[#EA580C] leading-none mb-px">
               <span>{isSubmitted ? "00:00" : timeLeft}</span>
-              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FB923C] opacity-80" strokeWidth={2.5} />
+              <ChevronDown className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#FB923C] opacity-80" strokeWidth={2.5} />
             </div>
           </div>
 
@@ -1906,7 +1906,7 @@ export default function Exam() {
           {!isSubmitted ? (
             <button 
               onClick={() => { handleSubmit(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="bg-gradient-to-r from-[#FF1E6C] to-[#E60050] hover:from-[#E60050] hover:to-[#CC0040] text-white rounded-full pl-3.5 pr-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 font-bengali font-bold text-xs sm:text-[15px] shadow-[0_4px_12px_rgba(230,0,80,0.22)] transition-all transform active:scale-95 cursor-pointer border border-[#FF3D83]/10 shrink-0"
+              className="bg-gradient-to-r from-[#FF1E6C] to-[#E60050] hover:from-[#E60050] hover:to-[#CC0040] text-white rounded-full pl-2.5 sm:pl-3.5 pr-0.5 py-0.5 sm:py-1.5 flex items-center justify-center gap-1 sm:gap-2.5 font-bengali font-bold text-[11px] sm:text-[15px] shadow-[0_4px_12px_rgba(230,0,80,0.22)] transition-all transform active:scale-95 cursor-pointer border border-[#FF3D83]/10 shrink-0"
             >
               <span className="leading-none mb-px">শেষ করুন</span>
               <div className="w-[24px] h-[24px] sm:w-[30px] sm:h-[30px] rounded-full bg-white flex items-center justify-center text-[#FF1E6C] shadow-inner">
@@ -1914,7 +1914,7 @@ export default function Exam() {
               </div>
             </button>
           ) : (
-            <div className="bg-[#E2E8F0] text-slate-500 rounded-full px-3.5 py-1.5 font-bengali font-bold text-xs sm:text-sm shadow-sm select-none shrink-0 text-center flex items-center justify-center">
+            <div className="bg-[#E2E8F0] text-slate-500 rounded-full px-2.5 sm:px-3.5 py-1 sm:py-1.5 font-bengali font-bold text-[11px] sm:text-sm shadow-sm select-none shrink-0 text-center flex items-center justify-center">
               মূল্যায়ন সম্পন্ন
             </div>
           )}

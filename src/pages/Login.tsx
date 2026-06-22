@@ -10,11 +10,24 @@ import { sendPasswordResetEmail } from "firebase/auth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signInOrSignUpWithEmail } = useAuth();
+  const { signInOrSignUpWithEmail, user, userData, loading: authLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (!authLoading && user) {
+      const email = user.email?.toLowerCase() || "";
+      if (email === "mdfoyej081@gmail.com" || email === "seneiaislam@gmail.com") {
+        navigate("/admin");
+      } else if (userData?.class) {
+        navigate("/dashboard");
+      } else if (userData) {
+        navigate("/onboarding");
+      }
+    }
+  }, [user, userData, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

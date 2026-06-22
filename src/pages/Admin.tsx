@@ -1345,8 +1345,10 @@ export default function Admin() {
     setShowCreateExamModal(true);
   };
 
-  const copyExamLink = (id: string) => {
-    const url = window.location.origin + "/public-exam/" + id;
+  const copyExamLink = (id: string, type?: string) => {
+    const isQuiz = type === "event_exam";
+    const domain = "https://www.biddayan.com";
+    const url = isQuiz ? `${domain}/Quiz/${id}` : `${domain}/Exam/${id}`;
     navigator.clipboard.writeText(url);
     alert("Exam Link Copied: " + url);
   };
@@ -2664,7 +2666,7 @@ export default function Admin() {
                       </div>
                       
                       <div className="mt-1 pt-3 border-t grid grid-cols-2 gap-2">
-                        <Button variant="outline" size="sm" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => copyExamLink(exam.id)}>
+                        <Button variant="outline" size="sm" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50" onClick={() => copyExamLink(exam.id, exam.type)}>
                           <LinkIcon className="w-3.5 h-3.5 mr-1.5" /> লিংক
                         </Button>
                         <Button variant="outline" size="sm" className="w-full text-muted-foreground" onClick={() => togglePublicExamActive(exam.id, exam.active)}>

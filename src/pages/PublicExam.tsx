@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { db } from "../lib/firebase";
 import { doc, getDoc, collection, addDoc, serverTimestamp, query, where, orderBy, limit, getDocs } from "firebase/firestore";
 import { useAuth } from "../lib/AuthContext";
+import { TransparentLogo } from "../components/ui/TransparentLogo";
 
 interface PublicExamData {
   id: string;
@@ -363,14 +364,18 @@ export default function PublicExam() {
 
         {/* Top Brand Header */}
         <div className="bg-card px-4 sm:px-6 py-4 flex items-center justify-between shadow-sm relative z-10">
-           <div className="flex items-center">
-             <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-muted border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
-               <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
-             </button>
-             <div className="font-bold text-2xl sm:text-[28px] tracking-tight flex items-center !leading-relaxed">
-                <span className="text-[#1e293b]">শিক্ষা</span><span className="text-[#f59e0b]">ঙ্গন</span>
-             </div>
-           </div>
+            <div className="flex items-center">
+              <button onClick={() => window.history.length > 2 ? navigate(-1) : navigate("/")} className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-muted border border-slate-200 flex items-center justify-center hover:bg-slate-100 transition-colors shrink-0 mr-3">
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
+              </button>
+              <Link to="/" className="flex items-center h-[52px] sm:h-[62px] overflow-visible">
+                <TransparentLogo
+                  src="https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"
+                  alt="বিদ্যায়ন"
+                  className="h-[64px] sm:h-[76px] -my-1.5 w-auto object-contain block relative"
+                />
+              </Link>
+            </div>
            {userData?.uid && (
              <Link to="/profile" className="w-[38px] h-[38px] rounded-full overflow-hidden border-2 border-white shadow-sm shrink-0 bg-blue-100 flex items-center justify-center hover:shadow-md transition-shadow">
                {userData.photoURL ? (
@@ -516,8 +521,8 @@ export default function PublicExam() {
   return (
     <div className="min-h-screen bg-background font-bengali pb-24">
       {/* Sticky Action Bar */}
-      <header className="bg-slate-50/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 py-4 sm:py-5 px-4 sm:px-6">
-        <div className="max-w-[700px] mx-auto flex items-center justify-between gap-2">
+      <header className="bg-slate-50/90 backdrop-blur-md border-b border-slate-100 sticky top-0 z-50 py-3 sm:py-5 px-3 sm:px-6">
+        <div className="max-w-[700px] mx-auto flex items-center justify-between gap-1 sm:gap-2">
           
           {/* Left Arrow Back Button (Mockup match) */}
           <button 
@@ -528,35 +533,35 @@ export default function PublicExam() {
                 navigate("/");
               }
             }} 
-            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition-all shrink-0 cursor-pointer shadow-[0_3px_10px_rgba(0,0,0,0.04)]"
+            className="w-8.5 h-8.5 sm:w-11 sm:h-11 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition-all shrink-0 cursor-pointer shadow-[0_3px_10px_rgba(0,0,0,0.04)]"
             aria-label="ফিরে যান"
           >
-            <ArrowLeft className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-slate-800" strokeWidth={2.5} />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-800" strokeWidth={2.5} />
           </button>
           
           {/* Violet capsule (Mockup match) */}
-          <div className="bg-[#F1EEFB] border border-[#E9E4F8] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#5A45D4] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
-            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#836CE7] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(131,108,231,0.2)] flex-shrink-0">
-              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" strokeWidth={2.5} />
+          <div className="bg-[#F1EEFB] border border-[#E9E4F8] rounded-full pr-2.5 pl-0.5 py-0.5 sm:py-1.5 flex items-center justify-center gap-1 sm:gap-2.5 text-[#5A45D4] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[24px] h-[24px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#836CE7] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(131,108,231,0.2)] flex-shrink-0">
+              <FileText className="w-3 h-3 sm:w-4 sm:h-4" strokeWidth={2.5} />
             </div>
-            <div className="flex items-center justify-center gap-1 font-bold font-sans text-[13px] sm:text-[16px] text-[#5A45D4] leading-none mb-px">
+            <div className="flex items-center justify-center gap-0.5 sm:gap-1 font-bold font-sans text-[11px] sm:text-[16px] text-[#5A45D4] leading-none mb-px">
               {isSubmitted ? (
                 <span>{questions.length}</span>
               ) : (
                 <span>{Object.keys(selectedAnswers).length}/{questions.length}</span>
               )}
-              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#836CE7] opacity-80" strokeWidth={2.5} />
+              <ChevronDown className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#836CE7] opacity-80" strokeWidth={2.5} />
             </div>
           </div>
 
           {/* Orange capsule (Mockup match) */}
-          <div className="bg-[#FFF6ED] border border-[#FFEADA] rounded-full pr-3 pl-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 text-[#EA580C] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
-            <div className="w-[28px] h-[28px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#FB923C] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(251,146,60,0.2)] flex-shrink-0">
-              <Timer className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-pulse" strokeWidth={2.5} />
+          <div className="bg-[#FFF6ED] border border-[#FFEADA] rounded-full pr-2.5 pl-0.5 py-0.5 sm:py-1.5 flex items-center justify-center gap-1 sm:gap-2.5 text-[#EA580C] shadow-[0_2px_8px_rgba(0,0,0,0.02)] select-none shrink-0">
+            <div className="w-[24px] h-[24px] sm:w-[34px] sm:h-[34px] rounded-full bg-[#FB923C] flex items-center justify-center text-white shadow-[0_1.5px_6px_rgba(251,146,60,0.2)] flex-shrink-0">
+              <Timer className="w-3 h-3 sm:w-4 sm:h-4 animate-pulse" strokeWidth={2.5} />
             </div>
-            <div className="flex items-center justify-center gap-1 font-bold font-mono text-[13px] sm:text-[16px] text-[#EA580C] leading-none mb-px">
+            <div className="flex items-center justify-center gap-0.5 sm:gap-1 font-bold font-mono text-[11px] sm:text-[16px] text-[#EA580C] leading-none mb-px">
               <span>{isSubmitted ? "00:00" : formatTime(timeLeft)}</span>
-              <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#FB923C] opacity-80" strokeWidth={2.5} />
+              <ChevronDown className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-[#FB923C] opacity-80" strokeWidth={2.5} />
             </div>
           </div>
 
@@ -564,7 +569,7 @@ export default function PublicExam() {
           {!isSubmitted ? (
             <button 
               onClick={handleSubmit} 
-              className="bg-gradient-to-r from-[#FF1E6C] to-[#E60050] hover:from-[#E60050] hover:to-[#CC0040] text-white rounded-full pl-3.5 pr-1 py-1 sm:py-1.5 flex items-center justify-center gap-1.5 sm:gap-2.5 font-bengali font-bold text-xs sm:text-[15px] shadow-[0_4px_12px_rgba(230,0,80,0.22)] transition-all transform active:scale-95 cursor-pointer border border-[#FF3D83]/10 shrink-0"
+              className="bg-gradient-to-r from-[#FF1E6C] to-[#E60050] hover:from-[#E60050] hover:to-[#CC0040] text-white rounded-full pl-2.5 sm:pl-3.5 pr-0.5 py-0.5 sm:py-1.5 flex items-center justify-center gap-1 sm:gap-2.5 font-bengali font-bold text-[11px] sm:text-[15px] shadow-[0_4px_12px_rgba(230,0,80,0.22)] transition-all transform active:scale-95 cursor-pointer border border-[#FF3D83]/10 shrink-0"
             >
               <span className="leading-none mb-px">শেষ করুন</span>
               <div className="w-[24px] h-[24px] sm:w-[30px] sm:h-[30px] rounded-full bg-white flex items-center justify-center text-[#FF1E6C] shadow-inner">
@@ -572,7 +577,7 @@ export default function PublicExam() {
               </div>
             </button>
           ) : (
-            <div className="bg-[#E2E8F0] text-slate-500 rounded-full px-3.5 py-1.5 font-bengali font-bold text-xs sm:text-sm shadow-sm select-none shrink-0 text-center flex items-center justify-center">
+            <div className="bg-[#E2E8F0] text-slate-500 rounded-full px-2.5 sm:px-3.5 py-1 sm:py-1.5 font-bengali font-bold text-[11px] sm:text-sm shadow-sm select-none shrink-0 text-center flex items-center justify-center">
               মূল্যায়ন সম্পন্ন
             </div>
           )}

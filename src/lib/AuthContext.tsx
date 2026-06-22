@@ -179,6 +179,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setLoading(false);
         });
       } else {
+        const savedEmail = localStorage.getItem("biddayan_saved_email");
+        const savedPwd = localStorage.getItem("biddayan_saved_pwd");
+        if (savedEmail && savedPwd) {
+          try {
+            const { signInWithEmailAndPassword } = await import('firebase/auth');
+            await signInWithEmailAndPassword(auth, savedEmail, savedPwd);
+            return;
+          } catch (err) {
+            console.error("Background auto login failed:", err);
+            localStorage.removeItem("biddayan_saved_email");
+            localStorage.removeItem("biddayan_saved_pwd");
+          }
+        }
         setUserData(null);
         localStorage.removeItem("cachedUserData");
         setLoading(false);
@@ -258,11 +271,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let isNewUser = false;
     try {
       result = await signInWithEmailAndPassword(auth, email, password);
+      localStorage.setItem("biddayan_saved_email", email);
+      localStorage.setItem("biddayan_saved_pwd", password);
     } catch (error: any) {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential' || error.code === 'auth/invalid-login-credentials') {
         try {
           result = await createUserWithEmailAndPassword(auth, email, password);
           isNewUser = true;
+          localStorage.setItem("biddayan_saved_email", email);
+          localStorage.setItem("biddayan_saved_pwd", password);
         } catch (signupError: any) {
           if (signupError.code === 'auth/email-already-in-use') {
             throw new Error("ভুল পাসওয়ার্ড দেওয়া হয়েছে। দয়া করে সঠিক পাসওয়ার্ড দিন।");
@@ -381,6 +398,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    localStorage.removeItem("cachedAuthUser");
+    localStorage.removeItem("cachedUserData");
+    localStorage.removeItem("biddayan_saved_email");
+    localStorage.removeItem("biddayan_saved_pwd");
+    setUser(null);
+    setUserData(null);
     await _signOut(auth);
   };
 

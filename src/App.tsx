@@ -221,7 +221,13 @@ export default function App() {
           {/* Public Routes without Navbar */}
           <Route path="/" element={<Landing />} />
           <Route path="/public-exam/:id" element={<PublicExam />} />
+          <Route path="/Exam/:id" element={<PublicExam />} />
+          <Route path="/Quiz/:id" element={<PublicExam />} />
+          <Route path="/exam/:id" element={<PublicExam />} />
+          <Route path="/quiz/:id" element={<PublicExam />} />
           <Route path="/public-exams" element={<PublicExamsList />} />
+          <Route path="/Exam" element={<PublicExamsList />} />
+          <Route path="/Quiz" element={<PublicExamsList />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/login" element={<Login />} />
