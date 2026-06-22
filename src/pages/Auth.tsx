@@ -143,15 +143,36 @@ export default function Auth() {
   const handleGoogleLogin = async () => {
     try {
       setLoading(true);
+      setErrorMsg("");
       const data = await signInWithGoogle();
       if (data && data.class) {
         navigate("/dashboard");
       } else {
         navigate("/onboarding");
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Failed to connect to Google.");
+      if (e.code === "auth/operation-not-allowed") {
+        setErrorMsg(
+          "গুগল লগইন চালু নেই। দয়া করে আপনার Firebase প্রজেক্টের Authentication -> Sign-in method সেটিংসে গিয়ে 'Google' Provider চালু করুন।"
+        );
+      } else if (e.code === "auth/unauthorized-domain") {
+        setErrorMsg(
+          `আপনার ডোমেনটি Firebase-এ অনুমোদিত নয়। অনুগ্রহ করে Firebase কনসোলে Authentication -> Settings -> Authorized domains-এ গিয়ে '${window.location.hostname}' ডোমেনটি যুক্ত করুন।`
+        );
+      } else if (e.code === "auth/popup-blocked") {
+        setErrorMsg(
+          "পপআপ উইন্ডোটি ব্লক করা হয়েছে। অনুগ্রহ করে ব্রাউজারের পপআপ ব্লকার সেটিংস নিষ্ক্রিয় করুন। আপনি যদি আইফ্রেমের (iframe) ভিতর থাকেন, তবে অ্যাপটি নতুন ট্যাবে ওপেন করে গুগল লগইন করুন।"
+        );
+      } else if (e.code === "auth/cancelled-popup-request") {
+        setErrorMsg(
+          "গুগল লগইন পপআপ উইন্ডোটি বন্ধ করা হয়েছে। দয়া করে আবার চেষ্টা করুন।"
+        );
+      } else {
+        setErrorMsg(
+          e.message || "গুগল লগইন করতে সমস্যা হয়েছে। আপনি যদি আইফ্রেম/প্রিভিউ উইন্ডোতে থাকেন, তবে উপরের ডানদিকের বাটন দিয়ে নতুন ট্যাবে অ্যাপটি ওপেন করে গুগল লগইন করুন।"
+        );
+      }
     } finally {
       setLoading(false);
     }

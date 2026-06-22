@@ -52,9 +52,27 @@ export default function PublicExam() {
       try {
         const docRef = doc(db, "public_exams", id);
         const docSnap = await getDoc(docRef);
+        let data: PublicExamData | null = null;
+        let examId = id;
+
         if (docSnap.exists()) {
-          const data = docSnap.data() as PublicExamData;
-          setExam({ id: docSnap.id, ...data });
+          data = docSnap.data() as PublicExamData;
+          examId = docSnap.id;
+        } else {
+          // Fallback: search for case-insensitive ID match in public_exams
+          const { collection, getDocs } = await import("firebase/firestore");
+          const snap = await getDocs(collection(db, "public_exams"));
+          const matchedDoc = snap.docs.find(
+            doc => doc.id.toLowerCase() === id.toLowerCase()
+          );
+          if (matchedDoc) {
+            data = matchedDoc.data() as PublicExamData;
+            examId = matchedDoc.id;
+          }
+        }
+
+        if (data) {
+          setExam({ id: examId, ...data });
           setTimeLeft((data.duration || 0) * 60);
           
           if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
