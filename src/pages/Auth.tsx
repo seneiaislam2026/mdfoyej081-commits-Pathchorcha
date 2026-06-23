@@ -10,6 +10,7 @@ import { ConfirmationResult, sendPasswordResetEmail } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
 import { collection, query, where, getDocs, doc, getDoc } from "firebase/firestore";
 import { TransparentLogo } from "../components/ui/TransparentLogo";
+import { AnimatedLoader } from "../components/ui/AnimatedLoader";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -86,13 +87,7 @@ export default function Auth() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
-        <div className="animate-pulse flex flex-col items-center justify-center h-[140px] sm:h-[180px] overflow-hidden">
-          <TransparentLogo
-            src={logoUrl}
-            alt="বিদ্যায়ন"
-            className="h-[250px] sm:h-[320px] -my-13.5 sm:-my-17.5 object-contain"
-          />
-        </div>
+        <AnimatedLoader size="lg" />
       </div>
     );
   }

@@ -45,6 +45,7 @@ export default function PublicExam() {
   const [isCheckingMobile, setIsCheckingMobile] = useState(false);
 
   const isEventExam = exam?.type === "event_exam" || 
+    window.location.pathname.toLowerCase().includes("/quiz") ||
     (exam?.title && (
       exam.title.toLowerCase().includes("mega") || 
       exam.title.toLowerCase().includes("মেগা") || 

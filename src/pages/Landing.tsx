@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { db } from "../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { TransparentLogo } from "../components/ui/TransparentLogo";
+import { AnimatedLoader } from "../components/ui/AnimatedLoader";
 import {
   Download,
   UserPlus,
@@ -264,14 +265,7 @@ export default function Landing() {
   if (isLikelyLoggedIn && (loading || (user && !userData))) {
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center items-center" id="div-loading-screen">
-        <div className="h-[140px] md:h-[180px] overflow-hidden flex items-center justify-center">
-          <TransparentLogo
-            src={logoUrl}
-            alt="Logo"
-            className="h-[250px] md:h-[320px] -my-[55px] md:-my-[70px] animate-pulse object-contain"
-            id="img-loading-logo"
-          />
-        </div>
+        <AnimatedLoader size="lg" />
       </div>
     );
   }
@@ -539,7 +533,7 @@ export default function Landing() {
             <TransparentLogo
               src={logoUrl}
               alt="বিদ্যায়ন"
-              className="h-[130px] sm:h-[165px] md:h-[200px] lg:h-[235px] -my-7 sm:-my-9.5 md:-my-11.5 lg:-my-13.5 w-auto object-contain"
+              className="pwa-trigger h-[130px] sm:h-[165px] md:h-[200px] lg:h-[235px] -my-7 sm:-my-9.5 md:-my-11.5 lg:-my-13.5 w-auto object-contain"
             />
           </div>
         </nav>

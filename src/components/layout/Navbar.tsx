@@ -299,7 +299,7 @@ export default function Navbar() {
               <TransparentLogo
                 src={settings?.pwaIconUrl || "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"}
                 alt="বিদ্যায়ন"
-                className="h-[74px] sm:h-[88px] -my-1 sm:-my-1.5 w-auto object-contain group-hover:scale-105 transition-all duration-300 mr-4 sm:mr-8 block relative z-[1]"
+                className="pwa-trigger h-[74px] sm:h-[88px] -my-1 sm:-my-1.5 w-auto object-contain group-hover:scale-105 transition-all duration-300 mr-4 sm:mr-8 block relative z-[1]"
               />
             </Link>
           </div>

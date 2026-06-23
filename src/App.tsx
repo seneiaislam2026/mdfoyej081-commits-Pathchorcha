@@ -33,7 +33,9 @@ import PublicExam from "./pages/PublicExam";
 import PublicExamsList from "./pages/PublicExamsList";
 import { ArrowLeft } from "lucide-react";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
+import { AnimatedLoader } from "./components/ui/AnimatedLoader";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
+import { PwaDiagnosticOverlay } from "./components/pwa/PwaDiagnosticOverlay";
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -71,11 +73,7 @@ function NoteLayout() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center font-sans relative">
-        <div className="animate-pulse flex flex-col items-center justify-center mb-8">
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border overflow-hidden p-4">
-             <img src="/logo.png" alt="Logo" className="w-[140px] h-[140px] sm:w-[170px] sm:h-[170px] object-contain rounded-3xl" referrerPolicy="no-referrer" />
-          </div>
-        </div>
+        <AnimatedLoader size="lg" />
       </div>
     );
   }
@@ -192,11 +190,7 @@ function AppLayout() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center font-sans relative">
-        <div className="animate-pulse flex flex-col items-center justify-center mb-8">
-          <div className="w-[180px] h-[180px] sm:w-[220px] sm:h-[220px] bg-card rounded-[40px] sm:rounded-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.08)] mb-6 sm:mb-8 border border-border overflow-hidden p-4">
-             <img src="/logo.png" alt="Logo" className="w-[140px] h-[140px] sm:w-[170px] sm:h-[170px] object-contain rounded-3xl" referrerPolicy="no-referrer" />
-          </div>
-        </div>
+        <AnimatedLoader size="lg" />
       </div>
     );
   }
@@ -252,6 +246,7 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <InstallPrompt />
+        <PwaDiagnosticOverlay />
         <Router>
             <Routes>
           {/* Public Routes without Navbar */}

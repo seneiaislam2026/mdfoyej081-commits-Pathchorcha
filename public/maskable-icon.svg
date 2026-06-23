@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Solid white background for perfect masking on Android launcher templates -->
+  <rect width="100%" height="100%" fill="#FFFFFF" />
+  
+  <g transform="translate(64, 64) scale(0.75)">
+    <defs>
+      <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@800&amp;family=Hind+Siliguri:wght@700&amp;display=swap');
+        .bengali-text {
+          font-family: 'Noto Sans Bengali', 'Hind Siliguri', 'Noto Sans', sans-serif;
+          font-weight: 800;
+        }
+      </style>
+    </defs>
+    <!-- Centered perfectly inside the 75% group -->
+    <text x="256" y="295" class="bengali-text" font-size="115" text-anchor="middle" letter-spacing="-1">
+      <tspan fill="#00B074">বিদ্যা</tspan><tspan fill="#051D3B">য়ন</tspan>
+    </text>
+  </g>
+</svg>
