@@ -44,7 +44,13 @@ export default function PublicExam() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [isCheckingMobile, setIsCheckingMobile] = useState(false);
 
-  const isEventExam = exam?.type === "event_exam";
+  const isEventExam = exam?.type === "event_exam" || 
+    (exam?.title && (
+      exam.title.toLowerCase().includes("mega") || 
+      exam.title.toLowerCase().includes("মেগা") || 
+      exam.title.toLowerCase().includes("event") || 
+      exam.title.toLowerCase().includes("ইভেন্ট")
+    ));
 
   useEffect(() => {
     const fetchExam = async () => {
