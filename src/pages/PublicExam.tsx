@@ -266,7 +266,7 @@ export default function PublicExam() {
         submittedAt: serverTimestamp()
       });
 
-      if (userData?.uid) {
+      if (userData?.uid && !isEventExam) {
         const { doc, writeBatch, updateDoc, increment } = await import("firebase/firestore");
         
         const today = new Date();
@@ -706,133 +706,135 @@ export default function PublicExam() {
           </div>
         )}
 
-        <div className="bg-card sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
-          {questions.map((q, idx) => {
-            const isQuestionSubmitted = isSubmitted;
-            const selected = selectedAnswers[idx];
-            const correct = q.correctId || q.correctOption;
-            const isCorrect = selected === correct;
-            const isSkipped = !selected;
+        {(!isSubmitted || !isEventExam) && (
+          <div className="bg-card sm:rounded-[32px] border border-slate-100 shadow-sm overflow-hidden p-0 m-0">
+            {questions.map((q, idx) => {
+              const isQuestionSubmitted = isSubmitted;
+              const selected = selectedAnswers[idx];
+              const correct = q.correctId || q.correctOption;
+              const isCorrect = selected === correct;
+              const isSkipped = !selected;
 
-            let iconBg = "";
-            if (isSkipped) iconBg = "bg-slate-100 text-slate-500";
-            else if (isCorrect) iconBg = "bg-green-100 text-green-600";
-            else iconBg = "bg-red-100 text-red-600";
+              let iconBg = "";
+              if (isSkipped) iconBg = "bg-slate-100 text-slate-500";
+              else if (isCorrect) iconBg = "bg-green-100 text-green-600";
+              else iconBg = "bg-red-100 text-red-600";
 
-            return (
-             <div key={idx} className="p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
-                <div className="mb-4 flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                     {isQuestionSubmitted && !isEventExam && (
-                       <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${iconBg} shadow-sm`}>
-                          {isSkipped ? <AlertCircle className="w-4 h-4" /> : isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
-                       </div>
-                     )}
-                     <span className="inline-block px-4 py-1.5 bg-[#1e293b] text-white rounded-full text-[13px] font-bold shadow-sm">
-                       প্রশ্ন {idx + 1}
-                     </span>
-                     {isQuestionSubmitted && isEventExam && selected && (
-                       <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-100/50 font-bengali">
-                         উত্তর দেওয়া হয়েছে
+              return (
+               <div key={idx} className="p-5 sm:p-8 border-b border-slate-100 last:border-b-0">
+                  <div className="mb-4 flex items-center justify-between">
+                     <div className="flex items-center gap-3">
+                       {isQuestionSubmitted && !isEventExam && (
+                         <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${iconBg} shadow-sm`}>
+                            {isSkipped ? <AlertCircle className="w-4 h-4" /> : isCorrect ? <CheckCircle2 className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                         </div>
+                       )}
+                       <span className="inline-block px-4 py-1.5 bg-[#1e293b] text-white rounded-full text-[13px] font-bold shadow-sm">
+                         প্রশ্ন {idx + 1}
                        </span>
-                     )}
-                   </div>
-                </div>
-                <h3 className="text-[18px] sm:text-[20px] leading-relaxed text-[#0f172a] font-medium mb-6 whitespace-pre-line">
-                  {q.text}
-                </h3>
-
-                <div className="space-y-3">
-                  {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any, optIdx: number) => {
-                    const isSelected = selectedAnswers[idx] === option.id;
-                    const isThisCorrect = isQuestionSubmitted && (correct === option.id);
-                    const qWasSkipped = !selectedAnswers[idx];
-                    
-                    let optStyle = "";
-                    if (isQuestionSubmitted) {
-                       if (isEventExam) {
-                          if (isSelected) optStyle = "border-slate-800 bg-[#f8fafc] shadow-[0_0_0_1px_#1e293b]";
-                          else optStyle = "border-slate-200 bg-muted/50 opacity-60";
-                       } else {
-                          if (isThisCorrect && qWasSkipped) optStyle = "border-orange-500 bg-orange-100 shadow-[0_0_0_1px_#f97316]";
-                          else if (isThisCorrect) optStyle = "border-green-500 bg-green-100 shadow-[0_0_0_1px_#22c55e]";
-                          else if (isSelected && !isThisCorrect) optStyle = "border-red-500 bg-red-100 shadow-[0_0_0_1px_#ef4444]";
-                          else optStyle = "border-slate-200 bg-muted opacity-60";
-                       }
-                    } else {
-                       if (isSelected) optStyle = "border-[#1e293b] bg-muted shadow-[0_0_0_1px_#1e293b]";
-                       else optStyle = "border-slate-200 hover:border-slate-300 bg-card";
-                    }
-
-                    let badgeStyle = "";
-                    if (isQuestionSubmitted) {
-                       if (isEventExam) {
-                          if (isSelected) badgeStyle = "bg-[#1e293b] text-white border-r-[#1e293b]";
-                          else badgeStyle = "bg-slate-200 text-slate-400 border-slate-200";
-                       } else {
-                          if (isThisCorrect && qWasSkipped) badgeStyle = "bg-orange-600 text-white border-r-orange-600";
-                          else if (isThisCorrect) badgeStyle = "bg-green-600 text-white border-r-green-600";
-                          else if (isSelected && !isThisCorrect) badgeStyle = "bg-red-600 text-white border-r-red-600";
-                          else badgeStyle = "bg-slate-200 text-slate-500 border-slate-200";
-                       }
-                    } else {
-                       if (isSelected) badgeStyle = "bg-[#1e293b] text-white border-r-[#1e293b]";
-                       else badgeStyle = "bg-[#f8fafc] text-foreground border-slate-200";
-                    }
-
-                    let textColor = "";
-                    if (isQuestionSubmitted) {
-                       if (isEventExam) {
-                          textColor = isSelected ? "text-[#1e293b] font-bold" : "text-slate-400 font-medium";
-                       } else {
-                          if (isThisCorrect && qWasSkipped) textColor = "text-orange-900 font-bold";
-                          else if (isThisCorrect) textColor = "text-green-900 font-bold";
-                          else if (isSelected && !isThisCorrect) textColor = "text-red-900 font-bold";
-                          else textColor = "text-muted-foreground font-medium";
-                       }
-                    } else {
-                       textColor = isSelected ? 'text-[#1e293b] font-bold' : 'text-[#0f172a] font-medium';
-                    }
-
-                    return (
-                      <button
-                        key={`${q.id || idx}-${option.id || optIdx}`}
-                        onClick={() => { if (!isQuestionSubmitted) setSelectedAnswers({ ...selectedAnswers, [idx]: option.id }) }}
-                        disabled={isQuestionSubmitted}
-                        className={`w-full flex items-stretch rounded-[16px] border-[1.5px] overflow-hidden transition-all text-left ${optStyle}`}
-                      >
-                        <div className={`w-[52px] flex items-center justify-center text-[15px] font-bold shrink-0 border-r-[1.5px] transition-colors ${badgeStyle}`}>
-                          {option.id === 'A' || option.id === '1' ? 'ক' : option.id === 'B' || option.id === '2' ? 'খ' : option.id === 'C' || option.id === '3' ? 'গ' : option.id === 'D' || option.id === '4' ? 'ঘ' : option.id}
-                        </div>
-                        <div className="flex-1 p-4 px-5">
-                          <span className={`text-[16px] sm:text-[17px] ${textColor}`}>
-                            {option.label || option.text}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                
-                {/* Auto Explanation block if submitted */}
-                {isQuestionSubmitted && q.explanation && !isEventExam && (
-                  <div className="mt-6 p-5 sm:p-6 bg-indigo-50/50 border border-indigo-100/60 rounded-2xl flex gap-3 sm:gap-4 shadow-sm">
-                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-card border border-indigo-200/60 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
-                       <Brain className="w-4 h-4 sm:w-5 sm:h-5" />
-                     </div>
-                     <div className="flex-1 pt-0.5 sm:pt-1">
-                       <h4 className="text-[14px] sm:text-[15px] font-bold text-indigo-900 mb-1.5">ব্যাখ্যা:</h4>
-                       <div className="text-[14px] sm:text-[15px] leading-relaxed text-indigo-950/80 whitespace-pre-line">
-                         {q.explanation}
-                       </div>
+                       {isQuestionSubmitted && isEventExam && selected && (
+                         <span className="bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full text-xs font-semibold border border-indigo-100/50 font-bengali">
+                           উত্তর দেওয়া হয়েছে
+                         </span>
+                       )}
                      </div>
                   </div>
-                )}
-             </div>
-            );
-          })}
-        
-        </div>
+                  <h3 className="text-[18px] sm:text-[20px] leading-relaxed text-[#0f172a] font-medium mb-6 whitespace-pre-line">
+                    {q.text}
+                  </h3>
+
+                  <div className="space-y-3">
+                    {(Array.isArray(q.options) ? q.options : Object.keys(q.options || {}).map(k => ({ id: k, text: q.options[k], label: q.options[k] }))).map((option: any, optIdx: number) => {
+                      const isSelected = selectedAnswers[idx] === option.id;
+                      const isThisCorrect = isQuestionSubmitted && (correct === option.id);
+                      const qWasSkipped = !selectedAnswers[idx];
+                      
+                      let optStyle = "";
+                      if (isQuestionSubmitted) {
+                         if (isEventExam) {
+                            if (isSelected) optStyle = "border-slate-800 bg-[#f8fafc] shadow-[0_0_0_1px_#1e293b]";
+                            else optStyle = "border-slate-200 bg-muted/50 opacity-60";
+                         } else {
+                            if (isThisCorrect && qWasSkipped) optStyle = "border-orange-500 bg-orange-100 shadow-[0_0_0_1px_#f97316]";
+                            else if (isThisCorrect) optStyle = "border-green-500 bg-green-100 shadow-[0_0_0_1px_#22c55e]";
+                            else if (isSelected && !isThisCorrect) optStyle = "border-red-500 bg-red-100 shadow-[0_0_0_1px_#ef4444]";
+                            else optStyle = "border-slate-200 bg-muted opacity-60";
+                         }
+                      } else {
+                         if (isSelected) optStyle = "border-[#1e293b] bg-muted shadow-[0_0_0_1px_#1e293b]";
+                         else optStyle = "border-slate-200 hover:border-slate-300 bg-card";
+                      }
+
+                      let badgeStyle = "";
+                      if (isQuestionSubmitted) {
+                         if (isEventExam) {
+                            if (isSelected) badgeStyle = "bg-[#1e293b] text-white border-r-[#1e293b]";
+                            else badgeStyle = "bg-slate-200 text-slate-400 border-slate-200";
+                         } else {
+                            if (isThisCorrect && qWasSkipped) badgeStyle = "bg-orange-600 text-white border-r-orange-600";
+                            else if (isThisCorrect) badgeStyle = "bg-green-600 text-white border-r-green-600";
+                            else if (isSelected && !isThisCorrect) badgeStyle = "bg-red-600 text-white border-r-red-600";
+                            else badgeStyle = "bg-slate-200 text-slate-500 border-slate-200";
+                         }
+                      } else {
+                         if (isSelected) badgeStyle = "bg-[#1e293b] text-white border-r-[#1e293b]";
+                         else badgeStyle = "bg-[#f8fafc] text-foreground border-slate-200";
+                      }
+
+                      let textColor = "";
+                      if (isQuestionSubmitted) {
+                         if (isEventExam) {
+                            textColor = isSelected ? "text-[#1e293b] font-bold" : "text-slate-400 font-medium";
+                         } else {
+                            if (isThisCorrect && qWasSkipped) textColor = "text-orange-900 font-bold";
+                            else if (isThisCorrect) textColor = "text-green-900 font-bold";
+                            else if (isSelected && !isThisCorrect) textColor = "text-red-900 font-bold";
+                            else textColor = "text-muted-foreground font-medium";
+                         }
+                      } else {
+                         textColor = isSelected ? 'text-[#1e293b] font-bold' : 'text-[#0f172a] font-medium';
+                      }
+
+                      return (
+                        <button
+                          key={`${q.id || idx}-${option.id || optIdx}`}
+                          onClick={() => { if (!isQuestionSubmitted) setSelectedAnswers({ ...selectedAnswers, [idx]: option.id }) }}
+                          disabled={isQuestionSubmitted}
+                          className={`w-full flex items-stretch rounded-[16px] border-[1.5px] overflow-hidden transition-all text-left ${optStyle}`}
+                        >
+                          <div className={`w-[52px] flex items-center justify-center text-[15px] font-bold shrink-0 border-r-[1.5px] transition-colors ${badgeStyle}`}>
+                            {option.id === 'A' || option.id === '1' ? 'ক' : option.id === 'B' || option.id === '2' ? 'খ' : option.id === 'C' || option.id === '3' ? 'গ' : option.id === 'D' || option.id === '4' ? 'ঘ' : option.id}
+                          </div>
+                          <div className="flex-1 p-4 px-5">
+                            <span className={`text-[16px] sm:text-[17px] ${textColor}`}>
+                              {option.label || option.text}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Auto Explanation block if submitted */}
+                  {isQuestionSubmitted && q.explanation && !isEventExam && (
+                    <div className="mt-6 p-5 sm:p-6 bg-indigo-50/50 border border-indigo-100/60 rounded-2xl flex gap-3 sm:gap-4 shadow-sm">
+                       <div className="w-8 h-8 sm:w-10 sm:h-10 bg-card border border-indigo-200/60 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 shadow-sm">
+                         <Brain className="w-4 h-4 sm:w-5 sm:h-5" />
+                       </div>
+                       <div className="flex-1 pt-0.5 sm:pt-1">
+                         <h4 className="text-[14px] sm:text-[15px] font-bold text-indigo-900 mb-1.5">ব্যাখ্যা:</h4>
+                         <div className="text-[14px] sm:text-[15px] leading-relaxed text-indigo-950/80 whitespace-pre-line">
+                           {q.explanation}
+                         </div>
+                       </div>
+                    </div>
+                  )}
+               </div>
+              );
+            })}
+          
+          </div>
+        )}
 
         {!isSubmitted && (
         <div className="pt-8 pb-8">
