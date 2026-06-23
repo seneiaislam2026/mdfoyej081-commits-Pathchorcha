@@ -527,36 +527,38 @@ export default function PublicExam() {
               </div>
 
               {/* Mobile Number Container */}
-              <div className="bg-[#FFF4ED] border border-[#FFE1CE] rounded-[24px] p-4 sm:p-5 shadow-xs relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-16 h-16 bg-[#FFEFE5] rounded-full blur-xl pointer-events-none"></div>
-                <div className="flex items-center gap-2 mb-3.5 pl-1 relative z-10">
-                   <Phone className="w-5 h-5 text-orange-500" strokeWidth={2.5} />
-                   <span className="text-[#803105] text-[15px] sm:text-[16px] font-extrabold tracking-tight">মোবাইল নম্বর</span>
+              {isEventExam && (
+                <div className="bg-[#FFF4ED] border border-[#FFE1CE] rounded-[24px] p-4 sm:p-5 shadow-xs relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-[#FFEFE5] rounded-full blur-xl pointer-events-none"></div>
+                  <div className="flex items-center gap-2 mb-3.5 pl-1 relative z-10">
+                     <Phone className="w-5 h-5 text-orange-500" strokeWidth={2.5} />
+                     <span className="text-[#803105] text-[15px] sm:text-[16px] font-extrabold tracking-tight">মোবাইল নম্বর</span>
+                  </div>
+                  <div className="relative z-10">
+                     <Phone className="w-4 h-4 text-slate-400 absolute left-4.5 top-1/2 -translate-y-1/2" />
+                     <Input 
+                       type="tel"
+                       placeholder="আপনার ১১ ডিজিটের মোবাইল নম্বর" 
+                       className="pl-12 pr-14 h-[50px] sm:h-[56px] bg-white border border-[#FFEADB]/40 rounded-full text-base sm:text-lg font-mono font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal placeholder:font-bengali shadow-xs focus-visible:ring-2 focus-visible:ring-orange-500/40"
+                       value={mobileNumber}
+                       disabled={isCheckingMobile}
+                       onChange={(e) => {
+                         const val = e.target.value.replace(/[^0-9]/g, '');
+                         if (val.length <= 11) {
+                           setMobileNumber(val);
+                         }
+                       }}
+                     />
+                     <button 
+                       onClick={handleStart}
+                       disabled={isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
+                       className={`w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 transition-all shadow-sm ${(isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-[#FF5500] text-white hover:bg-[#E04B00] hover:scale-105 active:scale-95 cursor-pointer'}`}
+                     >
+                       <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
+                     </button>
+                  </div>
                 </div>
-                <div className="relative z-10">
-                   <Phone className="w-4 h-4 text-slate-400 absolute left-4.5 top-1/2 -translate-y-1/2" />
-                   <Input 
-                     type="tel"
-                     placeholder="আপনার ১১ ডিজিটের মোবাইল নম্বর" 
-                     className="pl-12 pr-14 h-[50px] sm:h-[56px] bg-white border border-[#FFEADB]/40 rounded-full text-base sm:text-lg font-mono font-bold text-[#0F2744] placeholder:text-slate-400 placeholder:font-normal placeholder:font-bengali shadow-xs focus-visible:ring-2 focus-visible:ring-orange-500/40"
-                     value={mobileNumber}
-                     disabled={isCheckingMobile}
-                     onChange={(e) => {
-                       const val = e.target.value.replace(/[^0-9]/g, '');
-                       if (val.length <= 11) {
-                         setMobileNumber(val);
-                       }
-                     }}
-                   />
-                   <button 
-                     onClick={handleStart}
-                     disabled={isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)}
-                     className={`w-[36px] h-[36px] sm:w-[42px] sm:h-[42px] rounded-full flex items-center justify-center absolute right-2 top-1/2 -translate-y-1/2 transition-all shadow-sm ${(isCheckingMobile || (!userData?.fullName && !studentName.trim()) || (isEventExam && mobileNumber.length < 11)) ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-[#FF5500] text-white hover:bg-[#E04B00] hover:scale-105 active:scale-95 cursor-pointer'}`}
-                   >
-                     <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
-                   </button>
-                </div>
-              </div>
+              )}
 
               {/* Start Button */}
               <Button 
