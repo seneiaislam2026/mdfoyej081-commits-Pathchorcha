@@ -10,7 +10,6 @@ export const InstallPrompt = () => {
   const [pwaIcon, setPwaIcon] = useState<string>(
     "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg",
   );
-  const [installGuide, setInstallGuide] = useState<"ios" | "android" | "iframe" | null>(null);
 
   useEffect(() => {
     // If inside an iframe (like AI Studio preview), do not show the custom prompt
@@ -70,7 +69,8 @@ export const InstallPrompt = () => {
 
   const handleInstallClick = async () => {
     if (window.self !== window.top) {
-      setInstallGuide("iframe");
+      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে অনুগ্রহ করে নতুন ট্যাবে (অথবা ক্রোম ব্রাউজারে সরাসরি) biddayan.com সাইটে প্রবেশ করে ইনস্টল বাটনে চাপুন।");
+      setShowPrompt(false);
       return;
     }
 
@@ -89,9 +89,9 @@ export const InstallPrompt = () => {
     } else {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
       if (isIOS) {
-        setInstallGuide("ios");
+        alert("আইফোনে সরাসরি ডাউনলোড করতে সাফারি ব্রাউজারের নিচে শেয়ার (Share) আইকন থেকে 'Add to Home Screen' এ চাপুন।");
       } else {
-        setInstallGuide("android");
+        alert("আপনার ক্রোম ব্রাউজারের উপরে ডানদিকের থ্রি-ডট (⋮) মেনু থেকে 'Install app' বা 'Add to Home Screen' অপশনে চাপুন।");
       }
     }
     setShowPrompt(false);
@@ -100,11 +100,6 @@ export const InstallPrompt = () => {
   const handleClose = () => {
     localStorage.setItem("pwaPromptDismissed", "true");
     setShowPrompt(false);
-  };
-
-  const handleCloseGuide = () => {
-    localStorage.setItem("pwaPromptDismissed", "true");
-    setInstallGuide(null);
   };
 
   return (
@@ -179,104 +174,6 @@ export const InstallPrompt = () => {
         )}
       </AnimatePresence>
 
-      {installGuide && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[24px] w-full max-w-sm overflow-hidden shadow-2xl relative border border-slate-100 flex flex-col pointer-events-auto">
-            {/* Header */}
-            <div className="bg-slate-900 text-white p-6 relative">
-              <button
-                onClick={handleCloseGuide}
-                className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
-                aria-label="বন্ধ করুন"
-              >
-                ✕
-              </button>
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shrink-0 shadow-md p-1.5">
-                  <img
-                    src="https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg"
-                    alt="বিদ্যায়ন"
-                    className="w-full h-full object-contain rounded-xl mix-blend-multiply"
-                  />
-                </div>
-                <div>
-                  <h3 className="font-bengali font-bold text-lg leading-tight">বিদ্যায়ন</h3>
-                  <span className="text-[10px] tracking-wider text-green-400 font-bold uppercase">INSTALL APP</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-              {installGuide === "iframe" && (
-                <div className="space-y-4 font-bengali">
-                  <p className="text-slate-600 leading-relaxed text-sm">
-                    অরিজিনাল অ্যাপের মতো ব্যবহার করতে আপনার ফোন থেকে সরাসরি যেকোনো ব্রাউজার দিয়ে আমাদের ওয়েবসাইটটিতে প্রবেশ করুন।
-                  </p>
-                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-sm text-blue-700 font-semibold text-center select-all">
-                    biddayan.com
-                  </div>
-                </div>
-              )}
-
-              {installGuide === "ios" && (
-                <div className="space-y-4 font-bengali">
-                  <h4 className="font-bold text-slate-800 text-[15px]">আইফোনে (Safari) ডাউনলোড করার নিয়ম:</h4>
-                  <ol className="space-y-3.5 text-slate-600 text-[14px]">
-                    <li className="flex gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">১</span>
-                      <span>সাফারি (Safari) ব্রাউজারের নিচে থাকা <span className="font-bold text-blue-600">"Share" (শেয়ার)</span> আইকনে ক্লিক করুন।</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">২</span>
-                      <span>তালিকায় নিচের দিকে স্ক্রল করে <span className="font-bold text-blue-600">"Add to Home Screen"</span> অপশনটি সিলেক্ট করুন।</span>
-                    </li>
-                    <li className="flex gap-2.5">
-                      <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">৩</span>
-                      <span>এখন উপরে ডানদিকে থাকা <span className="font-bold text-blue-600">"Add"</span> বাটনে ট্যাপ করুন।</span>
-                    </li>
-                  </ol>
-                </div>
-              )}
-
-              {installGuide === "android" && (
-                <div className="space-y-4 font-bengali">
-                  <h4 className="font-bold text-slate-800 text-[15px]">অ্যান্ড্রয়েডে ডাউনলোড করার নিয়ম:</h4>
-                  <div className="space-y-3">
-                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-xs text-amber-700 leading-relaxed text-[13px]">
-                      📢 আপনি যদি Facebook, Messenger, বা অন্য কোনো অ্যাপের ভেতর থেকে ব্রাউজ করে থাকেন, তবে অফলাইনে ব্যবহারের জন্য দয়া করে প্রথম পদক্ষেপটি অনুসরণ করুন।
-                    </div>
-                    <ol className="space-y-3.5 text-slate-600 text-[14px]">
-                      <li className="flex gap-2.5">
-                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">১</span>
-                        <span>ফোনের আসল <span className="font-bold text-blue-600">Google Chrome</span> ব্রাউজার দিয়ে <span className="font-bold">biddayan.com</span> এ প্রবেশ করুন।</span>
-                      </li>
-                      <li className="flex gap-2.5">
-                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">২</span>
-                        <span>ব্রাউজারের উপরে ডানদিকের বা নিচে থাকা <span className="font-bold text-blue-600">থ্রি-ডট (⋮)</span> মেনু বাটনে ডাবল ক্লিক করুন।</span>
-                      </li>
-                      <li className="flex gap-2.5">
-                        <span className="w-5 h-5 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">৩</span>
-                        <span>মেনু তালিকা থেকে <span className="font-bold text-blue-600">"Install app"</span> অথবা <span className="font-bold text-blue-600">"Add to Home Screen"</span> অপশনে চাপ দিন।</span>
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="bg-slate-50 p-4 border-t border-slate-100 flex justify-end">
-              <button
-                onClick={handleCloseGuide}
-                className="px-5 py-2 bg-slate-800 text-white font-bengali font-bold text-sm rounded-xl hover:bg-slate-700 transition-colors"
-              >
-                বুঝেছি
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

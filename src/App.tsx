@@ -35,7 +35,6 @@ import { ArrowLeft } from "lucide-react";
 import { AuthProvider, useAuth } from "./lib/AuthContext";
 import { AnimatedLoader } from "./components/ui/AnimatedLoader";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
-import { PwaDiagnosticOverlay } from "./components/pwa/PwaDiagnosticOverlay";
 
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
   constructor(props: {children: React.ReactNode}) {
@@ -246,7 +245,6 @@ export default function App() {
     <ErrorBoundary>
       <AuthProvider>
         <InstallPrompt />
-        <PwaDiagnosticOverlay />
         <Router>
             <Routes>
           {/* Public Routes without Navbar */}

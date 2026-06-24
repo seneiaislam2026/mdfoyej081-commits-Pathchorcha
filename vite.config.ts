@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate', // স্বয়ংক্রিয়ভাবে নতুন আপডেট আসলে ব্যাকগ্রাউন্ডে আপডেট হবে
-      injectRegister: 'script',
+      injectRegister: 'auto',
       manifestFilename: 'manifest.json',
       includeAssets: ['icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-192.png', 'icons/maskable-512.png', 'logo.png', 'screenshot-wide.png', 'screenshot-mobile.png'],
       

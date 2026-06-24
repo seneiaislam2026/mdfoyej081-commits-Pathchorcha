@@ -84,30 +84,25 @@
     
     <title>বিদ্যায়ন | Biddayan</title>
     <script>
-      window.pwaLogs = [];
-      window.addPwaLog = function(type, message) {
-        const log = {
-          timestamp: new Date().toLocaleTimeString(),
-          type: type, // 'info' | 'success' | 'warn' | 'error'
-          message: message
-        };
-        window.pwaLogs.push(log);
-        window.dispatchEvent(new CustomEvent('pwa-log-updated', { detail: log }));
-        console.log(`[PWA-Diagnostic] [${type.toUpperCase()}] ${message}`);
-      };
-
       window.deferredPrompt = null;
       window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         window.deferredPrompt = e;
-        window.addPwaLog('success', 'beforeinstallprompt event fired! Browser approved PWA install criteria.');
         window.dispatchEvent(new CustomEvent('pwa-prompt-available', { detail: e }));
       });
 
-      // Log early stats
-      window.addPwaLog('info', 'Page initialized.');
-      window.addPwaLog('info', 'Secure context: ' + window.isSecureContext);
-      window.addPwaLog('info', 'Platform/Host: ' + window.location.hostname);
+      // Register PWA service worker for immediate and direct installation
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js', { scope: '/' })
+            .then((reg) => {
+              console.log('Service Worker registered successfully:', reg.scope);
+            })
+            .catch((err) => {
+              console.error('Service Worker registration failed:', err);
+            });
+        });
+      }
     </script>
   </head>
   <body>
