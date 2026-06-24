@@ -104,7 +104,7 @@ export const getSubjectsByGroup = (group?: string, classGroup?: string) => {
   } else if (group === "বাণিজ্য") {
     return [...common, "হিসাববিজ্ঞান", "ব্যবসায় সংগঠন", "ফিন্যান্স", "উদ্ভাবন"];
   }
-  return [...common, "উচ্চতর গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান"];
+  return common;
 };
 
 // Lecture Notes Database

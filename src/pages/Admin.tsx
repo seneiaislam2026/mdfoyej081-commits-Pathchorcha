@@ -354,7 +354,7 @@ export default function Admin() {
   const [isSavingVocab, setIsSavingVocab] = useState(false);
   const navigate = useNavigate();
 
-  const allDynamicSubjects = ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত", "ICT", "হিসাববিজ্ঞান", "ফিন্যান্স", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", "অর্থনীতি", "পৌরনীতি", "ইতিহাস", "ভূগোল", "সাধারণ জ্ঞান"];
+  const allDynamicSubjects = ["বাংলা", "English", "গণিত", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম", "ICT", "হিসাববিজ্ঞান", "ফিন্যান্স", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", "অর্থনীতি", "পৌরনীতি", "ইতিহাস", "ভূগোল", "সাধারণ জ্ঞান"];
 
   useEffect(() => {
     if (activeTab === "students" || activeTab === "dashboard") {

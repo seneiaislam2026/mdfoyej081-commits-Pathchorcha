@@ -104,7 +104,7 @@ const filters = {
 const getSubjectsByGroup = (group?: string, classGroup?: string) => {
   const common = ["বাংলা", "English", "ICT"];
   if (classGroup === "Class 6-8") {
-     return ["বাংলা", "English", "গণিত", "সাধারণ বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম"];
+     return ["বাংলা", "English", "গণিত", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম"];
   }
   
   if (group === "মানবিক" || group === "Arts") {
@@ -112,8 +112,8 @@ const getSubjectsByGroup = (group?: string, classGroup?: string) => {
   } else if (group === "বাণিজ্য" || group?.includes("ব্যবসায়") || group?.includes("ব্যবসায়") || group?.includes("Commerce") || group?.includes("Business")) {
     return [...common, "হিসাববিজ্ঞান", "ম্যানেজমেন্ট", "ফিন্যান্স", "উৎপাদন ব্যবস্থাপনা", "মার্কেটিং", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা"];
   }
-  // Default to science if somehow missed
-  return [...common, "উচ্চতর গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "রসায়ন", "জীববিজ্ঞান", "Math", "Physics", "Chemistry", "Biology"];
+  // Default to non-science if science is requested/missed
+  return common;
 };
 
 const mapUserClassToGroup = (cls?: string) => {
@@ -444,10 +444,6 @@ export default function QuestionBank() {
               { title: "ইংরেজি", subtitle: "২য় পত্র", subjectCode: "English 2nd Paper", count: "149+", bg: "bg-gradient-to-br from-[#4ea5ff] to-[#3a8eed]", letter: "a", icon: BookOpen }, 
               { title: "একাউন্টিং", subtitle: "১ম পত্র", subjectCode: "Accounting 1st Paper", count: "3+", bg: "bg-gradient-to-br from-[#2ccfb6] to-[#1bb59e]", letter: "এ", icon: TrendingUp },
               { title: "একাউন্টিং", subtitle: "২য় পত্র", subjectCode: "Accounting 2nd Paper", count: "3+", bg: "bg-gradient-to-br from-[#a671ff] to-[#8d54ea]", letter: "অ", icon: Calculator },
-              { title: "পদার্থবিজ্ঞান", subtitle: "১ম পত্র", subjectCode: "Physics 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#4f46e5] to-[#4338ca]", letter: "প", icon: Atom },
-              { title: "রসায়ন", subtitle: "১ম পত্র", subjectCode: "Chemistry 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#e11d48] to-[#be123c]", letter: "র", icon: FlaskConical },
-              { title: "উচ্চতর গণিত", subtitle: "১ম পত্র", subjectCode: "Higher Math 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#0284c7] to-[#0369a1]", letter: "উ", icon: Calculator },
-              { title: "জীববিজ্ঞান", subtitle: "১ম পত্র", subjectCode: "Biology 1st Paper", count: "10+", bg: "bg-gradient-to-br from-[#16a34a] to-[#15803d]", letter: "জী", icon: Dna },
               { title: "ICT", subtitle: "", subjectCode: "ICT", count: "20+", bg: "bg-gradient-to-br from-[#0891b2] to-[#0e7490]", letter: "I", icon: Monitor },
             ].map((subject, idx) => (
                <button 
@@ -761,6 +757,60 @@ export default function QuestionBank() {
                 </motion.button>
               );
             })}
+          </div>
+
+          {/* Subject-wise Icons Grid for Admission Page */}
+          <div className="mt-8 mb-6">
+            <div className="flex flex-col gap-1 mb-5">
+              <span className="text-[12px] font-extrabold text-blue-600 uppercase tracking-widest">
+                টপিক ভিত্তিক • TOPICS
+              </span>
+              <h3 className="text-[20px] sm:text-[23px] font-bengali font-extrabold text-[#1E2B4C] leading-tight">
+                অন্যান্য বিষয়ের প্রশ্নব্যাংক
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {[
+                { title: "বাংলা", subtitle: "১ম পত্র", subjectCode: "Bangla 1st Paper", count: "4+", bg: "bg-gradient-to-br from-[#87d853] to-[#71c33a]", letter: "অ", icon: BookOpen },
+                { title: "বাংলা", subtitle: "২য় পত্র", subjectCode: "Bangla 2nd Paper", count: "149+", bg: "bg-gradient-to-br from-[#fda63a] to-[#ff8f00]", letter: "ব", icon: PenTool },
+                { title: "ইংরেজি", subtitle: "১ম পত্র", subjectCode: "English 1st Paper", count: "3+", bg: "bg-gradient-to-br from-[#ff6b6b] to-[#fa5252]", letter: "A", icon: Languages },
+                { title: "ইংরেজি", subtitle: "২য় পত্র", subjectCode: "English 2nd Paper", count: "149+", bg: "bg-gradient-to-br from-[#4ea5ff] to-[#3a8eed]", letter: "a", icon: BookOpen }, 
+                { title: "একাউন্টিং", subtitle: "১ম পত্র", subjectCode: "Accounting 1st Paper", count: "3+", bg: "bg-gradient-to-br from-[#2ccfb6] to-[#1bb59e]", letter: "এ", icon: TrendingUp },
+                { title: "একাউন্টিং", subtitle: "২য় পত্র", subjectCode: "Accounting 2nd Paper", count: "3+", bg: "bg-gradient-to-br from-[#a671ff] to-[#8d54ea]", letter: "অ", icon: Calculator },
+                { title: "ICT", subtitle: "", subjectCode: "ICT", count: "20+", bg: "bg-gradient-to-br from-[#0891b2] to-[#0e7490]", letter: "I", icon: Monitor },
+              ].map((subject, idx) => (
+                 <button 
+                    key={idx} 
+                    onClick={() => {
+                      navigate(`/format?subject=${encodeURIComponent(subject.subjectCode)}&classGroup=HSC`);
+                    }}
+                    className={`${subject.bg} relative overflow-hidden rounded-[20px] p-4 sm:p-5 text-white flex flex-col justify-between aspect-[1.3/1] shadow-sm hover:shadow-md transition-all active:scale-95 text-left`}
+                 >
+                   {/* Faded Letter Background */}
+                   <span className="absolute -bottom-4 -right-1 text-[80px] sm:text-[90px] font-bengali font-black opacity-[0.15] leading-none pointer-events-none select-none">
+                     {subject.letter}
+                   </span>
+                   
+                   <div className="flex justify-between items-start relative z-10 w-full">
+                     <div className="flex flex-col">
+                       <span className="font-bengali font-extrabold text-[19px] sm:text-[21px] leading-tight drop-shadow-sm">{subject.title}</span>
+                       <span className="font-bengali font-medium text-[13px] sm:text-[14px] opacity-90">{subject.subtitle}</span>
+                     </div>
+                     <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-card/95 flex items-center justify-center shrink-0 shadow-[0_2px_10px_rgba(0,0,0,0.1)]">
+                       <subject.icon className={`w-5 h-5 sm:w-6 sm:h-6 ${subject.title === 'বাংলা' && subject.subtitle === '১ম পত্র' ? 'text-[#71c33a]' : subject.title === 'বাংলা' && subject.subtitle === '২য় পত্র' ? 'text-[#ff8f00]' : subject.title === 'ইংরেজি' && subject.subtitle === '১ম পত্র' ? 'text-[#fa5252]' : subject.title === 'ইংরেজি' && subject.subtitle === '২য় পত্র' ? 'text-[#3a8eed]' : subject.title === 'একাউন্টিং' && subject.subtitle === '১ম পত্র' ? 'text-[#1bb59e]' : subject.title === 'একাউন্টিং' && subject.subtitle === '২য় পত্র' ? 'text-[#8d54ea]' : 'text-[#0891b2]'}`} strokeWidth={2.5} />
+                     </div>
+                   </div>
+                   
+                   <div className="mt-auto relative z-10">
+                     <div className="bg-card text-foreground text-[12px] sm:text-[13px] font-bold px-3 py-1 rounded-md inline-flex items-center gap-1.5 shadow-sm">
+                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                       {subject.count}
+                     </div>
+                   </div>
+                 </button>
+              ))}
+            </div>
           </div>
         </div>
         {renderBottomNav()}
