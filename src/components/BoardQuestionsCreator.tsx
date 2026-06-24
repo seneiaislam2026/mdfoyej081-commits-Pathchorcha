@@ -14,7 +14,7 @@ export default function BoardQuestionsCreator() {
 
   const BOARDS = ["ঢাকা বোর্ড", "রাজশাহী বোর্ড", "যশোর বোর্ড", "কুমিল্লা বোর্ড", "চট্টগ্রাম বোর্ড", "সিলেট বোর্ড", "বরিশাল বোর্ড", "দিনাজপুর বোর্ড", "ময়মনসিংহ বোর্ড"];
   const YEARS = Array.from({ length: 11 }, (_, i) => (new Date().getFullYear() - i).toString());
-  const CLASSES = ["৯ম শ্রেনী", "১০ম শ্রেনী", "একাদশ", "দ্বাদশ"];
+  const CLASSES = ["৯ম শ্রেনী", "১০ম শ্রেনী", "একাদশ", "দ্বাদশ", "এইচএসসি (একাদশ-দ্বাদশ)", "এইচএসসি (একাদশ শ্রেনী)", "এইচএসসি (দ্বাদশ শ্রেনী)"];
   const SUBJECTS = [
     "Bangla 1st Paper", "Bangla 2nd Paper", 
     "English 1st Paper", "English 2nd Paper", 
@@ -111,21 +111,113 @@ export default function BoardQuestionsCreator() {
       if (formData.classLevel === "৯ম শ্রেনী" || formData.classLevel === "১০ম শ্রেনী") {
         classGroup = "SSC";
         mappedClass = formData.classLevel === "৯ম শ্রেনী" ? "Class 9" : "Class 10";
-      } else if (formData.classLevel === "একাদশ" || formData.classLevel === "দ্বাদশ") {
+      } else if (formData.classLevel === "একাদশ" || formData.classLevel === "এইচএসসি (একাদশ শ্রেনী)") {
         classGroup = "HSC";
-        mappedClass = formData.classLevel === "একাদশ" ? "Class 11" : "Class 12";
+        mappedClass = "Class 11";
+      } else if (formData.classLevel === "দ্বাদশ" || formData.classLevel === "এইচএসসি (দ্বাদশ শ্রেনী)") {
+        classGroup = "HSC";
+        mappedClass = "Class 12";
+      } else if (formData.classLevel === "এইচএসসি (একাদশ-দ্বাদশ)") {
+        classGroup = "HSC";
+        mappedClass = "HSC";
       }
 
       const promises = questionsToSubmit.map((q, index) => {
+        let is_cq = formData.format === "CQ";
+        let is_k_vandar = formData.format === "KaBhandar";
+        let is_kh_vandar = formData.format === "KhaBhandar";
+
+        // Super robust text parsing
+        const qText = q.text || q.question || q.q || q.questionText || q.title || "";
+
+        // Super robust options parsing
+        let formattedOptions: { id: string; label: string }[] = [];
+        if (!is_cq && !is_k_vandar && !is_kh_vandar) {
+          if (q.options) {
+            if (Array.isArray(q.options)) {
+              if (q.options.length > 0) {
+                if (typeof q.options[0] === 'string') {
+                  // Array of strings
+                  const ids = ['A', 'B', 'C', 'D', 'E'];
+                  formattedOptions = q.options.map((optLabel: string, idx: number) => ({
+                    id: ids[idx] || String(idx + 1),
+                    label: optLabel
+                  }));
+                } else if (typeof q.options[0] === 'object' && q.options[0] !== null) {
+                  // Array of objects
+                  formattedOptions = q.options.map((opt: any, idx: number) => {
+                    const id = opt.id || opt.key || String(idx + 1);
+                    const label = opt.label || opt.text || opt.value || opt.option || "";
+                    return { id, label };
+                  });
+                }
+              }
+            } else if (typeof q.options === 'object' && q.options !== null) {
+              // Map/Object of options
+              formattedOptions = Object.keys(q.options).map((key) => ({
+                id: key,
+                label: q.options[key]
+              }));
+            }
+          }
+        }
+
+        // If options are still empty for MCQ, default to A, B, C, D placeholders
+        if (!is_cq && !is_k_vandar && !is_kh_vandar && formattedOptions.length === 0) {
+          formattedOptions = [
+            { id: "A", label: "" },
+            { id: "B", label: "" },
+            { id: "C", label: "" },
+            { id: "D", label: "" }
+          ];
+        }
+
+        // Super robust correctOption parsing
+        let correctOption = "A";
+        const rawCorrect = q.correctOption !== undefined ? q.correctOption : (q.correct_answer || q.correctAnswer || q.answer || q.correct || "A");
+        
+        if (rawCorrect !== undefined && rawCorrect !== null) {
+          if (typeof rawCorrect === 'number') {
+            // It's an index
+            if (rawCorrect >= 0 && rawCorrect < formattedOptions.length) {
+              correctOption = formattedOptions[rawCorrect].id;
+            } else {
+              correctOption = String(rawCorrect);
+            }
+          } else if (typeof rawCorrect === 'string') {
+            const trimmed = rawCorrect.trim();
+            // Check if it matches an option ID directly
+            if (formattedOptions.some(o => o.id === trimmed)) {
+              correctOption = trimmed;
+            } else {
+              // Check if it matches the label of an option
+              const matched = formattedOptions.find(o => o.label === trimmed);
+              if (matched) {
+                correctOption = matched.id;
+              } else {
+                correctOption = trimmed;
+              }
+            }
+          }
+        }
+
+        // Handle correctOptionIndex if provided explicitly
+        const idxVal = q.correctOptionIndex !== undefined ? q.correctOptionIndex : q.correct_option_index;
+        if (idxVal !== undefined && typeof idxVal === 'number') {
+          if (idxVal >= 0 && idxVal < formattedOptions.length) {
+            correctOption = formattedOptions[idxVal].id;
+          }
+        }
+
         return addDoc(collection(db, "questions"), {
-          text: q.text || "",
-          options: q.options || [],
-          correctOption: q.correctOption || "A",
-          explanation: q.explanation || "",
+          text: qText,
+          options: formattedOptions,
+          correctOption: correctOption,
+          explanation: q.explanation || q.details || "",
           subject: formData.subject,
-          is_cq: formData.format === "CQ",
-          is_k_vandar: formData.format === "KaBhandar",
-          is_kh_vandar: formData.format === "KhaBhandar",
+          is_cq: is_cq,
+          is_k_vandar: is_k_vandar,
+          is_kh_vandar: is_kh_vandar,
           isBoardQuestion: true,
           boardName: formData.boardName,
           boardYear: formData.boardYear,

@@ -48,6 +48,9 @@ export default function PaperView() {
           const data = doc.data();
           if (title === "Subject-wise Questions" && data.title) return; // Skip questions that belong to a specific paper
           
+          // Subject filter
+          if (subjectParam && data.subject && data.subject.toLowerCase() !== subjectParam.toLowerCase()) return;
+
           let is_cq = data.is_cq === true;
           let is_k_vandar = data.is_k_vandar === true;
           let is_kh_vandar = data.is_kh_vandar === true;
@@ -100,14 +103,15 @@ export default function PaperView() {
           // Normalize correct option by checking multiple possible field names
           r.correctOption = r.correctOption || r.correct_answer || r.correctAnswer || r.answer;
           
-          if (unique.has(r.text)) {
-            const existing = unique.get(r.text);
+          const key = r.text || r.question || r.id;
+          if (unique.has(key)) {
+            const existing = unique.get(key);
             // Keep the one that has an explanation, or correct option
             if ((r.explanation && !existing.explanation) || (r.correctOption && !existing.correctOption)) {
-              unique.set(r.text, r);
+              unique.set(key, r);
             }
           } else {
-            unique.set(r.text, r);
+            unique.set(key, r);
           }
         });
         const deduplicatedResults = Array.from(unique.values());
@@ -133,7 +137,7 @@ export default function PaperView() {
       }
     };
     fetchQuestions();
-  }, [title, classGroup, university]);
+  }, [title, classGroup, university, subjectParam, format]);
 
   // Group by subjects
   const subjects = questions.reduce((acc, q) => {

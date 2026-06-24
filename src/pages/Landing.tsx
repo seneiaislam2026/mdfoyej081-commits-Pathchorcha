@@ -156,11 +156,25 @@ export default function Landing() {
   const [hasAuthSession] = useState<boolean>(() => {
     try {
       const keys = Object.keys(localStorage);
-      return keys.some(key => key.startsWith("firebase:authUser"));
+      return keys.some(key => key.startsWith("firebase:authUser") || key === "cachedAuthUser");
     } catch {
       return false;
     }
   });
+
+  const isLikelyLoggedIn = hasAuthSession || !!user;
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
+
+  useEffect(() => {
+    if (isLikelyLoggedIn) {
+      const timer = setTimeout(() => {
+        setMinDelayPassed(true);
+      }, 3500); // 3.5 seconds opening animation delay
+      return () => clearTimeout(timer);
+    } else {
+      setMinDelayPassed(true);
+    }
+  }, [isLikelyLoggedIn]);
 
   useEffect(() => {
     getDoc(doc(db, "settings", "general")).then((snap) => {
@@ -175,9 +189,9 @@ export default function Landing() {
     });
   }, []);
 
-  // ONLY auto-redirect if they are logged in
+  // ONLY auto-redirect if they are logged in and the minimum delay has passed
   useEffect(() => {
-    if (!loading && user) {
+    if (minDelayPassed && !loading && user) {
       if (userData?.class) {
         navigate("/dashboard");
       } else {
@@ -185,7 +199,7 @@ export default function Landing() {
         navigate("/onboarding");
       }
     }
-  }, [user, userData, loading, navigate]);
+  }, [user, userData, loading, minDelayPassed, navigate]);
 
   const [isInstallable, setIsInstallable] = useState(!!(window as any).deferredPrompt);
   const [installMessage, setInstallMessage] = useState<string | null>(null);
@@ -261,8 +275,7 @@ export default function Landing() {
 
   // Optimize: prevent blocking loading screen when auth completes but Firestore snapshot is slow/denied
   // If there's no stored session, render immediately for 100% stable, lightning fast loads
-  const isLikelyLoggedIn = hasAuthSession || !!user;
-  if (isLikelyLoggedIn && (loading || (user && !userData))) {
+  if (isLikelyLoggedIn && (!minDelayPassed || loading || (user && !userData))) {
     return (
       <div className="min-h-screen bg-white flex flex-col justify-center items-center" id="div-loading-screen">
         <AnimatedLoader size="lg" />

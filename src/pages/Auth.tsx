@@ -61,6 +61,29 @@ export default function Auth() {
   const [errorMsg, setErrorMsg] = useState("");
   const [logoUrl, setLogoUrl] = useState("https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg");
 
+  const [hasAuthSession] = useState<boolean>(() => {
+    try {
+      const keys = Object.keys(localStorage);
+      return keys.some(key => key.startsWith("firebase:authUser") || key === "cachedAuthUser");
+    } catch {
+      return false;
+    }
+  });
+
+  const isLikelyLoggedIn = hasAuthSession || !!user;
+  const [minDelayPassed, setMinDelayPassed] = useState(false);
+
+  useEffect(() => {
+    if (isLikelyLoggedIn) {
+      const timer = setTimeout(() => {
+        setMinDelayPassed(true);
+      }, 3500); // 3.5 seconds opening animation delay
+      return () => clearTimeout(timer);
+    } else {
+      setMinDelayPassed(true);
+    }
+  }, [isLikelyLoggedIn]);
+
   useEffect(() => {
     getDoc(doc(db, "settings", "general")).then((snap) => {
       if (snap.exists() && snap.data()?.pwaIconUrl) {
@@ -75,16 +98,16 @@ export default function Auth() {
   }, []);
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (minDelayPassed && !authLoading && user) {
       if (userData?.class) {
         navigate("/dashboard");
       } else if (userData) {
         navigate("/onboarding");
       }
     }
-  }, [user, userData, authLoading, navigate]);
+  }, [user, userData, authLoading, minDelayPassed, navigate]);
 
-  if (authLoading) {
+  if (authLoading || (isLikelyLoggedIn && (!minDelayPassed || !userData))) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center">
         <AnimatedLoader size="lg" />
