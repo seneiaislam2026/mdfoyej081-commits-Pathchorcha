@@ -19,7 +19,9 @@ import {
   CheckCircle,
   Clock,
   User,
-  ExternalLink
+  ExternalLink,
+  Play,
+  Check
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -47,10 +49,17 @@ export function EventExamTab() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedExamFilter, setSelectedExamFilter] = useState('all');
+  const [selectedMobileFilter, setSelectedMobileFilter] = useState('');
+  const [selectedStudentFilter, setSelectedStudentFilter] = useState('all');
+  const [selectedMarkFilter, setSelectedMarkFilter] = useState('all');
   const [isSpinning, setIsSpinning] = useState(false);
   const [winner, setWinner] = useState<ExamParticipant | null>(null);
   const [showWinnerDialog, setShowWinnerDialog] = useState(false);
   const [spinningIndex, setSpinningIndex] = useState<number | null>(null);
+  const [printingPdf, setPrintingPdf] = useState(false);
+  const [showSpinSetup, setShowSpinSetup] = useState(false);
+  const [spinParticipants, setSpinParticipants] = useState<ExamParticipant[]>([]);
+  const [isFullScreenSpin, setIsFullScreenSpin] = useState(false);
 
   const fetchParticipants = async () => {
     setLoading(true);
@@ -64,13 +73,7 @@ export function EventExamTab() {
         const type = data.type || "";
         const title = (data.title || "").toLowerCase();
         
-        if (
-          type === "event_exam" || 
-          title.includes("mega") || 
-          title.includes("মেগা") || 
-          title.includes("event") || 
-          title.includes("ইভেন্ট")
-        ) {
+        if (type === "event_exam") {
           eventExamIds.add(doc.id.trim());
           eventExamIds.add(doc.id.trim().toLowerCase());
         }
@@ -83,23 +86,8 @@ export function EventExamTab() {
       resultsSnapshot.docs.forEach(doc => {
         const data = doc.data();
         const examId = (data.examId || "").trim();
-        const examTitle = (data.examTitle || "").toLowerCase();
-        const mobile = (data.mobileNumber || "").trim();
         
-        const isMegaEvent = 
-          eventExamIds.has(examId) || 
-          eventExamIds.has(examId.toLowerCase()) ||
-          examTitle.includes("mega") ||
-          examTitle.includes("মেগা") ||
-          examTitle.includes("event") ||
-          examTitle.includes("ইভেন্ট") ||
-          examTitle.includes("quiz") ||
-          examTitle.includes("কুইজ") ||
-          examTitle.includes("test") ||
-          examTitle.includes("টেস্ট") ||
-          examTitle.includes("live") ||
-          examTitle.includes("লাইভ") ||
-          mobile.length >= 11;
+        const isMegaEvent = eventExamIds.has(examId) || eventExamIds.has(examId.toLowerCase());
 
         if (isMegaEvent) {
           allResults.push({
@@ -137,26 +125,38 @@ export function EventExamTab() {
     fetchParticipants();
   }, []);
 
-  const spinForWinner = () => {
+  const openSpinSetup = () => {
     if (participants.length === 0) return;
-    
+    setSpinParticipants(filteredParticipants);
+    setShowSpinSetup(true);
+  };
+
+  const startFullScreenSpin = () => {
+    if (spinParticipants.length === 0) return;
+    setShowSpinSetup(false);
+    setIsFullScreenSpin(true);
+    setIsSpinning(false);
+    setWinner(null);
+    setSpinningIndex(null);
+  };
+
+  const runLuckyDrawSpin = () => {
+    if (spinParticipants.length === 0) return;
     setIsSpinning(true);
     setWinner(null);
     setSpinningIndex(null);
 
     let spins = 0;
-    const maxSpins = 30;
+    const maxSpins = 30; // 30 spins (about 3 seconds)
     const spinInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * participants.length);
+      const randomIndex = Math.floor(Math.random() * spinParticipants.length);
       setSpinningIndex(randomIndex);
-      setWinner(participants[randomIndex]);
+      setWinner(spinParticipants[randomIndex]);
       spins++;
       
       if (spins >= maxSpins) {
         clearInterval(spinInterval);
         setIsSpinning(false);
-        setSpinningIndex(null);
-        setShowWinnerDialog(true);
         triggerConfetti();
       }
     }, 100);
@@ -190,12 +190,12 @@ export function EventExamTab() {
   };
 
   const handleDownload = () => {
-    if (participants.length === 0) return;
+    if (filteredParticipants.length === 0) return;
     
     const BOM = "\uFEFF";
     let csvContent = BOM + "Rank (অবস্থান),Student Name (শিক্ষার্থীর নাম),Mobile Number (মোবাইল নম্বর),Exam Title (পরীক্ষার নাম),Score (প্রাপ্ত নম্বর),Total Questions (মোট প্রশ্ন),Percentage (শতকরা হার %)\n";
     
-    participants.forEach((p, index) => {
+    filteredParticipants.forEach((p, index) => {
       const percentage = p.total > 0 ? Math.round((p.score / p.total) * 100) : 0;
       const sanitizedName = `"${(p.studentName || '').replace(/"/g, '""')}"`;
       const sanitizedMobile = `"${(p.mobileNumber || '').replace(/"/g, '""')}"`;
@@ -214,137 +214,203 @@ export function EventExamTab() {
     document.body.removeChild(link);
   };
 
-  const handlePrintPDF = () => {
-    if (filteredParticipants.length === 0) return;
+  const handlePrintPDF = async () => {
+    // 1. Student selection logic
+    const uniqueStudents = Array.from(new Set(participants.map(p => p.studentName))).sort();
     
+    // Only show selection modal if no specific student is filtered
+    let selectedStudents: string[] | null = selectedStudentFilter !== 'all' ? [selectedStudentFilter] : null;
+
+    if (!selectedStudents) {
+        const result = await new Promise<string[] | null>((resolve) => {
+            const modal = document.createElement("div");
+            modal.className = "fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
+            
+            const checkboxList = uniqueStudents.map(name => `
+                <label class="flex items-center gap-3 p-3 text-left hover:bg-slate-50 cursor-pointer border-b border-slate-100">
+                    <input type="checkbox" value="${name}" class="student-checkbox w-5 h-5 accent-[#00B074]" checked>
+                    <span class="font-bengali text-slate-700">${name}</span>
+                </label>
+            `).join('');
+
+            modal.innerHTML = `
+                <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6">
+                    <h3 class="text-xl font-bold text-slate-900 font-bengali">শিক্ষার্থী নির্বাচন করুন</h3>
+                    
+                    <div class="max-h-[50vh] overflow-y-auto w-full text-left p-2 border rounded-xl mb-4">
+                        <label class="flex items-center gap-3 p-3 font-bold border-b-2 border-slate-200 cursor-pointer bg-slate-50">
+                            <input type="checkbox" id="select-all" class="w-5 h-5 accent-[#00B074]" checked>
+                            <span class="font-bengali text-slate-800">সকল শিক্ষার্থী</span>
+                        </label>
+                        ${checkboxList}
+                    </div>
+
+                    <div class="flex gap-3 w-full">
+                        <button id="cancel-btn" class="flex-1 p-3 rounded-xl bg-slate-100 text-slate-700 font-bold">বাতিল</button>
+                        <button id="confirm-btn" class="flex-1 p-3 rounded-xl bg-[#00B074] text-white font-bold">প্রিন্ট করুন</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Select All logic
+            const selectAll = modal.querySelector("#select-all") as HTMLInputElement;
+            const checkboxes = modal.querySelectorAll(".student-checkbox");
+            selectAll.addEventListener("change", () => {
+                checkboxes.forEach(cb => (cb as HTMLInputElement).checked = selectAll.checked);
+            });
+            checkboxes.forEach(cb => cb.addEventListener("change", () => {
+                selectAll.checked = Array.from(checkboxes).every(c => (c as HTMLInputElement).checked);
+            }));
+
+            modal.querySelector("#cancel-btn")?.addEventListener("click", () => {
+                modal.remove();
+                resolve(null);
+            });
+            modal.querySelector("#confirm-btn")?.addEventListener("click", () => {
+                if (selectAll.checked) {
+                    modal.remove();
+                    resolve(['all']);
+                } else {
+                    const selected = Array.from(checkboxes)
+                        .filter(cb => (cb as HTMLInputElement).checked)
+                        .map(cb => (cb as HTMLInputElement).value);
+                    modal.remove();
+                    resolve(selected.length > 0 ? selected : null);
+                }
+            });
+        });
+
+        if (!result) return;
+        selectedStudents = result;
+    }
+
+    const participantsToPrint = selectedStudents.includes('all') 
+        ? participants 
+        : participants.filter(p => selectedStudents.includes(p.studentName || ''));
+
+    if (participantsToPrint.length === 0 || printingPdf) return;
+    setPrintingPdf(true);
+    
+    // Safeguard: Clean up any stale/duplicate nodes from previous runs
+    const existingModal = document.getElementById("pdf-download-modal");
+    if (existingModal) existingModal.remove();
+    const existingPrintRoot = document.getElementById("biddayan-print-root");
+    if (existingPrintRoot) existingPrintRoot.remove();
+    
+    // Capture the current scroll position and temporarily disable smooth scrolling
+    const originalScrollY = window.scrollY;
+    const originalScrollX = window.scrollX;
+    const htmlEl = document.documentElement;
+    const originalScrollBehavior = htmlEl.style.scrollBehavior;
+    htmlEl.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+
+    // Create a highly elegant full-screen progress modal overlay using Tailwind CSS
+    const modal = document.createElement("div");
+    modal.id = "pdf-download-modal";
+    modal.className = "fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
+    
+    modal.innerHTML = `
+      <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6 transform transition-all duration-300 scale-100">
+        <div class="w-16 h-16 rounded-2xl bg-[#00B074]/10 flex items-center justify-center text-[#00B074] animate-bounce">
+          <svg class="w-8 h-8 text-[#00B074]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-slate-900 font-bengali">পিডিএফ ডাউনলোড হচ্ছে...</h3>
+          <p class="text-sm text-slate-500 mt-2 font-bengali leading-relaxed font-semibold">
+            আপনার লিডারবোর্ড রিপোর্ট প্রসেস ও কম্পাইল করা হচ্ছে। অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন।
+          </p>
+        </div>
+        
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+          <div class="bg-[#00B074] h-full w-1/3 rounded-full animate-infinite-loader"></div>
+        </div>
+        
+        <div class="text-[11px] text-[#00B074] font-bold font-bengali">স্টাইলিশ পিডিএফ সংস্করণ জেনারেট হচ্ছে...</div>
+      </div>
+    `;
+
+    // Define CSS rules for infinite loader animation
+    const animStyle = document.createElement("style");
+    animStyle.id = "leaderboard-loader-animation-style";
+    animStyle.innerHTML = `
+      @keyframes infinite-loader {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(300%); }
+      }
+      .animate-infinite-loader {
+        animation: infinite-loader 1.4s infinite linear;
+      }
+    `;
+    document.head.appendChild(animStyle);
+    
+    // Create print container with standard layout positioning (not absolute/fixed)
+    // to allow proper multi-page breaking and prevent rendering clipping/blank spaces.
     const printContainer = document.createElement("div");
     printContainer.id = "biddayan-print-root";
-    printContainer.style.position = "absolute";
-    printContainer.style.left = "0";
-    printContainer.style.top = "0";
+    printContainer.style.position = "relative";
     printContainer.style.width = "100%";
-    printContainer.style.backgroundColor = "white";
-    printContainer.style.color = "#1e293b";
+    printContainer.style.maxWidth = "800px";
+    printContainer.style.boxSizing = "border-box";
+    printContainer.style.margin = "0 auto";
+    printContainer.style.backgroundColor = "#ffffff";
+    printContainer.style.color = "#0f172a";
     printContainer.style.fontFamily = "'Hind Siliguri', 'Noto Sans Bengali', sans-serif";
-    printContainer.style.zIndex = "999999";
-    printContainer.style.padding = "30px";
+    printContainer.style.padding = "20px";
+    printContainer.style.zIndex = "99999";
+    printContainer.style.overflow = "visible";
+    printContainer.style.display = "block";
     
     const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
     const formattedDate = new Date().toLocaleDateString('bn-BD', options);
     const formattedTime = new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit' });
 
-    const rowsHTML = filteredParticipants.map((p, index) => {
+    // Build the beautiful leaderboard rows as table rows
+    const rowsHTML = participantsToPrint.map((p, index) => {
       const percentage = p.total > 0 ? Math.round((p.score / p.total) * 100) : 0;
       
-      let rankStyle = 'color: #475569; font-weight: bold; font-size: 13px;';
-      if (index === 0) {
-        rankStyle = 'color: #ca8a04; font-weight: 800; font-size: 15px; background-color: #fef9c3; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid #fef08a;';
-      } else if (index === 1) {
-        rankStyle = 'color: #475569; font-weight: 800; font-size: 14px; background-color: #f1f5f9; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid #e2e8f0;';
-      } else if (index === 2) {
-        rankStyle = 'color: #b45309; font-weight: 800; font-size: 14px; background-color: #ffedd5; border-radius: 50%; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid #fed7aa;';
-      }
-
       return `
-        <tr style="border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
-          <td style="padding: 12px 8px; text-align: center; vertical-align: middle;">
-            <span style="${rankStyle}">${index + 1}</span>
-          </td>
-          <td style="padding: 12px 12px; font-weight: bold; color: #051d3b; text-align: left; vertical-align: middle;">
-            <div style="font-size: 14px; font-weight: 700;">${p.studentName || 'অজ্ঞাত'}</div>
-            ${p.mobileNumber ? `<div style="font-size: 11px; color: #64748b; font-family: monospace; font-weight: 500; margin-top: 3px; display: flex; align-items: center; gap: 3px;">📱 ${p.mobileNumber}</div>` : ''}
-          </td>
-          <td style="padding: 12px 12px; color: #475569; font-size: 13px; text-align: left; vertical-align: middle;">
-            ${p.examTitle || 'ইভেন্ট কুইজ'}
-          </td>
-          <td style="padding: 12px 12px; text-align: center; vertical-align: middle;">
-            <span style="font-weight: bold; font-family: monospace; color: #00b074; background-color: #e6f7f1; padding: 4px 10px; border-radius: 6px; font-size: 13px; border: 1px solid #c2eedf;">
-              ${p.score} / ${p.total}
-            </span>
-          </td>
-          <td style="padding: 12px 12px; text-align: right; font-weight: 800; color: #3b82f6; font-size: 13px; font-family: monospace; vertical-align: middle;">
-            ${percentage}%
-          </td>
+        <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8fafc'}; border-bottom: 1px solid #e2e8f0; page-break-inside: avoid;">
+          <td style="padding: 12px 10px; text-align: center; color: #475569; font-size: 14px;">${index + 1}</td>
+          <td style="padding: 12px 10px; font-weight: 700; color: #0f172a; font-family: 'Hind Siliguri', sans-serif; font-size: 14px;">${p.studentName || 'অজ্ঞাত'}</td>
+          <td style="padding: 12px 10px; text-align: center; color: #1e293b; font-family: monospace; font-size: 14px; font-weight: 600;">${p.score} / ${p.total}</td>
+          <td style="padding: 12px 10px; text-align: center; font-weight: 800; color: #059669; font-family: monospace; font-size: 14px;">${percentage}%</td>
         </tr>
       `;
     }).join('');
 
     printContainer.innerHTML = `
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Hind+Siliguri:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;700;800&display=swap');
         
-        @media print {
-          #root, .no-print, header, footer, nav, aside, .floating-actions-container {
-            display: none !important;
-            height: 0 !important;
-            overflow: hidden !important;
-          }
-          body {
-            background-color: white !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-          #biddayan-print-root {
-            display: block !important;
-            position: relative !important;
-            padding: 20px !important;
-          }
-          @page {
-            size: A4;
-            margin: 15mm 15mm 15mm 15mm;
-          }
+        .bengali-title {
+          font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif !important;
         }
+        @page { size: A4 portrait; margin: 15mm; }
       </style>
 
-      <div style="max-width: 820px; margin: 0 auto; background: white; font-family: 'Hind Siliguri', 'Noto Sans Bengali', sans-serif;">
-        <!-- Header Banner with Logo -->
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3.5px solid #051D3B; padding-bottom: 22px; margin-bottom: 25px;">
-          <div style="display: flex; align-items: center; gap: 16px;">
-            <img src="https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg" alt="Biddayan" style="height: 70px; width: auto; object-fit: contain;" />
-            <div>
-              <h1 style="font-size: 32px; font-weight: 800; color: #051D3B; margin: 0; font-family: 'Noto Sans Bengali', sans-serif; letter-spacing: -0.5px; line-height: 1.1;">
-                <span style="color: #00B074;">বিদ্যা</span>য়ন
-              </h1>
-              <p style="font-size: 13px; color: #475569; margin: 4px 0 0 0; font-weight: 600; letter-spacing: 0.2px;">শিক্ষা হোক আনন্দময়</p>
-            </div>
-          </div>
-          <div style="text-align: right;">
-            <div style="background-color: #051D3B; color: white; padding: 7px 18px; border-radius: 8px; font-weight: 700; font-size: 14px; display: inline-block; font-family: 'Noto Sans Bengali', sans-serif;">
-              ইভেন্ট লিডারবোর্ড রিপোর্ট
-            </div>
-            <p style="font-size: 12px; color: #64748b; margin: 8px 0 0 0; font-family: monospace; font-weight: 500;">www.biddayan.com</p>
-          </div>
+      <div style="width: 100%; background: white; font-family: 'Hind Siliguri', 'Noto Sans Bengali', sans-serif; box-sizing: border-box;">
+        
+        <!-- Colorful Top Accent Bar -->
+        <div style="height: 6px; background: linear-gradient(90deg, #00B074, #3b82f6); border-radius: 4px 4px 0 0; margin-bottom: 20px;"></div>
+
+        <!-- Header -->
+        <div style="text-align: center; padding-bottom: 15px; margin-bottom: 20px;">
+          <h1 class="bengali-title" style="font-size: 28px; font-weight: 800; color: #0f172a; margin: 0 0 5px 0;">বিদ্যায়ন মেগা কুইজ ইভেন্ট-২০২৬</h1>
+          <p style="font-size: 13px; color: #64748b; margin: 0;">${formattedDate} | ${formattedTime}</p>
         </div>
 
-        <!-- Meta Information Grid -->
-        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 25px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; font-size: 13.5px; line-height: 1.5; color: #334155;">
-          <div>
-            <strong style="color: #051d3b;">পরীক্ষা ফিল্টার:</strong> 
-            <span style="color: #0f172a; font-weight: 600; margin-left: 6px;">${searchTerm ? `"${searchTerm}" খোঁজা হয়েছে` : 'সকল ইভেন্ট এক্সাম'}</span>
-          </div>
-          <div style="text-align: right;">
-            <strong style="color: #051d3b;">তারিখ ও সময়:</strong> 
-            <span style="color: #0f172a; font-weight: 600; margin-left: 6px;">${formattedDate} | ${formattedTime}</span>
-          </div>
-          <div>
-            <strong style="color: #051d3b;">অংশগ্রহণকারী:</strong> 
-            <span style="color: #4f46e5; font-weight: 700; margin-left: 6px;">${filteredParticipants.length} জন</span>
-          </div>
-          <div style="text-align: right;">
-            <strong style="color: #051d3b;">রিপোর্ট প্রস্তুতকারক:</strong> 
-            <span style="color: #00b074; font-weight: 700; margin-left: 6px;">বিদ্যায়ন এক্সাম সিস্টেম</span>
-          </div>
-        </div>
-
-        <!-- Leaderboard Table -->
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 45px; text-align: left; font-size: 13.5px;">
+        <!-- Table -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #e2e8f0;">
           <thead>
-            <tr style="background-color: #051D3B; color: white; border-radius: 8px;">
-              <th style="padding: 12px 10px; text-align: center; border-radius: 8px 0 0 8px; width: 70px; font-weight: 700;">অবস্থান</th>
-              <th style="padding: 12px 12px; font-weight: 700;">শিক্ষার্থীর নাম</th>
-              <th style="padding: 12px 12px; font-weight: 700;">পরীক্ষার নাম</th>
-              <th style="padding: 12px 12px; text-align: center; width: 130px; font-weight: 700;">প্রাপ্ত স্কোর</th>
-              <th style="padding: 12px 12px; text-align: right; border-radius: 0 8px 8px 0; width: 90px; font-weight: 700;">সাফল্যের হার</th>
+            <tr style="background-color: #0f172a; color: white;">
+              <th style="padding: 12px 10px; text-align: center; font-size: 13px; font-weight: 700; border: 1px solid #334155;">Rank</th>
+              <th style="padding: 12px 10px; text-align: left; font-size: 13px; font-weight: 700; border: 1px solid #334155;">Student Name</th>
+              <th style="padding: 12px 10px; text-align: center; font-size: 13px; font-weight: 700; border: 1px solid #334155;">Score</th>
+              <th style="padding: 12px 10px; text-align: center; font-size: 13px; font-weight: 700; border: 1px solid #334155;">Percentage</th>
             </tr>
           </thead>
           <tbody>
@@ -353,53 +419,131 @@ export function EventExamTab() {
         </table>
 
         <!-- Signatures and Verification -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 75px; padding-top: 25px; border-top: 1.5px dashed #cbd5e1; page-break-inside: avoid;">
-          <div style="text-align: left;">
-            <div style="height: 55px;"></div>
-            <div style="width: 190px; border-top: 1.2px solid #94a3b8; margin-bottom: 6px;"></div>
-            <p style="font-size: 13px; font-weight: 700; color: #051d3b; margin: 0;">ইভেন্ট কো-অর্ডিনেটর</p>
-            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">বিদ্যায়ন ইভেন্ট ম্যানেজমেন্ট</p>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 40px; padding-top: 30px; page-break-inside: avoid; width: 100%;">
+          <div style="text-align: left; width: 250px;">
+            <div style="height: 55px; display: flex; align-items: flex-end; padding-bottom: 8px;">
+              <span style="font-family: 'Caveat', cursive; font-size: 28px; color: #0f172a; font-weight: bold;">Rafsan Ahmed</span>
+            </div>
+            <div style="border-top: 2px solid #cbd5e1; margin-bottom: 8px;"></div>
+            <p style="font-size: 14px; font-weight: 800; color: #0f172a; margin: 0;">রাফসান আহমেদ</p>
+            <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0;">ইভেন্ট কো-অর্ডিনেটর</p>
           </div>
           
-          <div style="text-align: center; max-width: 280px; align-self: center;">
-            <p style="font-size: 12px; color: #94a3b8; font-style: italic; margin: 0; line-height: 1.5; font-weight: 500;">
+          <div style="text-align: right; max-width: 350px;">
+            <p style="font-size: 13px; color: #475569; font-style: italic; margin: 0; line-height: 1.6; font-weight: 600;">
               "বিদ্যায়ন এর সাথে আপনার শিক্ষাজীবন হোক আরও গতিময়, প্রযুক্তিময় ও সাফল্যমণ্ডিত।"
             </p>
-          </div>
-
-          <div style="text-align: right;">
-            <div style="height: 55px;"></div>
-            <div style="width: 190px; border-top: 1.2px solid #94a3b8; margin-bottom: 6px;"></div>
-            <p style="font-size: 13px; font-weight: 700; color: #051d3b; margin: 0;">পরীক্ষা নিয়ন্ত্রণ কমিটি</p>
-            <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;">বিদ্যায়ন একাডেমি</p>
           </div>
         </div>
         
         <!-- Bottom Disclaimer -->
-        <div style="text-align: center; font-size: 11px; color: #94a3b8; margin-top: 60px; border-top: 1px solid #f1f5f9; padding-top: 12px; page-break-inside: avoid; font-weight: 500;">
-          এটি বিদ্যায়ন একাডেমির একটি অফিসিয়াল ও সংরক্ষিত লিডারবোর্ড রেকর্ড। সর্বস্বত্ব সংরক্ষিত © ${new Date().getFullYear()} বিদ্যায়ন।
+        <div style="text-align: center; font-size: 11px; color: #94a3b8; font-weight: 600;">
+          © ${new Date().getFullYear()} বিদ্যায়ন। অফিসিয়াল রেকর্ড।
         </div>
       </div>
     `;
 
-    document.body.appendChild(printContainer);
-    
-    setTimeout(() => {
-      window.print();
-      document.body.removeChild(printContainer);
-    }, 350);
+    document.body.appendChild(modal);
+    // Append at the very beginning of body to guarantee (0,0) offset inside layout flow
+    document.body.insertBefore(printContainer, document.body.firstChild);
+
+    const cleanup = () => {
+      if (modal.parentNode) modal.parentNode.removeChild(modal);
+      if (animStyle.parentNode) animStyle.parentNode.removeChild(animStyle);
+      if (printContainer.parentNode) printContainer.parentNode.removeChild(printContainer);
+      htmlEl.style.scrollBehavior = originalScrollBehavior;
+      window.scrollTo(originalScrollX, originalScrollY);
+      setPrintingPdf(false);
+    };
+
+    const runHtml2Pdf = () => {
+      const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `event_exam_leaderboard_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, // High resolution crisp text rendering
+          useCORS: true, // Set to true to allow cross-origin images to load perfectly
+          letterRendering: false, // CRITICAL: must be false to prevent broken/separated Bengali letters
+          logging: false,
+          windowWidth: 800, // Match the container width perfectly
+          scrollY: 0,
+          scrollX: 0
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        },
+        pagebreak: { 
+          mode: ['avoid-all', 'css', 'legacy'],
+          avoid: 'tr' // Make sure table rows don't split mid-line!
+        }
+      };
+
+      const win = window as any;
+      if (win.html2pdf) {
+        win.html2pdf()
+          .set(opt)
+          .from(printContainer)
+          .save()
+          .then(() => {
+            cleanup();
+          })
+          .catch((err: any) => {
+            console.error("html2pdf failed: ", err);
+            cleanup();
+          });
+      } else {
+        window.print();
+        cleanup();
+      }
+    };
+
+    const win = window as any;
+    if (win.html2pdf) {
+      // Small timeout to allow the browser layout engine to fully paint the element
+      setTimeout(() => {
+        runHtml2Pdf();
+      }, 350);
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+      script.onload = () => {
+        setTimeout(() => {
+          runHtml2Pdf();
+        }, 350);
+      };
+      script.onerror = () => {
+        window.print();
+        cleanup();
+      };
+      document.head.appendChild(script);
+    }
   };
 
   // Filter and search calculations
-  const filteredParticipants = participants.filter(p => {
+  const rawFilteredParticipants = participants.filter(p => {
     const matchesSearch = p.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           p.examTitle.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesExamFilter = selectedExamFilter === 'all' || p.examTitle === selectedExamFilter;
-    return matchesSearch && matchesExamFilter;
+    const matchesMobileFilter = !selectedMobileFilter || (p.mobileNumber || '').includes(selectedMobileFilter);
+    const matchesMarkFilter = selectedMarkFilter === 'all' || p.score.toString() === selectedMarkFilter;
+    const matchesStudentFilter = selectedStudentFilter === 'all' || p.studentName === selectedStudentFilter;
+    return matchesSearch && matchesExamFilter && matchesMobileFilter && matchesMarkFilter && matchesStudentFilter;
   });
+
+  // Keep all participants to show everyone's data on the leaderboard
+  const filteredParticipants: ExamParticipant[] = rawFilteredParticipants;
 
   // Unique exams list for dropdown filter
   const uniqueExams = Array.from(new Set(participants.map(p => p.examTitle)));
+
+  // Unique students list for dropdown filter
+  const uniqueStudents = Array.from(new Set(participants.map(p => p.studentName))).sort();
+
+  // Unique marks list for dropdown filter
+  const uniqueMarks = Array.from(new Set(participants.map(p => p.score))).sort((a, b) => b - a);
 
   // Stats calculation based on ALL participants
   const totalParticipantsCount = participants.length;
@@ -492,13 +636,13 @@ export function EventExamTab() {
             </Button>
             <Button 
               onClick={handlePrintPDF} 
-              disabled={filteredParticipants.length === 0}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bengali shadow-md border border-indigo-500/30 h-11 px-4.5 rounded-xl transition-all duration-300 flex items-center gap-2 cursor-pointer"
+              disabled={filteredParticipants.length === 0 || printingPdf}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bengali shadow-md border border-indigo-500/30 h-11 px-4.5 rounded-xl transition-all duration-300 flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
-              <Printer className="w-4 h-4" /> PDF প্রিন্ট
+              <Printer className="w-4 h-4" /> {printingPdf ? "প্রিন্ট হচ্ছে..." : "PDF প্রিন্ট"}
             </Button>
             <Button 
-              onClick={spinForWinner} 
+              onClick={openSpinSetup} 
               disabled={isSpinning || participants.length === 0}
               className="bg-gradient-to-r from-rose-500 via-pink-500 to-orange-500 hover:opacity-95 text-white font-bengali shadow-lg h-11 px-5 rounded-xl border border-rose-400/30 transition-all duration-300 flex items-center gap-2 cursor-pointer active:scale-95 animate-pulse"
             >
@@ -586,24 +730,36 @@ export function EventExamTab() {
       {/* Main Table Card Area */}
       <div className="bg-white dark:bg-card rounded-2xl border border-slate-100 dark:border-slate-800 shadow-md overflow-hidden">
         {/* Filter and Search Utilities */}
-        <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4 bg-slate-50/40 dark:bg-slate-900/10">
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:max-w-2xl">
+        <div className="p-5 border-b border-slate-100 dark:border-slate-800/80 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-slate-50/40 dark:bg-slate-900/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
             {/* Search Input */}
             <div className="relative w-full">
               <Search className="w-4.5 h-4.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <Input 
                 type="text" 
-                placeholder="শিক্ষার্থীর নাম বা পরীক্ষা দিয়ে খুঁজুন..." 
-                className="pl-10.5 font-bengali h-11 border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 focus-visible:ring-[#00B074]/30 focus-visible:border-[#00B074] transition-all"
+                placeholder="নাম বা কুইজ দিয়ে খুঁজুন..." 
+                className="pl-10.5 font-bengali h-11 border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 focus-visible:ring-[#00B074]/30 focus-visible:border-[#00B074] transition-all w-full"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
+            {/* Student Dropdown Filter */}
+            <select 
+              className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm text-slate-700 dark:text-slate-300 font-bengali focus:outline-none focus:ring-2 focus:ring-[#00B074]/30 focus:border-[#00B074]"
+              value={selectedStudentFilter}
+              onChange={(e) => setSelectedStudentFilter(e.target.value)}
+            >
+              <option value="all">সকল শিক্ষার্থী</option>
+              {uniqueStudents.map((name) => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+            
             {/* Exam Dropdown Filter */}
             {uniqueExams.length > 0 && (
               <select 
-                className="flex h-11 w-full sm:w-64 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm text-slate-700 dark:text-slate-300 font-bengali focus:outline-none focus:ring-2 focus:ring-[#00B074]/30 focus:border-[#00B074]"
+                className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm text-slate-700 dark:text-slate-300 font-bengali focus:outline-none focus:ring-2 focus:ring-[#00B074]/30 focus:border-[#00B074]"
                 value={selectedExamFilter}
                 onChange={(e) => setSelectedExamFilter(e.target.value)}
               >
@@ -613,11 +769,35 @@ export function EventExamTab() {
                 ))}
               </select>
             )}
+
+            {/* Mobile Filter Input */}
+            <div className="relative w-full">
+              <Phone className="w-4.5 h-4.5 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Input 
+                type="text" 
+                placeholder="মোবাইল নম্বর দিয়ে খুঁজুন..." 
+                className="pl-10.5 font-bengali h-11 border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 focus-visible:ring-[#00B074]/30 focus-visible:border-[#00B074] transition-all w-full"
+                value={selectedMobileFilter}
+                onChange={(e) => setSelectedMobileFilter(e.target.value)}
+              />
+            </div>
+
+            {/* Marks Filter Dropdown */}
+            <select 
+              className="flex h-11 w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3.5 py-2 text-sm text-slate-700 dark:text-slate-300 font-bengali focus:outline-none focus:ring-2 focus:ring-[#00B074]/30 focus:border-[#00B074]"
+              value={selectedMarkFilter}
+              onChange={(e) => setSelectedMarkFilter(e.target.value)}
+            >
+              <option value="all">সকল প্রাপ্ত মার্ক</option>
+              {uniqueMarks.map((mark) => (
+                <option key={mark} value={mark}>{mark} মার্ক</option>
+              ))}
+            </select>
           </div>
           
-          <div className="text-xs text-slate-500 font-bengali flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-800/50 shrink-0">
+          <div className="text-xs text-slate-500 font-bengali flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-slate-900 px-3 py-2.5 rounded-lg border border-slate-200/50 dark:border-slate-800/50 shrink-0">
             <Sparkles className="w-4 h-4 text-amber-500" /> 
-            <span>মোট <strong className="text-slate-800 dark:text-white font-sans">{toBnNumber(filteredParticipants.length)}</strong> জনের ফলাফল প্রদর্শিত হচ্ছে</span>
+            <span>মোট <strong className="text-slate-800 dark:text-white font-sans">{toBnNumber(filteredParticipants.length)}</strong> জনের ফলাফল</span>
           </div>
         </div>
 
@@ -648,43 +828,19 @@ export function EventExamTab() {
                   </thead>
                   <tbody className="divide-y divide-slate-100/60 dark:divide-slate-800 text-sm">
                     {filteredParticipants.map((participant, index) => {
-                      const isWinnerSpinning = isSpinning && spinningIndex === index;
-                      
                       // Premium rank badge design with beautiful gold, silver, bronze gradients
-                      let rankElement;
-                      if (index === 0) {
-                        rankElement = (
-                          <div className="relative w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 border border-amber-300 shadow-md">
-                            <CrownIcon className="w-5 h-5 text-white absolute -top-2 left-1/2 -translate-x-1/2 drop-shadow-sm animate-bounce" />
-                            <span className="font-sans font-black text-amber-950 text-base mt-0.5">{toBnNumber(1)}</span>
-                          </div>
-                        );
-                      } else if (index === 1) {
-                        rankElement = (
-                          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-300 border border-slate-300 shadow-sm">
-                            <span className="font-sans font-black text-slate-700 text-base">{toBnNumber(2)}</span>
-                          </div>
-                        );
-                      } else if (index === 2) {
-                        rankElement = (
-                          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-300 via-amber-100 to-orange-400 border border-orange-300 shadow-sm">
-                            <span className="font-sans font-black text-orange-850 text-base">{toBnNumber(3)}</span>
-                          </div>
-                        );
-                      } else {
-                        rankElement = (
-                          <div className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-sans font-bold text-sm">
-                            {toBnNumber(index + 1)}
-                          </div>
-                        );
-                      }
+                      const rankElement = (
+                        <div className="w-8 h-8 flex mx-auto items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-sans font-bold text-sm">
+                          {toBnNumber(index + 1)}
+                        </div>
+                      );
 
                       const percentage = participant.total > 0 ? Math.round((participant.score / participant.total) * 100) : 0;
 
                       return (
                         <tr 
                           key={participant.id} 
-                          className={`hover:bg-[#00B074]/5 dark:hover:bg-slate-800/30 transition-all duration-200 ${isWinnerSpinning ? "bg-rose-500/10 dark:bg-rose-950/30 ring-2 ring-rose-500 rounded-lg animate-pulse" : ""}`}
+                          className="hover:bg-[#00B074]/5 dark:hover:bg-slate-800/30 transition-all duration-200"
                         >
                           {/* Position Cell */}
                           <td className="py-3.5 px-5 text-center align-middle">
@@ -750,41 +906,18 @@ export function EventExamTab() {
               {/* Mobile Card-List View: No Horizontal Scroll, Fits 100% Screen Width Perfectly */}
               <div className="md:hidden divide-y divide-slate-100/70 dark:divide-slate-800 px-4 py-3">
                 {filteredParticipants.map((participant, index) => {
-                  const isWinnerSpinning = isSpinning && spinningIndex === index;
                   const percentage = participant.total > 0 ? Math.round((participant.score / participant.total) * 100) : 0;
                   
-                  let rankElement;
-                  if (index === 0) {
-                    rankElement = (
-                      <div className="relative w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 border border-amber-300 shadow-md scale-95 shrink-0">
-                        <CrownIcon className="w-4 h-4 text-white absolute -top-1.5 left-1/2 -translate-x-1/2 drop-shadow-sm animate-bounce" />
-                        <span className="font-sans font-black text-amber-950 text-xs mt-0.5">{toBnNumber(1)}</span>
-                      </div>
-                    );
-                  } else if (index === 1) {
-                    rankElement = (
-                      <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-200 via-slate-100 to-slate-300 border border-slate-300 shadow-sm scale-95 shrink-0">
-                        <span className="font-sans font-black text-slate-700 text-xs">{toBnNumber(2)}</span>
-                      </div>
-                    );
-                  } else if (index === 2) {
-                    rankElement = (
-                      <div className="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-br from-orange-300 via-amber-100 to-orange-400 border border-orange-300 shadow-sm scale-95 shrink-0">
-                        <span className="font-sans font-black text-orange-850 text-xs">{toBnNumber(3)}</span>
-                      </div>
-                    );
-                  } else {
-                    rankElement = (
-                      <div className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-sans font-bold text-xs shrink-0">
-                        {toBnNumber(index + 1)}
-                      </div>
-                    );
-                  }
+                  const rankElement = (
+                    <div className="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 font-sans font-bold text-xs shrink-0">
+                      {toBnNumber(index + 1)}
+                    </div>
+                  );
 
                   return (
                     <div 
                       key={participant.id} 
-                      className={`py-3.5 flex items-start gap-2 transition-all duration-200 ${isWinnerSpinning ? "bg-rose-500/10 dark:bg-rose-950/30 ring-2 ring-rose-500 rounded-lg animate-pulse px-2" : ""}`}
+                      className="py-3.5 flex items-start gap-2 transition-all duration-200"
                     >
                       {/* Left Side: Rank */}
                       <div className="flex items-center justify-center pt-1 w-9 shrink-0">
@@ -857,64 +990,264 @@ export function EventExamTab() {
           </div>
           
           <div className="text-[10px] text-slate-400 dark:text-slate-500 font-black font-bengali uppercase tracking-wider bg-slate-100 dark:bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-200/50 dark:border-slate-800/50">
-            বিদ্যায়ন একাডেমি • শিক্ষা হোক আনন্দময়
+            বিদ্যায়ন • শিক্ষা হোক আনন্দময়
           </div>
         </div>
       </div>
 
-      {/* Lucky Winner Spinning Dialog Modal */}
-      {showWinnerDialog && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-          <div className="bg-gradient-to-br from-white via-white to-rose-50/50 dark:from-card dark:via-card dark:to-rose-950/10 rounded-3xl p-6 sm:p-8 w-full max-w-md text-center shadow-2xl relative border border-rose-100 dark:border-rose-950/20 animate-in zoom-in-95 duration-300 overflow-hidden">
-            {/* Celebration background glow lights */}
-            <div className="absolute top-0 left-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
-            
-            <button 
-              onClick={() => setShowWinnerDialog(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white bg-slate-100 dark:bg-slate-800 p-1.5 rounded-full transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            
-            <div className="inline-flex items-center gap-1.5 bg-rose-500/10 text-rose-600 dark:text-rose-400 px-3.5 py-1 rounded-full text-xs font-bold mb-4 font-bengali border border-rose-500/20">
-              <Sparkles className="w-3.5 h-3.5 animate-spin text-amber-500" /> মেগা লাকি স্পিন ড্র
-            </div>
-            
-            <h2 className="text-2xl font-bengali font-extrabold text-center text-rose-600 mb-6 flex items-center justify-center gap-2 drop-shadow-sm">
-              🎉 অভিনন্দন! বিজয়ী নির্বাচিত! 🎉
-            </h2>
-            
-            <div className="flex flex-col items-center justify-center relative">
-              <div className="w-24 h-24 bg-gradient-to-tr from-rose-500 via-pink-500 to-amber-400 rounded-full flex items-center justify-center mb-5 shadow-lg ring-8 ring-rose-500/15 animate-pulse relative z-10">
-                <Gift className="w-12 h-12 text-white animate-bounce" />
-              </div>
-              
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white font-bengali mb-1 tracking-tight">{winner?.studentName}</h3>
-              {winner?.mobileNumber && (
-                <p className="text-lg text-rose-600 dark:text-rose-400 font-mono font-bold mb-4 flex items-center justify-center gap-1.5 bg-rose-500/5 px-3 py-1 rounded-full border border-rose-500/10">
-                  <Phone className="w-4 h-4" /> {winner.mobileNumber}
+      {/* Lucky Spin Setup Modal */}
+      {showSpinSetup && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-6 sm:p-8 w-full max-w-2xl shadow-2xl relative border border-slate-200/50 dark:border-slate-800 animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh]">
+            {/* Header */}
+            <div className="flex justify-between items-center mb-6 flex-shrink-0">
+              <div>
+                <h3 className="text-2xl font-black font-bengali text-slate-900 dark:text-white flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center">
+                    <Gift className="w-5 h-5 text-rose-600 dark:text-rose-400" />
+                  </div>
+                  লাকি ড্র স্পিন
+                </h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 font-bengali ml-13">
+                  অংশগ্রহণকারী নির্বাচন করুন (মোট {spinParticipants.length} জন)
                 </p>
-              )}
+              </div>
+              <button 
+                onClick={() => setShowSpinSetup(false)} 
+                className="p-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-full transition-colors self-start"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto pr-2 space-y-2 mb-6 custom-scrollbar">
+              {filteredParticipants.map(p => {
+                const isSelected = spinParticipants.some(sp => sp.id === p.id);
+                return (
+                  <div 
+                    key={p.id} 
+                    className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer group hover:scale-[1.01] active:scale-[0.99] ${
+                      isSelected 
+                        ? 'bg-emerald-50/50 border-emerald-500/30 dark:bg-emerald-500/10 dark:border-emerald-500/30 shadow-sm' 
+                        : 'bg-white border-slate-100 hover:border-slate-200 dark:bg-slate-800/40 dark:border-slate-700 dark:hover:border-slate-600'
+                    }`}
+                    onClick={() => {
+                      if (isSelected) {
+                        setSpinParticipants(prev => prev.filter(sp => sp.id !== p.id));
+                      } else {
+                        setSpinParticipants(prev => [...prev, p]);
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                        isSelected 
+                          ? 'bg-emerald-500 text-white' 
+                          : 'bg-slate-100 text-transparent border border-slate-300 dark:bg-slate-800 dark:border-slate-600 group-hover:border-emerald-400'
+                      }`}>
+                        <Check className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-800 dark:text-white text-base font-bengali tracking-wide">{p.studentName || 'অজ্ঞাত'}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5 flex items-center gap-1">
+                          <Phone className="w-3 h-3" /> {p.mobileNumber || '---'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Footer */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-5 border-t border-slate-100 dark:border-slate-800 flex-shrink-0">
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSpinParticipants(filteredParticipants)} 
+                  className="flex-1 sm:flex-none font-bengali h-12 px-5 rounded-xl border-slate-200 hover:bg-slate-50 text-slate-700 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  সবাইকে নির্বাচন
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSpinParticipants([])} 
+                  className="flex-1 sm:flex-none font-bengali h-12 px-5 rounded-xl border-rose-200 hover:bg-rose-50 text-rose-600 dark:border-rose-900 dark:hover:bg-rose-950/30 dark:text-rose-400"
+                >
+                  সব বাতিল
+                </Button>
+              </div>
+              <Button 
+                onClick={startFullScreenSpin}
+                disabled={spinParticipants.length === 0}
+                className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bengali font-bold h-12 px-8 rounded-xl shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+              >
+                <Play className="w-5 h-5 mr-2 fill-current" /> স্পিন শুরু করুন
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Screen Spin Overlay */}
+      {isFullScreenSpin && (
+        <div className="fixed inset-0 z-[99999] bg-slate-950 flex flex-col items-center p-6 overflow-hidden">
+          
+          {/* Animated Background Gradients - Extremely Vibrant */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-950 via-slate-950 to-black">
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[120vw] rounded-full blur-[250px] transition-all duration-1000 ${isSpinning ? 'bg-indigo-600/30 scale-150 rotate-45' : 'bg-indigo-900/10 scale-100'}`} />
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[100vw] h-[100vw] rounded-full blur-[200px] transition-all duration-1000 delay-200 ${isSpinning ? 'bg-emerald-600/30 scale-125 -rotate-45' : 'bg-emerald-900/10 scale-100'}`} />
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+          </div>
+
+          {/* Close Button at Top Right */}
+          {!isSpinning && (
+            <button 
+              onClick={() => setIsFullScreenSpin(false)}
+              className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full transition-all z-50 backdrop-blur-md shadow-lg"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Spin Rings decoration - Visible when Spinning or showing winner */}
+          {(isSpinning || winner) && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
+              {/* Pulsing deep glow behind */}
+              <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] rounded-full bg-indigo-500/10 blur-[130px] animate-pulse"></div>
               
-              <div className="grid grid-cols-2 gap-3 w-full mt-3">
-                <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 text-left">
-                  <p className="text-[10px] text-slate-400 font-bengali mb-1 font-semibold">অংশগ্রহণ কুইজ</p>
-                  <p className="font-bengali font-bold text-slate-800 dark:text-white text-xs line-clamp-2 leading-relaxed">{winner?.examTitle}</p>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col justify-center">
-                  <p className="text-[10px] text-slate-400 font-bengali mb-1 font-semibold">প্রাপ্ত স্কোর</p>
-                  <p className="font-black text-emerald-600 dark:text-emerald-400 text-base">{winner ? toBnNumber(winner.score) : '০'} / {winner ? toBnNumber(winner.total) : '০'}</p>
-                </div>
+              {/* Concentric rings with rotating active ring */}
+              <div className={`relative w-[85vw] h-[85vw] max-w-[750px] max-h-[750px] rounded-full border border-white/5 flex items-center justify-center ${isSpinning ? 'animate-spin' : ''}`} style={{ animationDuration: '25s' }}>
+                <div className="absolute inset-[10%] rounded-full border border-white/5"></div>
+                <div className="absolute inset-[25%] rounded-full border border-white/10"></div>
+                <div className="absolute inset-[40%] rounded-full border border-white/10"></div>
+                <div className="absolute inset-[55%] rounded-full border border-white/20"></div>
+                
+                {/* Thin technical grid crosshairs */}
+                <div className="absolute top-0 bottom-0 left-1/2 w-[1px] bg-gradient-to-b from-white/0 via-white/10 to-white/0"></div>
+                <div className="absolute left-0 right-0 top-1/2 h-[1px] bg-gradient-to-r from-white/0 via-white/10 to-white/0"></div>
               </div>
             </div>
+          )}
+
+          {/* CONTENT AREA */}
+          <div className="z-10 flex flex-col items-center justify-between w-full max-w-4xl h-full py-8">
             
-            <Button 
-              onClick={() => setShowWinnerDialog(false)}
-              className="mt-6 w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 dark:text-slate-900 text-white font-bengali h-11 rounded-xl font-bold shadow-md cursor-pointer"
-            >
-              বন্ধ করুন
-            </Button>
+            {/* STATE 1 & 2: ACTIVE SPINNING OR SHOWING WINNER */}
+            {(isSpinning || winner) ? (
+              <div className="flex-1 flex flex-col items-center justify-center w-full relative">
+                {/* Winner / Spinning Avatar & Crown */}
+                <div className="relative mb-8 z-10">
+                  <div className={`absolute inset-0 bg-amber-400 blur-3xl rounded-full transition-all duration-500 ${isSpinning ? 'opacity-30 scale-110 animate-pulse' : 'opacity-40 scale-125'}`}></div>
+                  <div className={`w-28 h-28 md:w-36 md:h-36 bg-gradient-to-b from-amber-200 via-yellow-400 to-amber-600 rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(251,191,36,0.6)] border-4 border-white/30 relative z-10 transition-transform ${isSpinning ? 'scale-110 animate-bounce' : 'animate-in zoom-in-50 duration-700'}`}>
+                    <CrownIcon className="w-14 h-14 md:w-18 md:h-18 text-amber-950 drop-shadow-md" />
+                  </div>
+                </div>
+
+                {/* Status Subtitle at the Top */}
+                <div className="text-lg md:text-2xl font-bengali font-black tracking-widest z-10 flex items-center gap-2.5 mb-2 h-10">
+                  {isSpinning ? (
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-300 flex items-center gap-2 animate-pulse">
+                      <RefreshCw className="w-5 h-5 animate-spin" />
+                      লাকি ড্র ঘুরছে... 🎡
+                    </span>
+                  ) : (
+                    <span className="text-emerald-400 flex items-center gap-2.5 animate-in fade-in duration-500">
+                      <Sparkles className="w-6 h-6 text-emerald-400 animate-pulse" />
+                      লাকি ড্র বিজয়ী
+                      <Sparkles className="w-6 h-6 text-emerald-400 animate-pulse" />
+                    </span>
+                  )}
+                </div>
+
+                {/* Student Name */}
+                <div className="w-full text-center px-4 z-10 min-h-[140px] flex items-center justify-center mb-8">
+                  <div className={`text-5xl sm:text-7xl md:text-8xl font-black text-white font-bengali tracking-tight leading-none py-2 drop-shadow-[0_0_35px_rgba(255,255,255,0.4)] ${isSpinning ? 'animate-pulse scale-95 opacity-90' : 'animate-in slide-in-from-bottom-8 duration-700 text-transparent bg-clip-text bg-gradient-to-br from-white via-yellow-100 to-white/85'}`}>
+                    {winner ? winner.studentName : 'অজ্ঞাত'}
+                  </div>
+                </div>
+
+                {/* Stats Bar (Only when not spinning) */}
+                {!isSpinning && winner && (
+                  <div className="flex gap-6 md:gap-12 text-center items-center justify-center bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl px-6 md:px-10 py-5 animate-in slide-in-from-bottom-4 fade-in duration-700 delay-300 fill-mode-both max-w-xl w-full z-10 shadow-2xl shadow-black/30">
+                    <div className="flex-1 flex flex-col items-center">
+                      <p className="text-[10px] md:text-xs text-white/40 font-bengali mb-1 tracking-widest uppercase">অংশগ্রহণ কুইজ</p>
+                      <p className="text-xs md:text-sm font-semibold text-white/90 truncate max-w-[180px]">{winner.examTitle}</p>
+                    </div>
+                    <div className="w-[1px] h-8 bg-white/15"></div>
+                    <div className="flex-1 flex flex-col items-center">
+                      <p className="text-[10px] md:text-xs text-white/40 font-bengali mb-1 tracking-widest uppercase">প্রাপ্ত স্কোর</p>
+                      <p className="text-sm md:text-base font-black text-white">{toBnNumber(winner.score)} <span className="text-white/30 font-normal">/</span> {toBnNumber(winner.total)}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons (Only when not spinning) */}
+                {!isSpinning && winner && (
+                  <div className="mt-8 flex gap-4 animate-in fade-in duration-500 delay-500 fill-mode-both z-10">
+                    <button
+                      onClick={() => setWinner(null)}
+                      className="px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-bengali font-bold text-sm md:text-base transition-all hover:scale-105 active:scale-95"
+                    >
+                      তালিকায় ফিরুন
+                    </button>
+                    <button
+                      onClick={runLuckyDrawSpin}
+                      className="px-8 py-3.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 rounded-xl text-slate-900 font-bengali font-black text-sm md:text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-amber-500/20 flex items-center gap-2 group"
+                    >
+                      <RefreshCw className="w-4 h-4 group-hover:rotate-180 transition-transform duration-500" /> আবার ড্র করুন
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* STATE 3: PRE-SPIN CANDIDATE LIST */
+              <div className="flex-1 flex flex-col items-center justify-between w-full h-full">
+                {/* Header */}
+                <div className="text-center mb-6 mt-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                  <h2 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-200 font-bengali tracking-wide drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]">
+                    লাকি ড্র প্রতিযোগীদের তালিকা
+                  </h2>
+                  <p className="text-slate-400 font-bengali text-sm md:text-base mt-2 font-medium">
+                    মোট {spinParticipants.length} জন প্রতিযোগী পরবর্তী ড্র এর জন্য প্রস্তুত আছেন
+                  </p>
+                </div>
+
+                {/* Grid list of participants: Beautiful, white, 4-corner rounded cards, 2 columns */}
+                <div className="flex-1 w-full max-w-3xl overflow-y-auto px-4 py-2 my-4 max-h-[55vh] custom-scrollbar">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {spinParticipants.map((p, i) => (
+                      <div 
+                        key={i} 
+                        className="bg-white hover:bg-slate-50 transition-all p-5 rounded-2xl flex items-center justify-between shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] border border-slate-100 hover:border-amber-400/50 hover:scale-[1.02] duration-300 animate-in fade-in zoom-in-95 duration-500"
+                        style={{ animationDelay: `${i * 30}ms` }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-3.5 h-3.5 rounded-full bg-emerald-500 flex-shrink-0 animate-pulse"></div>
+                          <span className="font-bengali font-black text-slate-800 text-base md:text-lg tracking-wide">{p.studentName}</span>
+                        </div>
+                        <span className="font-mono text-xs md:text-sm bg-gradient-to-r from-indigo-50 to-indigo-100 px-3 py-1.5 rounded-xl text-indigo-700 font-black border border-indigo-200/30">
+                          {p.score} / {p.total}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Big Beautiful Glowy Spin Button */}
+                <div className="mt-4 mb-2 animate-in slide-in-from-bottom-4 duration-500">
+                  <button
+                    onClick={runLuckyDrawSpin}
+                    className="relative group overflow-hidden px-10 py-5 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-900 font-bengali font-black text-lg md:text-2xl shadow-[0_0_40px_rgba(251,191,36,0.3)] transition-all duration-300 hover:scale-105 active:scale-95 hover:shadow-[0_0_60px_rgba(251,191,36,0.5)] border-2 border-white/20 flex items-center gap-3"
+                  >
+                    <Play className="w-6 h-6 fill-current" />
+                    লাকি ড্র স্পিন করুন 🎡
+                  </button>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}

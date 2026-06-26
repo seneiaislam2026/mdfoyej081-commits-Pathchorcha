@@ -11,6 +11,8 @@ export const InstallPrompt = () => {
     "https://i.ibb.co/7dGVYGFD/SAVE-20260621-201151.jpg",
   );
 
+  const [isInstalling, setIsInstalling] = useState(false);
+
   useEffect(() => {
     // If inside an iframe (like AI Studio preview), do not show the custom prompt
     if (window.self !== window.top) {
@@ -69,7 +71,6 @@ export const InstallPrompt = () => {
 
   const handleInstallClick = async () => {
     if (window.self !== window.top) {
-      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে অনুগ্রহ করে নতুন ট্যাবে (অথবা ক্রোম ব্রাউজারে সরাসরি) biddayan.com সাইটে প্রবেশ করে ইনস্টল বাটনে চাপুন।");
       setShowPrompt(false);
       return;
     }
@@ -83,18 +84,43 @@ export const InstallPrompt = () => {
           localStorage.setItem("appInstalled", "true");
         }
         (window as any).deferredPrompt = null;
+        setShowPrompt(false);
       } catch (err) {
         console.error("Install prompt error:", err);
       }
     } else {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-      if (isIOS) {
-        alert("আইফোনে সরাসরি ডাউনলোড করতে সাফারি ব্রাউজারের নিচে শেয়ার (Share) আইকন থেকে 'Add to Home Screen' এ চাপুন।");
-      } else {
-        alert("আপনার ক্রোম ব্রাউজারের উপরে ডানদিকের থ্রি-ডট (⋮) মেনু থেকে 'Install app' বা 'Add to Home Screen' অপশনে চাপুন।");
-      }
+      setIsInstalling(true);
+      
+      const onPromptAvailable = async (e: any) => {
+        const promptEvent = e.detail || (window as any).deferredPrompt;
+        if (promptEvent) {
+          window.removeEventListener("pwa-prompt-available", onPromptAvailable);
+          clearTimeout(timeoutId);
+          try {
+            promptEvent.prompt();
+            const { outcome } = await promptEvent.userChoice;
+            if (outcome === "accepted") {
+              localStorage.setItem("appInstalled", "true");
+            }
+            (window as any).deferredPrompt = null;
+          } catch (err) {
+            console.error("Delayed install prompt error:", err);
+          } finally {
+            setIsInstalling(false);
+            setShowPrompt(false);
+          }
+        }
+      };
+
+      window.addEventListener("pwa-prompt-available", onPromptAvailable);
+
+      // Wait up to 3 seconds, then close prompt if nothing happens
+      const timeoutId = setTimeout(() => {
+        window.removeEventListener("pwa-prompt-available", onPromptAvailable);
+        setIsInstalling(false);
+        setShowPrompt(false);
+      }, 3000);
     }
-    setShowPrompt(false);
   };
 
   const handleClose = () => {
@@ -162,10 +188,20 @@ export const InstallPrompt = () => {
                 <div className="flex gap-3">
                   <Button
                     onClick={handleInstallClick}
-                    className="flex-1 text-white rounded-xl shadow-sm font-bengali font-bold h-10 bg-blue-600 hover:bg-blue-700"
+                    disabled={isInstalling}
+                    className="flex-1 text-white rounded-xl shadow-sm font-bengali font-bold h-10 bg-blue-600 hover:bg-blue-700 flex items-center justify-center gap-2"
                   >
-                    <Download className="w-4 h-4 mr-2" />
-                    ইনস্টল অ্যাপ
+                    {isInstalling ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                        <span>ইনস্টল হচ্ছে...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-4 h-4" />
+                        ইনস্টল অ্যাপ
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>

@@ -100,8 +100,27 @@ export default function Profile() {
 
   // PWA states
   const [hasDeferredPrompt, setHasDeferredPrompt] = useState(!!(window as any).deferredPrompt);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
+    // Check if running in standalone display mode or previously recorded as installed
+    const isStandaloneMode = 
+      window.matchMedia('(display-mode: standalone)').matches || 
+      (navigator as any).standalone || 
+      document.referrer.includes('android-app://') ||
+      localStorage.getItem("appInstalled") === "true";
+    setIsStandalone(!!isStandaloneMode);
+
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setIsStandalone(true);
+        localStorage.setItem("appInstalled", "true");
+      }
+    };
+    mediaQuery.addEventListener('change', handleMediaChange);
+
     const handlePwaPrompt = () => {
       setHasDeferredPrompt(true);
     };
@@ -109,10 +128,13 @@ export default function Profile() {
     
     const handleAppInstalled = () => {
       localStorage.setItem("appInstalled", "true");
+      setIsStandalone(true);
+      setHasDeferredPrompt(false);
     };
     window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
       window.removeEventListener("pwa-prompt-available", handlePwaPrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
@@ -140,8 +162,7 @@ export default function Profile() {
     localStorage.removeItem("pwaPromptDismissed");
     
     if (window.self !== window.top) {
-      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে অনুগ্রহ করে নতুন ট্যাবে (অথবা ক্রোম ব্রাউজারে সরাসরি) biddayan.com সাইটে প্রবেশ করে ইনস্টল বাটনে চাপুন।");
-      return;
+      return; // Inside iframe, fail silently
     }
 
     const deferredPrompt = (window as any).deferredPrompt;
@@ -151,6 +172,7 @@ export default function Profile() {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === "accepted") {
           localStorage.setItem("appInstalled", "true");
+          setIsStandalone(true);
         }
         (window as any).deferredPrompt = null;
         setHasDeferredPrompt(false);
@@ -158,13 +180,38 @@ export default function Profile() {
         console.error("Install prompt error:", err);
       }
     } else {
-      const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
-      const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream;
-      if (isIOS) {
-        alert("আইফোনে সরাসরি ডাউনলোড করতে সাফারি ব্রাউজারের নিচে শেয়ার (Share) আইকন থেকে 'Add to Home Screen' এ চাপুন।");
-      } else {
-        alert("আপনার ক্রোম ব্রাউজারের উপরে ডানদিকের থ্রি-ডট (⋮) মেনু থেকে 'Install app' বা 'Add to Home Screen' অপশনে চাপুন।");
-      }
+      // If the prompt isn't ready yet, show loading spinner and wait for it to fire
+      setIsInstalling(true);
+      
+      const onPromptAvailable = async (e: any) => {
+        const promptEvent = e.detail || (window as any).deferredPrompt;
+        if (promptEvent) {
+          window.removeEventListener("pwa-prompt-available", onPromptAvailable);
+          clearTimeout(timeoutId);
+          try {
+            promptEvent.prompt();
+            const { outcome } = await promptEvent.userChoice;
+            if (outcome === "accepted") {
+              localStorage.setItem("appInstalled", "true");
+              setIsStandalone(true);
+            }
+            (window as any).deferredPrompt = null;
+            setHasDeferredPrompt(false);
+          } catch (err) {
+            console.error("Delayed install prompt error:", err);
+          } finally {
+            setIsInstalling(false);
+          }
+        }
+      };
+
+      window.addEventListener("pwa-prompt-available", onPromptAvailable);
+
+      // Wait up to 3 seconds for the prompt
+      const timeoutId = setTimeout(() => {
+        window.removeEventListener("pwa-prompt-available", onPromptAvailable);
+        setIsInstalling(false);
+      }, 3000);
     }
   };
 
@@ -800,29 +847,35 @@ export default function Profile() {
         </div>
 
         {/* Option 6: বিদ্যায়ন অ্যাপ ইনস্টল করুন */}
-        <div
-          id="opt_install_pwa"
-          onClick={handleInstallApp}
-          className="bg-card rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.03)] hover:border-emerald-200 transition-all duration-300 hover:scale-[1.008] cursor-pointer group"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-300">
-              <Smartphone className="w-6 h-6" strokeWidth={2.2} />
+        {!isStandalone && (
+          <div
+            id="opt_install_pwa"
+            onClick={isInstalling ? undefined : handleInstallApp}
+            className={`bg-card rounded-[24px] p-4 flex items-center justify-between border border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)] hover:shadow-[0_8px_30px_rgba(16,185,129,0.03)] hover:border-emerald-200 transition-all duration-300 hover:scale-[1.008] cursor-pointer group ${isInstalling ? 'opacity-70 pointer-events-none' : ''}`}
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 duration-300">
+                {isInstalling ? (
+                  <div className="w-5 h-5 border-2 border-emerald-300 border-t-emerald-600 rounded-full animate-spin"></div>
+                ) : (
+                  <Smartphone className="w-6 h-6" strokeWidth={2.2} />
+                )}
+              </div>
+              <div>
+                <h3 className="text-[#1F2937] font-bold font-bengali text-lg leading-tight group-hover:text-emerald-600 transition-colors flex items-center gap-2">
+                  {isInstalling ? "ইন্সটল হচ্ছে..." : "বিদ্যায়ন অ্যাপ ইনস্টল করুন"}
+                  <span className="bg-emerald-500 text-white font-sans text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse uppercase">
+                    PWA
+                  </span>
+                </h3>
+                <p className="text-[#6B7280] font-bengali text-sm mt-1">
+                  {isInstalling ? "আপনার মোবাইলে ইনস্টলেশন শুরু হচ্ছে..." : "আপনার মোবাইলে সরাসরি আসল অ্যাপের মতো ব্যবহার করতে চাপুন"}
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-[#1F2937] font-bold font-bengali text-lg leading-tight group-hover:text-emerald-600 transition-colors flex items-center gap-2">
-                বিদ্যায়ন অ্যাপ ইনস্টল করুন
-                <span className="bg-emerald-500 text-white font-sans text-[9px] font-bold px-1.5 py-0.5 rounded-full animate-pulse uppercase">
-                  PWA
-                </span>
-              </h3>
-              <p className="text-[#6B7280] font-bengali text-sm mt-1">
-                আপনার মোবাইলে সরাসরি আসল অ্যাপের মতো ব্যবহার করতে চাপুন
-              </p>
-            </div>
+            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#10B981] transition-all group-hover:translate-x-1" />
           </div>
-          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-[#10B981] transition-all group-hover:translate-x-1" />
-        </div>
+        )}
       </div>
 
       {/* Collapsible Student Statistics & Analytics Below Menu for HSC Preparation */}

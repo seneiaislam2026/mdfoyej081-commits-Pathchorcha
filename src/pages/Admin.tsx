@@ -324,6 +324,7 @@ export default function Admin() {
   const [newExamClass, setNewExamClass] = useState("সকল ক্লাস");
   const [newExamType, setNewExamType] = useState("public"); // "public" or "live_model_test"
   const [newExamScheduledDate, setNewExamScheduledDate] = useState("");
+  const [newExamCloseDate, setNewExamCloseDate] = useState("");
   const [newExamCustomId, setNewExamCustomId] = useState("");
   const [isAddingQuestion, setIsAddingQuestion] = useState(false);
   const [questionSearch, setQuestionSearch] = useState("");
@@ -1089,9 +1090,26 @@ export default function Admin() {
     try {
       const querySnapshot = await getDocs(collection(db, "public_exams"));
       const examsData: any[] = [];
-      querySnapshot.forEach((doc) => {
-        examsData.push({ id: doc.id, ...doc.data() });
+      const now = new Date();
+      const updatePromises: Promise<any>[] = [];
+
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        let isActive = data.active;
+        if (data.active && data.closeAt) {
+          const closeTime = new Date(data.closeAt);
+          if (now > closeTime) {
+            isActive = false;
+            updatePromises.push(updateDoc(doc(db, "public_exams", docSnap.id), { active: false }));
+          }
+        }
+        examsData.push({ id: docSnap.id, ...data, active: isActive });
       });
+
+      if (updatePromises.length > 0) {
+        await Promise.all(updatePromises);
+      }
+
       // Sort by creation time manually or order in query
       setPublicExams(examsData.sort((a,b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0)));
     } catch (error) {
@@ -1159,6 +1177,7 @@ export default function Admin() {
           targetClass: newExamClass,
           type: newExamType,
           scheduledDate: newExamScheduledDate || null,
+          closeAt: newExamCloseDate || null,
         };
 
         if (cleanCustomId && cleanCustomId !== editingExamId) {
@@ -1184,6 +1203,7 @@ export default function Admin() {
           targetClass: newExamClass,
           type: newExamType,
           scheduledDate: newExamScheduledDate || null,
+          closeAt: newExamCloseDate || null,
           createdAt: serverTimestamp()
         });
         alert("Public exam created successfully with ID: " + finalDocId);
@@ -1197,6 +1217,7 @@ export default function Admin() {
       setNewExamClass("সকল ক্লাস");
       setNewExamType("public");
       setNewExamScheduledDate("");
+      setNewExamCloseDate("");
       setNewExamCustomId("");
     } catch (error) {
       console.error("Error saving exam:", error);
@@ -1257,11 +1278,49 @@ export default function Admin() {
   };
 
   const printExam = (exam: any, showAnswers: boolean) => {
+    // Capture scroll position and disable smooth scroll behavior
+    const originalScrollY = window.scrollY;
+    const originalScrollX = window.scrollX;
+    const htmlEl = document.documentElement;
+    const originalScrollBehavior = htmlEl.style.scrollBehavior;
+    htmlEl.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+
+    // Safeguard: Clean up any stale nodes from previous failed attempts
+    const existingModal = document.getElementById("pdf-download-modal-exam");
+    if (existingModal) existingModal.remove();
+    const existingContainer = document.getElementById("print-temporary-container-exam");
+    if (existingContainer) existingContainer.remove();
+
+    // Create a loading modal overlay
+    const modal = document.createElement("div");
+    modal.id = "pdf-download-modal-exam";
+    modal.className = "fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
+    modal.innerHTML = `
+      <div class="bg-card rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6 transform transition-all duration-300 scale-100">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 animate-bounce">
+          <svg class="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-xl font-bold text-slate-900 font-bengali">পিডিএফ ও প্রিন্ট সংস্করণ তৈরি হচ্ছে...</h3>
+          <p class="text-sm text-slate-500 mt-2 font-bengali leading-relaxed font-semibold">
+            প্রশ্নপত্রটি প্রসেস ও কম্পাইল করা হচ্ছে। অনুগ্রহ করে কয়েক সেকেন্ড অপেক্ষা করুন।
+          </p>
+        </div>
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+          <div class="bg-indigo-600 h-full w-1/3 rounded-full animate-infinite-loader"></div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
     document.body.classList.add("printing-allowed");
     const styleEl = document.createElement("style");
     styleEl.id = "print-style-override-exam";
     styleEl.innerHTML = `
-      @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap');
       @media print {
         html, body {
             display: block !important;
@@ -1278,36 +1337,123 @@ export default function Admin() {
         #print-temporary-container-exam {
           display: block !important;
           position: relative !important;
-          width: 100%;
+          width: 100% !important;
+          max-width: 800px !important;
+          margin: 0 auto !important;
+          padding: 20px !important;
+          box-sizing: border-box !important;
           background: #fff;
           height: auto !important;
           overflow: visible !important;
         }
-        .page-break { page-break-inside: avoid; margin-bottom: 24px; }
+        @page { size: A4 portrait; margin: 15mm; }
       }
-      #print-temporary-container-exam { display: none; }
-      .print-box-exam { font-family: 'Hind Siliguri', sans-serif; color: #1e293b; padding: 20px; max-width: 800px; margin: 0 auto; line-height: 1.6; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      #print-temporary-container-exam {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        max-width: 800px !important;
+        background: white !important;
+        display: block !important;
+        margin: 0 auto !important;
+        padding: 25px !important;
+        box-sizing: border-box !important;
+        z-index: 99999 !important;
+      }
+      .print-box-exam { font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif; color: #1e293b; padding: 20px 40px; width: 100%; box-sizing: border-box; line-height: 1.6; background: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
       .q-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
       .q-grid div { font-size: 15px; color: #334155; }
       .ans-box { background-color: #f0fdf4; padding: 12px; margin-top: 16px; border-radius: 4px; font-size: 14px; border-left: 3px solid #22c55e; }
-      .header-title-exam { font-family: 'Hind Siliguri', sans-serif; text-align: center; font-size: 32px; font-weight: 700; color: #0f172a; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px;}
+      .header-title-exam { font-family: 'Noto Sans Bengali', 'Hind Siliguri', sans-serif; text-align: center !important; font-size: 32px; font-weight: 700; color: #0f172a; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin: 0 auto 24px auto !important; width: 100% !important; display: block !important; }
       .header-title-sub { text-align: center; font-size: 22px; font-weight: 600; margin-bottom: 12px; color: #1e293b; }
       .header-meta-exam { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 30px; font-weight: 600; color: #475569; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;}
     `;
     document.head.appendChild(styleEl);
 
-    let container = document.getElementById("print-temporary-container-exam");
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "print-temporary-container-exam";
-      document.body.appendChild(container);
-    }
+    const container = document.createElement("div");
+    container.id = "print-temporary-container-exam";
+    // Prepend container to body flow at the very top
+    document.body.insertBefore(container, document.body.firstChild);
+
+    // Helper to dynamically extract options from embedded text strings
+    const extractOptions = (text: string) => {
+      const options: { id: string; label: string }[] = [];
+      let cleanText = text;
+
+      // Regular expressions for Latin and Bengali patterns
+      const latinP1 = /A\)\s*(.*?)\s*B\)\s*(.*?)\s*C\)\s*(.*?)\s*D\)\s*(.*)/i;
+      const latinP2 = /A\.\s*(.*?)\s*B\.\s*(.*?)\s*C\.\s*(.*?)\s*D\.\s*(.*)/i;
+      const latinP3 = /\(A\)\s*(.*?)\s*\(B\)\s*(.*?)\s*\(C\)\s*(.*?)\s*\(D\)\s*(.*)/i;
+
+      const benP1 = /ক\)\s*(.*?)\s*খ\)\s*(.*?)\s*গ\)\s*(.*?)\s*ঘ\)\s*(.*)/;
+      const benP2 = /ক\.\s*(.*?)\s*খ\.\s*(.*?)\s*গ\.\s*(.*?)\s*ঘ\.\s*(.*)/;
+      const benP3 = /\(ক\)\s*(.*?)\s*\(খ\)\s*(.*?)\s*\(গ\)\s*(.*?)\s*\(ঘ\)\s*(.*)/;
+
+      let match = text.match(latinP1);
+      const ids = ['A', 'B', 'C', 'D'];
+      if (match) {
+        cleanText = text.replace(/A\)\s*(.*?)\s*B\)\s*(.*?)\s*C\)\s*(.*?)\s*D\)\s*(.*)/i, "").trim();
+        for (let j = 0; j < 4; j++) {
+          options.push({ id: ids[j], label: match[j + 1].trim() });
+        }
+        return { cleanText, options };
+      }
+
+      match = text.match(latinP2);
+      if (match) {
+        cleanText = text.replace(/A\.\s*(.*?)\s*B\.\s*(.*?)\s*C\.\s*(.*?)\s*D\.\s*(.*)/i, "").trim();
+        for (let j = 0; j < 4; j++) {
+          options.push({ id: ids[j], label: match[j + 1].trim() });
+        }
+        return { cleanText, options };
+      }
+
+      match = text.match(latinP3);
+      if (match) {
+        cleanText = text.replace(/\(A\)\s*(.*?)\s*\(B\)\s*(.*?)\s*\(C\)\s*(.*?)\s*\(D\)\s*(.*)/i, "").trim();
+        for (let j = 0; j < 4; j++) {
+          options.push({ id: ids[j], label: match[j + 1].trim() });
+        }
+        return { cleanText, options };
+      }
+
+      const bIds = ['ক', 'খ', 'গ', 'ঘ'];
+      match = text.match(benP1);
+      if (match) {
+        cleanText = text.replace(/ক\)\s*(.*?)\s*খ\)\s*(.*?)\s*গ\)\s*(.*?)\s*ঘ\)\s*(.*)/, "").trim();
+        for (let j = 0; j < 4; j++) {
+          options.push({ id: bIds[j], label: match[j + 1].trim() });
+        }
+        return { cleanText, options };
+      }
+
+      match = text.match(benP2);
+      if (match) {
+        cleanText = text.replace(/ক\.\s*(.*?)\s*খ\.\s*(.*?)\s*গ\.\s*(.*?)\s*ঘ\.\s*(.*)/, "").trim();
+        for (let j = 0; j < 4; j++) {
+          options.push({ id: bIds[j], label: match[j + 1].trim() });
+        }
+        return { cleanText, options };
+      }
+
+      match = text.match(benP3);
+      if (match) {
+        cleanText = text.replace(/\(ক\)\s*(.*?)\s*\(খ\)\s*(.*?)\s*\(গ\)\s*(.*?)\s*\(ঘ\)\s*(.*)/, "").trim();
+        for (let j = 0; j < 4; j++) {
+          options.push({ id: bIds[j], label: match[j + 1].trim() });
+        }
+        return { cleanText, options };
+      }
+
+      return { cleanText, options: [] };
+    };
     
     let html = `<div class="print-box-exam">
       <div class="header-title-exam">বিদ্যায়ন</div>
       <div class="header-title-sub">${exam.title || 'Question Paper'}</div>
       <div class="header-meta-exam">
-        <span>প্রিন্ট তারিখ: ${new Date().toLocaleDateString('en-GB')}</span>
+        <span>প্রিন্ট তারিখ: ${new Date().toLocaleDateString('bn-BD')}</span>
         <span>মোট প্রশ্ন: ${exam.questions?.length || 0} টি</span>
       </div>
       <div>
@@ -1315,16 +1461,84 @@ export default function Admin() {
     
     if (exam.questions) {
         exam.questions.forEach((q: any, i: number) => {
+            const qText = q.text || q.question || q.title || "No question provided.";
+            let cleanQText = qText.trim().replace(/^[\d\u09E6-\u09EF]+\s*[\.\-\|)।:]+\s*/, "");
+            let rawOptions = q.options || q.choices || [];
+            if (!Array.isArray(rawOptions)) {
+              if (typeof rawOptions === 'object' && rawOptions !== null) {
+                rawOptions = Object.keys(rawOptions).map(key => ({
+                  id: key,
+                  label: (rawOptions as any)[key]
+                }));
+              } else {
+                rawOptions = [];
+              }
+            }
+
+            let safeOptions: any[] = [];
+            // Try extracting from embedded question text first
+            const extracted = extractOptions(cleanQText);
+            if (extracted.options.length > 0) {
+              cleanQText = extracted.cleanText;
+              safeOptions = extracted.options;
+            } else {
+              safeOptions = rawOptions.map((opt: any, optIdx: number) => {
+                if (typeof opt === 'string') {
+                  return { id: String.fromCharCode(65 + optIdx), label: opt };
+                }
+                return {
+                  id: opt?.id || String.fromCharCode(65 + optIdx),
+                  label: opt?.label || opt?.text || opt?.value || ""
+                };
+              });
+            }
+
+            let rawCorrect = q.correctOption ?? q.correctAnswer ?? q.answer ?? "A";
+            if (safeOptions.length > 0) {
+               // Normalizer to map A->0, B->1, C->2, D->3, or ক->0, খ->1, etc.
+               const getIndexFromChar = (char: string) => {
+                 const clean = char.trim().toUpperCase();
+                 if (clean === "A" || clean === "ক" || clean === "১") return 0;
+                 if (clean === "B" || clean === "খ" || clean === "২") return 1;
+                 if (clean === "C" || clean === "গ" || clean === "৩") return 2;
+                 if (clean === "D" || clean === "ঘ" || clean === "৪") return 3;
+                 return -1;
+               };
+
+               const targetIdx = getIndexFromChar(String(rawCorrect));
+               if (targetIdx >= 0 && targetIdx < safeOptions.length) {
+                 rawCorrect = safeOptions[targetIdx].id;
+               } else {
+                 const matchedOpt = safeOptions.find((o: any, oIndex: number) => {
+                    const c = String(rawCorrect).trim().toLowerCase();
+                    const oid = String(o.id).trim().toLowerCase();
+                    const olbl = String(o.label).trim().toLowerCase();
+                    return oid === c || olbl === c || olbl.startsWith(c) || c.startsWith(oid) || String(oIndex) === c;
+                 });
+                 if (matchedOpt) {
+                    rawCorrect = matchedOpt.id;
+                 } else if (typeof rawCorrect === 'number' && safeOptions[rawCorrect]) {
+                    rawCorrect = safeOptions[rawCorrect].id;
+                 }
+               }
+            }
+
+            const correctOptionObj = safeOptions.find((o: any) => o.id === rawCorrect);
+            const correctLabel = correctOptionObj ? correctOptionObj.label : rawCorrect;
+
             html += `
             <div class="page-break">
-                <div style="font-weight: 600; font-size: 17px; color: #0f172a;">${i+1}. ${q.question}</div>
+                <div style="font-weight: 600; font-size: 17px; color: #0f172a;">${i+1}. ${cleanQText}</div>
                 <div class="q-grid">
-                    ${q.options.map((opt: string, optIdx: number) => 
-                      `<div><span style="color: #2563eb; font-weight: 600; margin-right: 4px;">${['A', 'B', 'C', 'D'][optIdx] || '-'})</span> ${opt}</div>`
+                    ${safeOptions.map((opt: any) => 
+                      `<div><span style="color: #2563eb; font-weight: 600; margin-right: 4px;">${opt.id})</span> ${opt.label}</div>`
                     ).join('')}
                 </div>
                 ${showAnswers ? `<div class="ans-box">
-                    <div style="margin-bottom: 4px;"><span style="font-weight: 700; color: #166534; font-size: 13px; background: #dcfce7; padding: 2px 6px; border-radius: 4px; margin-right: 8px;">ANS: ${['A','B','C','D'][q.options.indexOf(q.correctOption)] || ''}</span> <span style="font-weight: 700; color: #15803d;">সঠিক উত্তর: ${q.correctOption}</span></div>
+                    <div style="margin-bottom: 4px;">
+                      <span style="font-weight: 700; color: #166534; font-size: 13px; background: #dcfce7; padding: 2px 6px; border-radius: 4px; margin-right: 8px;">ANS: ${rawCorrect}</span> 
+                      <span style="font-weight: 700; color: #15803d;">সঠিক উত্তর: ${correctLabel}</span>
+                    </div>
                     ${q.explanation ? `<div style="margin-top: 6px; font-size: 13px; color: #3f6212;"><span style="font-weight: 600; color: #4d7c0f">ব্যাখ্যা:</span> ${q.explanation}</div>` : ''}
                 </div>` : ''}
             </div>`;
@@ -1340,15 +1554,83 @@ export default function Admin() {
       cleanedUp = true;
       setTimeout(() => {
         styleEl.remove();
-        if (container) container.innerHTML = "";
+        if (modal.parentNode) modal.parentNode.removeChild(modal);
+        if (container && container.parentNode) container.parentNode.removeChild(container);
+        htmlEl.style.scrollBehavior = originalScrollBehavior;
+        window.scrollTo(originalScrollX, originalScrollY);
         document.body.classList.remove("printing-allowed");
       }, 1000);
     };
 
+    const runHtml2Pdf = () => {
+      const opt = {
+        margin: [15, 15, 15, 15],
+        filename: `${exam.title || 'বিদ্যায়ন-প্রশ্ন'}${showAnswers ? '-উত্তরসহ' : ''}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 1.5, 
+          useCORS: true,
+          letterRendering: false,
+          logging: false,
+          width: 800,
+          windowWidth: 800,
+          scrollY: 0,
+          scrollX: 0
+        },
+        jsPDF: { 
+          unit: 'mm', 
+          format: 'a4', 
+          orientation: 'portrait' 
+        },
+        pagebreak: { 
+          mode: ['avoid-all', 'css', 'legacy'],
+          avoid: '.ans-box'
+        }
+      };
+
+      const win = window as any;
+      if (win.html2pdf) {
+        win.html2pdf()
+          .set(opt)
+          .from(container)
+          .save()
+          .then(() => {
+            window.focus();
+            try { window.print(); } catch(e) { console.error(e); }
+            cleanup();
+          })
+          .catch((err: any) => {
+            console.error("html2pdf failed: ", err);
+            window.focus();
+            try { window.print(); } catch(e) { console.error(e); }
+            cleanup();
+          });
+      } else {
+        window.focus();
+        try { window.print(); } catch(e) { console.error(e); }
+        cleanup();
+      }
+    };
+
     window.addEventListener("afterprint", cleanup, { once: true });
-    setTimeout(() => {
-      try { window.print(); } catch(e) { console.error(e); cleanup(); }
-    }, 500);
+    
+    const win = window as any;
+    if (win.html2pdf) {
+      setTimeout(runHtml2Pdf, 350);
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+      script.onload = () => {
+        setTimeout(runHtml2Pdf, 350);
+      };
+      script.onerror = () => {
+        window.focus();
+        try { window.print(); } catch(e) { console.error(e); }
+        cleanup();
+      };
+      document.head.appendChild(script);
+    }
+
     setTimeout(cleanup, 35000);
   };
 
@@ -1360,6 +1642,7 @@ export default function Admin() {
     setNewExamClass(exam.targetClass || "সকল ক্লাস");
     setNewExamType(exam.type || "public");
     setNewExamScheduledDate(exam.scheduledDate || "");
+    setNewExamCloseDate(exam.closeAt || "");
     setNewExamCustomId(exam.id || "");
     setShowCreateExamModal(true);
   };
@@ -2653,6 +2936,7 @@ export default function Admin() {
                 setNewExamDuration("25");
                 setNewExamQuestionsJSON("");
                 setNewExamScheduledDate("");
+                setNewExamCloseDate("");
                 setNewExamCustomId("");
                 setShowCreateExamModal(true);
               }} disabled={examsLoading} className="font-bengali">
@@ -2692,6 +2976,19 @@ export default function Admin() {
                             {exam.type === "model_test" ? "মডেল টেস্ট" : exam.type === "live_model_test" ? "লাইভ মডেল টেস্ট" : exam.type === "event_exam" ? "ইভেন্ট এক্সাম" : "পাবলিক এক্সাম"}
                           </Badge>
                         </div>
+                        {exam.closeAt && (
+                          <div className="text-xs text-rose-500 font-bold font-bengali flex items-center gap-1.5 mt-2">
+                            <Clock className="w-3.5 h-3.5 text-rose-550 shrink-0" />
+                            <span>বন্ধ হবে: {new Date(exam.closeAt).toLocaleString('bn-BD', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: 'numeric',
+                              minute: 'numeric',
+                              hour12: true
+                            })}</span>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="mt-1 pt-3 border-t grid grid-cols-2 gap-2">
@@ -4455,7 +4752,16 @@ export default function Admin() {
                     type="datetime-local" 
                     value={newExamScheduledDate}
                     onChange={(e) => setNewExamScheduledDate(e.target.value)}
-                    className="w-full h-10 border rounded-xl px-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary font-mono text-sm"
+                    className="w-full h-10 border rounded-xl px-3 outline-none focus:border-primary focus:ring-1 focus:ring-primary font-mono text-sm bg-card"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-bold mb-1 block font-bengali text-rose-500">Close Schedule (বন্ধ করার সময়)</label>
+                  <input 
+                    type="datetime-local" 
+                    value={newExamCloseDate}
+                    onChange={(e) => setNewExamCloseDate(e.target.value)}
+                    className="w-full h-10 border border-rose-200 dark:border-rose-900/30 rounded-xl px-3 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 font-mono text-sm bg-card"
                   />
                 </div>
               </div>

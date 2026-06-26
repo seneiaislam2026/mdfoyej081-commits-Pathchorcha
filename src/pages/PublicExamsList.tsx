@@ -17,7 +17,19 @@ export default function PublicExamsList() {
       try {
         const q = query(collection(db, "public_exams"), where("active", "==", true), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
-        setExams(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        const now = new Date();
+        const validExams = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .filter((exam: any) => {
+            if (exam.closeAt) {
+              const closeTime = new Date(exam.closeAt);
+              if (now > closeTime) {
+                return false;
+              }
+            }
+            return true;
+          });
+        setExams(validExams);
       } catch (err) {
         console.error("Failed to load public exams", err);
       } finally {
@@ -95,6 +107,19 @@ export default function PublicExamsList() {
                     <Clock className="w-3.5 h-3.5" />
                     {exam.duration} মিনিট
                   </span>
+                  {exam.closeAt && (
+                    <span className="flex items-center gap-1.5 bg-rose-50 border border-rose-100 text-rose-600 px-2 py-1 rounded-md text-xs font-bold font-bengali">
+                      <Clock className="w-3.5 h-3.5 text-rose-500" />
+                      বন্ধ হবে: {new Date(exam.closeAt).toLocaleString('bn-BD', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        hour12: true
+                      })}
+                    </span>
+                  )}
                 </div>
 
                 <Link 

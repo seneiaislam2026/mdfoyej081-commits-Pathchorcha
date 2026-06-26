@@ -203,50 +203,51 @@ export default function Landing() {
 
   const [isInstallable, setIsInstallable] = useState(!!(window as any).deferredPrompt);
   const [installMessage, setInstallMessage] = useState<string | null>(null);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
-    let t: any;
-    // Check if prompt is already available (stored globally before mount)
-    if ((window as any).deferredPrompt) {
-      setIsInstallable(true);
-      const dismissed = sessionStorage.getItem("pwaPromptDismissed");
-      if (!dismissed && !localStorage.getItem("appInstalled")) {
-        t = setTimeout(() => {
-          setShowAutoInstall(true);
-        }, 3000);
+    // Check if running in standalone display mode or previously recorded as installed
+    const isStandaloneMode = 
+      window.matchMedia('(display-mode: standalone)').matches || 
+      (navigator as any).standalone || 
+      document.referrer.includes('android-app://') ||
+      localStorage.getItem("appInstalled") === "true";
+    setIsStandalone(!!isStandaloneMode);
+
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setIsStandalone(true);
+        localStorage.setItem("appInstalled", "true");
       }
-    }
+    };
+    mediaQuery.addEventListener('change', handleMediaChange);
 
     const handlePrompt = () => {
       setIsInstallable(true);
-      const dismissed = sessionStorage.getItem("pwaPromptDismissed");
-      if (!dismissed && !localStorage.getItem("appInstalled")) {
-        t = setTimeout(() => {
-          setShowAutoInstall(true);
-        }, 3000);
-      }
     };
     
     window.addEventListener("pwa-prompt-available", handlePrompt);
     
     const handleAppInstalled = () => {
       localStorage.setItem("appInstalled", "true");
+      setIsStandalone(true);
       setIsInstallable(false);
       setShowAutoInstall(false);
     };
     window.addEventListener("appinstalled", handleAppInstalled);
 
     return () => {
+      mediaQuery.removeEventListener('change', handleMediaChange);
       window.removeEventListener("pwa-prompt-available", handlePrompt);
       window.removeEventListener("appinstalled", handleAppInstalled);
-      if (t) clearTimeout(t);
     };
   }, []);
 
   const triggerInstall = async () => {
     if (window.self !== window.top) {
-      alert("অরিজিনাল অ্যাপের মতো ব্যবহার করতে অনুগ্রহ করে নতুন ট্যাবে (অথবা ক্রোম ব্রাউজারে সরাসরি) biddayan.com সাইটে প্রবেশ করে ইনস্টল বাটনে চাপুন।");
-      return;
+      return; // Inside iframe, fail silently
     }
 
     const deferredPrompt = (window as any).deferredPrompt;
@@ -256,19 +257,49 @@ export default function Landing() {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === "accepted") {
           localStorage.setItem("appInstalled", "true");
-          setIsInstallable(false);
+          setIsStandalone(true);
         }
         (window as any).deferredPrompt = null;
+        setIsInstallable(false);
       } catch (err) {
         console.error("Install prompt error:", err);
       }
     } else {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-      if (isIOS) {
-        alert("আইফোনে সরাসরি ডাউনলোড করতে সাফারি ব্রাউজারের নিচে শেয়ার (Share) আইকন থেকে 'Add to Home Screen' এ চাপুন।");
-      } else {
-        alert("আপনার ক্রোম ব্রাউজারের উপরে ডানদিকের থ্রি-ডট (⋮) মেনু থেকে 'Install app' বা 'Add to Home Screen' অপশনে চাপুন।");
-      }
+      // If the prompt isn't ready yet, show loading spinner and wait for it to fire
+      setIsInstalling(true);
+      
+      const onPromptAvailable = async (e: any) => {
+        const promptEvent = e.detail || (window as any).deferredPrompt;
+        if (promptEvent) {
+          window.removeEventListener("pwa-prompt-available", onPromptAvailable);
+          clearTimeout(timeoutId);
+          try {
+            promptEvent.prompt();
+            const { outcome } = await promptEvent.userChoice;
+            if (outcome === "accepted") {
+              localStorage.setItem("appInstalled", "true");
+              setIsStandalone(true);
+            }
+            (window as any).deferredPrompt = null;
+            setIsInstallable(false);
+          } catch (err) {
+            console.error("Delayed install prompt error:", err);
+          } finally {
+            setIsInstalling(false);
+          }
+        }
+      };
+
+      window.addEventListener("pwa-prompt-available", onPromptAvailable);
+
+      // Wait for up to 3 seconds for the browser to register the prompt
+      const timeoutId = setTimeout(() => {
+        window.removeEventListener("pwa-prompt-available", onPromptAvailable);
+        setIsInstalling(false);
+        // Show a nice, subtle, non-disruptive inline toast if the browser doesn't support direct install or has it pre-installed
+        setInstallMessage("আপনার ব্রাউজারে ইনস্টলেশন প্রক্রিয়া শুরু হচ্ছে, অনুগ্রহ করে কিছুক্ষণ অপেক্ষা করুন বা সাইটটি রিফ্রেশ দিন।");
+        setTimeout(() => setInstallMessage(null), 4000);
+      }, 3000);
     }
   };
 
@@ -493,9 +524,19 @@ export default function Landing() {
               <button
                 id="btn-hero-install-app"
                 onClick={triggerInstall}
+                disabled={isInstalling}
                 className="w-full sm:w-auto bg-white border border-[#E2E8F0] shadow-sm text-[#1E293B] hover:text-[#00B074] px-8 py-4 rounded-xl font-bengali font-semibold text-[17px] transition-colors active:bg-[#F8FAFC] flex items-center justify-center gap-2"
               >
-                <Download className="w-5 h-5" /> অ্যাপ ইনস্টল করুন
+                {isInstalling ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-slate-300 border-t-emerald-500 rounded-full animate-spin"></div>
+                    <span>ইনস্টল হচ্ছে...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" /> অ্যাপ ইনস্টল করুন
+                  </>
+                )}
               </button>
             </motion.div>
           </div>

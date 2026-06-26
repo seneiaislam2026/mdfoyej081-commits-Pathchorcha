@@ -731,11 +731,16 @@ export default function NotesCreator() {
         #print-temporary-container {
           display: block !important;
           position: relative !important;
-          width: 100%;
+          width: 100% !important;
+          max-width: 800px !important;
+          margin: 0 auto !important;
+          padding: 20px !important;
+          box-sizing: border-box !important;
           background: #fff;
           height: auto !important;
           overflow: visible !important;
         }
+        @page { size: A4 portrait; margin: 15mm; }
       }
       #print-temporary-container {
         display: none;

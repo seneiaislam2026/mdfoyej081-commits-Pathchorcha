@@ -2057,11 +2057,25 @@ export default function Notes() {
     if (downloadingPdf) return;
     setDownloadingPdf(true);
 
+    // Safeguard: Clean up any stale nodes from previous failed attempts
+    const existingModal = document.getElementById("pdf-download-modal");
+    if (existingModal) existingModal.remove();
+    const existingRenderContainer = document.getElementById("pdf-real-render-container");
+    if (existingRenderContainer) existingRenderContainer.remove();
+
+    // Capture the current scroll position and temporarily disable smooth scrolling
+    const originalScrollY = window.scrollY;
+    const originalScrollX = window.scrollX;
+    const htmlEl = document.documentElement;
+    const originalScrollBehavior = htmlEl.style.scrollBehavior;
+    htmlEl.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+
     const runHtml2Pdf = () => {
       // Create a highly elegant full-screen progress modal overlay using Tailwind CSS
       const modal = document.createElement("div");
       modal.id = "pdf-download-modal";
-      modal.className = "fixed inset-0 z-[10000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
+      modal.className = "fixed inset-0 z-[100000] flex flex-col items-center justify-center bg-slate-900/95 backdrop-blur-xl p-4";
       
       modal.innerHTML = `
         <div class="bg-card rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 flex flex-col items-center justify-center gap-6 transform transition-all duration-300 scale-100">
@@ -2099,63 +2113,78 @@ export default function Notes() {
       `;
       document.head.appendChild(animStyle);
 
-      // Create high performance visible top-level print target
+      // Create print target positioned in natural flow to support full multi-page flow and page breaking
       const renderContainer = document.createElement("div");
       renderContainer.id = "pdf-real-render-container";
-      renderContainer.style.position = "absolute";
-      renderContainer.style.top = "0";
-      renderContainer.style.left = "0";
-      renderContainer.style.width = "800px";
+      renderContainer.style.position = "relative";
+      renderContainer.style.width = "750px";
+      renderContainer.style.margin = "0 auto";
+      renderContainer.style.padding = "25px";
       renderContainer.style.background = "#ffffff";
-      renderContainer.style.zIndex = "50"; // rendered safely under the higher z-index modal
+      renderContainer.style.zIndex = "99999";
       renderContainer.style.overflow = "visible";
       renderContainer.style.display = "block";
       
       renderContainer.innerHTML = generatePrintableHtml(noteToPrint);
 
       document.body.appendChild(modal);
-      document.body.appendChild(renderContainer);
+      // Prepend at the beginning of body to guarantee (0,0) render position inside viewport
+      document.body.insertBefore(renderContainer, document.body.firstChild);
 
       const opt = {
-        margin: [12, 12, 12, 12],
+        margin: [15, 15, 15, 15],
         filename: `${noteToPrint.title || 'Lecture_Note'}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { 
-          scale: 2, 
-          useCORS: true, 
-          letterRendering: true,
-          logging: false
+          scale: 1.5, // High resolution crisp text rendering
+          useCORS: false, // Turn off CORS to prevent cross-origin resource hanging on dynamic content
+          letterRendering: false,
+          logging: false,
+          width: 800,
+          windowWidth: 800,
+          scrollY: 0,
+          scrollX: 0
         },
         jsPDF: { 
           unit: 'mm', 
           format: 'a4', 
           orientation: 'portrait' 
+        },
+        pagebreak: {
+          mode: ['avoid-all', 'css', 'legacy']
         }
       };
 
-      const win = window as any;
-      if (win.html2pdf) {
-        win.html2pdf()
-          .set(opt)
-          .from(renderContainer)
-          .save()
-          .then(() => {
-            cleanup();
-          })
-          .catch((err: any) => {
-            console.error("html2pdf processing failed: ", err);
-            cleanup();
-            fallbackPrint(noteToPrint);
-          });
-      } else {
-        cleanup();
-        fallbackPrint(noteToPrint);
-      }
+      const executeSave = () => {
+        const win = window as any;
+        if (win.html2pdf) {
+          win.html2pdf()
+            .set(opt)
+            .from(renderContainer)
+            .save()
+            .then(() => {
+              cleanup();
+            })
+            .catch((err: any) => {
+              console.error("html2pdf processing failed: ", err);
+              cleanup();
+              fallbackPrint(noteToPrint);
+            });
+        } else {
+          cleanup();
+          fallbackPrint(noteToPrint);
+        }
+      };
+
+      // Delay execution slightly so the DOM can fully layout and paint first
+      setTimeout(executeSave, 350);
 
       function cleanup() {
         if (modal.parentNode) modal.parentNode.removeChild(modal);
         if (animStyle.parentNode) animStyle.parentNode.removeChild(animStyle);
         if (renderContainer.parentNode) renderContainer.parentNode.removeChild(renderContainer);
+        htmlEl.style.scrollBehavior = originalScrollBehavior;
+        window.scrollTo(originalScrollX, originalScrollY);
         setDownloadingPdf(false);
       }
     };
@@ -2220,6 +2249,7 @@ export default function Notes() {
 
       setTimeout(() => {
         try {
+          window.focus();
           window.print();
         } catch (err) {
           console.error("Print execution failed:", err);

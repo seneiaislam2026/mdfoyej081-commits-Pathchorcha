@@ -16,6 +16,7 @@ interface PublicExamData {
   active: boolean;
   type?: string;
   questions?: any[];
+  closeAt?: string;
 }
 
 export default function PublicExam() {
@@ -79,7 +80,14 @@ export default function PublicExam() {
         }
 
         if (data) {
-          setExam({ id: examId, ...data });
+          let isActive = data.active;
+          if (data.active && data.closeAt) {
+            const closeTime = new Date(data.closeAt);
+            if (new Date() > closeTime) {
+              isActive = false;
+            }
+          }
+          setExam({ id: examId, ...data, active: isActive });
           setTimeLeft((data.duration || 0) * 60);
           
           if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
