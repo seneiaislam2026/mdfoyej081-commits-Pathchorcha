@@ -60,12 +60,16 @@ export function EventExamTab() {
   const [showSpinSetup, setShowSpinSetup] = useState(false);
   const [spinParticipants, setSpinParticipants] = useState<ExamParticipant[]>([]);
   const spinAudio = useRef<HTMLAudioElement | null>(null);
+  const winAudio = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     spinAudio.current = new Audio('https://actions.google.com/sounds/v1/foley/wheel_spin.ogg');
+    winAudio.current = new Audio('https://actions.google.com/sounds/v1/human/applause_moderate.ogg');
     return () => {
       spinAudio.current?.pause();
       spinAudio.current = null;
+      winAudio.current?.pause();
+      winAudio.current = null;
     };
   }, []);
 
@@ -74,12 +78,26 @@ export function EventExamTab() {
     if (isSpinning) {
       spinAudio.current.loop = true;
       spinAudio.current.play().catch(e => console.error("Audio play failed:", e));
+      if (winAudio.current) {
+        winAudio.current.pause();
+        winAudio.current.currentTime = 0;
+      }
     } else {
       spinAudio.current.pause();
       spinAudio.current.currentTime = 0;
     }
   }, [isSpinning]);
+
   const [isFullScreenSpin, setIsFullScreenSpin] = useState(false);
+
+  useEffect(() => {
+    if (!isFullScreenSpin) {
+      spinAudio.current?.pause();
+      if (spinAudio.current) spinAudio.current.currentTime = 0;
+      winAudio.current?.pause();
+      if (winAudio.current) winAudio.current.currentTime = 0;
+    }
+  }, [isFullScreenSpin]);
 
   const fetchParticipants = async () => {
     setLoading(true);
@@ -165,6 +183,10 @@ export function EventExamTab() {
     setIsSpinning(true);
     setWinner(null);
     setSpinningIndex(null);
+    if (winAudio.current) {
+      winAudio.current.pause();
+      winAudio.current.currentTime = 0;
+    }
 
     let spins = 0;
     const maxSpins = 30; // 30 spins (about 3 seconds)
@@ -178,6 +200,9 @@ export function EventExamTab() {
         clearInterval(spinInterval);
         setIsSpinning(false);
         triggerConfetti();
+        if (winAudio.current) {
+          winAudio.current.play().catch(e => console.error("Win audio play failed:", e));
+        }
       }
     }, 100);
   };
@@ -192,14 +217,16 @@ export function EventExamTab() {
         angle: 60,
         spread: 55,
         origin: { x: 0 },
-        colors: ['#00B074', '#3b82f6', '#f43f5e', '#f59e0b']
+        colors: ['#00B074', '#3b82f6', '#f43f5e', '#f59e0b'],
+        zIndex: 999999
       });
       confetti({
         particleCount: 6,
         angle: 120,
         spread: 55,
         origin: { x: 1 },
-        colors: ['#00B074', '#3b82f6', '#f43f5e', '#f59e0b']
+        colors: ['#00B074', '#3b82f6', '#f43f5e', '#f59e0b'],
+        zIndex: 999999
       });
 
       if (Date.now() < end) {
@@ -1207,7 +1234,13 @@ export function EventExamTab() {
                 {!isSpinning && winner && (
                   <div className="mt-8 flex gap-4 animate-in fade-in duration-500 delay-500 fill-mode-both z-10">
                     <button
-                      onClick={() => setWinner(null)}
+                      onClick={() => {
+                        setWinner(null);
+                        if (winAudio.current) {
+                          winAudio.current.pause();
+                          winAudio.current.currentTime = 0;
+                        }
+                      }}
                       className="px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-bengali font-bold text-sm md:text-base transition-all hover:scale-105 active:scale-95"
                     >
                       তালিকায় ফিরুন
