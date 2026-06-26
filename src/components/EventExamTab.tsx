@@ -58,7 +58,14 @@ export function EventExamTab() {
   const [spinningIndex, setSpinningIndex] = useState<number | null>(null);
   const [printingPdf, setPrintingPdf] = useState(false);
   const [showSpinSetup, setShowSpinSetup] = useState(false);
-  const [spinParticipants, setSpinParticipants] = useState<ExamParticipant[]>([]);
+  const [spinParticipants, setSpinParticipants] = useState<ExamParticipant[]>(() => {
+    const saved = localStorage.getItem('spinParticipants');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('spinParticipants', JSON.stringify(spinParticipants));
+  }, [spinParticipants]);
   const spinAudio = useRef<HTMLAudioElement | null>(null);
   const winAudio = useRef<HTMLAudioElement | null>(null);
 
