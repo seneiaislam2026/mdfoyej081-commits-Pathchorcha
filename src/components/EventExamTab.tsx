@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { 
@@ -59,6 +59,26 @@ export function EventExamTab() {
   const [printingPdf, setPrintingPdf] = useState(false);
   const [showSpinSetup, setShowSpinSetup] = useState(false);
   const [spinParticipants, setSpinParticipants] = useState<ExamParticipant[]>([]);
+  const spinAudio = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    spinAudio.current = new Audio('https://actions.google.com/sounds/v1/foley/wheel_spin.ogg');
+    return () => {
+      spinAudio.current?.pause();
+      spinAudio.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!spinAudio.current) return;
+    if (isSpinning) {
+      spinAudio.current.loop = true;
+      spinAudio.current.play().catch(e => console.error("Audio play failed:", e));
+    } else {
+      spinAudio.current.pause();
+      spinAudio.current.currentTime = 0;
+    }
+  }, [isSpinning]);
   const [isFullScreenSpin, setIsFullScreenSpin] = useState(false);
 
   const fetchParticipants = async () => {
