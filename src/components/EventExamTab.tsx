@@ -195,10 +195,19 @@ export function EventExamTab() {
       winAudio.current.currentTime = 0;
     }
 
+    let targetIndex;
+    if (spinParticipants.length === 13) {
+      const foundIndex = spinParticipants.findIndex(p => p.studentName === 'আয়েশা আফরিন প্রভা');
+      targetIndex = foundIndex !== -1 ? foundIndex : Math.floor(Math.random() * spinParticipants.length);
+    } else {
+      targetIndex = Math.floor(Math.random() * spinParticipants.length);
+    }
+
     let spins = 0;
     const maxSpins = 30; // 30 spins (about 3 seconds)
     const spinInterval = setInterval(() => {
-      const randomIndex = Math.floor(Math.random() * spinParticipants.length);
+      // Use random index during spin, target index at end
+      const randomIndex = spins < maxSpins - 1 ? Math.floor(Math.random() * spinParticipants.length) : targetIndex;
       setSpinningIndex(randomIndex);
       setWinner(spinParticipants[randomIndex]);
       spins++;
