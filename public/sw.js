@@ -1,8 +1,7 @@
-const CACHE_NAME = 'biddayan-v1';
+const CACHE_NAME = 'biddayan-v2';
 const ASSETS_TO_CACHE = [
   '/',
-  '/index.html',
-  '/manifest.json'
+  '/index.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -28,9 +27,32 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // Network First for HTML (navigation)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          const clonedResponse = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clonedResponse));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Stale While Revalidate for static assets
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse.ok) {
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
+        }
+        return networkResponse;
+      });
+      return cachedResponse || fetchPromise;
     })
   );
 });
