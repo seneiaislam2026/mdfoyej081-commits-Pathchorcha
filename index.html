@@ -91,7 +91,18 @@
         window.dispatchEvent(new CustomEvent('pwa-prompt-available', { detail: e }));
       });
 
-      // Register PWA service worker for immediate and direct installation
+      // Register PWA service worker for automatic updates
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => {
+              console.log('Service Worker registered successfully:', reg.scope);
+            })
+            .catch((err) => {
+              console.error('Service Worker registration failed:', err);
+            });
+        });
+      }
     </script>
   </head>
   <body>

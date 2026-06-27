@@ -78,6 +78,7 @@ export const InstallPrompt = () => {
     const deferredPrompt = (window as any).deferredPrompt;
     if (deferredPrompt) {
       try {
+        setIsInstalling(true);
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === "accepted") {
@@ -87,39 +88,12 @@ export const InstallPrompt = () => {
         setShowPrompt(false);
       } catch (err) {
         console.error("Install prompt error:", err);
+      } finally {
+        setIsInstalling(false);
       }
     } else {
-      setIsInstalling(true);
-      
-      const onPromptAvailable = async (e: any) => {
-        const promptEvent = e.detail || (window as any).deferredPrompt;
-        if (promptEvent) {
-          window.removeEventListener("pwa-prompt-available", onPromptAvailable);
-          clearTimeout(timeoutId);
-          try {
-            promptEvent.prompt();
-            const { outcome } = await promptEvent.userChoice;
-            if (outcome === "accepted") {
-              localStorage.setItem("appInstalled", "true");
-            }
-            (window as any).deferredPrompt = null;
-          } catch (err) {
-            console.error("Delayed install prompt error:", err);
-          } finally {
-            setIsInstalling(false);
-            setShowPrompt(false);
-          }
-        }
-      };
-
-      window.addEventListener("pwa-prompt-available", onPromptAvailable);
-
-      // Wait up to 3 seconds, then close prompt if nothing happens
-      const timeoutId = setTimeout(() => {
-        window.removeEventListener("pwa-prompt-available", onPromptAvailable);
-        setIsInstalling(false);
-        setShowPrompt(false);
-      }, 3000);
+      // If prompt not ready, we can only ask user to use browser menu
+      alert("ব্রাউজার মেনু থেকে 'Add to Home Screen' অপশনে ক্লিক করে অ্যাপটি ইনস্টল করুন।");
     }
   };
 
