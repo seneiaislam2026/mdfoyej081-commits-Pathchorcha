@@ -1,13 +1,6 @@
-const CACHE_NAME = 'biddayan-v2';
-const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html'
-];
+const CACHE_NAME = 'biddayan-v3';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
-  );
   self.skipWaiting();
 });
 
@@ -27,32 +20,54 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  const { request } = event;
+  const url = new URL(request.url);
 
-  // Network First for HTML (navigation)
-  if (event.request.mode === 'navigate') {
+  // HTML: Network First
+  if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
+      fetch(request)
         .then((response) => {
           const clonedResponse = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clonedResponse));
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clonedResponse));
           return response;
         })
-        .catch(() => caches.match(event.request))
+        .catch(() => caches.match(request))
     );
     return;
   }
 
-  // Stale While Revalidate for static assets
+  // Images: Cache First
+  if (request.destination === 'image') {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        return cachedResponse || fetch(request).then((networkResponse) => {
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse.clone()));
+          return networkResponse;
+        });
+      })
+    );
+    return;
+  }
+
+  // CSS & JS: Stale While Revalidate
+  if (request.destination === 'script' || request.destination === 'style') {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        const fetchPromise = fetch(request).then((networkResponse) => {
+          if (networkResponse.ok) {
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, networkResponse.clone()));
+          }
+          return networkResponse;
+        });
+        return cachedResponse || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // Default: Network First
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse.ok) {
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
-        }
-        return networkResponse;
-      });
-      return cachedResponse || fetchPromise;
-    })
+    fetch(request).catch(() => caches.match(request))
   );
 });
