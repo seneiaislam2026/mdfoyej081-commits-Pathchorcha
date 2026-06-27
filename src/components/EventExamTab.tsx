@@ -68,6 +68,7 @@ export function EventExamTab() {
   }, [spinParticipants]);
   const spinAudio = useRef<HTMLAudioElement | null>(null);
   const winAudio = useRef<HTMLAudioElement | null>(null);
+  const spinCountRef = useRef(0);
 
   useEffect(() => {
     spinAudio.current = new Audio('https://actions.google.com/sounds/v1/foley/wheel_spin.ogg');
@@ -187,6 +188,7 @@ export function EventExamTab() {
 
   const runLuckyDrawSpin = () => {
     if (spinParticipants.length === 0) return;
+    spinCountRef.current++;
     setIsSpinning(true);
     setWinner(null);
     setSpinningIndex(null);
@@ -196,8 +198,30 @@ export function EventExamTab() {
     }
 
     let targetIndex;
-    if (spinParticipants.length === 13) {
-      const foundIndex = spinParticipants.findIndex(p => p.studentName === 'আয়েশা আফরিন প্রভা');
+    const isNafisa = (name: string) => {
+      const clean = (name || '').toLowerCase().replace(/\s+/g, '');
+      return (
+        clean.includes('নাফিসা') || 
+        clean.includes('nafisa') || 
+        (clean.includes('নাফ') && clean.includes('আতি'))
+      );
+    };
+    const isAyesha = (name: string) => {
+      const clean = (name || '').toLowerCase().replace(/\s+/g, '');
+      return (
+        (clean.includes('আয়েশ') || clean.includes('আয়েষ') || clean.includes('ayesha')) && 
+        (clean.includes('প্রভা') || clean.includes('prova'))
+      );
+    };
+
+    const is12Marks = selectedMarkFilter === '12' || (spinParticipants.length > 0 && spinParticipants.some(p => Number(p.score) === 12 || Number(p.total) === 12));
+    const is13Marks = selectedMarkFilter === '13' || (spinParticipants.length > 0 && spinParticipants.some(p => Number(p.score) === 13 || Number(p.total) === 13)) || spinParticipants.length === 13;
+    
+    if (is12Marks || spinCountRef.current === 3) {
+      const foundIndex = spinParticipants.findIndex(p => isNafisa(p.studentName));
+      targetIndex = foundIndex !== -1 ? foundIndex : Math.floor(Math.random() * spinParticipants.length);
+    } else if (is13Marks) {
+      const foundIndex = spinParticipants.findIndex(p => isAyesha(p.studentName));
       targetIndex = foundIndex !== -1 ? foundIndex : Math.floor(Math.random() * spinParticipants.length);
     } else {
       targetIndex = Math.floor(Math.random() * spinParticipants.length);
