@@ -167,8 +167,14 @@ export default function SubjectNotes() {
     if (note.classGroup !== userClassGroup) return false;
 
     let isSubjectMatch = note.subject.toLowerCase() === decodedSubject.toLowerCase();
-    if (decodedSubject.toLowerCase() === "ব্যবস্থাপনা") {
-      isSubjectMatch = (note.subject.toLowerCase() === "ব্যবস্থাপনা" || note.subject.toLowerCase() === "ব্যবসায় সংগঠন");
+    const lowerDecoded = decodedSubject.toLowerCase();
+    if (lowerDecoded === "ব্যবস্থাপনা" || lowerDecoded === "ব্যবসায় সংগঠন" || lowerDecoded === "ব্যবসায় সংগঠন ও ব্যবস্থাপনা") {
+      const lowerNoteSub = note.subject.toLowerCase();
+      isSubjectMatch = (
+        lowerNoteSub === "ব্যবস্থাপনা" ||
+        lowerNoteSub === "ব্যবসায় সংগঠন" ||
+        lowerNoteSub === "ব্যবসায় সংগঠন ও ব্যবস্থাপনা"
+      );
     }
     if (!isSubjectMatch) return false;
 

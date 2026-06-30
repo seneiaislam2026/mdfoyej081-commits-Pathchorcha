@@ -18,6 +18,7 @@ import { collection, getDocs, doc, updateDoc, addDoc, serverTimestamp, query, or
 import { db } from "../lib/firebase";
 import NotesCreator from "../components/NotesCreator";
 import BoardQuestionsCreator from "../components/BoardQuestionsCreator";
+import UnifiedUploader from "../components/UnifiedUploader";
 import FinancialTrackingTab from "../components/FinancialTrackingTab";
 import { EventExamTab } from "../components/EventExamTab";
 import { 
@@ -41,6 +42,7 @@ const menuItems = [
   { id: "questions", bnLabel: "প্রশ্ন ব্যাংক", enLabel: "Questions", icon: <FileQuestion className="w-5 h-5" /> },
   { id: "subject_questions", bnLabel: "বিষয়ভিত্তিক প্রশ্ন", enLabel: "Subject Questions", icon: <BookOpen className="w-5 h-5 text-sky-500" /> },
   { id: "board_questions", bnLabel: "বোর্ড প্রশ্ন", enLabel: "Board Questions", icon: <FileQuestion className="w-5 h-5 text-indigo-500" />, isNew: true },
+  { id: "unified_uploader", bnLabel: "ইউনিফাইড আপলোডার", enLabel: "Unified Uploader", icon: <Upload className="w-5 h-5 text-purple-500" />, isNew: true },
   { id: "vocabulary", bnLabel: "শব্দকোষ", enLabel: "Vocabulary", icon: <BookOpen className="w-5 h-5 text-indigo-500" /> },
   { id: "note_publisher", bnLabel: "নোট পাবলিশার", enLabel: "Note Publisher", icon: <BookOpen className="w-5 h-5 text-cyan-500" />, isNew: true },
   { id: "notes_creator", bnLabel: "নোটস মেকার", enLabel: "Notes Creator", icon: <BookOpen className="w-5 h-5 text-emerald-500" />, isNew: true },
@@ -4467,6 +4469,8 @@ export default function Admin() {
 
         ) : activeTab === "board_questions" ? (
           <BoardQuestionsCreator />
+        ) : activeTab === "unified_uploader" ? (
+          <UnifiedUploader />
 
         ) : (
           <div className="space-y-6">
