@@ -91,16 +91,23 @@
         window.dispatchEvent(new CustomEvent('pwa-prompt-available', { detail: e }));
       });
 
-      // Register PWA service worker for automatic updates
+      // Active Service Worker removal and Cache Storage clearing for automatic updates
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((reg) => {
-              console.log('Service Worker registered successfully:', reg.scope);
-            })
-            .catch((err) => {
-              console.error('Service Worker registration failed:', err);
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for (let registration of registrations) {
+            registration.unregister().then(function(success) {
+              if (success) {
+                console.log('Unregistered active service worker successfully.');
+              }
             });
+          }
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+          }
         });
       }
     </script>

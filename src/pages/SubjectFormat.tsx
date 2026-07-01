@@ -26,7 +26,13 @@ export default function SubjectFormat() {
       {/* Header */}
       <div className="bg-card sticky top-0 z-50 border-b border-slate-100 shadow-sm px-4 py-3 flex items-center justify-center">
         <button 
-          onClick={() => navigate(-1)} 
+          onClick={() => {
+            if (window.history.state && window.history.state.idx > 0) {
+              navigate(-1);
+            } else {
+              navigate("/bank");
+            }
+          }} 
           className="absolute left-4 w-10 h-10 bg-muted hover:bg-slate-100 flex items-center justify-center rounded-full transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-slate-700" strokeWidth={2.5} />

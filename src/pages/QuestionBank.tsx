@@ -118,11 +118,12 @@ const getSubjectsByGroup = (group?: string, classGroup?: string) => {
 
 const mapUserClassToGroup = (cls?: string) => {
   if (!cls) return "HSC";
-  if (cls === "এডমিশন" || cls.includes("Admission")) return "Admission";
-  if (cls === "দশম শ্রেণী" || cls.includes("SSC") || cls.includes("দশম")) return "SSC";
-  if (cls === "এইচএসসি" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী" || cls.includes("HSC")) return "HSC";
-  if (cls === "নবম শ্রেণী" || cls.includes("Class 9") || cls.includes("নবম")) return "Class 9";
-  if (cls.includes("৬ষ্ঠ") || cls.includes("৭ম") || cls.includes("৮ম")) return "Class 6-8";
+  const c = cls.toLowerCase();
+  if (c === "এডমিশন" || c.includes("admission") || c.includes("ভর্তি") || c.includes("ভার্সিটি") || c.includes("মেডিকেল") || c.includes("ইঞ্জিনিয়ারিং") || c.includes("এডমিশন")) return "Admission";
+  if (c === "দশম শ্রেণী" || c.includes("ssc") || c.includes("দশম") || c.includes("এসএসসি")) return "SSC";
+  if (c === "এইচএসসি" || c === "hsc" || c === "একাদশ" || c === "একাদশ শ্রেণী" || c === "দ্বাদশ" || c === "দ্বাদশ শ্রেণী" || c.includes("hsc") || c.includes("এইচএসসি")) return "HSC";
+  if (c === "নবম শ্রেণী" || c.includes("class 9") || c.includes("নবম") || c.includes("৯ম")) return "Class 9";
+  if (c.includes("৬ষ্ঠ") || c.includes("৭ম") || c.includes("৮ম") || c.includes("class 6") || c.includes("class 7") || c.includes("class 8")) return "Class 6-8";
   return "HSC";
 };
 
@@ -285,14 +286,26 @@ export default function QuestionBank() {
       setLoadingQuestions(true);
       try {
         let q = query(collection(db, "questions"), where("classGroup", "==", activeClassGroup));
-        if (activeClassGroup === "Admission" && activeClass) {
-          q = query(q, where("university", "==", activeClass));
-        } else if (activeClassGroup !== "Admission" && activeClass) {
-          q = query(q, where("class", "==", activeClass));
-        }
         const snap = await getDocs(q);
         let results: any[] = [];
-        snap.forEach(doc => results.push({ id: doc.id, ...doc.data() }));
+        snap.forEach(doc => {
+          const data = doc.data();
+          if (activeClassGroup === "Admission" && activeClass) {
+            const uni = data.university || "";
+            const matchesUni = 
+              uni === activeClass || 
+              (activeClass === "ঢাকা বিশ্ববিদ্যালয়" && (uni === "DU" || uni.toLowerCase().includes("dhaka") || uni.includes("ঢাকা"))) ||
+              (activeClass === "রাজশাহী বিশ্ববিদ্যালয়" && (uni === "RU" || uni.toLowerCase().includes("rajshahi") || uni.includes("রাজশাহী"))) ||
+              (activeClass === "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়" && (uni === "JU" || uni.toLowerCase().includes("jahangir") || uni.includes("জাহাঙ্গীরনগর"))) ||
+              (activeClass === "চট্টগ্রাম বিশ্ববিদ্যালয়" && (uni === "CU" || uni.toLowerCase().includes("chittagong") || uni.includes("চট্টগ্রাম"))) ||
+              (activeClass === "কুমিল্লা বিশ্ববিদ্যালয়" && (uni === "CU" || uni.toLowerCase().includes("comilla") || uni.includes("কুমিল্লা"))) ||
+              (activeClass === "গুচ্ছ (GST)" && (uni === "GST" || uni.toLowerCase().includes("gst") || uni.includes("গুচ্ছ")));
+            if (!matchesUni) return;
+          } else if (activeClassGroup === "Class 6-8" && activeClass) {
+            if (data.class !== activeClass) return;
+          }
+          results.push({ id: doc.id, ...data });
+        });
 
         // Insert local data
         let filteredLocal: any[] = [];
@@ -305,8 +318,18 @@ export default function QuestionBank() {
         }
         
         if (activeClassGroup === "Admission" && activeClass) {
-          filteredLocal = filteredLocal.filter(m => !m.university || m.university === activeClass);
-        } else if (activeClassGroup !== "Admission" && activeClass) {
+          filteredLocal = filteredLocal.filter(m => {
+            const uni = m.university || "";
+            return !uni || 
+              uni === activeClass || 
+              (activeClass === "ঢাকা বিশ্ববিদ্যালয়" && (uni === "DU" || uni.toLowerCase().includes("dhaka") || uni.includes("ঢাকা"))) ||
+              (activeClass === "রাজশাহী বিশ্ববিদ্যালয়" && (uni === "RU" || uni.toLowerCase().includes("rajshahi") || uni.includes("রাজশাহী"))) ||
+              (activeClass === "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়" && (uni === "JU" || uni.toLowerCase().includes("jahangir") || uni.includes("জাহাঙ্গীরনগর"))) ||
+              (activeClass === "চট্টগ্রাম বিশ্ববিদ্যালয়" && (uni === "CU" || uni.toLowerCase().includes("chittagong") || uni.includes("চট্টগ্রাম"))) ||
+              (activeClass === "কুমিল্লা বিশ্ববিদ্যালয়" && (uni === "CU" || uni.toLowerCase().includes("comilla") || uni.includes("কুমিল্লা"))) ||
+              (activeClass === "গুচ্ছ (GST)" && (uni === "GST" || uni.toLowerCase().includes("gst") || uni.includes("গুচ্ছ")));
+          });
+        } else if (activeClassGroup === "Class 6-8" && activeClass) {
           filteredLocal = filteredLocal.filter(m => !m.class || m.class === activeClass);
         }
         results = [...results, ...filteredLocal];
@@ -851,7 +874,17 @@ export default function QuestionBank() {
     setQuizAnswered(true);
     
     // Normalize correct option
-    const isCorrect = optionKey.trim().toLowerCase() === correctOption.trim().toLowerCase();
+    const getNormalizedKey = (key: any) => {
+      if (!key) return "";
+      const k = String(key).trim().toUpperCase();
+      if (k === 'A' || k === 'ক') return 'A';
+      if (k === 'B' || k === 'খ') return 'B';
+      if (k === 'C' || k === 'গ') return 'C';
+      if (k === 'D' || k === 'ঘ') return 'D';
+      return k;
+    };
+    
+    const isCorrect = getNormalizedKey(optionKey) === getNormalizedKey(correctOption);
     if (isCorrect) {
       setQuizScore(prev => prev + 1);
     }
@@ -1218,12 +1251,46 @@ export default function QuestionBank() {
 
                       <div className="flex flex-col gap-2.5">
                         {['A', 'B', 'C', 'D'].map((optionKey) => {
-                          const optionText = quizQuestions[currentQuizIndex][`option${optionKey}`] || quizQuestions[currentQuizIndex][`option_${optionKey.toLowerCase()}`];
+                          const qItem = quizQuestions[currentQuizIndex];
+                          const idx = ['A', 'B', 'C', 'D'].indexOf(optionKey);
+                          let optionText = qItem[`option${optionKey}`] || qItem[`option_${optionKey.toLowerCase()}`];
+                          if (!optionText && qItem.options) {
+                            if (Array.isArray(qItem.options)) {
+                              const found = qItem.options.find((o: any) => 
+                                o.id === optionKey || 
+                                o.id === optionKey.toLowerCase() || 
+                                (optionKey === 'A' && o.id === 'ক') ||
+                                (optionKey === 'B' && o.id === 'খ') ||
+                                (optionKey === 'C' && o.id === 'গ') ||
+                                (optionKey === 'D' && o.id === 'ঘ')
+                              );
+                              if (found) optionText = found.label || found.text;
+                              else if (qItem.options[idx]) optionText = qItem.options[idx].label || qItem.options[idx].text;
+                            } else if (typeof qItem.options === 'object') {
+                              optionText = qItem.options[optionKey] || qItem.options[optionKey.toLowerCase()];
+                              if (!optionText) {
+                                const banglaKeys = ['ক', 'খ', 'গ', 'ঘ'];
+                                const bKey = banglaKeys[idx];
+                                if (bKey) optionText = qItem.options[bKey];
+                              }
+                            }
+                          }
                           if (!optionText) return null;
                           
                           const isSelected = selectedQuizAnswer === optionKey;
-                          const correctAns = quizQuestions[currentQuizIndex].correctOption || quizQuestions[currentQuizIndex].correct_answer || quizQuestions[currentQuizIndex].correctAnswer || quizQuestions[currentQuizIndex].answer;
-                          const isCorrectOption = optionKey.trim().toLowerCase() === correctAns?.trim()?.toLowerCase();
+                          const correctAns = qItem.correctOption || qItem.correct_answer || qItem.correctAnswer || qItem.answer;
+                          
+                          const getNormalizedKey = (k: any) => {
+                            if (!k) return "";
+                            const s = String(k).trim().toUpperCase();
+                            if (s === 'A' || s === 'ক') return 'A';
+                            if (s === 'B' || s === 'খ') return 'B';
+                            if (s === 'C' || s === 'গ') return 'C';
+                            if (s === 'D' || s === 'ঘ') return 'D';
+                            return s;
+                          };
+                          
+                          const isCorrectOption = getNormalizedKey(optionKey) === getNormalizedKey(correctAns);
                           
                           let optionStyle = "border-slate-200 bg-muted text-slate-700 hover:bg-slate-100/80 hover:border-slate-300";
                           if (quizAnswered) {

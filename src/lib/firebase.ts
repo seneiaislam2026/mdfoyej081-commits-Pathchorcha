@@ -1,15 +1,11 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersistence } from 'firebase/auth';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
 // @ts-ignore - The property firestoreDatabaseId is a custom extension for the preview
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId); 
-
-enableIndexedDbPersistence(db).catch((err) => {
-  console.warn('Firebase persistence warning:', err);
-});
 
 export const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]

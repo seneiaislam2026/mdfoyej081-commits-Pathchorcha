@@ -34,6 +34,242 @@ import {
   Cell 
 } from "recharts";
 
+const normalizeSubjectName = (sub: any): string => {
+  if (!sub) return "";
+  const s = String(sub).trim().toLowerCase();
+  
+  // Bangla 1st Paper matching
+  if (
+    s === "বাংলা" ||
+    s === "bangla" ||
+    s === "বাংলা ১ম" ||
+    s === "বাংলা ১ম পত্র" ||
+    s === "bangla 1" ||
+    s === "bangla 1st" ||
+    s === "bangla 1st paper"
+  ) {
+    return "Bangla 1st Paper";
+  }
+  
+  // Bangla 2nd Paper matching
+  if (
+    s === "বাংলা ২য়" ||
+    s === "বাংলা ২য় পত্র" ||
+    s === "bangla 2" ||
+    s === "bangla 2nd" ||
+    s === "bangla 2nd paper"
+  ) {
+    return "Bangla 2nd Paper";
+  }
+
+  // English 1st Paper matching
+  if (
+    s === "ইংরেজি" ||
+    s === "english" ||
+    s === "ইংরেজি ১ম" ||
+    s === "ইংরেজি ১ম পত্র" ||
+    s === "english 1" ||
+    s === "english 1st" ||
+    s === "english 1st paper"
+  ) {
+    return "English 1st Paper";
+  }
+
+  // English 2nd Paper matching
+  if (
+    s === "ইংরেজি ২য়" ||
+    s === "ইংরেজি ২য় পত্র" ||
+    s === "english 2" ||
+    s === "english 2nd" ||
+    s === "english 2nd paper"
+  ) {
+    return "English 2nd Paper";
+  }
+
+  // Accounting 1st Paper
+  if (
+    s === "হিসাববিজ্ঞান" ||
+    s === "accounting" ||
+    s === "হিসাববিজ্ঞান ১ম" ||
+    s === "হিসাববিজ্ঞান ১ম পত্র" ||
+    s === "accounting 1" ||
+    s === "accounting 1st" ||
+    s === "accounting 1st paper"
+  ) {
+    return "Accounting 1st Paper";
+  }
+
+  // Accounting 2nd Paper
+  if (
+    s === "হিসাববিজ্ঞান ২য়" ||
+    s === "হিসাববিজ্ঞান ২য় পত্র" ||
+    s === "accounting 2" ||
+    s === "accounting 2nd" ||
+    s === "accounting 2nd paper"
+  ) {
+    return "Accounting 2nd Paper";
+  }
+
+  // Physics 1st Paper
+  if (
+    s === "পদার্থবিজ্ঞান" ||
+    s === "physics" ||
+    s === "পদার্থবিজ্ঞান ১ম" ||
+    s === "পদার্থবিজ্ঞান ১ম পত্র" ||
+    s === "physics 1" ||
+    s === "physics 1st" ||
+    s === "physics 1st paper"
+  ) {
+    return "Physics 1st Paper";
+  }
+
+  // Physics 2nd Paper
+  if (
+    s === "পদার্থবিজ্ঞান ২য়" ||
+    s === "পদার্থবিজ্ঞান ২য় পত্র" ||
+    s === "physics 2" ||
+    s === "physics 2nd" ||
+    s === "physics 2nd paper"
+  ) {
+    return "Physics 2nd Paper";
+  }
+
+  // Chemistry 1st Paper
+  if (
+    s === "রসায়ন" ||
+    s === "chemistry" ||
+    s === "রসায়ন ১ম" ||
+    s === "রসায়ন ১ম পত্র" ||
+    s === "chemistry 1" ||
+    s === "chemistry 1st" ||
+    s === "chemistry 1st paper"
+  ) {
+    return "Chemistry 1st Paper";
+  }
+
+  // Chemistry 2nd Paper
+  if (
+    s === "রসায়ন ২য়" ||
+    s === "রসায়ন ২য় পত্র" ||
+    s === "chemistry 2" ||
+    s === "chemistry 2nd" ||
+    s === "chemistry 2nd paper"
+  ) {
+    return "Chemistry 2nd Paper";
+  }
+
+  // Biology 1st Paper
+  if (
+    s === "জীববিজ্ঞান" ||
+    s === "biology" ||
+    s === "জীববিজ্ঞান ১ম" ||
+    s === "জীববিজ্ঞান ১ম পত্র" ||
+    s === "biology 1" ||
+    s === "biology 1st" ||
+    s === "biology 1st paper"
+  ) {
+    return "Biology 1st Paper";
+  }
+
+  // Biology 2nd Paper
+  if (
+    s === "জীববিজ্ঞান ২য়" ||
+    s === "জীববিজ্ঞান ২য় পত্র" ||
+    s === "biology 2" ||
+    s === "biology 2nd" ||
+    s === "biology 2nd paper"
+  ) {
+    return "Biology 2nd Paper";
+  }
+
+  // Higher Math 1st Paper
+  if (
+    s === "উচ্চতর গণিত" ||
+    s === "উচ্চতর গণিত ১ম" ||
+    s === "উচ্চতর গণিত ১ম পত্র" ||
+    s === "higher math" ||
+    s === "higher math 1" ||
+    s === "higher math 1st" ||
+    s === "higher math 1st paper" ||
+    s === "math 1" ||
+    s === "math 1st" ||
+    s === "math 1st paper" ||
+    s === "গণিত ১ম" ||
+    s === "গণিত"
+  ) {
+    return "Higher Math 1st Paper";
+  }
+
+  // Higher Math 2nd Paper
+  if (
+    s === "উচ্চতর গণিত ২য়" ||
+    s === "উচ্চতর গণিত ২য় পত্র" ||
+    s === "higher math 2" ||
+    s === "higher math 2nd" ||
+    s === "higher math 2nd paper" ||
+    s === "math 2" ||
+    s === "math 2nd" ||
+    s === "math 2nd paper" ||
+    s === "গণিত ২য়"
+  ) {
+    return "Higher Math 2nd Paper";
+  }
+
+  // Management 1st Paper
+  if (
+    s === "ব্যবস্থাপনা" ||
+    s === "management" ||
+    s === "ব্যবস্থাপনা ১ম" ||
+    s === "ব্যবস্থাপনা ১ম পত্র" ||
+    s === "management 1" ||
+    s === "management 1st" ||
+    s === "management 1st paper" ||
+    s === "ব্যবসায় সংগঠন ও ব্যবস্থাপনা"
+  ) {
+    return "Management 1st Paper";
+  }
+
+  // Management 2nd Paper
+  if (
+    s === "ব্যবস্থাপনা ২য়" ||
+    s === "ব্যবস্থাপনা ২য় পত্র" ||
+    s === "management 2" ||
+    s === "management 2nd" ||
+    s === "management 2nd paper"
+  ) {
+    return "Management 2nd Paper";
+  }
+
+  if (s === "ict" || s === "আইসিটি" || s === "তথ্য ও যোগাযোগ প্রযুক্তি") {
+    return "ICT";
+  }
+
+  return sub;
+};
+
+const getSubjectDisplayName = (sub: string) => {
+  const mapping: Record<string, string> = {
+    "Bangla 1st Paper": "বাংলা ১ম পত্র (Bangla 1st Paper)",
+    "Bangla 2nd Paper": "বাংলা ২য় পত্র (Bangla 2nd Paper)",
+    "English 1st Paper": "ইংরেজি ১ম পত্র (English 1st Paper)",
+    "English 2nd Paper": "ইংরেজি ২য় পত্র (English 2nd Paper)",
+    "Physics 1st Paper": "পদার্থবিজ্ঞান ১ম পত্র (Physics 1st Paper)",
+    "Physics 2nd Paper": "পদার্থবিজ্ঞান ২য় পত্র (Physics 2nd Paper)",
+    "Chemistry 1st Paper": "রসায়ন ১ম পত্র (Chemistry 1st Paper)",
+    "Chemistry 2nd Paper": "রসায়ন ২য় পত্র (Chemistry 2nd Paper)",
+    "Higher Math 1st Paper": "উচ্চতর গণিত ১ম পত্র (Higher Math 1st Paper)",
+    "Higher Math 2nd Paper": "উচ্চতর গণিত ২য় পত্র (Higher Math 2nd Paper)",
+    "Biology 1st Paper": "জীববিজ্ঞান ১ম পত্র (Biology 1st Paper)",
+    "Biology 2nd Paper": "জীববিজ্ঞান ২য় পত্র (Biology 2nd Paper)",
+    "Accounting 1st Paper": "হিসাববিজ্ঞান ১ম পত্র (Accounting 1st Paper)",
+    "Accounting 2nd Paper": "হিসাববিজ্ঞান ২য় পত্র (Accounting 2nd Paper)",
+    "Management 1st Paper": "ব্যবস্থাপনা ১ম পত্র (Management 1st Paper)",
+    "Management 2nd Paper": "ব্যবস্থাপনা ২য় পত্র (Management 2nd Paper)",
+    "ICT": "তথ্য ও যোগাযোগ প্রযুক্তি (ICT)",
+  };
+  return mapping[sub] || sub;
+};
+
 const menuItems = [
   { id: "dashboard", bnLabel: "ড্যাশবোর্ড", enLabel: "Dashboard", icon: <LayoutDashboard className="w-5 h-5" /> },
   { id: "students", bnLabel: "শিক্ষার্থী", enLabel: "Students", icon: <Users className="w-5 h-5" /> },
@@ -310,9 +546,17 @@ export default function Admin() {
   const [editQuestion, setEditQuestion] = useState<any | null>(null);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [bulkUploadSubject, setBulkUploadSubject] = useState("");
-  const [bulkUploadClassGroup, setBulkUploadClassGroup] = useState("HSC");
-  const [bulkUploadClass, setBulkUploadClass] = useState("HSC");
-  const [bulkUploadType, setBulkUploadType] = useState("mixed");
+  const [bulkUploadTargets, setBulkUploadTargets] = useState({
+    hsc: true,
+    class11: true,
+    class12: false,
+    admission: true,
+    ssc: false,
+    class9: false,
+    class6_8: false,
+  });
+  const [bulkUploadUniversity, setBulkUploadUniversity] = useState("");
+  const [bulkUploadType, setBulkUploadType] = useState("mcq");
   const [showCreateCouponModal, setShowCreateCouponModal] = useState(false);
   const [newCouponCode, setNewCouponCode] = useState("");
   const [newCouponMonths, setNewCouponMonths] = useState("1");
@@ -342,6 +586,11 @@ export default function Admin() {
   }, [studentSearch, studentClassFilter, userRoleTab]);
   const [selectedUserModal, setSelectedUserModal] = useState<any | null>(null);
   const [selectedBankTitle, setSelectedBankTitle] = useState<string | null>(null);
+  const [explorerMode, setExplorerMode] = useState<"by_bank" | "universal">("by_bank");
+  const [explorerFormatFilter, setExplorerFormatFilter] = useState<string>("all");
+  const [explorerClassFilter, setExplorerClassFilter] = useState<string>("all");
+  const [explorerSubjectFilter, setExplorerSubjectFilter] = useState<string>("all");
+  const [explorerSearch, setExplorerSearch] = useState<string>("");
   const [analyticsData, setAnalyticsData] = useState<any>(null);
   const [premiumData, setPremiumData] = useState<any>(null);
   const [paymentRequests, setPaymentRequests] = useState<any[]>([]);
@@ -357,7 +606,39 @@ export default function Admin() {
   const [isSavingVocab, setIsSavingVocab] = useState(false);
   const navigate = useNavigate();
 
-  const allDynamicSubjects = ["বাংলা", "English", "গণিত", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম", "ICT", "হিসাববিজ্ঞান", "ফিন্যান্স", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", "অর্থনীতি", "পৌরনীতি", "ইতিহাস", "ভূগোল", "সাধারণ জ্ঞান"];
+  const allDynamicSubjects = [
+    "Bangla 1st Paper",
+    "Bangla 2nd Paper",
+    "English 1st Paper",
+    "English 2nd Paper",
+    "Physics 1st Paper",
+    "Physics 2nd Paper",
+    "Chemistry 1st Paper",
+    "Chemistry 2nd Paper",
+    "Higher Math 1st Paper",
+    "Higher Math 2nd Paper",
+    "Biology 1st Paper",
+    "Biology 2nd Paper",
+    "ICT",
+    "Accounting 1st Paper",
+    "Accounting 2nd Paper",
+    "Management 1st Paper",
+    "Management 2nd Paper",
+    "বাংলা",
+    "English",
+    "গণিত",
+    "বাংলাদেশ ও বিশ্বপরিচয়",
+    "ধর্ম",
+    "হিসাববিজ্ঞান",
+    "ফিন্যান্স",
+    "ব্যবসায় উদ্যোগ",
+    "ব্যবসায় সংগঠন ও ব্যবস্থাপনা",
+    "অর্থনীতি",
+    "পৌরনীতি",
+    "ইতিহাস",
+    "ভূগোল",
+    "সাধারণ জ্ঞান"
+  ];
 
   useEffect(() => {
     if (activeTab === "students" || activeTab === "dashboard") {
@@ -392,7 +673,7 @@ export default function Admin() {
   const fetchQuestions = async () => {
     setQuestionsLoading(true);
     try {
-      const q = query(collection(db, "questions"), limit(200));
+      const q = query(collection(db, "questions"), limit(1500));
       const qs = await getDocs(q);
       const data: any[] = [];
       qs.forEach((doc) => data.push({ id: doc.id, ...doc.data() }));
@@ -801,6 +1082,9 @@ export default function Admin() {
     if (!editQuestion) return;
     try {
       const { id, ...data } = editQuestion;
+      if (data.subject) {
+        data.subject = normalizeSubjectName(data.subject);
+      }
       if (id === 'new') {
         const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
         await addDoc(collection(db, "questions"), {
@@ -846,7 +1130,26 @@ export default function Admin() {
         targetArray = parsed;
       } else if (parsed && Array.isArray(parsed.questions)) {
         targetArray = parsed.questions;
-        rootTitle = parsed.title || '';
+        rootTitle = String(parsed.title || parsed.chapter || '');
+      } else if (parsed && typeof parsed === 'object') {
+        // Single question or custom structure
+        if (parsed.question || parsed.text) {
+          targetArray = [parsed];
+        }
+        rootTitle = String(parsed.chapter || parsed.title || '');
+      }
+
+      const targetMappings: { classGroup: string; class: string; university?: string }[] = [];
+      if (bulkUploadTargets.hsc) targetMappings.push({ classGroup: "HSC", class: "HSC" });
+      if (bulkUploadTargets.class11) targetMappings.push({ classGroup: "HSC", class: "Class 11" });
+      if (bulkUploadTargets.class12) targetMappings.push({ classGroup: "HSC", class: "Class 12" });
+      if (bulkUploadTargets.admission) targetMappings.push({ classGroup: "Admission", class: "Admission", university: bulkUploadUniversity });
+      if (bulkUploadTargets.ssc) targetMappings.push({ classGroup: "SSC", class: "Class 10" });
+      if (bulkUploadTargets.class9) targetMappings.push({ classGroup: "Class 9", class: "Class 9" });
+      if (bulkUploadTargets.class6_8) targetMappings.push({ classGroup: "Class 6-8", class: "Class 6" });
+
+      if (targetMappings.length === 0) {
+        throw new Error("দয়া করে কমপক্ষে একটি টার্গেট ক্লাস সিলেক্ট করুন।");
       }
 
       if (targetArray.length > 0) {
@@ -859,75 +1162,141 @@ export default function Admin() {
         for (let i = 0; i < targetArray.length; i += chunkSize) {
             const chunk = targetArray.slice(i, i + chunkSize);
             await Promise.all(chunk.map(async (q: any) => {
-               const finalSubject = bulkUploadSubject || q.subject || (questionSubjectFilter !== "All Subjects" ? questionSubjectFilter : '');
-               const finalTitle = rootTitle || q.title || (selectedBankTitle && selectedBankTitle !== 'Uncategorized' ? selectedBankTitle : (finalSubject || 'Uncategorized'));
+               if (!q || typeof q !== 'object') return;
+
+               const rawSubject = bulkUploadSubject || q.subject || (questionSubjectFilter !== "All Subjects" ? questionSubjectFilter : '');
+               const finalSubject = normalizeSubjectName(rawSubject);
+               const finalTitle = rootTitle || String(q.title || '').trim() || (selectedBankTitle && selectedBankTitle !== 'Uncategorized' ? selectedBankTitle : (finalSubject || 'Uncategorized'));
                
-               let is_cq = q.is_cq || false;
-               let is_k_vandar = q.is_k_vandar || false;
-               let is_kh_vandar = q.is_kh_vandar || false;
+               let is_cq = q.is_cq === true || q.isCq === true;
+               let is_k_vandar = q.is_k_vandar === true || q.isKVandar === true;
+               let is_kh_vandar = q.is_kh_vandar === true || q.isKhaVandar === true;
 
                if (bulkUploadType === "cq") is_cq = true;
-               else if (bulkUploadType === "mcq") is_cq = false;
+               else if (bulkUploadType === "mcq") {
+                 is_cq = false;
+                 is_k_vandar = false;
+                 is_kh_vandar = false;
+               }
                else if (bulkUploadType === "k_vandar") { is_cq = true; is_k_vandar = true; }
                else if (bulkUploadType === "kh_vandar") { is_cq = true; is_kh_vandar = true; }
 
-               let formattedOptions = q.options;
-               let correctOptionIdx = q.correctOptionIndex !== undefined ? q.correctOptionIndex : undefined;
-               let correctOption = q.correctOption;
+               const qText = String(q.text || q.question || q.q || q.questionText || "").trim();
+               if (!qText) return;
 
-               if (!is_cq && !is_k_vandar && !is_kh_vandar && Array.isArray(q.options) && q.options.length > 0) {
-                 if (typeof q.options[0] === 'string') {
-                    const ids = ['A', 'B', 'C', 'D', 'E'];
-                    formattedOptions = q.options.map((optLabel: string, index: number) => ({
-                      id: ids[index] || String(index),
-                      label: optLabel
-                    }));
-                 } else if (q.options[0].text && !q.options[0].label) {
-                    formattedOptions = q.options.map((opt: any, optIdx: number) => ({
-                      id: opt.id,
-                      label: opt.text
-                    }));
-                 }
+               let formattedOptions: any[] = [];
+               let correctOption = q.correctOption || q.correct_answer || q.correctAnswer || q.answer || 'A';
+               let explanation = String(q.explanation || q.exp || "").trim();
 
-                 if (correctOptionIdx !== undefined && typeof correctOptionIdx === 'number') {
-                    if (correctOptionIdx >= 0 && correctOptionIdx < formattedOptions.length) {
-                       correctOption = formattedOptions[correctOptionIdx].id;
-                    }
-                 }
-
-                 if (typeof correctOption === 'number' && correctOption >= 0 && correctOption < formattedOptions.length) {
-                   correctOption = formattedOptions[correctOption].id;
-                 } else if (typeof correctOption === 'string' && q.options.some((o: any) => typeof o === 'string' && o === correctOption)) {
-                   const idx = q.options.findIndex((o: any) => o === correctOption);
-                   if (idx !== -1) correctOption = formattedOptions[idx].id;
-                 } else if (typeof correctOption === 'string' && formattedOptions.some((o: any) => o.label === correctOption)) {
-                   const idx = formattedOptions.findIndex((o: any) => o.label === correctOption);
-                   if (idx !== -1) correctOption = formattedOptions[idx].id;
-                 }
-               }
-
-               const payload: any = {
-                 ...q,
-                 is_cq,
-                 is_k_vandar,
-                 is_kh_vandar,
-                 class: bulkUploadClass,
-                 classGroup: bulkUploadClassGroup,
-                 subject: finalSubject,
-                 title: finalTitle,
-                 createdAt: serverTimestamp()
+               // Try to normalize correctOption to A/B/C/D
+               const getNormalizedKey = (k: any) => {
+                 if (!k) return "A";
+                 const s = String(k).trim().toUpperCase();
+                 if (s === "ক" || s === "A" || s === "১" || s === "1") return "A";
+                 if (s === "খ" || s === "B" || s === "২" || s === "2") return "B";
+                 if (s === "গ" || s === "C" || s === "৩" || s === "3") return "C";
+                 if (s === "ঘ" || s === "D" || s === "৪" || s === "4") return "D";
+                 return s;
                };
+               correctOption = getNormalizedKey(correctOption);
+
                if (!is_cq) {
-                 payload.options = formattedOptions || [];
-                 payload.correctOption = correctOption || 'A';
+                 // Format option structure
+                 if (q.options && typeof q.options === 'object' && !Array.isArray(q.options)) {
+                   const ids = ['A', 'B', 'C', 'D', 'E'];
+                   const keys = Object.keys(q.options);
+                   formattedOptions = keys.map((key, index) => ({
+                     id: ids[index] || key,
+                     label: String(q.options[key] || "")
+                   }));
+                   
+                   // Double-check if correctOption was matching keys of object (e.g. ক)
+                   const rawCorrect = q.correctOption || q.correct_answer || q.correctAnswer || q.answer || '';
+                   if (rawCorrect && q.options[rawCorrect]) {
+                     const keyIdx = keys.indexOf(rawCorrect);
+                     if (keyIdx !== -1) {
+                       correctOption = ids[keyIdx] || correctOption;
+                     }
+                   }
+                 } else if (Array.isArray(q.options) && q.options.length > 0) {
+                   if (typeof q.options[0] === 'string') {
+                     const ids = ['A', 'B', 'C', 'D', 'E'];
+                     formattedOptions = q.options.map((optLabel: string, index: number) => ({
+                       id: ids[index] || String(index),
+                       label: String(optLabel || "")
+                     }));
+                   } else {
+                     formattedOptions = q.options.map((opt: any, optIdx: number) => {
+                       if (!opt || typeof opt !== 'object') {
+                         return {
+                           id: ['A', 'B', 'C', 'D', 'E'][optIdx] || String(optIdx),
+                           label: String(opt || "")
+                         };
+                       }
+                       return {
+                         id: String(opt.id || ['A', 'B', 'C', 'D', 'E'][optIdx] || String(optIdx)),
+                         label: String(opt.label || opt.text || opt.value || "")
+                       };
+                     });
+                   }
+                 } else {
+                   // Fallback to optionA, optionB, etc.
+                   const optA = q.optionA || q.option_a || q.option1;
+                   const optB = q.optionB || q.option_b || q.option2;
+                   const optC = q.optionC || q.option_c || q.option3;
+                   const optD = q.optionD || q.option_d || q.option4;
+                   if (optA || optB) {
+                     formattedOptions = [
+                       { id: 'A', label: String(optA || "") },
+                       { id: 'B', label: String(optB || "") },
+                       { id: 'C', label: String(optC || "") },
+                       { id: 'D', label: String(optD || "") }
+                     ].filter(o => o.label);
+                   }
+                 }
                }
 
-               await addDoc(collection(db, "questions"), payload);
-               count++;
+               // Generate flat option fields to be perfectly backward and forward compatible
+               const optionA = formattedOptions.find(o => o.id === 'A')?.label || "";
+               const optionB = formattedOptions.find(o => o.id === 'B')?.label || "";
+               const optionC = formattedOptions.find(o => o.id === 'C')?.label || "";
+               const optionD = formattedOptions.find(o => o.id === 'D')?.label || "";
+
+               for (const mapping of targetMappings) {
+                 const payload: any = {
+                   text: qText,
+                   is_cq,
+                   is_k_vandar,
+                   is_kh_vandar,
+                   class: mapping.class,
+                   classGroup: mapping.classGroup,
+                   university: mapping.university || "",
+                   subject: finalSubject,
+                   title: finalTitle,
+                   correctOption,
+                   explanation,
+                   createdAt: serverTimestamp()
+                 };
+
+                 if (!is_cq) {
+                   payload.options = formattedOptions;
+                   payload.optionA = optionA;
+                   payload.optionB = optionB;
+                   payload.optionC = optionC;
+                   payload.optionD = optionD;
+                 }
+
+                 try {
+                   await addDoc(collection(db, "questions"), payload);
+                   count++;
+                 } catch (uploadErr) {
+                   console.error("Single question upload failed:", uploadErr, payload);
+                 }
+               }
             }));
         }
         
-        alert(`Successfully added ${count} questions to Firestore.`);
+        alert(`Successfully added ${count} question entries to Firestore.`);
         setBulkUploadText("");
         setShowBulkUpload(false);
         fetchQuestions();
@@ -1812,6 +2181,43 @@ export default function Admin() {
     return matchesSearch && matchesSubject;
   });
 
+  const universalFilteredQuestions = questions.filter(q => {
+    // 1. Search text matching
+    const matchesSearch = explorerSearch 
+      ? (
+          q.text?.toLowerCase().includes(explorerSearch.toLowerCase()) || 
+          q.title?.toLowerCase().includes(explorerSearch.toLowerCase()) || 
+          q.subject?.toLowerCase().includes(explorerSearch.toLowerCase())
+        ) 
+      : true;
+
+    // 2. Format filter: "all" | "mcq" | "cq" | "k_vandar" | "kh_vandar"
+    let matchesFormat = true;
+    if (explorerFormatFilter === "mcq") {
+      matchesFormat = !q.is_cq && !q.is_k_vandar && !q.is_kh_vandar;
+    } else if (explorerFormatFilter === "cq") {
+      matchesFormat = q.is_cq && !q.is_k_vandar && !q.is_kh_vandar;
+    } else if (explorerFormatFilter === "k_vandar") {
+      matchesFormat = q.is_k_vandar === true;
+    } else if (explorerFormatFilter === "kh_vandar") {
+      matchesFormat = q.is_kh_vandar === true;
+    }
+
+    // 3. Class filter: "all" | "HSC" | "SSC" | "Admission" | "Class 11" | "Class 12" etc.
+    let matchesClass = true;
+    if (explorerClassFilter !== "all") {
+      matchesClass = q.classGroup === explorerClassFilter || q.class === explorerClassFilter;
+    }
+
+    // 4. Subject filter: "all" | string
+    let matchesSubject = true;
+    if (explorerSubjectFilter !== "all") {
+      matchesSubject = normalizeSubjectName(q.subject) === normalizeSubjectName(explorerSubjectFilter);
+    }
+
+    return matchesSearch && matchesFormat && matchesClass && matchesSubject;
+  });
+
   
   const classCounts = users.reduce((acc: Record<string, number>, user: any) => {
     const c = user.class || "Unknown";
@@ -2606,8 +3012,8 @@ export default function Admin() {
                  onChange={(e) => setSubjectBankFilter(e.target.value)}
                >
                  <option value="">সকল বিষয়</option>
-                 {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)])).map((sub: string) => (
-                   <option key={sub} value={sub}>{sub}</option>
+                 {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)].map(normalizeSubjectName))).map((sub: string) => (
+                   <option key={sub} value={sub}>{getSubjectDisplayName(sub)}</option>
                  ))}
                </select>
             </div>
@@ -2647,7 +3053,11 @@ export default function Admin() {
                 <h3 className="text-2xl font-bold font-bengali">
                   {selectedBankTitle ? selectedBankTitle : (questionSubjectFilter !== "All Subjects" ? questionSubjectFilter + " - এর সকল প্রশ্ন" : "প্রশ্ন ব্যাংক ম্যানেজমেন্ট")}
                 </h3>
-                <p className="text-muted-foreground">{selectedBankTitle || questionSubjectFilter !== "All Subjects" ? "এই ক্যাটাগরির সকল প্রশ্ন নিচে দেওয়া হলো।" : "যে ব্যাংক বা ফাইল আপলোড করেছেন তা নির্বাচন করুন।"}</p>
+                <p className="text-muted-foreground">
+                  {selectedBankTitle || questionSubjectFilter !== "All Subjects" 
+                    ? "এই ক্যাটাগরির সকল প্রশ্ন নিচে দেওয়া হলো।" 
+                    : "যে ব্যাংক বা ফাইল আপলোড করেছেন তা নির্বাচন করুন অথবা সকল প্রশ্ন এক জায়গা থেকে ফিল্টার ও সার্চ করুন।"}
+                </p>
               </div>
               <div className="flex flex-wrap gap-3">
                 {selectedBankTitle || questionSubjectFilter !== "All Subjects" ? (
@@ -2696,6 +3106,27 @@ export default function Admin() {
                 )}
               </div>
             </div>
+
+            {!selectedBankTitle && questionSubjectFilter === "All Subjects" && (
+              <div className="flex bg-muted p-1.5 rounded-2xl w-fit gap-2 border border-slate-200/50">
+                <Button 
+                  variant={explorerMode === "by_bank" ? "default" : "ghost"}
+                  size="sm"
+                  className={`font-bengali rounded-xl px-4 py-2 text-xs transition-all ${explorerMode === "by_bank" ? "bg-indigo-600 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}
+                  onClick={() => setExplorerMode("by_bank")}
+                >
+                  📁 ক্যাটাগরি বা অধ্যায় ভিত্তিক ভিউ
+                </Button>
+                <Button 
+                  variant={explorerMode === "universal" ? "default" : "ghost"}
+                  size="sm"
+                  className={`font-bengali rounded-xl px-4 py-2 text-xs transition-all ${explorerMode === "universal" ? "bg-purple-600 text-white shadow" : "text-slate-600 hover:text-slate-900"}`}
+                  onClick={() => setExplorerMode("universal")}
+                >
+                  🔍 সার্বজনীন প্রশ্ন এক্সপ্লোরার (সব প্রশ্ন এক জায়গায়)
+                </Button>
+              </div>
+            )}
 
             {selectedBankTitle || questionSubjectFilter !== "All Subjects" ? (
               <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden">
@@ -2776,6 +3207,221 @@ export default function Admin() {
                 )}
               </CardContent>
             </Card>
+            ) : explorerMode === "universal" ? (
+              <div className="space-y-6">
+                <Card className="border border-purple-100 shadow-sm rounded-[24px] bg-purple-50/10 overflow-hidden">
+                  <CardHeader className="bg-purple-50/40 border-b border-purple-100/50 pb-4 p-5">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <h4 className="font-bold text-base font-bengali text-purple-950 flex items-center gap-2">
+                          <span>🔍 প্রশ্ন ফিল্টারিং এবং কাস্টম সার্চপ্যানেল</span>
+                        </h4>
+                        <Button 
+                          className="bg-purple-600 hover:bg-purple-700 text-white font-bengali rounded-xl text-xs h-9"
+                          onClick={() => setEditQuestion({
+                            id: 'new',
+                            text: '',
+                            university: '',
+                            subject: explorerSubjectFilter !== 'all' ? explorerSubjectFilter : '',
+                            title: '',
+                            options: [{id: 'A', label: ''}, {id: 'B', label: ''}, {id: 'C', label: ''}, {id: 'D', label: ''}],
+                            correctOption: 'A',
+                            explanation: '',
+                            classGroup: explorerClassFilter !== 'all' && ['HSC', 'SSC', 'Admission'].includes(explorerClassFilter) ? explorerClassFilter : 'HSC',
+                            class: explorerClassFilter !== 'all' ? explorerClassFilter : 'HSC'
+                          })}
+                        >
+                          <Plus className="w-3.5 h-3.5 mr-1.5" /> নতুন কাস্টম প্রশ্ন যোগ করুন
+                        </Button>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                          <label className="text-xs font-bold font-bengali text-purple-900/80 mb-1 block">কীওয়ার্ড খুঁজুন (প্রশ্ন/টপিক)</label>
+                          <Input 
+                            placeholder="যেমন: অনুচ্ছেদ, অপরিচিতা, ইত্যাদি..." 
+                            className="bg-card border-purple-200 focus:border-purple-500 rounded-xl font-bengali text-xs h-9" 
+                            value={explorerSearch}
+                            onChange={(e) => setExplorerSearch(e.target.value)}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold font-bengali text-purple-900/80 mb-1 block">বিষয় নির্বাচন</label>
+                          <select 
+                            className="flex h-9 w-full rounded-xl border border-purple-200 bg-card px-3 py-1 text-xs ring-offset-background font-bengali outline-none focus:border-purple-500"
+                            value={explorerSubjectFilter}
+                            onChange={(e) => setExplorerSubjectFilter(e.target.value)}
+                          >
+                            <option value="all">সব বিষয় (All Subjects)</option>
+                            {Array.from(new Set([...allDynamicSubjects, ...questions.map(q => q.subject).filter(Boolean)].map(normalizeSubjectName))).map((sub: any) => (
+                              <option key={sub} value={sub}>{getSubjectDisplayName(sub)}</option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold font-bengali text-purple-900/80 mb-1 block">শ্রেণী / টার্গেট</label>
+                          <select 
+                            className="flex h-9 w-full rounded-xl border border-purple-200 bg-card px-3 py-1 text-xs ring-offset-background font-bengali outline-none focus:border-purple-500"
+                            value={explorerClassFilter}
+                            onChange={(e) => setExplorerClassFilter(e.target.value)}
+                          >
+                            <option value="all">সব শ্রেণী / গ্রুপ</option>
+                            <option value="HSC">HSC</option>
+                            <option value="Class 11">Class 11 (একাদশ)</option>
+                            <option value="Class 12">Class 12 (দ্বাদশ)</option>
+                            <option value="SSC">SSC</option>
+                            <option value="Admission">Admission (ভর্তি পরীক্ষা)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold font-bengali text-purple-900/80 mb-1 block">প্রশ্ন ফরম্যাট (Format)</label>
+                          <select 
+                            className="flex h-9 w-full rounded-xl border border-purple-200 bg-card px-3 py-1 text-xs ring-offset-background font-bengali outline-none focus:border-purple-500"
+                            value={explorerFormatFilter}
+                            onChange={(e) => setExplorerFormatFilter(e.target.value)}
+                          >
+                            <option value="all">সব ফরম্যাট (All Formats)</option>
+                            <option value="mcq">MCQ (বহুনির্বাচনি)</option>
+                            <option value="cq">CQ (সৃজনশীল)</option>
+                            <option value="k_vandar">ক ভান্ডার (জ্ঞানমূলক)</option>
+                            <option value="kh_vandar">খ ভান্ডার (অনুধাবনমূলক)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center bg-purple-50 p-2 px-3 rounded-xl border border-purple-100 text-xs font-bengali">
+                        <span className="text-purple-900 font-bold">
+                          📊 ম্যাচিং প্রশ্ন পাওয়া গেছে: <span className="font-mono text-sm bg-purple-200/50 px-2 py-0.5 rounded-lg text-purple-950 font-extrabold">{universalFilteredQuestions.length}</span> টি
+                        </span>
+                        {(explorerSearch || explorerSubjectFilter !== "all" || explorerClassFilter !== "all" || explorerFormatFilter !== "all") && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 text-[10px] text-purple-700 hover:text-purple-950 font-bengali font-bold p-0 px-2"
+                            onClick={() => {
+                              setExplorerSearch("");
+                              setExplorerSubjectFilter("all");
+                              setExplorerClassFilter("all");
+                              setExplorerFormatFilter("all");
+                            }}
+                          >
+                            ✕ ফিল্টার রিসেট করুন
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-4 sm:p-6 bg-purple-50/5">
+                    {questionsLoading ? (
+                      <div className="text-center py-16 font-bengali font-bold text-purple-600">
+                        🔄 প্রশ্নসমূহ লোড হচ্ছে...
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {universalFilteredQuestions.slice(0, 300).map((q, index) => {
+                          let formatLabel = "MCQ";
+                          let formatColor = "bg-teal-50 text-teal-700 border-teal-100";
+                          if (q.is_k_vandar) {
+                            formatLabel = "ক ভান্ডার";
+                            formatColor = "bg-rose-50 text-rose-700 border-rose-100";
+                          } else if (q.is_kh_vandar) {
+                            formatLabel = "খ ভান্ডার";
+                            formatColor = "bg-amber-50 text-amber-700 border-amber-100";
+                          } else if (q.is_cq) {
+                            formatLabel = "CQ";
+                            formatColor = "bg-indigo-50 text-indigo-700 border-indigo-100";
+                          }
+
+                          return (
+                            <div key={q.id || index} className="group bg-card border border-slate-200/80 rounded-[24px] p-5 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 overflow-hidden relative flex flex-col gap-3">
+                              <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                              
+                              <div className="flex justify-between items-start gap-2 flex-wrap">
+                                <span className="font-mono text-[10px] text-slate-400 shrink-0">#{q.id?.slice(0, 6) || "NEW"}</span>
+                                <div className="flex gap-1 flex-wrap justify-end">
+                                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 border ${formatColor}`}>{formatLabel}</Badge>
+                                  {q.classGroup && <Badge variant="secondary" className="bg-slate-100 text-slate-700 text-[10px] px-1.5 py-0">{q.classGroup}</Badge>}
+                                  {q.class && q.class !== q.classGroup && <Badge variant="secondary" className="bg-slate-50 text-slate-600 border border-slate-100 text-[10px] px-1.5 py-0">{q.class}</Badge>}
+                                  {q.subject && <Badge className="bg-purple-50 text-purple-700 hover:bg-purple-100 border-0 text-[10px] px-1.5 py-0 font-bengali font-bold">{q.subject}</Badge>}
+                                </div>
+                              </div>
+
+                              <p className="font-bengali text-sm text-foreground flex-1 whitespace-pre-wrap font-medium leading-relaxed">
+                                {q.text}
+                              </p>
+
+                              {q.options && q.options.length > 0 && !(q.is_cq || q.is_k_vandar || q.is_kh_vandar) && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                                  {q.options.map((opt: any, optIdx: number) => (
+                                    <div key={`${q.id || index}-${opt.id || optIdx}`} className={`flex items-center gap-2 p-2 rounded-xl border text-xs font-bengali transition-colors ${q.correctOption === opt.id ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900 font-bold' : 'bg-muted/60 border-slate-200/60 text-slate-700'}`}>
+                                      <span className={`w-5 h-5 flex items-center justify-center rounded-lg text-[10px] shrink-0 font-extrabold ${q.correctOption === opt.id ? 'bg-emerald-200 text-emerald-800' : 'bg-card border shadow-xs text-slate-500'}`}>
+                                        {opt.id}
+                                      </span>
+                                      <span className="line-clamp-2">{opt.label}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {q.explanation && (
+                                <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-[11px] font-bengali text-slate-600">
+                                  <strong className="text-slate-800 block mb-0.5">💡 উত্তর/ব্যাখ্যা:</strong>
+                                  <p className="leading-relaxed line-clamp-3 hover:line-clamp-none transition-all cursor-pointer">{q.explanation}</p>
+                                </div>
+                              )}
+
+                              {q.title && (
+                                <span className="text-[10px] font-bold text-slate-400 font-bengali bg-slate-50 border border-slate-100/50 p-1 px-2 rounded-lg w-fit">
+                                  📂 অধ্যায়/ব্যাংক: {q.title}
+                                </span>
+                              )}
+
+                              <div className="flex items-center gap-2 mt-auto pt-2.5 border-t border-slate-100">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="h-8 flex-1 text-purple-700 border-purple-200 hover:bg-purple-50 rounded-xl text-xs font-bold font-bengali" 
+                                  onClick={() => setEditQuestion({
+                                    ...q,
+                                    options: q.options && q.options.length > 0 ? q.options : [{id: 'A', label: ''}, {id: 'B', label: ''}, {id: 'C', label: ''}, {id: 'D', label: ''}]
+                                  })}
+                                >
+                                  📝 এডিট করুন
+                                </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="h-8 flex-1 text-rose-600 border-rose-200 hover:bg-rose-50 rounded-xl text-xs font-bold font-bengali" 
+                                  onClick={() => handleDeleteQuestion(q.id)}
+                                >
+                                  🗑️ মুছে ফেলুন
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {universalFilteredQuestions.length === 0 && (
+                          <div className="col-span-full py-16 text-center font-bengali text-slate-500 flex flex-col items-center justify-center gap-2">
+                            <span className="text-3xl">🔍</span>
+                            <p className="font-bold">আপনার ফিল্টারিং অনুযায়ী কোনো প্রশ্ন পাওয়া যায়নি।</p>
+                          </div>
+                        )}
+
+                        {universalFilteredQuestions.length > 300 && (
+                          <div className="col-span-full py-3 text-center font-bengali text-slate-400 text-[11px]">
+                            💡 কর্মক্ষমতা বজায় রাখতে প্রথম ৩০০টি প্রশ্ন দেখানো হচ্ছে। আরো নিখুঁতভাবে খুঁজতে উপরের ফিল্টার ব্যবহার করুন।
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {Object.entries(groupedBanks).map(([title, qs]) => (
@@ -4529,8 +5175,8 @@ export default function Admin() {
                     onChange={(e) => setEditQuestion({ ...editQuestion, subject: e.target.value })}
                   >
                     <option value="">বিষয় নির্বাচন করুন</option>
-                    {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)])).map((sub: string) => (
-                      <option key={sub} value={sub}>{sub}</option>
+                    {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)].map(normalizeSubjectName))).map((sub: string) => (
+                      <option key={sub} value={sub}>{getSubjectDisplayName(sub)}</option>
                     ))}
                   </select>
                 </div>
@@ -4629,43 +5275,98 @@ export default function Admin() {
                   onChange={(e) => setBulkUploadSubject(e.target.value)}
                 >
                   <option value="">কোনো বিষয় নির্দিষ্ট নয় (JSON থেকে নিবে)</option>
-                  {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)])).map((sub: string) => (
-                    <option key={sub} value={sub}>{sub}</option>
+                  {Array.from(new Set([...allDynamicSubjects, ...subjects.map(s => s.name)].map(normalizeSubjectName))).map((sub: string) => (
+                    <option key={sub} value={sub}>{getSubjectDisplayName(sub)}</option>
                   ))}
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="text-sm font-bold mb-1 block font-bengali">ক্লাস গ্রুপ</label>
-                  <select
-                    className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
-                    value={bulkUploadClassGroup}
-                    onChange={(e) => setBulkUploadClassGroup(e.target.value)}
-                  >
-                    <option value="HSC">HSC</option>
-                    <option value="SSC">SSC</option>
-                    <option value="Admission">Admission</option>
-                    <option value="Class 9">Class 9</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-bold mb-1 block font-bengali">নির্দিষ্ট ক্লাস / ভার্সিটি</label>
-                  <select
-                    className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
-                    value={bulkUploadClass}
-                    onChange={(e) => setBulkUploadClass(e.target.value)}
-                  >
-                    <option value="HSC">HSC</option>
-                    <option value="SSC">SSC</option>
-                    <option value="DU">DU</option>
-                    <option value="RU">RU</option>
-                    <option value="JU">JU</option>
-                    <option value="CU">CU</option>
-                    <option value="GST">GST</option>
-                  </select>
+              <div className="mb-4">
+                <label className="text-sm font-bold mb-2 block font-bengali">টার্গেট ক্লাস সিলেক্ট করুন (একাধিক সিলেক্ট করা যাবে)</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 bg-muted/50 p-4 rounded-2xl border border-slate-200/60">
+                  <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                      checked={bulkUploadTargets.hsc}
+                      onChange={() => setBulkUploadTargets({ ...bulkUploadTargets, hsc: !bulkUploadTargets.hsc })}
+                    />
+                    এইচএসসি (HSC)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                      checked={bulkUploadTargets.class11}
+                      onChange={() => setBulkUploadTargets({ ...bulkUploadTargets, class11: !bulkUploadTargets.class11 })}
+                    />
+                    একাদশ শ্রেণী (Class 11)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                      checked={bulkUploadTargets.class12}
+                      onChange={() => setBulkUploadTargets({ ...bulkUploadTargets, class12: !bulkUploadTargets.class12 })}
+                    />
+                    দ্বাদশ শ্রেণী (Class 12)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                      checked={bulkUploadTargets.admission}
+                      onChange={() => setBulkUploadTargets({ ...bulkUploadTargets, admission: !bulkUploadTargets.admission })}
+                    />
+                    এডমিশন (Admission)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                      checked={bulkUploadTargets.ssc}
+                      onChange={() => setBulkUploadTargets({ ...bulkUploadTargets, ssc: !bulkUploadTargets.ssc })}
+                    />
+                    এসএসসি (SSC)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                      checked={bulkUploadTargets.class9}
+                      onChange={() => setBulkUploadTargets({ ...bulkUploadTargets, class9: !bulkUploadTargets.class9 })}
+                    />
+                    ৯ম শ্রেণী (Class 9)
+                  </label>
+                  <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                      checked={bulkUploadTargets.class6_8}
+                      onChange={() => setBulkUploadTargets({ ...bulkUploadTargets, class6_8: !bulkUploadTargets.class6_8 })}
+                    />
+                    ৬ষ্ঠ-৮ম শ্রেণী (Class 6-8)
+                  </label>
                 </div>
               </div>
+
+              {bulkUploadTargets.admission && (
+                <div className="mb-4">
+                  <label className="text-sm font-bold mb-1 block font-bengali">বিশ্ববিদ্যালয় / গুচ্ছ (এডমিশন এর জন্য - ঐচ্ছিক)</label>
+                  <select
+                    className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10"
+                    value={bulkUploadUniversity}
+                    onChange={(e) => setBulkUploadUniversity(e.target.value)}
+                  >
+                    <option value="">কোনো নির্দিষ্ট বিশ্ববিদ্যালয় নেই (ঐচ্ছিক)</option>
+                    <option value="ঢাকা বিশ্ববিদ্যালয়">ঢাকা বিশ্ববিদ্যালয় (DU)</option>
+                    <option value="রাজশাহী বিশ্ববিদ্যালয়">রাজশাহী বিশ্ববিদ্যালয় (RU)</option>
+                    <option value="জাহাঙ্গীরনগর বিশ্ববিদ্যালয়">জাহাঙ্গীরনগর বিশ্ববিদ্যালয় (JU)</option>
+                    <option value="চট্টগ্রাম বিশ্ববিদ্যালয়">চট্টগ্রাম বিশ্ববিদ্যালয় (CU)</option>
+                    <option value="গুচ্ছ (GST)">গুচ্ছ (GST)</option>
+                  </select>
+                </div>
+              )}
 
               <textarea 
                 className="w-full border rounded-xl p-4 text-sm font-mono h-[300px] outline-none focus:border-primary focus:ring-1 focus:ring-primary whitespace-pre resize-none"
@@ -5062,7 +5763,7 @@ export default function Admin() {
                 টিউটর <strong className="text-slate-900">{tutorSubjectModal.name}</strong> কোন কোন বিষয় বা টপিকের প্রশ্ন দেখতে ও উত্তর দিতে পারবেন তা সিলেক্ট করুন অথবা নতুন যুক্ত করুন:
               </p>
               <div className="flex flex-wrap gap-2 mb-4">
-                {Array.from(new Set([...allDynamicSubjects, ...(tutorSubjectModal.subjects || [])])).map(sub => {
+                {Array.from(new Set([...allDynamicSubjects, ...(tutorSubjectModal.subjects || [])].map(normalizeSubjectName))).map(sub => {
                   const isSelected = tutorSubjectModal.subjects?.includes(sub);
                   return (
                     <button
@@ -5070,14 +5771,15 @@ export default function Admin() {
                       type="button"
                       onClick={() => {
                         const currentSubs = tutorSubjectModal.subjects || [];
+                        const isSelected = tutorSubjectModal.subjects?.includes(sub);
                         const newSubs = isSelected 
                           ? currentSubs.filter(s => s !== sub)
                           : [...currentSubs, sub];
                         setTutorSubjectModal({ ...tutorSubjectModal, subjects: newSubs });
                       }}
-                      className={`px-3 py-1.5 rounded-full text-sm font-bengali transition-colors border ${isSelected ? "bg-blue-600 text-white border-blue-600" : "bg-card text-slate-700 hover:bg-muted border-slate-200"}`}
+                      className={`px-3 py-1.5 rounded-full text-sm font-bengali transition-colors border ${tutorSubjectModal.subjects?.includes(sub) ? "bg-blue-600 text-white border-blue-600" : "bg-card text-slate-700 hover:bg-muted border-slate-200"}`}
                     >
-                      {sub}
+                      {getSubjectDisplayName(sub)}
                     </button>
                   );
                 })}

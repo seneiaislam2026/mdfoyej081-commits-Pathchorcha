@@ -75,18 +75,12 @@ export const ORIGINAL_NOTE_PAGES: Record<string, number> = {
 // Helper function to map user classes into standardized class groups
 export const mapUserClassToGroup = (cls?: string) => {
   if (!cls) return "Admission";
-  if (cls === "এডমিশন" || cls.includes("Admission")) return "Admission";
-  if (cls === "দশম শ্রেণী" || cls.includes("SSC") || cls.includes("দশম")) return "SSC";
-  if (cls === "এইচএসসি" || cls === "HSC" || cls === "একাদশ শ্রেণী" || cls === "দ্বাদশ শ্রেণী" || cls.includes("HSC"))
-    return "HSC";
-  if (cls === "নবম শ্রেণী" || cls.includes("Class 9") || cls.includes("নবম")) return "Class 9";
-  if (
-    cls.includes("৬ষ্ঠ") ||
-    cls.includes("৭ম") ||
-    cls.includes("৮ম") ||
-    cls.includes("Class 6")
-  )
-    return "Class 6-8";
+  const c = cls.toLowerCase();
+  if (c === "এডমিশন" || c.includes("admission") || c.includes("ভর্তি") || c.includes("ভার্সিটি") || c.includes("মেডিকেল") || c.includes("ইঞ্জিনিয়ারিং") || c.includes("এডমিশন")) return "Admission";
+  if (c === "দশম শ্রেণী" || c.includes("ssc") || c.includes("দশম") || c.includes("এসএসসি")) return "SSC";
+  if (c === "এইচএসসি" || c === "hsc" || c === "একাদশ" || c === "একাদশ শ্রেণী" || c === "দ্বাদশ" || c === "দ্বাদশ শ্রেণী" || c.includes("hsc") || c.includes("এইচএসসি")) return "HSC";
+  if (c === "নবম শ্রেণী" || c.includes("class 9") || c.includes("নবম") || c.includes("৯ম")) return "Class 9";
+  if (c.includes("৬ষ্ঠ") || c.includes("৭ম") || c.includes("৮ম") || c.includes("class 6") || c.includes("class 7") || c.includes("class 8")) return "Class 6-8";
   return "Admission"; // Default fallback to Admission to prevent empty lists
 };
 
