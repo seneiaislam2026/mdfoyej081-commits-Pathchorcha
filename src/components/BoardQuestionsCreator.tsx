@@ -3,7 +3,7 @@ import { db } from '../lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, Check, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Check, AlertCircle, HelpCircle } from 'lucide-react';
 
 export default function BoardQuestionsCreator() {
   const [loading, setLoading] = useState(false);
@@ -14,7 +14,6 @@ export default function BoardQuestionsCreator() {
 
   const BOARDS = ["ঢাকা বোর্ড", "রাজশাহী বোর্ড", "যশোর বোর্ড", "কুমিল্লা বোর্ড", "চট্টগ্রাম বোর্ড", "সিলেট বোর্ড", "বরিশাল বোর্ড", "দিনাজপুর বোর্ড", "ময়মনসিংহ বোর্ড"];
   const YEARS = Array.from({ length: 11 }, (_, i) => (new Date().getFullYear() - i).toString());
-  const CLASSES = ["৯ম শ্রেনী", "১০ম শ্রেনী", "একাদশ", "দ্বাদশ", "এইচএসসি (একাদশ-দ্বাদশ)", "এইচএসসি (একাদশ শ্রেনী)", "এইচএসসি (দ্বাদশ শ্রেনী)"];
   const SUBJECTS = [
     "Bangla 1st Paper", "Bangla 2nd Paper", 
     "English 1st Paper", "English 2nd Paper", 
@@ -30,10 +29,25 @@ export default function BoardQuestionsCreator() {
   const [formData, setFormData] = useState({
     boardName: BOARDS[0],
     boardYear: YEARS[0],
-    classLevel: CLASSES[3],
     subject: SUBJECTS[4], // Physics 1st Paper
-    format: FORMATS[0]
+    format: FORMATS[0],
+    university: ""
   });
+
+  const [targets, setTargets] = useState({
+    hsc: true,
+    class11: false,
+    class12: false,
+    admission: false,
+    ssc: false
+  });
+
+  const handleTargetChange = (key: keyof typeof targets) => {
+    setTargets({
+      ...targets,
+      [key]: !targets[key]
+    });
+  };
 
   const [questions, setQuestions] = useState([
     {
@@ -105,24 +119,29 @@ export default function BoardQuestionsCreator() {
         questionsToSubmit = questions;
       }
 
-      let classGroup = "HSC";
-      let mappedClass = formData.classLevel;
-
-      if (formData.classLevel === "৯ম শ্রেনী" || formData.classLevel === "১০ম শ্রেনী") {
-        classGroup = "SSC";
-        mappedClass = formData.classLevel === "৯ম শ্রেনী" ? "Class 9" : "Class 10";
-      } else if (formData.classLevel === "একাদশ" || formData.classLevel === "এইচএসসি (একাদশ শ্রেনী)") {
-        classGroup = "HSC";
-        mappedClass = "Class 11";
-      } else if (formData.classLevel === "দ্বাদশ" || formData.classLevel === "এইচএসসি (দ্বাদশ শ্রেনী)") {
-        classGroup = "HSC";
-        mappedClass = "Class 12";
-      } else if (formData.classLevel === "এইচএসসি (একাদশ-দ্বাদশ)") {
-        classGroup = "HSC";
-        mappedClass = "HSC";
+      const activeTargets = Object.entries(targets).filter(([_, val]) => val).map(([key]) => key);
+      if (activeTargets.length === 0) {
+        throw new Error("অনুগ্রহ করে অন্তত একটি টার্গেট ক্যাটাগরি সিলেক্ট করুন।");
       }
 
-      const promises = questionsToSubmit.map((q, index) => {
+      const targetMappings: { classGroup: string; class: string; university?: string; label: string }[] = [];
+      if (targets.hsc) targetMappings.push({ classGroup: "HSC", class: "HSC", label: "এইচএসসি" });
+      if (targets.class11) targetMappings.push({ classGroup: "HSC", class: "Class 11", label: "একাদশ" });
+      if (targets.class12) targetMappings.push({ classGroup: "HSC", class: "Class 12", label: "দ্বাদশ" });
+      if (targets.ssc) targetMappings.push({ classGroup: "SSC", class: "Class 10", label: "এসএসসি" });
+      if (targets.admission) targetMappings.push({ classGroup: "Admission", class: "Admission", university: formData.university, label: "এডমিশন" });
+
+      const classLevelMap: Record<string, string> = {
+        "HSC": "এইচএসসি (একাদশ-দ্বাদশ)",
+        "Class 11": "এইচএসসি (একাদশ শ্রেনী)",
+        "Class 12": "এইচএসসি (দ্বাদশ শ্রেনী)",
+        "Class 10": "১০ম শ্রেনী",
+        "Admission": "এইচএসসি (একাদশ-দ্বাদশ)"
+      };
+
+      const promises: Promise<any>[] = [];
+
+      questionsToSubmit.forEach((q, index) => {
         let is_cq = formData.format === "CQ";
         let is_k_vandar = formData.format === "KaBhandar";
         let is_kh_vandar = formData.format === "KhaBhandar";
@@ -158,6 +177,21 @@ export default function BoardQuestionsCreator() {
                 id: key,
                 label: q.options[key]
               }));
+            }
+          } else {
+            // Check for individual option keys in the item
+            const optA = q.optionA || q.option_a || q.a || q.ক || q.option1 || q["১"] || "";
+            const optB = q.optionB || q.option_b || q.b || q.খ || q.option2 || q["২"] || "";
+            const optC = q.optionC || q.option_c || q.c || q.গ || q.option3 || q["৩"] || "";
+            const optD = q.optionD || q.option_d || q.d || q.ঘ || q.option4 || q["৪"] || "";
+            
+            if (optA || optB || optC || optD) {
+              formattedOptions = [
+                { id: "A", label: String(optA).trim() },
+                { id: "B", label: String(optB).trim() },
+                { id: "C", label: String(optC).trim() },
+                { id: "D", label: String(optD).trim() }
+              ];
             }
           }
         }
@@ -209,25 +243,53 @@ export default function BoardQuestionsCreator() {
           }
         }
 
-        return addDoc(collection(db, "questions"), {
-          text: qText,
-          options: formattedOptions,
-          correctOption: correctOption,
-          explanation: q.explanation || q.details || "",
-          subject: formData.subject,
-          is_cq: is_cq,
-          is_k_vandar: is_k_vandar,
-          is_kh_vandar: is_kh_vandar,
-          isBoardQuestion: true,
-          boardName: formData.boardName,
-          boardYear: formData.boardYear,
-          classLevel: formData.classLevel,
-          classGroup: classGroup,
-          class: mappedClass,
-          title: `${formData.boardName} ${formData.boardYear}`, 
-          question_no: index + 1,
-          createdAt: serverTimestamp()
-        })
+        // Retrieve option label text fields for compatibility
+        const optionA = formattedOptions.find(o => o.id === 'A' || o.id === 'ক')?.label || "";
+        const optionB = formattedOptions.find(o => o.id === 'B' || o.id === 'খ')?.label || "";
+        const optionC = formattedOptions.find(o => o.id === 'C' || o.id === 'গ')?.label || "";
+        const optionD = formattedOptions.find(o => o.id === 'D' || o.id === 'ঘ')?.label || "";
+
+        // Add to batch for each targeted category
+        for (const mapping of targetMappings) {
+          const classLevelVal = classLevelMap[mapping.class] || "এইচএসসি (একাদশ-দ্বাদশ)";
+          
+          let uniName = "";
+          if (mapping.university) {
+            if (mapping.university === "DU") uniName = "ঢাকা বিশ্ববিদ্যালয়";
+            else if (mapping.university === "RU") uniName = "রাজশাহী বিশ্ববিদ্যালয়";
+            else if (mapping.university === "JU") uniName = "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়";
+            else if (mapping.university === "CU") uniName = "চট্টগ্রাম বিশ্ববিদ্যালয়";
+            else if (mapping.university === "GST") uniName = "গুচ্ছ (GST)";
+            else uniName = mapping.university;
+          }
+
+          promises.push(
+            addDoc(collection(db, "questions"), {
+              text: qText,
+              options: is_cq ? [] : formattedOptions,
+              optionA: is_cq ? "" : optionA,
+              optionB: is_cq ? "" : optionB,
+              optionC: is_cq ? "" : optionC,
+              optionD: is_cq ? "" : optionD,
+              correctOption: is_cq ? "" : correctOption,
+              explanation: q.explanation || q.details || "",
+              subject: formData.subject,
+              is_cq: is_cq,
+              is_k_vandar: is_k_vandar,
+              is_kh_vandar: is_kh_vandar,
+              isBoardQuestion: true,
+              boardName: formData.boardName,
+              boardYear: formData.boardYear,
+              classLevel: classLevelVal,
+              classGroup: mapping.classGroup,
+              class: mapping.class,
+              university: uniName,
+              title: `${formData.boardName} ${formData.boardYear}`, 
+              question_no: index + 1,
+              createdAt: serverTimestamp()
+            })
+          );
+        }
       });
 
       await Promise.all(promises);
@@ -268,14 +330,6 @@ export default function BoardQuestionsCreator() {
             
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-5 bg-muted rounded-xl border border-slate-100">
               <div>
-                <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">ক্লাস</label>
-                <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20 font-bengali" 
-                  value={formData.classLevel} onChange={e => setFormData({...formData, classLevel: e.target.value})}>
-                   {CLASSES.map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              
-              <div>
                 <label className="block text-sm font-bold font-bengali mb-1.5 text-slate-700">বিষয়</label>
                 <select className="flex h-10 w-full rounded-lg border border-slate-200 bg-card px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500/20" 
                   value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})}>
@@ -306,6 +360,79 @@ export default function BoardQuestionsCreator() {
                    {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                 </select>
               </div>
+            </div>
+
+            <div className="space-y-3 p-5 bg-indigo-50/20 rounded-xl border border-indigo-150/30">
+              <label className="block text-sm font-bold font-bengali text-indigo-950">টার্গেট ক্যাটাগরি (একসাথে একাধিক সিলেক্ট করতে পারবেন)</label>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <label className="flex items-center gap-2 cursor-pointer font-bengali text-sm font-medium text-slate-700">
+                  <input 
+                    type="checkbox" 
+                    checked={targets.hsc} 
+                    onChange={() => handleTargetChange("hsc")}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  />
+                  এইচএসসি (HSC)
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer font-bengali text-sm font-medium text-slate-700">
+                  <input 
+                    type="checkbox" 
+                    checked={targets.class11} 
+                    onChange={() => handleTargetChange("class11")}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  />
+                  একাদশ শ্রেণী (Class 11)
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer font-bengali text-sm font-medium text-slate-700">
+                  <input 
+                    type="checkbox" 
+                    checked={targets.class12} 
+                    onChange={() => handleTargetChange("class12")}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  />
+                  দ্বাদশ শ্রেণী (Class 12)
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer font-bengali text-sm font-medium text-slate-700">
+                  <input 
+                    type="checkbox" 
+                    checked={targets.admission} 
+                    onChange={() => handleTargetChange("admission")}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  />
+                  এডমিশন (Admission)
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer font-bengali text-sm font-medium text-slate-700">
+                  <input 
+                    type="checkbox" 
+                    checked={targets.ssc} 
+                    onChange={() => handleTargetChange("ssc")}
+                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  />
+                  এসএসসি (SSC)
+                </label>
+              </div>
+
+              {targets.admission && (
+                <div className="pt-2 max-w-xs animate-in fade-in slide-in-from-top-1 duration-200">
+                  <label className="block text-xs font-bold font-bengali mb-1.5 text-slate-500">এডমিশন ইউনিভার্সিটি কোড</label>
+                  <select 
+                    className="flex h-9 w-full rounded-md border border-slate-200 bg-card px-2 py-1 text-xs focus:ring-2 focus:ring-indigo-500/20 font-sans" 
+                    value={formData.university} 
+                    onChange={e => setFormData({...formData, university: e.target.value})}
+                  >
+                    <option value="">কোনো নির্দিষ্ট বিশ্ববিদ্যালয় নেই (ঐচ্ছিক)</option>
+                    <option value="DU">DU (ঢাকা বিশ্ববিদ্যালয়)</option>
+                    <option value="RU">RU (রাজশাহী বিশ্ববিদ্যালয়)</option>
+                    <option value="JU">JU (জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)</option>
+                    <option value="CU">CU (চট্টগ্রাম বিশ্ববিদ্যালয়)</option>
+                    <option value="GST">GST (গুচ্ছ ভর্তি পরীক্ষা)</option>
+                  </select>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-4 border-b border-slate-200 pb-4">

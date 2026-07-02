@@ -33,7 +33,7 @@ export default function DirectQuestionsCreator() {
     subject: SUBJECTS[0],
     title: "", // chapter/paper name like "অপরিচিতা"
     format: "MCQ",
-    university: "DU", // for Admission
+    university: "", // for Admission
   });
 
   const [targets, setTargets] = useState({
@@ -130,6 +130,21 @@ export default function DirectQuestionsCreator() {
                 id: key,
                 label: q.options[key]
               }));
+            }
+          } else {
+            // Check for individual option keys in the item
+            const optA = q.optionA || q.option_a || q.a || q.ক || q.option1 || q["১"] || "";
+            const optB = q.optionB || q.option_b || q.b || q.খ || q.option2 || q["২"] || "";
+            const optC = q.optionC || q.option_c || q.c || q.গ || q.option3 || q["৩"] || "";
+            const optD = q.optionD || q.option_d || q.d || q.ঘ || q.option4 || q["৪"] || "";
+            
+            if (optA || optB || optC || optD) {
+              formattedOptions = [
+                { id: "A", label: String(optA).trim() },
+                { id: "B", label: String(optB).trim() },
+                { id: "C", label: String(optC).trim() },
+                { id: "D", label: String(optD).trim() }
+              ];
             }
           }
 
@@ -350,6 +365,7 @@ export default function DirectQuestionsCreator() {
                   value={formData.university} 
                   onChange={e => setFormData({...formData, university: e.target.value})}
                 >
+                  <option value="">কোনো নির্দিষ্ট বিশ্ববিদ্যালয় নেই (ঐচ্ছিক)</option>
                   <option value="DU">DU (ঢাকা বিশ্ববিদ্যালয়)</option>
                   <option value="RU">RU (রাজশাহী বিশ্ববিদ্যালয়)</option>
                   <option value="JU">JU (জাহাঙ্গীরনগর বিশ্ববিদ্যালয়)</option>

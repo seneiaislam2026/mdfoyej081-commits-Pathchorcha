@@ -544,6 +544,51 @@ export default function Admin() {
   const [questionsLoading, setQuestionsLoading] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, message: string, onConfirm: () => void} | null>(null);
   const [editQuestion, setEditQuestion] = useState<any | null>(null);
+  const [singleUploadTargets, setSingleUploadTargets] = useState({
+    hsc: true,
+    class11: false,
+    class12: false,
+    admission: false,
+    ssc: false,
+    class9: false,
+    class6_8: false,
+  });
+
+  useEffect(() => {
+    if (editQuestion) {
+      if (editQuestion.id === 'new') {
+        setSingleUploadTargets({
+          hsc: true,
+          class11: false,
+          class12: false,
+          admission: false,
+          ssc: false,
+          class9: false,
+          class6_8: false,
+        });
+      } else {
+        const cls = editQuestion.class || editQuestion.classGroup || "";
+        const isHsc = editQuestion.classGroup === "HSC" || cls === "HSC";
+        const isClass11 = cls === "Class 11";
+        const isClass12 = cls === "Class 12";
+        const isAdmission = editQuestion.classGroup === "Admission" || cls === "Admission";
+        const isSsc = editQuestion.classGroup === "SSC" || cls === "Class 10" || cls === "SSC";
+        const isClass9 = cls === "Class 9";
+        const isClass6_8 = editQuestion.classGroup === "Class 6-8" || cls === "Class 6" || cls === "Class 7" || cls === "Class 8";
+        
+        setSingleUploadTargets({
+          hsc: isHsc,
+          class11: isClass11,
+          class12: isClass12,
+          admission: isAdmission,
+          ssc: isSsc,
+          class9: isClass9,
+          class6_8: isClass6_8,
+        });
+      }
+    }
+  }, [editQuestion]);
+
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [bulkUploadSubject, setBulkUploadSubject] = useState("");
   const [bulkUploadTargets, setBulkUploadTargets] = useState({
@@ -1085,15 +1130,64 @@ export default function Admin() {
       if (data.subject) {
         data.subject = normalizeSubjectName(data.subject);
       }
+
+      // Extract flat option fields to ensure they show in the MCQ question bank
+      const optionA = data.options?.find((o: any) => o.id === 'A' || o.id === 'ক')?.label || "";
+      const optionB = data.options?.find((o: any) => o.id === 'B' || o.id === 'খ')?.label || "";
+      const optionC = data.options?.find((o: any) => o.id === 'C' || o.id === 'গ')?.label || "";
+      const optionD = data.options?.find((o: any) => o.id === 'D' || o.id === 'ঘ')?.label || "";
+
       if (id === 'new') {
         const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
-        await addDoc(collection(db, "questions"), {
-          ...data,
-          createdAt: serverTimestamp()
-        });
-        alert("Question added successfully!");
+        
+        // Find which targets are selected
+        const targetMappings: { classGroup: string; class: string; university?: string }[] = [];
+        if (singleUploadTargets.hsc) targetMappings.push({ classGroup: "HSC", class: "HSC" });
+        if (singleUploadTargets.class11) targetMappings.push({ classGroup: "HSC", class: "Class 11" });
+        if (singleUploadTargets.class12) targetMappings.push({ classGroup: "HSC", class: "Class 12" });
+        if (singleUploadTargets.admission) targetMappings.push({ classGroup: "Admission", class: "Admission", university: data.university });
+        if (singleUploadTargets.ssc) targetMappings.push({ classGroup: "SSC", class: "Class 10" });
+        if (singleUploadTargets.class9) targetMappings.push({ classGroup: "Class 9", class: "Class 9" });
+        if (singleUploadTargets.class6_8) targetMappings.push({ classGroup: "Class 6-8", class: "Class 6" });
+
+        if (targetMappings.length === 0) {
+          alert("দয়া করে কমপক্ষে একটি টার্গেট ক্লাস সিলেক্ট করুন।");
+          return;
+        }
+
+        // Write a document for each selected target so HSC + Admission can be uploaded together!
+        for (const mapping of targetMappings) {
+          let uniName = "";
+          if (mapping.classGroup === "Admission") {
+            if (data.university === "DU" || data.university === "ঢাকা বিশ্ববিদ্যালয়") uniName = "ঢাকা বিশ্ববিদ্যালয়";
+            else if (data.university === "RU" || data.university === "রাজশাহী বিশ্ববিদ্যালয়") uniName = "রাজশাহী বিশ্ববিদ্যালয়";
+            else if (data.university === "JU" || data.university === "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়") uniName = "জাহাঙ্গীরনগর বিশ্ববিদ্যালয়";
+            else if (data.university === "CU" || data.university === "চট্টগ্রাম বিশ্ববিদ্যালয়") uniName = "চট্টগ্রাম বিশ্ববিদ্যালয়";
+            else if (data.university === "GST" || data.university === "গুচ্ছ (GST)") uniName = "গুচ্ছ (GST)";
+            else uniName = data.university || "";
+          }
+
+          await addDoc(collection(db, "questions"), {
+            ...data,
+            optionA,
+            optionB,
+            optionC,
+            optionD,
+            classGroup: mapping.classGroup,
+            class: mapping.class,
+            university: uniName,
+            createdAt: serverTimestamp()
+          });
+        }
+        alert("Question(s) added successfully!");
       } else {
-        await updateDoc(doc(db, "questions", id), data);
+        await updateDoc(doc(db, "questions", id), {
+          ...data,
+          optionA,
+          optionB,
+          optionC,
+          optionD
+        });
         alert("Question updated successfully!");
       }
       setEditQuestion(null);
@@ -2082,7 +2176,18 @@ export default function Admin() {
         let isPro = data.isPro;
         
         const userEmail = data.email?.toLowerCase() || '';
-        const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com" || data.isAdmin === true;
+        const userPhone = data.phoneNumber || data.phone || '';
+        const cleanPhone = userPhone.replace(/\D/g, '');
+        const isSuper = userEmail === "mdfoyej081@gmail.com" || 
+                        userEmail === "seneiaislam@gmail.com" || 
+                        userEmail.includes("01309154780") || 
+                        userEmail.includes("o13o9154780") ||
+                        userEmail.includes("1309154780") ||
+                        userEmail.includes("13o9154780") ||
+                        cleanPhone.includes("1309154780") ||
+                        userPhone.includes("01309154780") ||
+                        userPhone.includes("o13o9154780");
+        const isAdmin = isSuper || data.isAdmin === true;
         
         if (isAdmin || data.isTutor) {
           isPro = true;
@@ -2121,6 +2226,26 @@ export default function Admin() {
   };
 
   const toggleAdminStatus = async (userId: string, currentStatus: boolean) => {
+    const targetUser = users.find(u => u.id === userId);
+    if (targetUser) {
+      const email = (targetUser.email || '').toLowerCase();
+      const phone = targetUser.phoneNumber || targetUser.phone || '';
+      const cleanPhone = phone.replace(/\D/g, '');
+      const isSuper = email === "mdfoyej081@gmail.com" || 
+                      email === "seneiaislam@gmail.com" || 
+                      email.includes("01309154780") || 
+                      email.includes("o13o9154780") ||
+                      email.includes("1309154780") ||
+                      email.includes("13o9154780") ||
+                      cleanPhone.includes("1309154780") ||
+                      phone.includes("01309154780") ||
+                      phone.includes("o13o9154780");
+      if (isSuper && currentStatus) {
+        alert("This is a permanent Super Admin and cannot be removed!");
+        return;
+      }
+    }
+
     setConfirmDialog({
       isOpen: true,
       message: `আপনি কি নিশ্চিতভাবে এই ইউজারকে ${currentStatus ? 'এডমিন থেকে সাধারণ ইউজার' : 'এডমিন'} করতে চান?`,
@@ -4301,6 +4426,61 @@ export default function Admin() {
                </CardContent>
             </Card>
 
+            <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden mt-6 bg-amber-50/20">
+               <CardHeader className="bg-amber-100/40 border-b pb-4 p-6">
+                 <CardTitle className="text-lg font-bold font-bengali text-amber-900">ডেটাবেস ও ব্যাকআপ পুনরুদ্ধার (Database & Data Recovery)</CardTitle>
+                 <CardDescription className="font-bengali text-amber-700">আপনার ৩২ জন শিক্ষার্থী ও প্রশ্নের ডেটা ফিরে পেতে সঠিক ডেটাবেস সিলেক্ট করুন</CardDescription>
+               </CardHeader>
+               <CardContent className="p-6 space-y-4">
+                 <p className="text-sm font-bengali text-slate-700 leading-relaxed">
+                   আপনি যদি পূর্বে এই অ্যাপ্লিকেশনে কাজ করে থাকেন, তবে আপনার ৩২ জন শিক্ষার্থী এবং পূর্বে তৈরি করা বিভিন্ন প্রশ্নাবলি (Questions) Firebase-এর <strong>ডিফল্ট ডেটাবেসে ((default))</strong> সংরক্ষিত থাকতে পারে। আই স্টুডিও রিবুট বা আপডেট হওয়ার কারণে অ্যাপটি বর্তমানে নতুন একটি কাস্টম ডেটাবেসে কানেক্ট হয়ে থাকতে পারে।
+                 </p>
+                 <div className="bg-white p-4 rounded-2xl border space-y-2 text-sm">
+                   <div className="flex justify-between border-b pb-2">
+                     <span className="font-semibold text-slate-500 font-bengali">প্রোজেক্ট আইডি:</span>
+                     <span className="font-mono text-slate-800">pathchorcha-279e7</span>
+                   </div>
+                   <div className="flex justify-between border-b pb-2">
+                     <span className="font-semibold text-slate-500 font-bengali">বর্তমান সক্রিয় ডেটাবেস আইডি:</span>
+                     <span className="font-mono font-bold text-primary">
+                       {localStorage.getItem("firestore_db_id") === "default" ? "(default) - ডিফল্ট ডেটাবেস" : "ai-studio-e2950986-ea1b-49d4-bccf-a9edba1160a7 (কাস্টম ডেটাবেস)"}
+                     </span>
+                   </div>
+                   <div className="flex justify-between pt-1">
+                     <span className="font-semibold text-slate-500 font-bengali">ডেটা অবস্থান (Status):</span>
+                     <span className="text-amber-600 font-semibold font-bengali">
+                       {localStorage.getItem("firestore_db_id") === "default" ? "✅ ডিফল্ট ডেটাবেস সক্রিয় (পূর্বের ৩২ জন শিক্ষার্থীর ডেটা পুনরুদ্ধার হয়েছে)" : "⚠️ কাস্টম ডেটাবেস সক্রিয় (ডেটা খালি দেখালে নিচে Default-এ সুইচ করুন)"}
+                     </span>
+                   </div>
+                 </div>
+
+                 <div className="flex flex-wrap gap-3 pt-2">
+                   <Button 
+                     variant="outline" 
+                     className="bg-amber-600 hover:bg-amber-700 text-white font-bengali rounded-full px-5 py-2 border-0 shadow-sm"
+                     onClick={() => {
+                       localStorage.setItem("firestore_db_id", "default");
+                       alert("সফলভাবে ডিফল্ট (default) ডেটাবেস নির্বাচন করা হয়েছে। আপনার পূর্বের ৩২ জন শিক্ষার্থীর ডেটা ও প্রশ্নাবলি পুনরায় লোড করতে পেজটি রিলোড করা হচ্ছে!");
+                       window.location.reload();
+                     }}
+                   >
+                     🔄 Switch to Default Database (default)
+                   </Button>
+                   <Button 
+                     variant="outline"
+                     className="bg-slate-600 hover:bg-slate-700 text-white font-bengali rounded-full px-5 py-2 border-0 shadow-sm"
+                     onClick={() => {
+                       localStorage.removeItem("firestore_db_id");
+                       alert("কাস্টম ডেটাবেস (ai-studio-e2950986-ea1b-49d4-bccf-a9edba1160a7) নির্বাচন করা হয়েছে। পেজটি রিলোড করা হচ্ছে!");
+                       window.location.reload();
+                     }}
+                   >
+                     🔄 Switch to Custom Database (ai-studio)
+                   </Button>
+                 </div>
+               </CardContent>
+            </Card>
+
             <Card className="border border-muted shadow-sm rounded-[32px] overflow-hidden mt-6">
                 <CardHeader className="bg-muted/50 border-b pb-4 p-6 flex flex-row justify-between items-center">
                   <CardTitle className="text-lg">কুপন কোড (Coupon Management)</CardTitle>
@@ -5181,6 +5361,110 @@ export default function Admin() {
                   </select>
                 </div>
               </div>
+
+              {editQuestion.id === 'new' ? (
+                <div>
+                  <label className="text-sm font-bold mb-2 block font-bengali text-purple-900">টার্গেট ক্লাস সিলেক্ট করুন (একাধিক সিলেক্ট করে এড করতে পারবেন)</label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 bg-purple-50/20 p-4 rounded-2xl border border-purple-100/60">
+                    <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                        checked={singleUploadTargets.hsc}
+                        onChange={() => setSingleUploadTargets({ ...singleUploadTargets, hsc: !singleUploadTargets.hsc })}
+                      />
+                      এইচএসসি (HSC)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                        checked={singleUploadTargets.class11}
+                        onChange={() => setSingleUploadTargets({ ...singleUploadTargets, class11: !singleUploadTargets.class11 })}
+                      />
+                      একাদশ শ্রেণী (Class 11)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                        checked={singleUploadTargets.class12}
+                        onChange={() => setSingleUploadTargets({ ...singleUploadTargets, class12: !singleUploadTargets.class12 })}
+                      />
+                      দ্বাদশ শ্রেণী (Class 12)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                        checked={singleUploadTargets.admission}
+                        onChange={() => setSingleUploadTargets({ ...singleUploadTargets, admission: !singleUploadTargets.admission })}
+                      />
+                      এডমিশন (Admission)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                        checked={singleUploadTargets.ssc}
+                        onChange={() => setSingleUploadTargets({ ...singleUploadTargets, ssc: !singleUploadTargets.ssc })}
+                      />
+                      এসএসসি (SSC)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                        checked={singleUploadTargets.class9}
+                        onChange={() => setSingleUploadTargets({ ...singleUploadTargets, class9: !singleUploadTargets.class9 })}
+                      />
+                      ৯ম শ্রেণী (Class 9)
+                    </label>
+                    <label className="flex items-center gap-2 text-sm font-bengali cursor-pointer hover:text-primary transition-colors">
+                      <input 
+                        type="checkbox" 
+                        className="rounded border-slate-300 text-primary focus:ring-primary w-4 h-4"
+                        checked={singleUploadTargets.class6_8}
+                        onChange={() => setSingleUploadTargets({ ...singleUploadTargets, class6_8: !singleUploadTargets.class6_8 })}
+                      />
+                      ৬ষ্ঠ-৮ম শ্রেণী (Class 6-8)
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-bold mb-1 block font-bengali">টার্গেট ক্লাস গ্রুপ (Class Group)</label>
+                    <select
+                      className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10 bg-card"
+                      value={editQuestion.classGroup || ""}
+                      onChange={(e) => setEditQuestion({ ...editQuestion, classGroup: e.target.value })}
+                    >
+                      <option value="HSC">HSC</option>
+                      <option value="Admission">Admission</option>
+                      <option value="SSC">SSC</option>
+                      <option value="Class 9">Class 9</option>
+                      <option value="Class 6-8">Class 6-8</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-bold mb-1 block font-bengali">টার্গেট ক্লাস (Class)</label>
+                    <select
+                      className="w-full border rounded-xl p-2 text-sm font-bengali outline-none focus:border-primary focus:ring-1 focus:ring-primary h-10 bg-card"
+                      value={editQuestion.class || ""}
+                      onChange={(e) => setEditQuestion({ ...editQuestion, class: e.target.value })}
+                    >
+                      <option value="HSC">HSC</option>
+                      <option value="Class 11">Class 11</option>
+                      <option value="Class 12">Class 12</option>
+                      <option value="Admission">Admission</option>
+                      <option value="Class 10">Class 10</option>
+                      <option value="Class 9">Class 9</option>
+                      <option value="Class 6">Class 6-8</option>
+                    </select>
+                  </div>
+                </div>
+              )}
 
 {!editQuestion.isSubjectWiseOnly && (
               <div>

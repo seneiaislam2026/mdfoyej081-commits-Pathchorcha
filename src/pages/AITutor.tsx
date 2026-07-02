@@ -65,8 +65,17 @@ export default function AITutor() {
     if (!textToSend.trim() && !imgToSend) return;
 
     // Smart Premium check: Admin emails bypass the isPro lock during testing and production!
-    const userEmail = userData?.email || "";
-    const isProOrAdmin = userData?.isPro || userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com" || !userData;
+    const userEmail = (userData?.email || "").toLowerCase();
+    const userPhone = (userData?.phoneNumber || userData?.phone || "").replace(/\D/g, '');
+    const isSuper = userEmail === "mdfoyej081@gmail.com" || 
+                    userEmail === "seneiaislam@gmail.com" || 
+                    userEmail.includes("01309154780") || 
+                    userEmail.includes("o13o9154780") ||
+                    userEmail.includes("1309154780") ||
+                    userEmail.includes("13o9154780") ||
+                    userPhone.includes("1309154780") ||
+                    userData?.isAdmin === true;
+    const isProOrAdmin = userData?.isPro || isSuper || !userData;
 
     if (!isProOrAdmin) {
       const userMessage: Message = { id: Date.now().toString(), sender: "user", text: textToSend, image: imgToSend || undefined };

@@ -27,6 +27,8 @@ interface UserData {
   lastExamDate?: string;
   batch?: string;
   quote?: string;
+  phoneNumber?: string;
+  phone?: string;
 }
 
 interface AuthContextType {
@@ -146,7 +148,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (docSnap.exists()) {
             const data = docSnap.data() as UserData;
             const userEmail = currentUser.email?.toLowerCase() || '';
-            const isAdmin = userEmail === "mdfoyej081@gmail.com" || userEmail === "seneiaislam@gmail.com" || data.isAdmin === true;
+            const userPhone = currentUser.phoneNumber || '';
+            const cleanPhone = userPhone.replace(/\D/g, '');
+            const dbEmail = (data.email || '').toLowerCase();
+            const dbPhone = (data.phoneNumber || data.phone || '').replace(/\D/g, '');
+            const isSuper = userEmail === "mdfoyej081@gmail.com" || 
+                            userEmail === "seneiaislam@gmail.com" || 
+                            userEmail.includes("01309154780") || 
+                            userEmail.includes("o13o9154780") ||
+                            userEmail.includes("1309154780") ||
+                            userEmail.includes("13o9154780") ||
+                            cleanPhone.includes("1309154780") ||
+                            userPhone.includes("01309154780") ||
+                            userPhone.includes("o13o9154780") ||
+                            dbEmail.includes("01309154780") ||
+                            dbEmail.includes("o13o9154780") ||
+                            dbEmail.includes("1309154780") ||
+                            dbEmail.includes("13o9154780") ||
+                            dbPhone.includes("1309154780");
+            const isAdmin = isSuper || data.isAdmin === true;
+            if (isSuper) {
+              data.isAdmin = true;
+            }
             
             if (isAdmin || data.isTutor) {
               data.isPro = true;

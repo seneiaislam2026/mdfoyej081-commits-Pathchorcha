@@ -19,8 +19,27 @@ export default function Login() {
   React.useEffect(() => {
     if (!authLoading && user) {
       const email = user.email?.toLowerCase() || "";
-      if (email === "mdfoyej081@gmail.com" || email === "seneiaislam@gmail.com") {
-        navigate("/admin");
+      const phone = user.phoneNumber || "";
+      const cleanPhone = phone.replace(/\D/g, '');
+      const dEmail = (userData?.email || '').toLowerCase();
+      const dPhone = (userData?.phoneNumber || userData?.phone || '').replace(/\D/g, '');
+      const isSuper = email === "mdfoyej081@gmail.com" || 
+                      email === "seneiaislam@gmail.com" || 
+                      email.includes("01309154780") || 
+                      email.includes("o13o9154780") ||
+                      email.includes("1309154780") ||
+                      email.includes("13o9154780") ||
+                      cleanPhone.includes("1309154780") ||
+                      phone.includes("01309154780") ||
+                      phone.includes("o13o9154780") ||
+                      dEmail.includes("01309154780") ||
+                      dEmail.includes("o13o9154780") ||
+                      dEmail.includes("1309154780") ||
+                      dEmail.includes("13o9154780") ||
+                      dPhone.includes("1309154780") ||
+                      userData?.isAdmin === true;
+      if (isSuper) {
+        navigate("/dashboard");
       } else if (userData?.class) {
         navigate("/dashboard");
       } else if (userData) {
@@ -40,8 +59,22 @@ export default function Login() {
       const data = await signInOrSignUpWithEmail(loginEmail, password);
       // Check if user is admin
       const email = loginEmail.toLowerCase();
-      if (email === "mdfoyej081@gmail.com" || email === "seneiaislam@gmail.com") {
-         navigate("/admin");
+      const dEmail = (data?.email || '').toLowerCase();
+      const dPhone = (data?.phoneNumber || data?.phone || '').replace(/\D/g, '');
+      const isSuper = email === "mdfoyej081@gmail.com" || 
+                      email === "seneiaislam@gmail.com" || 
+                      email.includes("01309154780") || 
+                      email.includes("o13o9154780") ||
+                      email.includes("1309154780") ||
+                      email.includes("13o9154780") ||
+                      dEmail.includes("01309154780") ||
+                      dEmail.includes("o13o9154780") ||
+                      dEmail.includes("1309154780") ||
+                      dEmail.includes("13o9154780") ||
+                      dPhone.includes("1309154780") ||
+                      data?.isAdmin === true;
+      if (isSuper) {
+         navigate("/dashboard");
       } else if (data && data.class) {
          navigate("/dashboard");
       } else {

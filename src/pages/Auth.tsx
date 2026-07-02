@@ -99,7 +99,27 @@ export default function Auth() {
 
   useEffect(() => {
     if (minDelayPassed && !authLoading && user) {
-      if (userData?.class) {
+      const email = (user.email || '').toLowerCase();
+      const phone = user.phoneNumber || '';
+      const cleanPhone = phone.replace(/\D/g, '');
+      const dEmail = (userData?.email || '').toLowerCase();
+      const dPhone = (userData?.phoneNumber || userData?.phone || '').replace(/\D/g, '');
+      const isSuper = email === "mdfoyej081@gmail.com" || 
+                      email === "seneiaislam@gmail.com" || 
+                      email.includes("01309154780") || 
+                      email.includes("o13o9154780") ||
+                      email.includes("1309154780") ||
+                      email.includes("13o9154780") ||
+                      cleanPhone.includes("1309154780") ||
+                      phone.includes("01309154780") ||
+                      phone.includes("o13o9154780") ||
+                      dEmail.includes("01309154780") ||
+                      dEmail.includes("o13o9154780") ||
+                      dEmail.includes("1309154780") ||
+                      dEmail.includes("13o9154780") ||
+                      dPhone.includes("1309154780") ||
+                      userData?.isAdmin === true;
+      if (userData?.class || isSuper) {
         navigate("/dashboard");
       } else if (userData) {
         navigate("/onboarding");

@@ -82,7 +82,7 @@ function NoteLayout() {
   }
 
   const handleGoBack = () => {
-    if (window.history.state && window.history.state.idx > 0) {
+    if (window.history.length > 1) {
       navigate(-1);
     } else {
       navigate("/notes");
@@ -199,16 +199,35 @@ function AppLayout() {
   }
 
   if (location.pathname.startsWith('/admin')) {
-    const userEmail = user.email || "";
-    const isAdmin = userEmail.toLowerCase() === "mdfoyej081@gmail.com" || userEmail.toLowerCase() === "seneiaislam@gmail.com" || userData?.isAdmin === true;
+    const userEmail = (user.email || "").toLowerCase();
+    const userPhone = user.phoneNumber || "";
+    const cleanPhone = userPhone.replace(/\D/g, '');
+    const dEmail = (userData?.email || '').toLowerCase();
+    const dPhone = (userData?.phoneNumber || userData?.phone || '').replace(/\D/g, '');
+    const isSuper = userEmail === "mdfoyej081@gmail.com" || 
+                    userEmail === "seneiaislam@gmail.com" || 
+                    userEmail.includes("01309154780") || 
+                    userEmail.includes("o13o9154780") ||
+                    userEmail.includes("1309154780") ||
+                    userEmail.includes("13o9154780") ||
+                    cleanPhone.includes("1309154780") ||
+                    userPhone.includes("01309154780") ||
+                    userPhone.includes("o13o9154780") ||
+                    dEmail.includes("01309154780") ||
+                    dEmail.includes("o13o9154780") ||
+                    dEmail.includes("1309154780") ||
+                    dEmail.includes("13o9154780") ||
+                    dPhone.includes("1309154780") ||
+                    userData?.isAdmin === true;
+    const isAdmin = isSuper || userData?.isAdmin === true;
     if (!isAdmin) {
       return <Navigate to="/dashboard" replace />;
     }
   }
 
   const handleGoBack = () => {
-    // Check if React Router has history state indicating a previous page
-    if (window.history.state && window.history.state.idx > 0) {
+    // Check if we can go back using window.history.length
+    if (window.history.length > 1) {
       navigate(-1);
     } else {
       navigate("/dashboard");
@@ -240,7 +259,13 @@ function AppLayout() {
   );
 }
 
+import { seed2025BoardQuestions } from "./utils/seed2025Questions";
+
 export default function App() {
+  React.useEffect(() => {
+    seed2025BoardQuestions();
+  }, []);
+
   return (
     <ErrorBoundary>
       <AuthProvider>

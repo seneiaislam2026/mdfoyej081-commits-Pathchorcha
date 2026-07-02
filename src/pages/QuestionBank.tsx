@@ -107,13 +107,53 @@ const getSubjectsByGroup = (group?: string, classGroup?: string) => {
      return ["বাংলা", "English", "গণিত", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম"];
   }
   
-  if (group === "মানবিক" || group === "Arts") {
+  const g = group?.toLowerCase() || "";
+  const isScience = group === "বিজ্ঞান" || g.includes("science");
+  const isHumanities = group === "মানবিক" || g.includes("arts") || g.includes("humanities") || g.includes("art");
+  const isCommerce = group === "বাণিজ্য" || g.includes("ব্যবসায়") || g.includes("ব্যবসায়") || g.includes("commerce") || g.includes("business");
+
+  if (isScience) {
+    return [
+      ...common,
+      "Physics 1st Paper",
+      "Physics 2nd Paper",
+      "Chemistry 1st Paper",
+      "Chemistry 2nd Paper",
+      "Higher Math 1st Paper",
+      "Higher Math 2nd Paper",
+      "Biology 1st Paper",
+      "Biology 2nd Paper"
+    ];
+  } else if (isHumanities) {
     return [...common, "ইতিহাস", "পৌরনীতি", "ভূগোল", "অর্থনীতি", "যুক্তিবিদ্যা", "সমাজবিজ্ঞান", "ইসলামের ইতিহাস"];
-  } else if (group === "বাণিজ্য" || group?.includes("ব্যবসায়") || group?.includes("ব্যবসায়") || group?.includes("Commerce") || group?.includes("Business")) {
-    return [...common, "হিসাববিজ্ঞান", "ম্যানেজমেন্ট", "ফিন্যান্স", "উৎপাদন ব্যবস্থাপনা", "মার্কেটিং", "ব্যবসায় উদ্যোগ", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা"];
+  } else if (isCommerce) {
+    return [...common, "হিসাববিজ্ঞান", "ম্যানেজমেন্ট", "ব্যবসায় সংগঠন ও ব্যবস্থাপনা", "ব্যবসায় সংগঠন", "ব্যবস্থাপনা", "ফিন্যান্স", "উৎপাদন ব্যবস্থাপনা", "মার্কেটিং", "ব্যবসায় উদ্যোগ"];
   }
-  // Default to non-science if science is requested/missed
-  return common;
+  
+  // Default fallback: return all subjects so no uploaded question is hidden
+  return [
+    ...common,
+    "Physics 1st Paper",
+    "Physics 2nd Paper",
+    "Chemistry 1st Paper",
+    "Chemistry 2nd Paper",
+    "Higher Math 1st Paper",
+    "Higher Math 2nd Paper",
+    "Biology 1st Paper",
+    "Biology 2nd Paper",
+    "হিসাববিজ্ঞান",
+    "ম্যানেজমেন্ট",
+    "ব্যবসায় সংগঠন ও ব্যবস্থাপনা",
+    "ব্যবসায় সংগঠন",
+    "ব্যবস্থাপনা",
+    "ফিন্যান্স",
+    "ইতিহাস",
+    "পৌরনীতি",
+    "ভূগোল",
+    "অর্থনীতি",
+    "যুক্তিবিদ্যা",
+    "সমাজবিজ্ঞান"
+  ];
 };
 
 const mapUserClassToGroup = (cls?: string) => {
@@ -155,16 +195,32 @@ const getUniversitiesByGroup = (group?: string) => {
 
 const TOPICS_METADATA: Record<string, any> = {
   "বাংলা": { name: "বাংলা সাহিত্য", icon: Library, count: "২২৩", desc: "রবীন্দ্রনাথ, নজরুল, আধুনিক সাহিত্য ও ব্যাকরণ", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "Bangla 1st Paper": { name: "বাংলা ১ম পত্র", icon: Library, count: "৮৫", desc: "গদ্য, পদ্য ও সহপাঠ", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "Bangla 2nd Paper": { name: "বাংলা ২য় পত্র", icon: Library, count: "৭৮", desc: "ব্যাকরণ ও নির্মিতি", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
   "English": { name: "English", icon: Languages, count: "১০৮", desc: "English Grammar, Tense, Voice Change", bg: "bg-purple-50", iconColor: "text-purple-500" },
+  "English 1st Paper": { name: "English 1st Paper", icon: Languages, count: "৮০", desc: "Reading, Writing & Vocabulary", bg: "bg-purple-50", iconColor: "text-purple-500" },
+  "English 2nd Paper": { name: "English 2nd Paper", icon: Languages, count: "৮৫", desc: "English Grammar & Composition", bg: "bg-purple-50", iconColor: "text-purple-500" },
   "ম্যানেজমেন্ট": { name: "ম্যানেজমেন্ট", icon: Briefcase, count: "৫০", desc: "ব্যবস্থাপনা, সংগঠন, ব্যবসায় নীতি", bg: "bg-blue-50", iconColor: "text-blue-500" },
+  "Management 1st Paper": { name: "ব্যবস্থাপনা ১ম পত্র", icon: Briefcase, count: "৪৫", desc: "ব্যবসায় সংগঠন ও ব্যবস্থাপনা ১ম", bg: "bg-blue-50", iconColor: "text-blue-500" },
+  "Management 2nd Paper": { name: "ব্যবস্থাপনা ২য় পত্র", icon: Briefcase, count: "৪০", desc: "ব্যবসায় সংগঠন ও ব্যবস্থাপনা ২য়", bg: "bg-blue-50", iconColor: "text-blue-500" },
   "হিসাববিজ্ঞান": { name: "হিসাববিজ্ঞান", icon: BookOpen, count: "০", desc: "হিসাববিজ্ঞান মূলনীতি, জাবেদা", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "Accounting 1st Paper": { name: "হিসাববিজ্ঞান ১ম পত্র", icon: BookOpen, count: "৩৫", desc: "হিসাববিজ্ঞান নীতিমালা ও জাবেদা", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "Accounting 2nd Paper": { name: "হিসাববিজ্ঞান ২য় পত্র", icon: BookOpen, count: "৩০", desc: "অংশীদারি কারবার, কোম্পানি হিসাব", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
   "ICT": { name: "ICT", icon: Monitor, count: "৮৯", desc: "কম্পিউটার বেসিক, হার্ডওয়্যার, সফটওয়্যার", bg: "bg-blue-50", iconColor: "text-blue-500" },
   "উচ্চতর গণিত": { name: "উচ্চতর গণিত", icon: Calculator, count: "৯৮", desc: "ম্যাট্রিক্স, ডিটারমিনেন্ট, ক্যালকুলাস", bg: "bg-amber-50", iconColor: "text-amber-500" },
+  "Higher Math 1st Paper": { name: "উচ্চতর গণিত ১ম পত্র", icon: Calculator, count: "৫০", desc: "ম্যাট্রিক্স, ডিটারমিনেন্ট, ভেক্টর, ত্রিকোণমিতি", bg: "bg-amber-50", iconColor: "text-amber-500" },
+  "Higher Math 2nd Paper": { name: "উচ্চতর গণিত ২য় পত্র", icon: Calculator, count: "৪৫", desc: "জটিল সংখ্যা, বহুপদী, কনিক্স, বলবিদ্যা", bg: "bg-amber-50", iconColor: "text-amber-500" },
   "গণিত": { name: "গণিত", icon: Calculator, count: "৮৫", desc: "পাটিগণিত, বীজগণিত, পরিমিতি", bg: "bg-amber-50", iconColor: "text-amber-500" },
   "পদার্থবিজ্ঞান": { name: "পদার্থবিজ্ঞান", icon: Atom, count: "৭৬", desc: "যান্ত্রিক, তরঙ্গ, তাপগতিবিদ্যা", bg: "bg-indigo-50", iconColor: "text-indigo-500" },
+  "Physics 1st Paper": { name: "পদার্থবিজ্ঞান ১ম পত্র", icon: Atom, count: "৭৬", desc: "ভেক্টর, গতিবিদ্যা, মহাকর্ষ, তরঙ্গ", bg: "bg-indigo-50", iconColor: "text-indigo-500" },
+  "Physics 2nd Paper": { name: "পদার্থবিজ্ঞান ২য় পত্র", icon: Atom, count: "৭০", desc: "তাপগতিবিদ্যা, স্থির তড়িৎ, চল তড়িৎ, আধুনিক পদার্থবিজ্ঞান", bg: "bg-indigo-50", iconColor: "text-indigo-500" },
   "রসায়ন": { name: "রসায়ন", icon: FlaskConical, count: "৬৪", desc: "জৈব রসায়ন, অজৈব রসায়ন, গাণিতিক রসায়ন", bg: "bg-rose-50", iconColor: "text-rose-500" },
   "রসায়ন": { name: "রসায়ন", icon: FlaskConical, count: "৬৪", desc: "জৈব রসায়ন, অজৈব রসায়ন, গাণিতিক রসায়ন", bg: "bg-rose-50", iconColor: "text-rose-500" },
+  "Chemistry 1st Paper": { name: "রসায়ন ১ম পত্র", icon: FlaskConical, count: "৬৪", desc: "গুণগত রসায়ন, পর্যায়বৃত্ত ধর্ম, রাসায়নিক পরিবর্তন", bg: "bg-rose-50", iconColor: "text-rose-500" },
+  "Chemistry 2nd Paper": { name: "রসায়ন ২য় পত্র", icon: FlaskConical, count: "৫৮", desc: "পরিবেশ রসায়ন, জৈব রসায়ন, পরিমাণগত রসায়ন", bg: "bg-rose-50", iconColor: "text-rose-500" },
   "জীববিজ্ঞান": { name: "জীববিজ্ঞান", icon: Dna, count: "৫৮", desc: "উদ্ভিদবিজ্ঞান, প্রাণিবিজ্ঞান, জেনেটিক্স", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "Biology 1st Paper": { name: "জীববিজ্ঞান ১ম পত্র (উদ্ভিদ)", icon: Dna, count: "৫৮", desc: "কোষ ও এর গঠন, জিনতত্ত্ব, উদ্ভিদ শারীরতত্ত্ব", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
+  "Biology 2nd Paper": { name: "জীববিজ্ঞান ২য় পত্র (প্রাণি)", icon: Dna, count: "৫২", desc: "প্রাণির পরিচিতি, রক্ত ও সংবহন, সমন্বয় ও নিয়ন্ত্রণ", bg: "bg-emerald-50", iconColor: "text-emerald-500" },
   "ইতিহাস": { name: "ইতিহাস", icon: Globe, count: "৫৫", desc: "প্রাচীন, মধ্যযুগ, আধুনিক ইতিহাস", bg: "bg-orange-50", iconColor: "text-orange-500" },
   "ভূগোল": { name: "ভূগোল", icon: MapIcon, count: "৪২", desc: "ভূ-প্রাকৃতিক, মানচিত্র, বাংলাদেশ ও বিশ্ব ভূগোল", bg: "bg-cyan-50", iconColor: "text-cyan-500" },
   "পৌরনীতি": { name: "পৌরনীতি", icon: BookOpen, count: "৩৫", desc: "নাগরিক অধিকার, রাষ্ট্রবিজ্ঞান", bg: "bg-sky-50", iconColor: "text-sky-500" },
@@ -285,14 +341,21 @@ export default function QuestionBank() {
     const fetchQuestions = async () => {
       setLoadingQuestions(true);
       try {
-        let q = query(collection(db, "questions"), where("classGroup", "==", activeClassGroup));
+        let q;
+        if (activeClassGroup === "Admission") {
+          q = query(collection(db, "questions"), where("classGroup", "in", ["Admission", "HSC"]));
+        } else {
+          q = query(collection(db, "questions"), where("classGroup", "==", activeClassGroup));
+        }
         const snap = await getDocs(q);
         let results: any[] = [];
         snap.forEach(doc => {
-          const data = doc.data();
+          const data = doc.data() as any;
           if (activeClassGroup === "Admission" && activeClass) {
             const uni = data.university || "";
             const matchesUni = 
+              !uni ||
+              data.isBoardQuestion === true ||
               uni === activeClass || 
               (activeClass === "ঢাকা বিশ্ববিদ্যালয়" && (uni === "DU" || uni.toLowerCase().includes("dhaka") || uni.includes("ঢাকা"))) ||
               (activeClass === "রাজশাহী বিশ্ববিদ্যালয়" && (uni === "RU" || uni.toLowerCase().includes("rajshahi") || uni.includes("রাজশাহী"))) ||
@@ -806,7 +869,7 @@ export default function QuestionBank() {
                  <button 
                     key={idx} 
                     onClick={() => {
-                      navigate(`/format?subject=${encodeURIComponent(subject.subjectCode)}&classGroup=HSC`);
+                      navigate(`/format?subject=${encodeURIComponent(subject.subjectCode)}&classGroup=${encodeURIComponent(activeClassGroup || "HSC")}`);
                     }}
                     className={`${subject.bg} relative overflow-hidden rounded-[20px] p-4 sm:p-5 text-white flex flex-col justify-between aspect-[1.3/1] shadow-sm hover:shadow-md transition-all active:scale-95 text-left`}
                  >

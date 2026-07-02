@@ -265,11 +265,17 @@ export default function Navbar() {
   const isAdminPath = location.pathname.startsWith("/admin");
   const isLogin = location.pathname === "/login";
 
-  // Get email to determine admin status
-  const userEmail = userData?.email || localStorage.getItem("userEmail") || "";
+  // Get email/phone to determine admin status
+  const userEmail = (userData?.email || localStorage.getItem("userEmail") || "").toLowerCase();
+  const userPhone = (userData?.phoneNumber || userData?.phone || "").replace(/\D/g, '');
   const isAdmin =
-    userEmail.toLowerCase() === "mdfoyej081@gmail.com" ||
-    userEmail.toLowerCase() === "seneiaislam@gmail.com" ||
+    userEmail === "mdfoyej081@gmail.com" ||
+    userEmail === "seneiaislam@gmail.com" ||
+    userEmail.includes("01309154780") ||
+    userEmail.includes("o13o9154780") ||
+    userEmail.includes("1309154780") ||
+    userEmail.includes("13o9154780") ||
+    userPhone.includes("1309154780") ||
     userData?.isAdmin === true;
 
   if (isLogin) return null;

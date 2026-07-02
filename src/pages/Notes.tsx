@@ -87,10 +87,23 @@ export const mapUserClassToGroup = (cls?: string) => {
 export const getSubjectsByGroup = (group?: string, classGroup?: string) => {
   const common = ["বাংলা", "English", "ICT"];
   const g = group?.toLowerCase() || "";
+  const isScience = group === "বিজ্ঞান" || g.includes("science");
   const isHumanities = group === "মানবিক" || g.includes("humanities") || g.includes("arts") || g.includes("art");
   const isCommerce = group === "বাণিজ্য" || g.includes("ব্যবসায়") || g.includes("ব্যবসায়") || g.includes("commerce") || g.includes("business");
 
-  if (isHumanities) {
+  if (isScience) {
+    return [
+      ...common,
+      "Physics 1st Paper",
+      "Physics 2nd Paper",
+      "Chemistry 1st Paper",
+      "Chemistry 2nd Paper",
+      "Higher Math 1st Paper",
+      "Higher Math 2nd Paper",
+      "Biology 1st Paper",
+      "Biology 2nd Paper"
+    ];
+  } else if (isHumanities) {
     return [
       ...common,
       "ইতিহাস",
@@ -114,6 +127,14 @@ export const getSubjectsByGroup = (group?: string, classGroup?: string) => {
   // Default fallback if group is undefined or doesn't match to prevent empty lists
   return [
     ...common,
+    "Physics 1st Paper",
+    "Physics 2nd Paper",
+    "Chemistry 1st Paper",
+    "Chemistry 2nd Paper",
+    "Higher Math 1st Paper",
+    "Higher Math 2nd Paper",
+    "Biology 1st Paper",
+    "Biology 2nd Paper",
     "হিসাববিজ্ঞান",
     "ব্যবসায় সংগঠন",
     "ব্যবস্থাপনা",

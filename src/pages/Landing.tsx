@@ -192,7 +192,27 @@ export default function Landing() {
   // ONLY auto-redirect if they are logged in and the minimum delay has passed
   useEffect(() => {
     if (minDelayPassed && !loading && user) {
-      if (userData?.class) {
+      const email = (user.email || '').toLowerCase();
+      const phone = user.phoneNumber || '';
+      const cleanPhone = phone.replace(/\D/g, '');
+      const dEmail = (userData?.email || '').toLowerCase();
+      const dPhone = (userData?.phoneNumber || userData?.phone || '').replace(/\D/g, '');
+      const isSuper = email === "mdfoyej081@gmail.com" || 
+                      email === "seneiaislam@gmail.com" || 
+                      email.includes("01309154780") || 
+                      email.includes("o13o9154780") ||
+                      email.includes("1309154780") ||
+                      email.includes("13o9154780") ||
+                      cleanPhone.includes("1309154780") ||
+                      phone.includes("01309154780") ||
+                      phone.includes("o13o9154780") ||
+                      dEmail.includes("01309154780") ||
+                      dEmail.includes("o13o9154780") ||
+                      dEmail.includes("1309154780") ||
+                      dEmail.includes("13o9154780") ||
+                      dPhone.includes("1309154780") ||
+                      userData?.isAdmin === true;
+      if (userData?.class || isSuper) {
         navigate("/dashboard");
       } else {
         // Safe redirect to onboarding if userData is missing, loading, or has no class to avoid landing page infinite loading loops

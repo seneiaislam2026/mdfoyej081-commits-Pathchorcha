@@ -4,8 +4,20 @@ import { getFirestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 const app = initializeApp(firebaseConfig);
+
+const getActiveDatabaseId = () => {
+  if (typeof window !== 'undefined') {
+    const pref = localStorage.getItem("firestore_db_id");
+    if (pref === "default") return undefined;
+    if (pref) return pref;
+  }
+  return (firebaseConfig as any).firestoreDatabaseId || undefined;
+};
+
+const activeDbId = getActiveDatabaseId();
+
 // @ts-ignore - The property firestoreDatabaseId is a custom extension for the preview
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId); 
+export const db = getFirestore(app, activeDbId); 
 
 export const auth = initializeAuth(app, {
   persistence: [indexedDBLocalPersistence, browserLocalPersistence]

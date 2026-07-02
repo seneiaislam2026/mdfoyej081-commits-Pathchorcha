@@ -27,7 +27,7 @@ export default function SubjectFormat() {
       <div className="bg-card sticky top-0 z-50 border-b border-slate-100 shadow-sm px-4 py-3 flex items-center justify-center">
         <button 
           onClick={() => {
-            if (window.history.state && window.history.state.idx > 0) {
+            if (window.history.length > 1) {
               navigate(-1);
             } else {
               navigate("/bank");

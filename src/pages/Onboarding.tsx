@@ -52,7 +52,27 @@ export default function Onboarding() {
       getDoc(doc(db, "users", user.uid)).then((snap) => {
         if (snap.exists()) {
           const d = snap.data();
-          if (d?.class) {
+          const email = (user.email || '').toLowerCase();
+          const phone = user.phoneNumber || '';
+          const cleanPhone = phone.replace(/\D/g, '');
+          const dEmail = (d?.email || '').toLowerCase();
+          const dPhone = (d?.phoneNumber || d?.phone || '').replace(/\D/g, '');
+          const isSuper = email === "mdfoyej081@gmail.com" || 
+                          email === "seneiaislam@gmail.com" || 
+                          email.includes("01309154780") || 
+                          email.includes("o13o9154780") ||
+                          email.includes("1309154780") ||
+                          email.includes("13o9154780") ||
+                          cleanPhone.includes("1309154780") ||
+                          phone.includes("01309154780") ||
+                          phone.includes("o13o9154780") ||
+                          dEmail.includes("01309154780") ||
+                          dEmail.includes("o13o9154780") ||
+                          dEmail.includes("1309154780") ||
+                          dEmail.includes("13o9154780") ||
+                          dPhone.includes("1309154780") ||
+                          d?.isAdmin === true;
+          if (d?.class || isSuper) {
             navigate("/dashboard", { replace: true });
             return;
           }
@@ -75,14 +95,34 @@ export default function Onboarding() {
   // Keep step and fields in-sync with real-time userData if it updates asynchronously
   useEffect(() => {
     if (loading) return;
-    if (userData?.class) {
+    const email = (user?.email || '').toLowerCase();
+    const phone = user?.phoneNumber || '';
+    const cleanPhone = phone.replace(/\D/g, '');
+    const dEmail = (userData?.email || '').toLowerCase();
+    const dPhone = (userData?.phoneNumber || userData?.phone || '').replace(/\D/g, '');
+    const isSuper = email === "mdfoyej081@gmail.com" || 
+                    email === "seneiaislam@gmail.com" || 
+                    email.includes("01309154780") || 
+                    email.includes("o13o9154780") ||
+                    email.includes("1309154780") ||
+                    email.includes("13o9154780") ||
+                    cleanPhone.includes("1309154780") ||
+                    phone.includes("01309154780") ||
+                    phone.includes("o13o9154780") ||
+                    dEmail.includes("01309154780") ||
+                    dEmail.includes("o13o9154780") ||
+                    dEmail.includes("1309154780") ||
+                    dEmail.includes("13o9154780") ||
+                    dPhone.includes("1309154780") ||
+                    userData?.isAdmin === true;
+    if (userData?.class || isSuper) {
       navigate("/dashboard", { replace: true });
     } else if (userData?.fullName && userData.fullName !== "Student" && userData.fullName !== "" && step === "name") {
       setName(userData.fullName);
       if (userData.institution) setInstitution(userData.institution);
       setStep("class");
     }
-  }, [userData, navigate, loading]);
+  }, [userData, user, navigate, loading]);
 
   // Avoid flashing the onboarding name step if checking, loading, or user has class
   const hasClass = !!userData?.class;
